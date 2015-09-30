@@ -41,7 +41,7 @@ export class BlogController {
 
 }
 
-// and you need to require your controllers and register your actions in express application this way:
+// and you need to require controllers and register actions in express app:
 
 import {defaultActionRegistry} from "type-controllers/ActionRegistry";
 
@@ -58,7 +58,7 @@ If you want to include the directory with controllers do this:
 import {defaultActionRegistry} from "../../src/ActionRegistry";
 import {ControllerUtils} from "../../src/ControllerUtils";
 
-ControllerUtils.requireAll([__dirname + '/controllers']); // includes all controllers in the directory
+ControllerUtils.requireAll([__dirname + '/controllers']); // includes all controllers
 let app = express(); // create express application
 app.use(bodyParser.json()); // setup body parser
 defaultActionRegistry.registerActions(app); // register actions in the app
@@ -77,7 +77,8 @@ getAll(request: Request, response: Response) {
     ];
 }
 
-// its the same as request.send([{ id: 1, name: 'first blog' }, { id: 2, name: 'second blog' }]);
+// its the same as:
+// request.send([{ id: 1, name: 'first blog' }, { id: 2, name: 'second blog' }]);
 
 ```
 
@@ -91,8 +92,10 @@ getAll(request: Request, response: Response) {
     return SomeService.loadData();
 }
 
-// its the same as SomeService.loadData().then(result => request.send(result), 
-//                                             error => { request.status(500); request.send(error) });
+// its the same as SomeService.loadData().then(
+//     result => request.send(result),
+//     error  => { request.status(500); request.send(error) }
+// );
 
 ```
 
@@ -109,7 +112,10 @@ getAll( request: Request,
     // now you can use your parameters
 }
 
-// its the same as let requestBody = response.body, id = response.params.id, name = response.query.name; 
+// its the same as: 
+// let requestBody = response.body;
+// let id = response.params.id;
+// let name = response.query.name; 
 
 ```
 
