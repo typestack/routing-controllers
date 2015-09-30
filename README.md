@@ -41,7 +41,7 @@ export class BlogController {
 
 }
 
-// and you need to require your controllers and register your controller actions in express application this way:
+// and you need to require your controllers and register your actions in express application this way:
 
 import {defaultActionRegistry} from "type-controllers/ActionRegistry";
 
@@ -58,7 +58,7 @@ If you want to include the directory with controllers do this:
 import {defaultActionRegistry} from "../../src/ActionRegistry";
 import {ControllerUtils} from "../../src/ControllerUtils";
 
-ControllerUtils.requireAll([__dirname + '/controllers']); // includes all your controllers in the ./controller directory
+ControllerUtils.requireAll([__dirname + '/controllers']); // includes all controllers in the directory
 let app = express(); // create express application
 app.use(bodyParser.json()); // setup body parser
 defaultActionRegistry.registerActions(app); // register actions in the app
@@ -91,7 +91,8 @@ getAll(request: Request, response: Response) {
     return SomeService.loadData();
 }
 
-// its the same as SomeService.loadData().then(result => request.send(result), error => { request.status(500); request.send(error) });
+// its the same as SomeService.loadData().then(result => request.send(result), 
+//                                             error => { request.status(500); request.send(error) });
 
 ```
 
@@ -100,7 +101,11 @@ You can inject some common express params you may need right into the controller
 ```typescript
 
 @Get('/blogs/:id')
-getAll(request: Request, response: Response, @Body() requestBody, @Param('id') id: number, @QueryParam('name') name: string) {
+getAll( request: Request,
+        response: Response,
+        @Body() requestBody: any,
+        @Param('id') id: number,
+        @QueryParam('name') name: string) {
     // now you can use your parameters
 }
 
@@ -110,7 +115,7 @@ getAll(request: Request, response: Response, @Body() requestBody, @Param('id') i
 
 Take a look on samples in `./sample` for more examples of usages.
 
-## Todos (for contributors)
+## Todos
 
 * cover with tests
 * integration with other frameworks (other then express.js) can be easily added, so PRs are welcomed
