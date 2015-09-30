@@ -1,0 +1,29 @@
+### OS
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+### IDE
+
+.idea/
+
+### Project
+
+typings/
+node_modules/
+sample/**/*.js
+sample/**/*.d.ts
+sample/**/*.js.map
+src/**/*.js
+src/**/*.d.ts
+src/**/*.js.map
+npm-debug.log

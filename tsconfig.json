@@ -1,0 +1,14 @@
+{
+    "version": "1.6.2",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "noImplicitAny": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
