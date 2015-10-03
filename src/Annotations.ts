@@ -1,10 +1,8 @@
-/// <reference path="../node_modules/reflect-metadata/reflect-metadata.d.ts" />
-
 import 'reflect-metadata';
 import {defaultActionRegistry} from "./ActionRegistry";
-import {ActionTypes} from "../src/ActionMetadata";
-import {ControllerTypes} from "../src/ControllerMetadata";
-import {ExtraParamTypes} from "../src/ExtraParamMetadata";
+import {ActionTypes} from "./ActionMetadata";
+import {ControllerTypes} from "./ControllerMetadata";
+import {ExtraParamTypes} from "./ExtraParamMetadata";
 
 export function JsonController(path?: string) {
     return function (object: Function) {

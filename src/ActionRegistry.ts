@@ -1,13 +1,13 @@
-import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as express from 'express';
+import {Express} from "express";
+import {Response} from "express";
+import {Request} from "express";
 import {ControllerUtils} from './ControllerUtils';
 import {ControllerMetadata, ControllerTypes} from "./ControllerMetadata";
 import {ActionMetadata, ActionTypes} from "./ActionMetadata";
-import {Express} from "express";
 import {ExtraParamMetadata, ExtraParamTypes} from "./ExtraParamMetadata";
-import {Response} from "express";
-import {Request} from "express";
 
 /**
  * Registry for all controllers and actions.
@@ -103,7 +103,7 @@ export class ActionRegistry {
     }
 
     private handleAction(request: Request, response: Response, controller: ControllerMetadata, action: ActionMetadata, extraParams: ExtraParamMetadata[]) {
-        let controllerObject = this.container ? this.container.get(controller.object) : new (<any>controller.object)();
+        let controllerObject = this._container ? this._container.get(controller.object) : new (<any>controller.object)();
         let allParams = [request, response].concat(extraParams.sort((param1, param2) => param1.index - param2.index).map(param => this.handleParam(request, param)));
         let result = controllerObject[action.method].apply(controllerObject, allParams);
 

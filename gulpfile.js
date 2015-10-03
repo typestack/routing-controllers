@@ -18,10 +18,28 @@ gulp.task('compile', function() {
     return tsProject.src()
         .pipe(plumber())
         .pipe(ts(tsProject))
-        .js.pipe(gulp.dest('.'));
+        .js.pipe(gulp.dest('./built/es5'));
 });
 
-gulp.task('generate-dts', function () {
+gulp.task('tsd', function() {
+    return gulp.src('./')
+        .pipe(exec('./node_modules/.bin/tsd install'))
+        .pipe(exec('./node_modules/.bin/tsd rebundle'))
+        .pipe(exec('./node_modules/.bin/tsd link'))
+        .pipe(exec.reporter());
+});
+
+gulp.task('build-package-copy-src', function() {
+    return gulp.src('./built/es5/src/**/*')
+        .pipe(gulp.dest('./built/package'));
+});
+
+gulp.task('build-package-copy-package-json', function() {
+    return gulp.src('./package.json')
+        .pipe(gulp.dest('./built/package'));
+});
+
+gulp.task('build-package-generate-dts', function () {
     var name = require('./package.json').name;
     dtsGenerator.generate({
         name: name,
@@ -34,22 +52,25 @@ gulp.task('generate-dts', function () {
             './src/ControllerUtils.ts',
             './src/ExtraParamMetadata.ts'
         ],
-        out: './' + name + '.d.ts'
+        out: './built/package/' + name + '.d.ts'
     });
 });
 
-gulp.task('tsd', function() {
-    return gulp.src('./')
-        .pipe(exec('./node_modules/.bin/tsd install'))
-        .pipe(exec('./node_modules/.bin/tsd rebundle'))
-        .pipe(exec.reporter());
-});
-
-gulp.task('default', function(cb) {
+gulp.task('build', function(cb) {
     return runSequence(
         'clean',
         'tsd',
-        ['compile', 'generate-dts'],
+        'compile',
         cb
     );
 });
+
+gulp.task('package', function(cb) {
+    return runSequence(
+        'build',
+        ['build-package-copy-src', 'build-package-copy-package-json', 'build-package-generate-dts'],
+        cb
+    );
+});
+
+gulp.task('default', ['build']);

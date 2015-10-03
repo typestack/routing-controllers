@@ -1,6 +1,6 @@
 {
   "name": "type-controllers",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Allows to use controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
@@ -23,6 +23,9 @@
     "controllers"
   ],
   "typings": "./type-controllers.d.ts",
+  "typescript": {
+    "definition": "type-controllers.d.ts"
+  },
   "dependencies": {
     "reflect-metadata": "0.1.2",
     "express": "^4.12.3",
@@ -40,5 +43,8 @@
     "dts-generator": "^1.5.0",
     "del": "^2.0.2",
     "body-parser": "^1.12.3"
+  },
+  "scripts": {
+    "postversion": "./node_modules/.bin/gulp package"
   }
 }
