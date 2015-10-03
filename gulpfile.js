@@ -34,8 +34,8 @@ gulp.task('build-package-copy-src', function() {
         .pipe(gulp.dest('./built/package'));
 });
 
-gulp.task('build-package-copy-package-json', function() {
-    return gulp.src('./package.json')
+gulp.task('build-package-copy-files', function() {
+    return gulp.src(['./package.json', './README.md'])
         .pipe(gulp.dest('./built/package'));
 });
 
@@ -68,7 +68,7 @@ gulp.task('build', function(cb) {
 gulp.task('package', function(cb) {
     return runSequence(
         'build',
-        ['build-package-copy-src', 'build-package-copy-package-json', 'build-package-generate-dts'],
+        ['build-package-copy-src', 'build-package-copy-files', 'build-package-generate-dts'],
         cb
     );
 });
