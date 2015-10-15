@@ -8,6 +8,7 @@ import {ControllerUtils} from './ControllerUtils';
 import {ControllerMetadata, ControllerTypes} from "./ControllerMetadata";
 import {ActionMetadata, ActionTypes} from "./ActionMetadata";
 import {ExtraParamMetadata, ExtraParamTypes} from "./ExtraParamMetadata";
+import {JsonParameterParseException} from "./exception/ParameterParseException";
 
 /**
  * Registry for all controllers and actions.
@@ -131,14 +132,19 @@ export class ActionRegistry {
         let formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : '';
         switch (formatName.toLowerCase()) {
             case 'number':
-                return Number(value);
+                return +value;
             case 'string':
-                return String(value);
+                return value;
             case 'boolean':
-                return Boolean(value);
+                return !!value;
             default:
-                if (extraParam.parseJson)
-                    return JSON.parse(value);
+                if (extraParam.parseJson) {
+                    try {
+                        value = JSON.parse(value);
+                    } catch (er) {
+                        throw new JsonParameterParseException(extraParam.name, value);
+                    }
+                }
         }
         return value;
     }

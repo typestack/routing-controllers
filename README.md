@@ -9,7 +9,7 @@ Simply create a class and put annotations on its methods:
 
 ```typescript
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete} from "type-controllers/Annotations";
+import {Controller, Get, Post, Put, Patch, Delete} from "t-controllers/Annotations";
 
 @Controller()
 export class BlogController {
@@ -43,7 +43,7 @@ export class BlogController {
 
 // and you need to require controllers and register actions in express app:
 
-import {defaultActionRegistry} from "type-controllers/ActionRegistry";
+import {defaultActionRegistry} from "t-controllers/ActionRegistry";
 
 require('./BlogController'); // require your controller
 let app = express(); // create express application
@@ -55,8 +55,8 @@ app.listen(3000); // run express app
 If you want to include the directory with controllers do this:
 
 ```typescript
-import {defaultActionRegistry} from "../../src/ActionRegistry";
-import {ControllerUtils} from "../../src/ControllerUtils";
+import {defaultActionRegistry} from "t-controllers/ActionRegistry";
+import {ControllerUtils} from "t-controllers/ControllerUtils";
 
 ControllerUtils.requireAll([__dirname + '/controllers']); // includes all controllers
 let app = express(); // create express application

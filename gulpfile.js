@@ -4,7 +4,7 @@ var del = require('del');
 var plumber = require('gulp-plumber');
 var ts = require('gulp-typescript');
 var dtsGenerator = require('dts-generator');
-var exec = require('gulp-exec');
+var shell = require('gulp-shell');
 
 gulp.task('clean', function (cb) {
     return del(['./built/**'], cb);
@@ -22,11 +22,12 @@ gulp.task('compile', function() {
 });
 
 gulp.task('tsd', function() {
-    return gulp.src('./')
-        .pipe(exec('./node_modules/.bin/tsd install'))
-        .pipe(exec('./node_modules/.bin/tsd rebundle'))
-        .pipe(exec('./node_modules/.bin/tsd link'))
-        .pipe(exec.reporter());
+    return gulp.src('*.js', { read: false })
+        .pipe(shell([
+            './node_modules/.bin/tsd install',
+            './node_modules/.bin/tsd rebundle',
+            './node_modules/.bin/tsd link'
+        ]));
 });
 
 gulp.task('build-package-copy-src', function() {
