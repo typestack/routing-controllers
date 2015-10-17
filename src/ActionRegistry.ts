@@ -119,7 +119,6 @@ export class ActionRegistry {
         switch (extraParam.type) {
             case ExtraParamTypes.BODY:
                 value = this.handleParamFormat(request.body, extraParam);
-                console.log(value);
                 break;
             case ExtraParamTypes.PARAM:
                 value = this.handleParamFormat(request.params[extraParam.name], extraParam);
