@@ -33,6 +33,7 @@ export class ControllerUtils {
 
         }, (error: any) => {
             console.error(error);
+            console.error(error.stack);
             response.status(500);
             response.send(error);
 
@@ -45,6 +46,7 @@ export class ControllerUtils {
 
         }, (error: any) => {
             console.error(error);
+            console.error(error.stack);
             response.status(500);
             response.send(error);
 
