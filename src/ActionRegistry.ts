@@ -10,6 +10,7 @@ import {ActionMetadata, ActionTypes} from "./ActionMetadata";
 import {ExtraParamMetadata, ExtraParamTypes} from "./ExtraParamMetadata";
 import {JsonParameterParseException} from "./exception/ParameterParseException";
 import {ParameterRequiredException} from "./exception/ParameterRequiredException";
+import {BodyRequiredException} from "./exception/BodyRequiredException";
 
 /**
  * Registry for all controllers and actions.
@@ -134,7 +135,11 @@ export class ActionRegistry {
         }
 
         if (extraParam.isRequired && (value === null || value === undefined)) {
-            throw new ParameterRequiredException(request.url, request.method, extraParam.name);
+            if (extraParam.name) {
+                throw new ParameterRequiredException(request.url, request.method, extraParam.name);
+            } else {
+                throw new BodyRequiredException(request.url, request.method);
+            }
         }
 
         return value;
