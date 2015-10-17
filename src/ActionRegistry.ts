@@ -8,7 +8,7 @@ import {ControllerUtils} from './ControllerUtils';
 import {ControllerMetadata, ControllerTypes} from "./ControllerMetadata";
 import {ActionMetadata, ActionTypes} from "./ActionMetadata";
 import {ExtraParamMetadata, ExtraParamTypes} from "./ExtraParamMetadata";
-import {JsonParameterParseException} from "./exception/ParameterParseException";
+import {ParameterParseJsonException} from "./exception/ParameterParseJsonException";
 import {ParameterRequiredException} from "./exception/ParameterRequiredException";
 import {BodyRequiredException} from "./exception/BodyRequiredException";
 
@@ -156,11 +156,11 @@ export class ActionRegistry {
             case 'boolean':
                 return !!value;
             default:
-                if (extraParam.parseJson) {
+                if (value && extraParam.parseJson) {
                     try {
                         value = JSON.parse(value);
                     } catch (er) {
-                        throw new JsonParameterParseException(extraParam.name, value);
+                        throw new ParameterParseJsonException(extraParam.name, value);
                     }
                 }
         }
