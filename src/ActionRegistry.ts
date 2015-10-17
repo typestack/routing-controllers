@@ -119,6 +119,7 @@ export class ActionRegistry {
         switch (extraParam.type) {
             case ExtraParamTypes.BODY:
                 value = this.handleParamFormat(request.body, extraParam);
+                console.log(value);
                 break;
             case ExtraParamTypes.PARAM:
                 value = this.handleParamFormat(request.params[extraParam.name], extraParam);
@@ -134,12 +135,10 @@ export class ActionRegistry {
                 break;
         }
 
-        if (extraParam.isRequired && (value === null || value === undefined)) {
-            if (extraParam.name) {
-                throw new ParameterRequiredException(request.url, request.method, extraParam.name);
-            } else {
-                throw new BodyRequiredException(request.url, request.method);
-            }
+        if (extraParam.name && extraParam.isRequired && (value === null || value === undefined)) {
+            throw new ParameterRequiredException(request.url, request.method, extraParam.name);
+        } else if (!extraParam.name && extraParam.isRequired && (value === null || value === undefined || (value instanceof Object && Object.keys(value).length === 0))) {
+            throw new BodyRequiredException(request.url, request.method);
         }
 
         return value;
