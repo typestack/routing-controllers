@@ -9,6 +9,7 @@ import {ControllerMetadata, ControllerTypes} from "./ControllerMetadata";
 import {ActionMetadata, ActionTypes} from "./ActionMetadata";
 import {ExtraParamMetadata, ExtraParamTypes} from "./ExtraParamMetadata";
 import {JsonParameterParseException} from "./exception/ParameterParseException";
+import {ParameterRequiredException} from "./exception/ParameterRequiredException";
 
 /**
  * Registry for all controllers and actions.
@@ -113,18 +114,30 @@ export class ActionRegistry {
     }
 
     private handleParam(request: Request, extraParam: ExtraParamMetadata): any {
+        let value: any;
         switch (extraParam.type) {
             case ExtraParamTypes.BODY:
-                return this.handleParamFormat(request.body, extraParam);
+                value = this.handleParamFormat(request.body, extraParam);
+                break;
             case ExtraParamTypes.PARAM:
-                return this.handleParamFormat(request.params[extraParam.name], extraParam);
+                value = this.handleParamFormat(request.params[extraParam.name], extraParam);
+                break;
             case ExtraParamTypes.QUERY:
-                return this.handleParamFormat(request.query[extraParam.name], extraParam);
+                value = this.handleParamFormat(request.query[extraParam.name], extraParam);
+                break;
             case ExtraParamTypes.BODY_PARAM:
-                return this.handleParamFormat(request.body[extraParam.name], extraParam);
+                value = this.handleParamFormat(request.body[extraParam.name], extraParam);
+                break;
             case ExtraParamTypes.COOKIE:
-                return this.handleParamFormat(request.cookies[extraParam.name], extraParam);
+                value = this.handleParamFormat(request.cookies[extraParam.name], extraParam);
+                break;
         }
+
+        if (extraParam.isRequired && (value === null || value === undefined)) {
+            throw new ParameterRequiredException(request.url, request.method, extraParam.name);
+        }
+
+        return value;
     }
 
     private handleParamFormat(value: any, extraParam: ExtraParamMetadata) {

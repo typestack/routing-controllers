@@ -11,7 +11,7 @@ interface BlogFilter {
 export class BlogController {
 
     @Get('/blogs')
-    getAll(request: Request, response: Response, @QueryParam('filter', true) filter: BlogFilter) {
+    getAll(request: Request, response: Response, @QueryParam('filter', { required: true, parseJson: true }) filter: BlogFilter) {
         console.log(filter.keyword);
         return [
             { id: 1, name: 'Blog 1!'},

@@ -6,6 +6,7 @@ export interface ExtraParamMetadata {
     name?: string;
     format?: any;
     parseJson: boolean;
+    isRequired: boolean;
 }
 
 export enum ExtraParamTypes {
@@ -14,4 +15,9 @@ export enum ExtraParamTypes {
     BODY_PARAM = 3,
     PARAM = 4,
     COOKIE = 5
+}
+
+export interface ExtraParamOptions {
+    required: boolean;
+    parseJson: boolean;
 }
