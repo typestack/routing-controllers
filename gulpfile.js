@@ -3,7 +3,6 @@ var runSequence = require('run-sequence');
 var del = require('del');
 var plumber = require('gulp-plumber');
 var ts = require('gulp-typescript');
-var dtsGenerator = require('dts-generator');
 var shell = require('gulp-shell');
 
 gulp.task('clean', function (cb) {
@@ -41,18 +40,28 @@ gulp.task('build-package-copy-files', function() {
 });
 
 gulp.task('build-package-generate-dts', function () {
+    var fs = require('fs');
+    function getFiles (dir, files){
+        files = files || [];
+        var filesInDir = fs.readdirSync(dir);
+        for (var i in filesInDir){
+            var name = dir + '/' + filesInDir[i];
+            if (fs.statSync(name).isDirectory()){
+                getFiles(name, files);
+            } else {
+                files.push(name);
+            }
+        }
+        return files;
+    }
+
+    var dtsGenerator = require('dts-generator');
     var name = require('./package.json').name;
+    var files = getFiles('./src');
     dtsGenerator.generate({
         name: name,
         baseDir: './src',
-        files: [
-            './src/ActionMetadata.ts',
-            './src/ActionRegistry.ts',
-            './src/Annotations.ts',
-            './src/ControllerMetadata.ts',
-            './src/ControllerUtils.ts',
-            './src/ExtraParamMetadata.ts'
-        ],
+        files: files,
         out: './built/package/' + name + '.d.ts'
     });
 });
