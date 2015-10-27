@@ -29,7 +29,8 @@ export class ControllerUtils {
 
     static jsonResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
         return promise.then((result: any) => {
-            response.json(result);
+            if (result !== null && result !== undefined)
+                response.json(result);
 
         }, (error: any) => {
             console.error(error);
@@ -37,12 +38,23 @@ export class ControllerUtils {
             response.status(500);
             response.send(error);
 
+
+            // todo: implement custom error catchers
+            //this._errorCatcher = (error: any) => {
+            //    if (this.configuration.debugMode) {
+            //        console.log(error.stack ? error.stack : error);
+            //    } else {
+            //        console.log(error.message ? error.message : error);
+            //    }
+            //};
+
         });
     }
 
     static regularResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
         return promise.then((result: any) => {
-            response.send(result);
+            if (result !== null && result !== undefined)
+                response.send(result);
 
         }, (error: any) => {
             console.error(error);

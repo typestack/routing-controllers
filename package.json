@@ -1,6 +1,6 @@
 {
   "name": "t-controllers",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Allows to use controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
