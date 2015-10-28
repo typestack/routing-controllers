@@ -18,6 +18,6 @@ export enum ExtraParamTypes {
 }
 
 export interface ExtraParamOptions {
-    required: boolean;
-    parseJson: boolean;
+    required?: boolean;
+    parseJson?: boolean;
 }

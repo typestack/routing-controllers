@@ -183,7 +183,7 @@ export class ActionRegistry {
                     ControllerUtils.regularResponseFromPromise(response, result);
                 } else {
                     if (result !== null && result !== undefined) {
-                        response.send(result);
+                        response.send(String(result));
                     } else {
                         response.end();
                     }

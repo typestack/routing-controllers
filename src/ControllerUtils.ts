@@ -60,7 +60,7 @@ export class ControllerUtils {
     static regularResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
         return promise.then((result: any) => {
             if (result !== null && result !== undefined) {
-                response.send(result);
+                response.send(String(result));
             } else {
                 response.end();
             }
