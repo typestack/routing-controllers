@@ -29,14 +29,20 @@ export class ControllerUtils {
 
     static jsonResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
         return promise.then((result: any) => {
-            if (result !== null && result !== undefined)
+            if (result !== null && result !== undefined) {
                 response.json(result);
+            } else {
+                response.end();
+            }
 
         }, (error: any) => {
-            console.error(error);
-            console.error(error.stack);
-            response.status(500);
-            response.send(error);
+            if (error) {
+                console.error(error.stack ? error.stack : error);
+                response.status(500);
+                response.json(error);
+            } else {
+                response.end();
+            }
 
 
             // todo: implement custom error catchers
@@ -53,14 +59,21 @@ export class ControllerUtils {
 
     static regularResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
         return promise.then((result: any) => {
-            if (result !== null && result !== undefined)
+            if (result !== null && result !== undefined) {
                 response.send(result);
+            } else {
+                response.end();
+            }
 
         }, (error: any) => {
-            console.error(error);
-            console.error(error.stack);
-            response.status(500);
-            response.send(error);
+
+            if (error) {
+                console.error(error.stack ? error.stack : error);
+                response.status(500);
+                response.send(error);
+            } else {
+                response.end();
+            }
 
         });
     }

@@ -168,17 +168,26 @@ export class ActionRegistry {
     private handleResult(controller: ControllerMetadata, response: Response, result: any) {
         switch (controller.type) {
             case ControllerTypes.JSON:
-                if (result.then instanceof Function && result.catch instanceof Function)
+                if (result.then instanceof Function && result.catch instanceof Function) {
                     ControllerUtils.jsonResponseFromPromise(response, result);
-                else
-                    response.json(result);
+                } else {
+                    if (result !== null && result !== undefined) {
+                        response.json(result);
+                    } else {
+                        response.end();
+                    }
+                }
                 break;
             default:
-                if (result.then instanceof Function && result.catch instanceof Function)
+                if (result.then instanceof Function && result.catch instanceof Function) {
                     ControllerUtils.regularResponseFromPromise(response, result);
-                else
-                    response.send(result);
-
+                } else {
+                    if (result !== null && result !== undefined) {
+                        response.send(result);
+                    } else {
+                        response.end();
+                    }
+                }
         }
     }
 
