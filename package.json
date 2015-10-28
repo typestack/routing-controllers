@@ -1,6 +1,6 @@
 {
-  "name": "t-controllers",
-  "version": "0.0.7",
+  "name": "controllers.ts",
+  "version": "0.0.8",
   "description": "Allows to use controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PLEEROCK/t-controllers.git"
+    "url": "https://github.com/PLEEROCK/controllers.ts.git"
   },
   "bugs": {
-    "url": "https://github.com/PLEEROCK/t-controllers/issues"
+    "url": "https://github.com/PLEEROCK/controllers.ts/issues"
   },
   "tags": [
     "express",
@@ -22,9 +22,9 @@
     "express-controllers",
     "controllers"
   ],
-  "typings": "./t-controllers.d.ts",
+  "typings": "./controllers.ts.d.ts",
   "typescript": {
-    "definition": "t-controllers.d.ts"
+    "definition": "controllers.ts.d.ts"
   },
   "dependencies": {
     "reflect-metadata": "0.1.2",

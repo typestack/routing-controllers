@@ -21,9 +21,6 @@
     "sinon/sinon.d.ts": {
       "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
-    "mockery/mockery.d.ts": {
-      "commit": "6f6e5c7dd9effe21fee14eb65fe340ecbbc8580a"
-    },
     "express/express.d.ts": {
       "commit": "f3244190e20af6901e865f4cc58127d19216baa1"
     },
