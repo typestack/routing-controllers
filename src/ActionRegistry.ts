@@ -25,6 +25,7 @@ export class ActionRegistry {
     private controllers: ControllerMetadata[] = [];
     private actions: ActionMetadata[] = [];
     private extraParams: ExtraParamMetadata[] = [];
+    private _isLogErrorsEnabled = true;
 
     // -------------------------------------------------------------------------
     // Accessors
@@ -36,6 +37,10 @@ export class ActionRegistry {
      */
     set container(container: { get(someClass: any): any }) {
         this._container = container;
+    }
+
+    set isLogErrorsEnabled(isEnabled: boolean) {
+        this._isLogErrorsEnabled = isEnabled;
     }
 
     // -------------------------------------------------------------------------
@@ -169,7 +174,7 @@ export class ActionRegistry {
         switch (controller.type) {
             case ControllerTypes.JSON:
                 if (result.then instanceof Function && result.catch instanceof Function) {
-                    ControllerUtils.jsonResponseFromPromise(response, result);
+                    this.jsonResponseFromPromise(response, result);
                 } else {
                     if (result !== null && result !== undefined) {
                         response.json(result);
@@ -180,7 +185,7 @@ export class ActionRegistry {
                 break;
             default:
                 if (result.then instanceof Function && result.catch instanceof Function) {
-                    ControllerUtils.regularResponseFromPromise(response, result);
+                    this.regularResponseFromPromise(response, result);
                 } else {
                     if (result !== null && result !== undefined) {
                         response.send(String(result));
@@ -195,6 +200,59 @@ export class ActionRegistry {
         controllerClasses = controllerClasses ? ControllerUtils.flattenRequiredObjects(controllerClasses) : null;
         return !controllerClasses ? this.controllers : this.controllers.filter(ctrl => {
             return controllerClasses.filter(cls => ctrl.object === cls).length > 0;
+        });
+    }
+
+    private jsonResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
+        return promise.then((result: any) => {
+            if (result !== null && result !== undefined) {
+                response.json(result);
+            } else {
+                response.end();
+            }
+
+        }, (error: any) => {
+            if (error) {
+                if (this._isLogErrorsEnabled)
+                    console.error(error.stack ? error.stack : error);
+                response.status(500);
+                response.json(error);
+            } else {
+                response.end();
+            }
+
+
+            // todo: implement custom error catchers
+            //this._errorCatcher = (error: any) => {
+            //    if (this.configuration.debugMode) {
+            //        console.log(error.stack ? error.stack : error);
+            //    } else {
+            //        console.log(error.message ? error.message : error);
+            //    }
+            //};
+
+        });
+    }
+
+    private regularResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
+        return promise.then((result: any) => {
+            if (result !== null && result !== undefined) {
+                response.send(String(result));
+            } else {
+                response.end();
+            }
+
+        }, (error: any) => {
+
+            if (error) {
+                if (this._isLogErrorsEnabled)
+                    console.error(error.stack ? error.stack : error);
+                response.status(500);
+                response.send(error);
+            } else {
+                response.end();
+            }
+
         });
     }
 

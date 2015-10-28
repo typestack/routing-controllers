@@ -27,57 +27,6 @@ export class ControllerUtils {
         return files;
     }
 
-    static jsonResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
-        return promise.then((result: any) => {
-            if (result !== null && result !== undefined) {
-                response.json(result);
-            } else {
-                response.end();
-            }
-
-        }, (error: any) => {
-            if (error) {
-                console.error(error.stack ? error.stack : error);
-                response.status(500);
-                response.json(error);
-            } else {
-                response.end();
-            }
-
-
-            // todo: implement custom error catchers
-            //this._errorCatcher = (error: any) => {
-            //    if (this.configuration.debugMode) {
-            //        console.log(error.stack ? error.stack : error);
-            //    } else {
-            //        console.log(error.message ? error.message : error);
-            //    }
-            //};
-
-        });
-    }
-
-    static regularResponseFromPromise(response: Response, promise: { then(result: any, error: any): any }) {
-        return promise.then((result: any) => {
-            if (result !== null && result !== undefined) {
-                response.send(String(result));
-            } else {
-                response.end();
-            }
-
-        }, (error: any) => {
-
-            if (error) {
-                console.error(error.stack ? error.stack : error);
-                response.status(500);
-                response.send(error);
-            } else {
-                response.end();
-            }
-
-        });
-    }
-
     static flattenRequiredObjects(requiredObjects: any[]) {
         return requiredObjects.reduce((allObjects, objects) => {
             return allObjects.concat(Object.keys(objects).map(key => objects[key]));
