@@ -1,11 +1,12 @@
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete} from "../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Req} from "../../src/Annotations";
+import {NotFoundError} from "../../src/error/http/NotFoundError";
 
-@Controller()
+@JsonController()
 export class BlogController {
 
     @Get('/blogs')
-    getAll(request: Request, response: Response/*, @Body() body: any, @GetParam('hello') hello: string, @PostParam('yo') yo: string*/) {
+    getAll() {
         return this.createPromise([
             { id: 1, name: 'Blog 1!'},
             { id: 2, name: 'Blog 2!'},
@@ -13,28 +14,28 @@ export class BlogController {
     }
 
     @Get('/blogs/:id')
-    getOne(request: Request, response: Response) {
+    getOne() {
         return this.createPromise({ id: 1, name: 'Blog 1!'}, 3000);
     }
 
     @Post('/blogs')
-    post(request: Request, response: Response) {
+    post(@Req() request: Request) {
         let blog = JSON.stringify(request.body);
         return this.createPromise('Blog ' + blog + ' !saved!', 3000);
     }
 
     @Put('/blogs/:id')
-    put(request: Request, response: Response) {
+    put(@Req() request: Request) {
         return this.createPromise('Blog #' + request.params.id + ' has been putted!', 3000);
     }
 
     @Patch('/blogs/:id')
-    patch(request: Request, response: Response) {
+    patch(@Req() request: Request) {
         return this.createPromise('Blog #' + request.params.id + ' has been patched!', 3000);
     }
 
     @Delete('/blogs/:id')
-    remove(request: Request, response: Response) {
+    remove(@Req() request: Request) {
         return this.createPromise('Blog #' + request.params.id + ' has been removed!', 3000);
     }
 

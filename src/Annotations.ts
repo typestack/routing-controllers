@@ -1,55 +1,141 @@
 import 'reflect-metadata';
-import {defaultActionRegistry} from "./ActionRegistry";
-import {ActionTypes} from "./ActionMetadata";
-import {ControllerTypes} from "./ControllerMetadata";
-import {ExtraParamTypes} from "./ExtraParamMetadata";
-import {ExtraParamOptions} from "./ExtraParamMetadata";
+import {defaultMetadataStorage} from "./metadata/MetadataStorage";
+import {ActionType} from "./metadata/ActionMetadata";
+import {HttpCodeType} from "./metadata/HttpCodeMetadata";
+import {ControllerType} from "./metadata/ControllerMetadata";
+import {ParamType, ParamOptions} from "./metadata/ParamMetadata";
+import {ActionOptions} from "./metadata/ActionMetadata";
+
+export function SuccessHttpCode(code: number) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addHttpCodeMetadata({
+            code: code,
+            object: object,
+            method: methodName,
+            type: HttpCodeType.SUCCESS
+        });
+    }
+}
 
 export function JsonController(path?: string) {
     return function (object: Function) {
-        defaultActionRegistry.addController({ path: path, object: object, type: ControllerTypes.JSON });
+        defaultMetadataStorage.addControllerMetadata({
+            path: path,
+            object: object,
+            type: ControllerType.JSON
+        });
     }
 }
 
 export function Controller(path?: string) {
     return function (object: Function) {
-        defaultActionRegistry.addController({ path: path, object: object, type: ControllerTypes.DEFAULT });
+        defaultMetadataStorage.addControllerMetadata({
+            path: path,
+            object: object,
+            type: ControllerType.DEFAULT
+        });
     }
 }
 
-export function Get(path?: string) {
+export function Get(path?: string, options?: ActionOptions) {
     return function (object: Object, methodName: string) {
-        defaultActionRegistry.addAction({ path: path, object: object, method: methodName, type: ActionTypes.GET });
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.GET,
+            options: options
+        });
     }
 }
 
-export function Post(path?: string) {
+export function Post(path?: string, options?: ActionOptions) {
     return function (object: Object, methodName: string) {
-        defaultActionRegistry.addAction({ path: path, object: object, method: methodName, type: ActionTypes.POST });
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.POST,
+            options: options
+        });
     }
 }
 
-export function Put(path?: string) {
+export function Put(path?: string, options?: ActionOptions) {
     return function (object: Object, methodName: string) {
-        defaultActionRegistry.addAction({ path: path, object: object, method: methodName, type: ActionTypes.PUT });
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.PUT,
+            options: options
+        });
     }
 }
 
-export function Patch(path?: string) {
+export function Patch(path?: string, options?: ActionOptions) {
     return function (object: Object, methodName: string) {
-        defaultActionRegistry.addAction({ path: path, object: object, method: methodName, type: ActionTypes.PATCH });
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.PATCH,
+            options: options
+        });
     }
 }
 
-export function Delete(path?: string) {
+export function Delete(path?: string, options?: ActionOptions) {
     return function (object: Object, methodName: string) {
-        defaultActionRegistry.addAction({ path: path, object: object, method: methodName, type: ActionTypes.DELETE });
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.DELETE,
+            options: options
+        });
     }
 }
 
-export function Body(options: ExtraParamOptions): Function;
+export function Head(path?: string, options?: ActionOptions) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.HEAD,
+            options: options
+        });
+    }
+}
+
+export function Options(path?: string, options?: ActionOptions) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: ActionType.OPTIONS,
+            options: options
+        });
+    }
+}
+
+export function Method(method: string, path?: string, options?: ActionOptions) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addActionMetadata({
+            path: path,
+            object: object,
+            method: methodName,
+            type: method,
+            options: options
+        });
+    }
+}
+
+export function Body(options: ParamOptions): Function;
 export function Body(required?: boolean, parseJson?: boolean): Function;
-export function Body(requiredOrOptions: ExtraParamOptions|boolean, parseJson?: boolean) {
+export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
     if (typeof requiredOrOptions === 'object') {
         required = requiredOrOptions.required;
@@ -60,11 +146,11 @@ export function Body(requiredOrOptions: ExtraParamOptions|boolean, parseJson?: b
 
     return function (object: Object, methodName: string, index: number) {
         let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
-        defaultActionRegistry.addExtraParam({
+        defaultMetadataStorage.addParamMetadata({
             object: object,
             methodName: methodName,
             index: index,
-            type: ExtraParamTypes.BODY,
+            type: ParamType.BODY,
             format: format,
             parseJson: parseJson,
             isRequired: required
@@ -72,9 +158,9 @@ export function Body(requiredOrOptions: ExtraParamOptions|boolean, parseJson?: b
     }
 }
 
-export function Param(name: string, options: ExtraParamOptions): Function;
+export function Param(name: string, options: ParamOptions): Function;
 export function Param(name: string, required?: boolean, parseJson?: boolean): Function;
-export function Param(name: string, requiredOrOptions: ExtraParamOptions|boolean, parseJson?: boolean) {
+export function Param(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
     if (typeof requiredOrOptions === 'object') {
         required = requiredOrOptions.required;
@@ -85,11 +171,11 @@ export function Param(name: string, requiredOrOptions: ExtraParamOptions|boolean
 
     return function (object: Object, methodName: string, index: number) {
         let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
-        defaultActionRegistry.addExtraParam({
+        defaultMetadataStorage.addParamMetadata({
             object: object,
             methodName: methodName,
             index: index,
-            type: ExtraParamTypes.PARAM,
+            type: ParamType.PARAM,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -98,9 +184,9 @@ export function Param(name: string, requiredOrOptions: ExtraParamOptions|boolean
     }
 }
 
-export function QueryParam(name: string, options: ExtraParamOptions): Function;
+export function QueryParam(name: string, options: ParamOptions): Function;
 export function QueryParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function QueryParam(name: string, requiredOrOptions: ExtraParamOptions|boolean, parseJson?: boolean) {
+export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
     if (typeof requiredOrOptions === 'object') {
         required = requiredOrOptions.required;
@@ -111,11 +197,11 @@ export function QueryParam(name: string, requiredOrOptions: ExtraParamOptions|bo
 
     return function (object: Object, methodName: string, index: number) {
         let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
-        defaultActionRegistry.addExtraParam({
+        defaultMetadataStorage.addParamMetadata({
             object: object,
             methodName: methodName,
             index: index,
-            type: ExtraParamTypes.QUERY,
+            type: ParamType.QUERY,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -124,9 +210,9 @@ export function QueryParam(name: string, requiredOrOptions: ExtraParamOptions|bo
     }
 }
 
-export function BodyParam(name: string, options: ExtraParamOptions): Function;
+export function BodyParam(name: string, options: ParamOptions): Function;
 export function BodyParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function BodyParam(name: string, requiredOrOptions: ExtraParamOptions|boolean, parseJson?: boolean) {
+export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
     if (typeof requiredOrOptions === 'object') {
         required = requiredOrOptions.required;
@@ -137,11 +223,11 @@ export function BodyParam(name: string, requiredOrOptions: ExtraParamOptions|boo
 
     return function (object: Object, methodName: string, index: number) {
         let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
-        defaultActionRegistry.addExtraParam({
+        defaultMetadataStorage.addParamMetadata({
             object: object,
             methodName: methodName,
             index: index,
-            type: ExtraParamTypes.BODY_PARAM,
+            type: ParamType.BODY_PARAM,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -150,9 +236,9 @@ export function BodyParam(name: string, requiredOrOptions: ExtraParamOptions|boo
     }
 }
 
-export function CookieParam(name: string, options: ExtraParamOptions): Function;
+export function CookieParam(name: string, options: ParamOptions): Function;
 export function CookieParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function CookieParam(name: string, requiredOrOptions: ExtraParamOptions|boolean, parseJson?: boolean) {
+export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
     if (typeof requiredOrOptions === 'object') {
         required = requiredOrOptions.required;
@@ -163,15 +249,41 @@ export function CookieParam(name: string, requiredOrOptions: ExtraParamOptions|b
 
     return function (object: Object, methodName: string, index: number) {
         let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
-        defaultActionRegistry.addExtraParam({
+        defaultMetadataStorage.addParamMetadata({
             object: object,
             methodName: methodName,
             index: index,
-            type: ExtraParamTypes.COOKIE,
+            type: ParamType.COOKIE,
             name: name,
             format: format,
             parseJson: parseJson,
             isRequired: required
+        });
+    }
+}
+
+export function Req() {
+    return function (object: Object, methodName: string, index: number) {
+        defaultMetadataStorage.addParamMetadata({
+            object: object,
+            methodName: methodName,
+            index: index,
+            type: ParamType.REQUEST,
+            parseJson: false,
+            isRequired: false
+        });
+    }
+}
+
+export function Res() {
+    return function (object: Object, methodName: string, index: number) {
+        defaultMetadataStorage.addParamMetadata({
+            object: object,
+            methodName: methodName,
+            index: index,
+            type: ParamType.RESPONSE,
+            parseJson: false,
+            isRequired: false
         });
     }
 }

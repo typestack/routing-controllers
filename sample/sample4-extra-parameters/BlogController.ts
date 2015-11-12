@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Annotations";
 
 interface BlogFilter {
     keyword: string;
@@ -7,11 +7,11 @@ interface BlogFilter {
     offset: number;
 }
 
-@Controller()
+@JsonController()
 export class BlogController {
 
     @Get('/blogs')
-    getAll(request: Request, response: Response, @QueryParam('filter', { required: true, parseJson: true }) filter: BlogFilter) {
+    getAll(@QueryParam('filter', { required: true, parseJson: true }) filter: BlogFilter) {
         console.log(filter.keyword);
         return [
             { id: 1, name: 'Blog 1!'},
@@ -20,27 +20,27 @@ export class BlogController {
     }
 
     @Get('/blogs/:id')
-    getOne(request: Request, response: Response, @Param('id') id: number, @QueryParam('name') name: string) {
+    getOne(@Param('id') id: number, @QueryParam('name') name: string) {
         return { id: id, name: name };
     }
 
     @Post('/blogs')
-    post(request: Request, response: Response, @Body() blog: any) {
+    post(@Body() blog: any) {
         return 'Blog ' + JSON.stringify(blog) + ' !saved!';
     }
 
     @Put('/blogs/:id')
-    put(request: Request, response: Response, @Param('id') id: number) {
+    put(@Param('id') id: number) {
         return 'Blog #' + id + ' has been putted!';
     }
 
     @Patch('/blogs/:id')
-    patch(request: Request, response: Response, @Param('id') id: number) {
+    patch(@Param('id') id: number) {
         return 'Blog #' + id + ' has been patched!';
     }
 
     @Delete('/blogs/:id')
-    remove(request: Request, response: Response, @Param('id') id: number) {
+    remove(@Param('id') id: number) {
         return 'Blog #' + id + ' has been removed!';
     }
 

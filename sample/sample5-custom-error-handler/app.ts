@@ -10,7 +10,16 @@ let app = express(); // create express server
 app.use(bodyParser.json()); // setup body parser
 
 let controllerHandler = new ControllerRunner(new ExpressHttpFramework(app));
+controllerHandler.errorOverridingsMap = {
+    "ForbiddenError": {
+        "message": "Access is denied"
+    },
+    "ValidationError": {
+        "httpCode": "400",
+        "message": "Oops, Validation failed."
+    }
+};
 controllerHandler.registerAllActions(); // register actions in the app
-app.listen(3004); // run express app
+app.listen(3005); // run express app
 
-console.log('Express server is running on port 3004. Open http://localhost:3004/blogs/');
+console.log('Express server is running on port 3005. Open http://localhost:3005/blogs/');

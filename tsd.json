@@ -7,7 +7,7 @@
   "compileOnSave": false,
   "installed": {
     "node/node.d.ts": {
-      "commit": "4df20c9706ce6ca27137617770b57f3a0d3f9689"
+      "commit": "c2c22c3b953fe9730d4802022d5e0d18d083909e"
     },
     "mocha/mocha.d.ts": {
       "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
@@ -21,14 +21,20 @@
     "sinon/sinon.d.ts": {
       "commit": "7a3ca1f0b8a0960af9fc1838f3234cc9d6ce0645"
     },
-    "express/express.d.ts": {
-      "commit": "f3244190e20af6901e865f4cc58127d19216baa1"
-    },
     "body-parser/body-parser.d.ts": {
       "commit": "f3244190e20af6901e865f4cc58127d19216baa1"
     },
     "es6-promise/es6-promise.d.ts": {
       "commit": "ffceea9dd124d277c4597c7bd12930666ec074c5"
+    },
+    "serve-static/serve-static.d.ts": {
+      "commit": "c2c22c3b953fe9730d4802022d5e0d18d083909e"
+    },
+    "express/express.d.ts": {
+      "commit": "c2c22c3b953fe9730d4802022d5e0d18d083909e"
+    },
+    "mime/mime.d.ts": {
+      "commit": "c2c22c3b953fe9730d4802022d5e0d18d083909e"
     }
   }
 }
