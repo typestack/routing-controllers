@@ -9,59 +9,65 @@ Simply create a class and put annotations on its methods:
 
 ```typescript
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete} from "controllers.ts/Annotations";
+import {Controller, Get, Post, Put, Patch, Delete, Req, Res} from "controllers.ts/Annotations";
 
 @Controller()
 export class BlogController {
 
     @Get('/blogs')
-    getAll(request: Request, response: Response) {
+    getAll(@Req() request: Request, @Res() response: Response) {
         // use request and response like you always do with express.js ...
     }
 
     @Get('/blogs/:id')
-    getOne(request: Request, response: Response) {
+    getOne(@Req() request: Request, @Res() response: Response) {
     }
 
     @Post('/blogs')
-    post(request: Request, response: Response) {
+    post(@Req() request: Request, @Res() response: Response) {
     }
 
     @Put('/blogs/:id')
-    put(request: Request, response: Response) {
+    put(@Req() request: Request, @Res() response: Response) {
     }
 
     @Patch('/blogs/:id')
-    patch(request: Request, response: Response) {
+    patch(@Req() request: Request, @Res() response: Response) {
     }
 
     @Delete('/blogs/:id')
-    remove(request: Request, response: Response) {
+    remove(@Req() request: Request, @Res() response: Response) {
     }
 
 }
 
 // and you need to require controllers and register actions in express app:
 
-import {defaultActionRegistry} from "controllers.ts/ActionRegistry";
+import {ControllerRunner} from "controllers.ts/ControllerRunner";
+import {ExpressHttpFramework} from "controllers.ts/http-framework-integration/ExpressHttpFramework";
 
 require('./BlogController'); // require your controller
 let app = express(); // create express application
 app.use(bodyParser.json()); // setup body parser
-defaultActionRegistry.registerActions(app); // register actions in the app
+let controllerRunner = new ControllerRunner(new ExpressHttpFramework(app));
+controllerRunner.registerAllActions(); // register actions in the app
 app.listen(3000); // run express app
 ```
 
 If you want to include the directory with controllers do this:
 
 ```typescript
-import {defaultActionRegistry} from "controllers.ts/ActionRegistry";
-import {ControllerUtils} from "controllers.ts/ControllerUtils";
+import {ControllerRunner} from "controllers.ts/ControllerRunner";
+import {ExpressHttpFramework} from "controllers.ts/http-framework-integration/ExpressHttpFramework";
 
-ControllerUtils.requireAll([__dirname + '/controllers']); // includes all controllers
-let app = express(); // create express application
+// we use require-all module to load all files from the given directory (do `npm install require-all` in order to use it)
+require('require-all')({ dirname: __dirname + '/controllers' });
+
+let app = express(); // create express server
 app.use(bodyParser.json()); // setup body parser
-defaultActionRegistry.registerActions(app); // register actions in the app
+
+let controllerRunner = new ControllerRunner(new ExpressHttpFramework(app));
+controllerRunner.registerAllActions(); // register actions in the app
 app.listen(3000); // run express app
 ```
 
@@ -70,7 +76,7 @@ You can also return result right from the controller, and this result will be pu
 ```typescript
 
 @Get('/blogs')
-getAll(request: Request, response: Response) {
+getAll() {
     return [
         { id: 1, name: 'first blog' },
         { id: 2, name: 'second blog' }
@@ -88,7 +94,7 @@ promise is resolved.
 ```typescript
 
 @Get('/blogs')
-getAll(request: Request, response: Response) {
+getAll(@Req() request: Request, @Res() response: Response) {
     return SomeService.loadData();
 }
 
@@ -104,8 +110,8 @@ You can inject some common express params you may need right into the controller
 ```typescript
 
 @Get('/blogs/:id')
-getAll( request: Request,
-        response: Response,
+getAll( @Req() request: Request,
+        @Res() response: Response,
         @Body() requestBody: any,
         @Param('id') id: number,
         @QueryParam('name') name: string) {

@@ -7,8 +7,12 @@ import {ParamMetadata} from "./metadata/ParamMetadata";
 import {HttpCodeMetadata} from "./metadata/HttpCodeMetadata";
 import {ParamHandler} from "./ParamHandler";
 import {ActionOptions} from "./metadata/ActionMetadata";
-import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
 import {HttpError} from "./error/http/HttpError";
+import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
+
+export type Container = { get(someClass: any): any };
+export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
+export type DefaultErrorHandlerFunction = (error: any) => any;
 
 /**
  * Storage all controllers metadata.
@@ -19,12 +23,12 @@ export class ControllerRunner {
     // Properties
     // -------------------------------------------------------------------------
 
-    private _container: { get(someClass: any): any };
+    private _container: Container;
     private _isLogErrorsEnabled: boolean;
     private _isStackTraceEnabled: boolean;
-    private _errorOverridingsMap: any;
-    private _jsonErrorHandler: (error: any, isDebug: boolean, errorOverridingsMap: any) => any = jsonErrorHandler;
-    private _defaultErrorHandler: (error: any) => any = defaultErrorHandler;
+    private _errorOverridingMap: any;
+    private _jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
+    private _defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -48,7 +52,7 @@ export class ControllerRunner {
      * Sets a container that can be used in your controllers. This allows you to inject services in your
      * controllers.
      */
-    set container(container: { get(someClass: any): any }) {
+    set container(container: Container) {
         this._container = container;
     }
 
@@ -60,15 +64,15 @@ export class ControllerRunner {
         this._isStackTraceEnabled = isEnabled;
     }
 
-    set errorOverridingsMap(map: any) {
-        this._errorOverridingsMap = map;
+    set errorOverridingMap(map: any) {
+        this._errorOverridingMap = map;
     }
 
-    set jsonErrorHandler(handler: (error: any, isDebug: boolean) => any) {
+    set jsonErrorHandler(handler: JsonErrorHandlerFunction) {
         this._jsonErrorHandler = handler;
     }
 
-    set defaultErrorHandler(handler: (error: any) => any) {
+    set defaultErrorHandler(handler: DefaultErrorHandlerFunction) {
         this._defaultErrorHandler = handler;
     }
 
@@ -88,7 +92,7 @@ export class ControllerRunner {
      * Registers actions from the given controllers.
      */
     registerActions(controllerClasses: any[]): ControllerRunner {
-        const classes = Utils.flattenRequiredObjects(controllerClasses);
+        const classes = Utils.flattenRequiredObjects(Utils.flattenRequiredObjects(controllerClasses));
         const controllerMetadatas = this.metadataStorage.findControllerMetadatasForClasses(classes);
         this.registerControllerActions(controllerMetadatas);
         return this;
@@ -117,10 +121,13 @@ export class ControllerRunner {
         });
     }
 
-    private buildActionPath(controller: ControllerMetadata, action: ActionMetadata): string {
-        let path = '';
+    private buildActionPath(controller: ControllerMetadata, action: ActionMetadata): string|RegExp {
+        if (action.path && action.path instanceof RegExp)
+            return action.path;
+
+        let path: string = '';
         if (controller.path) path += controller.path;
-        if (action.path) path += action.path;
+        if (action.path && typeof action.path === 'string') path += action.path;
         return path;
     }
 
@@ -199,7 +206,7 @@ export class ControllerRunner {
 
     private getResponseHandledError(error: any, isJson: boolean): any {
         if (this._jsonErrorHandler && isJson) {
-            return this._jsonErrorHandler(error, this._isStackTraceEnabled, this._errorOverridingsMap);
+            return this._jsonErrorHandler(error, this._isStackTraceEnabled, this._errorOverridingMap);
 
         } else if (this._defaultErrorHandler && !isJson) {
             return this._defaultErrorHandler(error);

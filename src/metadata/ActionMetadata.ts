@@ -1,5 +1,5 @@
 export interface ActionMetadata {
-    path: string;
+    path: string|RegExp;
     object: any;
     method: string;
     type: string;

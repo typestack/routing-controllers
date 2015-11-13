@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete, Req} from "../../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Req} from "../../../src/Annotations";
 
-@Controller()
+@JsonController()
 export class BlogController {
 
     @Get('/blogs')

@@ -55,10 +55,10 @@ gulp.task('build-package-generate-dts', function () {
         return files;
     }
 
-    var dtsGenerator = require('dts-generator');
+    var dtsGenerator = require('dts-generator').default;
     var name = require('./package.json').name;
     var files = getFiles('./src');
-    dtsGenerator.generate({
+    dtsGenerator({
         name: name,
         baseDir: './src',
         files: files,

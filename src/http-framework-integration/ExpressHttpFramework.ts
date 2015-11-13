@@ -15,7 +15,7 @@ export class ExpressHttpFramework implements HttpFramework {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerAction(path: string, actionName: string, callback: (request: any, response: any) => any): void {
+    registerAction(path: string|RegExp, actionName: string, callback: (request: any, response: any) => any): void {
         if (!this.express[actionName.toLowerCase()])
             throw new Error('Given method cannot be registered in the Express framework');
 

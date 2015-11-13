@@ -37,7 +37,9 @@ export function Controller(path?: string) {
     }
 }
 
-export function Get(path?: string, options?: ActionOptions) {
+export function Get(path?: RegExp, options?: ActionOptions): Function;
+export function Get(path?: string, options?: ActionOptions): Function;
+export function Get(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -49,7 +51,9 @@ export function Get(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Post(path?: string, options?: ActionOptions) {
+export function Post(path?: RegExp, options?: ActionOptions): Function;
+export function Post(path?: string, options?: ActionOptions): Function;
+export function Post(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -61,7 +65,9 @@ export function Post(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Put(path?: string, options?: ActionOptions) {
+export function Put(path?: RegExp, options?: ActionOptions): Function;
+export function Put(path?: string, options?: ActionOptions): Function;
+export function Put(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -73,7 +79,9 @@ export function Put(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Patch(path?: string, options?: ActionOptions) {
+export function Patch(path?: RegExp, options?: ActionOptions): Function;
+export function Patch(path?: string, options?: ActionOptions): Function;
+export function Patch(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -85,7 +93,9 @@ export function Patch(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Delete(path?: string, options?: ActionOptions) {
+export function Delete(path?: RegExp, options?: ActionOptions): Function;
+export function Delete(path?: string, options?: ActionOptions): Function;
+export function Delete(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -97,7 +107,9 @@ export function Delete(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Head(path?: string, options?: ActionOptions) {
+export function Head(path?: RegExp, options?: ActionOptions): Function;
+export function Head(path?: string, options?: ActionOptions): Function;
+export function Head(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -109,7 +121,9 @@ export function Head(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Options(path?: string, options?: ActionOptions) {
+export function Options(path?: RegExp, options?: ActionOptions): Function;
+export function Options(path?: string, options?: ActionOptions): Function;
+export function Options(path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,
@@ -121,7 +135,9 @@ export function Options(path?: string, options?: ActionOptions) {
     }
 }
 
-export function Method(method: string, path?: string, options?: ActionOptions) {
+export function Method(method: string, path?: RegExp, options?: ActionOptions): Function;
+export function Method(method: string, path?: string, options?: ActionOptions): Function;
+export function Method(method: string, path?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataStorage.addActionMetadata({
             path: path,

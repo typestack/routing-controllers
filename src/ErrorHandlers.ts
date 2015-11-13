@@ -1,7 +1,7 @@
 import {HttpError} from "./error/http/HttpError";
 import {Utils} from "./Utils";
 
-export function jsonErrorHandler(error: any, isDebug: boolean, errorOverridingsMap: any): any {
+export function jsonErrorHandler(error: any, isDebug: boolean, errorOverridingMap: any): any {
     let actionError: any = {};
     if (error instanceof Error) {
         if (error.name && (isDebug || error.message)) // show name only if in debug mode and if error message exist too
@@ -15,10 +15,10 @@ export function jsonErrorHandler(error: any, isDebug: boolean, errorOverridingsM
             .filter(key => key !== 'stack' && key !== 'name' && key !== 'message' && key !== 'httpCode')
             .forEach(key => actionError[key] = error[key]);
 
-        if (errorOverridingsMap) {
-            Object.keys(errorOverridingsMap).forEach(key => {
+        if (errorOverridingMap) {
+            Object.keys(errorOverridingMap).forEach(key => {
                 if (error.name === key)
-                    actionError = Utils.merge(actionError, errorOverridingsMap[key]);
+                    actionError = Utils.merge(actionError, errorOverridingMap[key]);
             });
         }
 

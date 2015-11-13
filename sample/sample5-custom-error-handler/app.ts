@@ -10,7 +10,7 @@ let app = express(); // create express server
 app.use(bodyParser.json()); // setup body parser
 
 let controllerHandler = new ControllerRunner(new ExpressHttpFramework(app));
-controllerHandler.errorOverridingsMap = {
+controllerHandler.errorOverridingMap = {
     "ForbiddenError": {
         "message": "Access is denied"
     },

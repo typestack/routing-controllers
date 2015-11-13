@@ -14,7 +14,7 @@ export class BlogController {
 
     @Get('/blogs/:id')
     getOne() {
-        return { id: 1, name: 'First blog!' };
+        return 'First blog!';
     }
 
     @Post('/blogs')

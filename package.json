@@ -1,6 +1,6 @@
 {
   "name": "controllers.ts",
-  "version": "0.0.11",
+  "version": "0.1.0",
   "description": "Allows to use controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
@@ -27,19 +27,18 @@
     "definition": "controllers.ts.d.ts"
   },
   "dependencies": {
-    "reflect-metadata": "0.1.2",
-    "express": "^4.12.3",
-    "fs": "0.0.2",
-    "path": "^0.11.14"
+    "reflect-metadata": "0.1.2"
   },
   "devDependencies": {
     "body-parser": "^1.12.3",
     "del": "^2.0.2",
-    "dts-generator": "^1.5.0",
+    "dts-generator": "^1.6.0",
+    "express": "^4.12.3",
     "gulp": "^3.9.0",
     "gulp-plumber": "^1.0.1",
     "gulp-shell": "^0.5.0",
     "gulp-typescript": "^2.9.0",
+    "require-all": "^2.0.0",
     "run-sequence": "^1.1.4",
     "tsd": "^0.6.4",
     "typescript": "^1.6.2"
