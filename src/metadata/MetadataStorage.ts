@@ -3,6 +3,7 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadata} from "./ParamMetadata";
 import {HttpCodeMetadata} from "./HttpCodeMetadata";
+import {ResponseInterceptorMetadata} from "./ResponseInterceptorMetadata";
 
 /**
  * Storage all controllers metadata.
@@ -14,6 +15,7 @@ export class MetadataStorage {
     // -------------------------------------------------------------------------
 
     private _controllerMetadatas: ControllerMetadata[] = [];
+    private _responseInterceptorMetadatas: ResponseInterceptorMetadata[] = [];
     private _actionMetadatas: ActionMetadata[] = [];
     private _paramMetadatas: ParamMetadata[] = [];
     private _httpCodeMetadatas: HttpCodeMetadata[] = [];
@@ -38,6 +40,10 @@ export class MetadataStorage {
         return this._httpCodeMetadatas;
     }
 
+    get responseInterceptorMetadatas(): ResponseInterceptorMetadata[] {
+        return this._responseInterceptorMetadatas;
+    }
+
     // -------------------------------------------------------------------------
     // Adder Methods
     // -------------------------------------------------------------------------
@@ -48,6 +54,10 @@ export class MetadataStorage {
 
     addControllerMetadata(metadata: ControllerMetadata) {
         this._controllerMetadatas.push(metadata);
+    }
+
+    addResponseInterceptorMetadata(metadata: ResponseInterceptorMetadata) {
+        this._responseInterceptorMetadatas.push(metadata);
     }
 
     addActionMetadata(metadata: ActionMetadata) {

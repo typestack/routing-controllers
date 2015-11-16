@@ -1,6 +1,7 @@
 import {HttpFramework} from "./HttpFramework";
 import {ActionType} from "../metadata/ActionMetadata";
 import {ParamType} from "../metadata/ParamMetadata";
+import {ResponseInterceptorInterface} from "../ResponseInterceptorInterface";
 
 export class ExpressHttpFramework implements HttpFramework {
 
@@ -37,32 +38,60 @@ export class ExpressHttpFramework implements HttpFramework {
         }
     }
 
-    handleSuccess(response: any, result: any, asJson: boolean, successHttpCode: number): void {
+    handleSuccess(request: any, response: any, result: any, asJson: boolean, successHttpCode: number, interceptors: ResponseInterceptorInterface[]): void {
         if (successHttpCode)
             response.status(successHttpCode);
 
         if (result !== null && result !== undefined) {
             if (asJson) {
+                result = this.callJsonInterceptors(result, request, response, interceptors);
                 response.json(result);
             } else {
-                response.send(String(result));
+                result = this.callSendInterceptors(String(result), request, response, interceptors);
+                response.send(result);
             }
         }
 
         response.end();
     }
 
-    handleError(response: any, error: any, asJson: boolean, errorHttpCode: number = 500): void {
+    handleError(request: any, response: any, error: any, asJson: boolean, errorHttpCode: number, interceptors: ResponseInterceptorInterface[]): void {
         response.status(errorHttpCode);
         if (error) {
             if (asJson) {
+                error = this.callJsonInterceptors(error, request, response, interceptors);
                 response.json(error);
             } else {
-                response.send(String(error));
+                error = this.callSendInterceptors(String(error), request, response, interceptors);
+                response.send(error);
             }
         }
 
         response.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    private callSendInterceptors(data: any, request: any, response: any, interceptors: ResponseInterceptorInterface[]) {
+        if (interceptors && interceptors.length) {
+            return interceptors
+                .filter(inter => !!inter.onSend)
+                .reduce((value, inter) => inter.onSend(value, request, response), data);
+        }
+
+        return data;
+    }
+
+    private callJsonInterceptors(data: any, request: any, response: any, interceptors: ResponseInterceptorInterface[]) {
+        if (interceptors && interceptors.length) {
+            return interceptors
+                .filter(inter => !!inter.onJson)
+                .reduce((value, inter) => inter.onJson(value, request, response), data);
+        }
+
+        return data;
     }
 
 }
