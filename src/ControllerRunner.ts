@@ -9,6 +9,8 @@ import {ParamHandler} from "./ParamHandler";
 import {ActionOptions} from "./metadata/ActionMetadata";
 import {HttpError} from "./error/http/HttpError";
 import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
+import {ResponseInterceptorInterface} from "./ResponseInterceptorInterface";
+import {ResponseInterceptorMetadata} from "./metadata/ResponseInterceptorMetadata";
 
 export type Container = { get(someClass: any): any };
 export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
@@ -109,15 +111,20 @@ export class ControllerRunner {
                 .forEach(action => {
                     const extraParams = this.metadataStorage.findParamMetadatasMetadatasForControllerAndActionMetadata(controller, action);
                     const httpCode = this.metadataStorage.findHttpCodeMetadatasMetadatasForControllerAndActionMetadata(controller, action);
-                    return this.registerAction(controller, action, httpCode, extraParams);
+                    return this.registerAction(controller, action, httpCode, extraParams, this.metadataStorage.responseInterceptorMetadatas);
                 });
         });
     }
 
-    private registerAction(controller: ControllerMetadata, action: ActionMetadata, httpCode: HttpCodeMetadata, params: ParamMetadata[]) {
+    private registerAction(controller: ControllerMetadata,
+                           action: ActionMetadata,
+                           httpCode: HttpCodeMetadata,
+                           params: ParamMetadata[],
+                           interceptorMetadatas: ResponseInterceptorMetadata[]) {
+
         const path = this.buildActionPath(controller, action);
         this.framework.registerAction(path, action.type, (request: any, response: any) => {
-            return this.handleAction(request, response, controller, action, httpCode, params);
+            return this.handleAction(request, response, controller, action, httpCode, params, interceptorMetadatas);
         });
     }
 
@@ -136,10 +143,16 @@ export class ControllerRunner {
                          controllerMetadata: ControllerMetadata,
                          actionMetadata: ActionMetadata,
                          httpCodeMetadata: HttpCodeMetadata,
-                         paramMetadatas: ParamMetadata[]) {
+                         paramMetadatas: ParamMetadata[],
+                         interceptorMetadatas: ResponseInterceptorMetadata[]) {
 
         const isJson = this.isActionMustReturnJson(controllerMetadata.type, actionMetadata.options);
         const controllerObject = this.getControllerInstance(controllerMetadata);
+        const interceptors: ResponseInterceptorInterface[] =
+            interceptorMetadatas ? interceptorMetadatas
+                .sort(inter => inter.priority)
+                .map(inter => this.getResponseInterceptorInstance(inter))
+            : [];
 
         try {
             const params = paramMetadatas
@@ -148,24 +161,33 @@ export class ControllerRunner {
             const result = controllerObject[actionMetadata.method].apply(controllerObject, params);
 
             if (result)
-                this.handleResult(response, result, httpCodeMetadata ? httpCodeMetadata.code : undefined, isJson);
+                this.handleResult(request, response, result, httpCodeMetadata ? httpCodeMetadata.code : undefined, isJson, interceptors);
         } catch (error) {
 
             if (this.getResponseHandledError(error, isJson)) {
-                this.handleError(response, error, isJson);
+                this.handleError(request, response, error, isJson, interceptors);
             } else {
                 throw error;
             }
         }
     }
 
-    private getControllerInstance(controllerMetadata: ControllerMetadata): any {
+    private getControllerInstance(metadata: ControllerMetadata): any {
         if (this._container)
-            return this._container.get(controllerMetadata.object);
+            return this._container.get(metadata.object);
 
-        if (!controllerMetadata.instance)
-            controllerMetadata.instance = new (<any>controllerMetadata.object)();
-        return controllerMetadata.instance;
+        if (!metadata.instance)
+            metadata.instance = new (<any>metadata.object)();
+        return metadata.instance;
+    }
+
+    private getResponseInterceptorInstance(metadata: ResponseInterceptorMetadata): any {
+        if (this._container)
+            return this._container.get(metadata.object);
+
+        if (!metadata.instance)
+            metadata.instance = new (<any>metadata.object)();
+        return metadata.instance;
     }
 
     private isActionMustReturnJson(controllerType: ControllerType, actionOptions: ActionOptions): boolean {
@@ -177,18 +199,18 @@ export class ControllerRunner {
         return controllerType === ControllerType.JSON;
     }
 
-    private handleResult(response: any, result: any, successHttpCode: number, isJson: boolean) {
+    private handleResult(request: any, response: any, result: any, successHttpCode: number, isJson: boolean, interceptors: ResponseInterceptorInterface[]) {
         if (result.then instanceof Function && result.catch instanceof Function) {
             result.then(
-                (result: any) => this.framework.handleSuccess(response, result, isJson, successHttpCode),
-                (error: any) => this.handleError(response, error, isJson)
+                (result: any) => this.framework.handleSuccess(request, response, result, isJson, successHttpCode, interceptors),
+                (error: any) => this.handleError(request, response, error, isJson, interceptors)
             );
         } else {
-            this.framework.handleSuccess(response, result, isJson, successHttpCode);
+            this.framework.handleSuccess(request, response, result, isJson, successHttpCode, interceptors);
         }
     }
 
-    private handleError(response: any, error: any, isJson: boolean) {
+    private handleError(request: any, response: any, error: any, isJson: boolean, interceptors: ResponseInterceptorInterface[]) {
         const responseError = this.getResponseHandledError(error, isJson);
         if (this._isLogErrorsEnabled)
             console.error(error.stack ? error.stack : error);
@@ -201,7 +223,7 @@ export class ControllerRunner {
             delete responseError.httpCode;
         }
 
-        this.framework.handleError(response, responseError, isJson, errorHttpCode);
+        this.framework.handleError(request, response, responseError, isJson, errorHttpCode, interceptors);
     }
 
     private getResponseHandledError(error: any, isJson: boolean): any {

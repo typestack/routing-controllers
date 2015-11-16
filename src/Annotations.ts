@@ -37,6 +37,15 @@ export function Controller(path?: string) {
     }
 }
 
+export function ResponseInterceptor(priority: number = 0) {
+    return function (object: Function) {
+        defaultMetadataStorage.addResponseInterceptorMetadata({
+            object: object,
+            priority: priority
+        });
+    }
+}
+
 export function Get(path?: RegExp, options?: ActionOptions): Function;
 export function Get(path?: string, options?: ActionOptions): Function;
 export function Get(path?: string|RegExp, options?: ActionOptions): Function {
