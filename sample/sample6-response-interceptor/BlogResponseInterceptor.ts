@@ -1,5 +1,4 @@
-import {JsonController, Get, ResponseInterceptor} from "../../src/Annotations";
-import {ForbiddenError} from "../../src/error/http/ForbiddenError";
+import {ResponseInterceptor} from "../../src/Annotations";
 import {ResponseInterceptorInterface} from "../../src/ResponseInterceptorInterface";
 import {Request, Response} from "express";
 
