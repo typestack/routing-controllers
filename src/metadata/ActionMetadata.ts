@@ -1,7 +1,5 @@
 /**
  * Action metadata used to storage information about registered action.
- *
- * @internal
  */
 export interface ActionMetadata {
 

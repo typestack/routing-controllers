@@ -2,8 +2,6 @@ import {ResponseInterceptorInterface} from "../interceptor/ResponseInterceptorIn
 
 /**
  * Metadata used to storage information about registered request interceptors.
- *
- * @internal
  */
 export interface ResponseInterceptorMetadata {
 

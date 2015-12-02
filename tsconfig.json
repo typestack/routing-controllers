@@ -7,8 +7,7 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "sourceMap": true,
-        "noImplicitAny": true,
-        "stripInternal": true
+        "noImplicitAny": true
     },
     "exclude": [
         "built",

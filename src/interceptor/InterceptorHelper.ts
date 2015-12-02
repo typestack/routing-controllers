@@ -3,8 +3,6 @@ import {ResultHandleOptions} from "../ResultHandleOptions";
 
 /**
  * Classes that intercepts response result must implement this interface.
- *
- * @internal
  */
 export class InterceptorHelper {
 

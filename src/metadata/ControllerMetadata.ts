@@ -1,7 +1,5 @@
 /**
  * Controller metadata used to storage information about registered controller.
- *
- * @internal
  */
 export interface ControllerMetadata {
 

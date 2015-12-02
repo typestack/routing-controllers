@@ -203,7 +203,7 @@ export class ControllerRunner {
             const result = controllerObject[actionMetadata.method].apply(controllerObject, params);
 
             if (result) {
-                handleResultOptions.content = isJson ? String(result) : result;
+                handleResultOptions.content = isJson ? result : String(result);
                 this.handleResult(handleResultOptions);
             }
 
@@ -254,7 +254,14 @@ export class ControllerRunner {
     private handleResult(options: ResultHandleOptions) {
         if (Utils.isPromise(options.content)) {
             options.content
-                .then((result: any) => this.framework.handleSuccess(options))
+                .then((result: any) => this.framework.handleSuccess({
+                    request: options.request,
+                    response: options.response,
+                    httpCode: options.httpCode,
+                    content: result,
+                    asJson: options.asJson,
+                    interceptors: options.interceptors
+                }))
                 .catch((error: any) => this.handleError(options));
         } else {
             this.framework.handleSuccess(options);

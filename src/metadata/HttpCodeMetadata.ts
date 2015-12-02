@@ -1,7 +1,5 @@
 /**
  * Controller metadata used to storage information about registered http code.
- *
- * @internal
  */
 export interface HttpCodeMetadata {
 

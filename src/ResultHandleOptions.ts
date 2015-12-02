@@ -2,8 +2,6 @@ import {ResponseInterceptorInterface} from "./interceptor/ResponseInterceptorInt
 
 /**
  * Options used to send to framework result handlers.
- *
- * @internal
  */
 export interface ResultHandleOptions {
 

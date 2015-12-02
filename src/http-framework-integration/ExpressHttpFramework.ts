@@ -7,8 +7,6 @@ import {InterceptorHelper} from "../interceptor/InterceptorHelper";
 
 /**
  * Integration with Express.js framework.
- *
- * @internal
  */
 export class ExpressHttpFramework implements HttpFramework {
 

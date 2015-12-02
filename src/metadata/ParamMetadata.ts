@@ -1,7 +1,5 @@
 /**
  * Controller metadata used to storage information about registered parameters.
- *
- * @internal
  */
 export interface ParamMetadata {
 
@@ -48,8 +46,6 @@ export interface ParamMetadata {
 
 /**
  * Action parameter types.
- *
- * @internal
  */
 export enum ParamType {
     BODY = 1,
