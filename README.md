@@ -272,7 +272,6 @@ of usages.
 ## Todos
 
 * cover with tests
-* rename ANNOTATIONS to DECORATORS
 * make interceptors to work with response.send method too
 * add reversed error override map
 * handle http framework errors (param parse, body parse errors, etc.)
