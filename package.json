@@ -54,6 +54,6 @@
   "scripts": {
     "tsd": "./node_modules/.bin/tsd install && ./node_modules/.bin/tsd rebundle && ./node_modules/.bin/tsd link",
     "package": "./node_modules/.bin/gulp package",
-    "publish": "cd ./build/package && npm publish"
+    "submit": "cd ./build/package && npm publish"
   }
 }
