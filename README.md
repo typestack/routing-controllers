@@ -63,6 +63,8 @@ contribute and implement integrations with other frameworks.
     }
     ```
 
+    This class will register routes specified in method decorators in your http framework (express.js).
+
 2. Create a file `app.ts`
 
     ```typescript
@@ -71,10 +73,13 @@ contribute and implement integrations with other frameworks.
 
     // create express application
     let app = express();
-    // you can setup body parser: app.use(bodyParser.json()); // or anything else you usually do with express
+    // you can setup body parser: app.use(bodyParser.json());
+    // or anything else you usually do with express
 
     // here you need to "load" your controller
     require('./UserController');
+
+    // create a controller runner that will register all actions in a specific framework (express.js)
     let controllerRunner = new ControllerRunner(new ExpressHttpFramework(app));
     controllerRunner.registerAllActions(); // register actions in the app
 
@@ -87,10 +92,10 @@ contribute and implement integrations with other frameworks.
 
 ## More usage examples
 
-### Load all controllers from the given directory
+#### Load all controllers from the given directory
 
-You probably don't want to *require* every controller in your app, and instead want to load all controllers from the
-specific directory. To do it you can install [require-all](https://www.npmjs.com/package/require-all) component and use
+You probably don't want to *require* every controller in your app, and instead want to load all controllers from
+specific directory. To do it you can install [require-all](https://www.npmjs.com/package/require-all) package and use
 it like this:
 
 ```typescript
@@ -111,7 +116,7 @@ controllerRunner.registerAllActions(); // register actions in the app
 app.listen(3000); // run express app
 ```
 
-### Set response body value returned by a controller action
+#### Set response body value returned by a controller action
 
 To return a response body you usually do `response.send('Hello world!')`. But there is alternative way of doing it.
 You can also return result right from the controller, and this result will be pushed via response.send()
@@ -141,9 +146,9 @@ getAll(@Req() request: Request, @Res() response: Response) {
 // );
 ```
 
-### Output JSON instead of regular text content
+#### Output JSON instead of regular text content
 
-If you are designing a REST api where your endpoints always return JSON you can use `@JsonController` decorator instead
+If you are designing a REST API where your endpoints always return JSON you can use `@JsonController` decorator instead
 of `@Controller`. This will guarantee you that data returned by your controller actions always be transformed to JSON
 objects and `Content-Type` header will be always set to `application/json`:
 
@@ -155,7 +160,7 @@ objects and `Content-Type` header will be always set to `application/json`:
     }
 ```
 
-### Inject parameters
+#### Inject parameters
 
 You can inject some common params you may need right into the controller action method using proper annotations:
 
@@ -175,7 +180,7 @@ getAll( @Req() request: Request,
 // let name = response.query.name; 
 ```
 
-### Inject body and transform it to object
+#### Inject body and transform it to object
 
 If you want to have response body and wish it to be automatically converted to object you need to use @Body
 parameter annotation and specify extra parameters to it:
@@ -192,7 +197,7 @@ save(@Body({ parseJson: true }) user: any) {
 
 There is also simplified way of doing it: `save(@Body(true) user: any)`
 
-### Make body required
+#### Make body required
 
 If you want to have response body and wish it to be automatically converted to object you need to use @Body
 parameter annotation and specify extra parameters to it:
@@ -206,7 +211,7 @@ save(@Body({ required: true }) user: any) {
 
 Same you can do with all other parameter inectors: @Param, @QueryParam, @BodyParam and others.
 
-### Inject parameters and transform them to objects
+#### Inject parameters and transform them to objects
 
 You can inject some common params you may need right into the controller action method using proper annotations:
 
@@ -230,16 +235,16 @@ getAll(@QueryParam('filter', { required: true }) filter: UserFilter) {
 Take a look on samples in [./sample](https://github.com/PLEEROCK/controllers.ts/tree/master/sample) for more examples
 of usages.
 
-## Decorators
+## Decorators Documentation
 
-### Controller Decorators
+#### Controller Decorators
 
 | Signature                           | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |-------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Controller(baseRoute: string)`     | `@Controller('/users') class SomeController`         | Class that is marked with this annotation is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
 | `JsonController(baseRoute: string)` | `@JsonController('/users') class SomeJsonController` | Class that is marked with this annotation is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
 
-### Controller Action Decorators
+#### Controller Action Decorators
 
 | Signature                                                                   | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
 |-----------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
@@ -252,7 +257,7 @@ of usages.
 | `Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options('/users/:id') head()`        | Methods marked with this annotation will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.            | `app.options('/users/:id', options)` |
 | `Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method('move', '/users/:id') move()` | Methods marked with this annotation will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response. | `app.move('/users/:id', move)`       |
 
-### Action Parameter Decorators
+#### Action Parameter Decorators
 
 | Signature                                           | Example                                          | Description                                                                                                                                                                                                                                                         | express.js analogue            |
 |-----------------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
