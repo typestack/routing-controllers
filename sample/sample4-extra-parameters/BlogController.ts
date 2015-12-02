@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {JsonController, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Decorators";
 
 interface BlogFilter {
     keyword: string;

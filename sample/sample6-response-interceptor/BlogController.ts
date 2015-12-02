@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Annotations";
+import {Controller, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Decorators";
 import {ForbiddenError} from "../../src/error/http/ForbiddenError";
 
 @Controller()

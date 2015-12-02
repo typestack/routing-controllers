@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Controller, Get, Post, Put, Patch, Delete, Req} from "../../src/Annotations";
+import {Controller, Get, Post, Put, Patch, Delete, Req} from "../../src/Decorators";
 
 @Controller()
 export class BlogController {

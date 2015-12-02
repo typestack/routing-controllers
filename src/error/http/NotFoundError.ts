@@ -1,5 +1,8 @@
 import {HttpError} from "./HttpError";
 
+/**
+ * Exception for 404 HTTP error.
+ */
 export class NotFoundError extends HttpError {
     name = 'NotFoundError';
 

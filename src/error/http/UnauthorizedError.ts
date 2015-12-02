@@ -1,5 +1,8 @@
 import {HttpError} from "./HttpError";
 
+/**
+ * Exception for 401 HTTP error.
+ */
 export class UnauthorizedError extends HttpError {
     name = 'UnauthorizedError';
 

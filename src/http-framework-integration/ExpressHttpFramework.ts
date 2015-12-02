@@ -1,9 +1,22 @@
 import {HttpFramework} from "./HttpFramework";
-import {ActionType} from "../metadata/ActionMetadata";
 import {ParamType} from "../metadata/ParamMetadata";
-import {ResponseInterceptorInterface} from "../ResponseInterceptorInterface";
+import {ResponseInterceptorInterface} from "../interceptor/ResponseInterceptorInterface";
+import {BadHttpActionError} from "./error/BadHttpActionError";
+import {ResultHandleOptions} from "./../ResultHandleOptions";
+import {InterceptorHelper} from "../interceptor/InterceptorHelper";
 
+/**
+ * Integration with Express.js framework.
+ *
+ * @internal
+ */
 export class ExpressHttpFramework implements HttpFramework {
+
+    // -------------------------------------------------------------------------
+    // Properties
+    // -------------------------------------------------------------------------
+
+    private _interceptorHelper = new InterceptorHelper();
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -13,17 +26,26 @@ export class ExpressHttpFramework implements HttpFramework {
     }
 
     // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+
+    set interceptorHelper(interceptorHelper: InterceptorHelper) {
+        this._interceptorHelper = interceptorHelper;
+    }
+
+    // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerAction(path: string|RegExp, actionName: string, callback: (request: any, response: any) => any): void {
-        if (!this.express[actionName.toLowerCase()])
-            throw new Error('Given method cannot be registered in the Express framework');
+    registerAction(route: string|RegExp, actionType: string, executeCallback: (request: any, response: any) => any): void {
+        const expressAction = actionType.toLowerCase();
+        if (!this.express[expressAction])
+            throw new BadHttpActionError(actionType);
 
-        this.express[actionName.toLowerCase()](path, (request: any, response: any) => callback(request, response));
+        this.express[expressAction](route, (request: any, response: any) => executeCallback(request, response));
     }
 
-    handleParam(request: any, paramName: string, paramType: ParamType): void {
+    getParamFromRequest(request: any, paramName: string, paramType: ParamType): void {
         switch (paramType) {
             case ParamType.BODY:
                 return request.body;
@@ -38,60 +60,28 @@ export class ExpressHttpFramework implements HttpFramework {
         }
     }
 
-    handleSuccess(request: any, response: any, result: any, asJson: boolean, successHttpCode: number, interceptors: ResponseInterceptorInterface[]): void {
-        if (successHttpCode)
-            response.status(successHttpCode);
-
-        if (result !== null && result !== undefined) {
-            if (asJson) {
-                result = this.callJsonInterceptors(result, request, response, interceptors);
-                response.json(result);
-            } else {
-                result = this.callSendInterceptors(String(result), request, response, interceptors);
-                response.send(result);
-            }
-        }
-
-        response.end();
+    handleSuccess(options: ResultHandleOptions): void {
+        this.handleResult(options);
     }
 
-    handleError(request: any, response: any, error: any, asJson: boolean, errorHttpCode: number, interceptors: ResponseInterceptorInterface[]): void {
-        response.status(errorHttpCode);
-        if (error) {
-            if (asJson) {
-                error = this.callJsonInterceptors(error, request, response, interceptors);
-                response.json(error);
-            } else {
-                error = this.callSendInterceptors(String(error), request, response, interceptors);
-                response.send(error);
-            }
-        }
-
-        response.end();
+    handleError(options: ResultHandleOptions): void {
+        this.handleResult(options);
     }
 
     // -------------------------------------------------------------------------
     // Private Methods
     // -------------------------------------------------------------------------
 
-    private callSendInterceptors(data: any, request: any, response: any, interceptors: ResponseInterceptorInterface[]) {
-        if (interceptors && interceptors.length) {
-            return interceptors
-                .filter(inter => !!inter.onSend)
-                .reduce((value, inter) => inter.onSend(value, request, response), data);
+    private handleResult(options: ResultHandleOptions) {
+        if (options.httpCode)
+            options.response.status(options.httpCode);
+
+        if (options.content !== null && options.content !== undefined) {
+            const result = this._interceptorHelper.callInterceptors(options);
+            options.asJson ? options.response.json(result) : options.response.send(result);
         }
 
-        return data;
-    }
-
-    private callJsonInterceptors(data: any, request: any, response: any, interceptors: ResponseInterceptorInterface[]) {
-        if (interceptors && interceptors.length) {
-            return interceptors
-                .filter(inter => !!inter.onJson)
-                .reduce((value, inter) => inter.onJson(value, request, response), data);
-        }
-
-        return data;
+        options.response.end();
     }
 
 }

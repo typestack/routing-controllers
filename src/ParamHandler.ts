@@ -4,6 +4,11 @@ import {BodyRequiredError} from "./error/BodyRequiredError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {HttpFramework} from "./http-framework-integration/HttpFramework";
 
+/**
+ * Helps to handle parameters.
+ *
+ * @internal
+ */
 export class ParamHandler {
 
     // -------------------------------------------------------------------------
@@ -27,7 +32,7 @@ export class ParamHandler {
                 value = response;
                 break;
             default:
-                value = this.framework.handleParam(request, param.name, param.type);
+                value = this.framework.getParamFromRequest(request, param.name, param.type);
                 if (value)
                     value = this.handleParamFormat(value, param);
                 break;
