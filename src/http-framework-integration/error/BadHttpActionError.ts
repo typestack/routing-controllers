@@ -1,6 +1,3 @@
-/**
- * @internal
- */
 export class BadHttpActionError extends Error {
     name = 'BadHttpActionError';
 

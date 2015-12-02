@@ -6,8 +6,6 @@ import {HttpFramework} from "./http-framework-integration/HttpFramework";
 
 /**
  * Helps to handle parameters.
- *
- * @internal
  */
 export class ParamHandler {
 

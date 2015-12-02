@@ -1,8 +1,7 @@
 /**
  * Common controller utilities.
- *
- * @internal
  */
+/** @internal */
 export class Utils {
 
     /**

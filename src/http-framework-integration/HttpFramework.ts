@@ -3,8 +3,6 @@ import {ResultHandleOptions} from "./../ResultHandleOptions";
 
 /**
  * Abstract layer to organize controllers integration with different http frameworks.
- *
- * @internal
  */
 export interface HttpFramework {
 

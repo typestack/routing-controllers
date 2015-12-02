@@ -6,8 +6,6 @@ import {ResponseInterceptorMetadata} from "./ResponseInterceptorMetadata";
 
 /**
  * Storage all controllers metadata.
- *
- * @internal
  */
 export class MetadataStorage {
 
