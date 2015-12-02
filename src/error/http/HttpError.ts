@@ -1,9 +1,15 @@
+/**
+ * Used to throw Http errors.
+ */
 export class HttpError extends Error {
     httpCode: number;
+    message: string;
 
-    constructor(httpCode: number) {
+    constructor(httpCode: number, message?: string) {
         super();
         if (httpCode)
             this.httpCode = httpCode;
+        if (message)
+            this.message = message;
     }
 }

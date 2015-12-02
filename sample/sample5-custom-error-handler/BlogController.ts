@@ -1,4 +1,4 @@
-import {JsonController, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Body, QueryParam, Param} from "../../src/Decorators";
 import {ForbiddenError} from "../../src/error/http/ForbiddenError";
 
 export class ValidationError extends Error {

@@ -1,5 +1,8 @@
 import {BadRequestError} from "./http/BadRequestError";
 
+/**
+ * Caused when body is required, but not given in the user request.
+ */
 export class BodyRequiredError extends BadRequestError {
     name = 'BodyRequiredError';
 

@@ -1,14 +1,56 @@
+/**
+ * Controller metadata used to storage information about registered parameters.
+ *
+ * @internal
+ */
 export interface ParamMetadata {
+
+    /**
+     * Object on which's method's parameter this parameter is attached.
+     */
     object: any;
-    methodName: string;
+
+    /**
+     * Method on which's parameter is attached.
+     */
+    method: string;
+
+    /**
+     * Index (# number) of the parameter in the method signature.
+     */
     index: number;
+
+    /**
+     * Parameter type.
+     */
     type: ParamType;
+
+    /**
+     * Parameter name.
+     */
     name?: string;
+
+    /**
+     * Parameter format.
+     */
     format?: any;
+
+    /**
+     * Specifies if parameter should be parsed as json or not.
+     */
     parseJson: boolean;
+
+    /**
+     * Indicates if this parameter is required or not
+     */
     isRequired: boolean;
 }
 
+/**
+ * Action parameter types.
+ *
+ * @internal
+ */
 export enum ParamType {
     BODY = 1,
     QUERY = 2,
@@ -19,7 +61,18 @@ export enum ParamType {
     RESPONSE = 7
 }
 
+/**
+ * Extra parameters set to the parameter.
+ */
 export interface ParamOptions {
+
+    /**
+     * If set to true then parameter will be required.
+     */
     required?: boolean;
+
+    /**
+     * If set to true then parameter will be parsed to json.
+     */
     parseJson?: boolean;
 }

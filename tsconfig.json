@@ -1,5 +1,5 @@
 {
-    "version": "1.6.2",
+    "version": "1.7.3",
     "compilerOptions": {
         "outDir": "build/es5",
         "target": "es5",
@@ -7,7 +7,8 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "sourceMap": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "stripInternal": true
     },
     "exclude": [
         "built",

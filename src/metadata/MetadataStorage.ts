@@ -1,4 +1,3 @@
-import {Utils} from './../Utils';
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadata} from "./ParamMetadata";
@@ -7,6 +6,8 @@ import {ResponseInterceptorMetadata} from "./ResponseInterceptorMetadata";
 
 /**
  * Storage all controllers metadata.
+ *
+ * @internal
  */
 export class MetadataStorage {
 
@@ -84,7 +85,7 @@ export class MetadataStorage {
 
     findParamMetadatasMetadatasForControllerAndActionMetadata(controllerMetadata: ControllerMetadata, actionMetadata: ActionMetadata): ParamMetadata[] {
         return this._paramMetadatas.filter(param => {
-            return param.object.constructor === controllerMetadata.object && param.methodName === actionMetadata.method;
+            return param.object.constructor === controllerMetadata.object && param.method === actionMetadata.method;
         });
     }
 

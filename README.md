@@ -162,7 +162,7 @@ objects and `Content-Type` header will be always set to `application/json`:
 
 #### Inject parameters
 
-You can inject some common params you may need right into the controller action method using proper annotations:
+You can inject some common params you may need right into the controller action method using proper decorators:
 
 ```typescript
 @Get('/users/:id')
@@ -183,7 +183,7 @@ getAll( @Req() request: Request,
 #### Inject body and transform it to object
 
 If you want to have response body and wish it to be automatically converted to object you need to use @Body
-parameter annotation and specify extra parameters to it:
+parameter decorator and specify extra parameters to it:
 
 ```typescript
 @Post('/users')
@@ -200,7 +200,7 @@ There is also simplified way of doing it: `save(@Body(true) user: any)`
 #### Make body required
 
 If you want to have response body and wish it to be automatically converted to object you need to use @Body
-parameter annotation and specify extra parameters to it:
+parameter decorator and specify extra parameters to it:
 
 ```typescript
 @Post('/users')
@@ -213,7 +213,7 @@ Same you can do with all other parameter inectors: @Param, @QueryParam, @BodyPar
 
 #### Inject parameters and transform them to objects
 
-You can inject some common params you may need right into the controller action method using proper annotations:
+You can inject some common params you may need right into the controller action method using proper decorators:
 
 ```typescript
 @Get('/users')
@@ -230,34 +230,29 @@ getAll(@QueryParam('filter', { required: true }) filter: UserFilter) {
 
 ```
 
-## Samples
-
-Take a look on samples in [./sample](https://github.com/PLEEROCK/controllers.ts/tree/master/sample) for more examples
-of usages.
-
 ## Decorators Documentation
 
 #### Controller Decorators
 
 | Signature                           | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |-------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Controller(baseRoute: string)`     | `@Controller('/users') class SomeController`         | Class that is marked with this annotation is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
-| `JsonController(baseRoute: string)` | `@JsonController('/users') class SomeJsonController` | Class that is marked with this annotation is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
+| `Controller(baseRoute: string)`     | `@Controller('/users') class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
+| `JsonController(baseRoute: string)` | `@JsonController('/users') class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
 
-#### Controller Action Decorators
+#### Controller Method Decorators
 
 | Signature                                                                   | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
 |-----------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `Get(route: string|RegExp, options?: ActionOptions)`                        | `@Get('/users') all()`                 | Methods marked with this annotation will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.get('/users', all)`             |
-| `Post(route: string|RegExp, options?: ActionOptions)`                       | `@Post('/users') save()`               | Methods marked with this annotation will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.post('/users', save)`           |
-| `Put(route: string|RegExp, options?: ActionOptions)`                        | `@Put('/users/:id') update()`          | Methods marked with this annotation will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.put('/users', update)`          |
-| `Patch(route: string|RegExp, options?: ActionOptions)`                      | `@Patch('/users/:id') patch()`         | Methods marked with this annotation will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.patch('/users/:id', patch)`     |
-| `Delete(route: string|RegExp, options?: ActionOptions)`                     | `@Delete('/users/:id') delete()`       | Methods marked with this annotation will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.delete('/users/:id', delete)`   |
-| `Head(route: string|RegExp, options?: ActionOptions)`                       | `@Head('/users/:id') head()`           | Methods marked with this annotation will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.head('/users/:id', head)`       |
-| `Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options('/users/:id') head()`        | Methods marked with this annotation will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.            | `app.options('/users/:id', options)` |
-| `Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method('move', '/users/:id') move()` | Methods marked with this annotation will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response. | `app.move('/users/:id', move)`       |
+| `Get(route: string|RegExp, options?: ActionOptions)`                        | `@Get('/users') all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.get('/users', all)`             |
+| `Post(route: string|RegExp, options?: ActionOptions)`                       | `@Post('/users') save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.post('/users', save)`           |
+| `Put(route: string|RegExp, options?: ActionOptions)`                        | `@Put('/users/:id') update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.put('/users', update)`          |
+| `Patch(route: string|RegExp, options?: ActionOptions)`                      | `@Patch('/users/:id') patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.patch('/users/:id', patch)`     |
+| `Delete(route: string|RegExp, options?: ActionOptions)`                     | `@Delete('/users/:id') delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.delete('/users/:id', delete)`   |
+| `Head(route: string|RegExp, options?: ActionOptions)`                       | `@Head('/users/:id') head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.head('/users/:id', head)`       |
+| `Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options('/users/:id') head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.            | `app.options('/users/:id', options)` |
+| `Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method('move', '/users/:id') move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response. | `app.move('/users/:id', move)`       |
 
-#### Action Parameter Decorators
+#### Method Parameter Decorators
 
 | Signature                                           | Example                                          | Description                                                                                                                                                                                                                                                         | express.js analogue            |
 |-----------------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
@@ -268,6 +263,11 @@ of usages.
 | `QueryParam(name: string, options?: ParamOptions)`  | `get(@QueryParam('id') id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.query('id')`          |
 | `BodyParam(name: string, options?: ParamOptions)`   | `post(@BodyParam('name') name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.          | `request.body['name']`         |
 | `CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam('username') username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.      | `request.cookie('username')`   |
+
+## Samples
+
+Take a look on samples in [./sample](https://github.com/PLEEROCK/controllers.ts/tree/master/sample) for more examples
+of usages.
 
 ## Todos
 

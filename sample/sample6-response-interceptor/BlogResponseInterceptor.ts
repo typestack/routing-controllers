@@ -1,5 +1,5 @@
-import {ResponseInterceptor} from "../../src/Annotations";
-import {ResponseInterceptorInterface} from "../../src/ResponseInterceptorInterface";
+import {ResponseInterceptor} from "../../src/Decorators";
+import {ResponseInterceptorInterface} from "../../src/interceptor/ResponseInterceptorInterface";
 import {Request, Response} from "express";
 
 @ResponseInterceptor()

@@ -1,12 +1,43 @@
-import {ActionType} from "../metadata/ActionMetadata";
 import {ParamType} from "../metadata/ParamMetadata";
-import {ResponseInterceptorInterface} from "../ResponseInterceptorInterface";
+import {ResultHandleOptions} from "./../ResultHandleOptions";
 
+/**
+ * Abstract layer to organize controllers integration with different http frameworks.
+ *
+ * @internal
+ */
 export interface HttpFramework {
 
-    registerAction(path: string|RegExp, action: string, callback: (request: any, response: any) => any): void;
-    handleParam(request: any, paramName: string, paramType: ParamType): void;
-    handleError(request: any, response: any, error: any, asJson: boolean, errorHttpCode: number, interceptors: ResponseInterceptorInterface[]): void
-    handleSuccess(request: any, response: any, result: any, asJson: boolean, successHttpCode: number, interceptors: ResponseInterceptorInterface[]): void;
+    /**
+     * Registers action in the http framework.
+     *
+     * @param route URI path to be registered (for example /users/:id/photos)
+     * @param actionType HTTP action to be performed on registered path (GET, POST, etc.)
+     * @param executeCallback Function to be called when request comes on the given route with the given action
+     */
+    registerAction(route: string|RegExp, actionType: string, executeCallback: (request: any, response: any) => any): void;
+
+    /**
+     * Gets param from the request.
+     *
+     * @param request Request made by a user
+     * @param paramName Parameter name
+     * @param paramType Parameter type
+     */
+    getParamFromRequest(request: any, paramName: string, paramType: ParamType): void;
+
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     *
+     * @param options Handling performs on these options
+     */
+    handleError(options: ResultHandleOptions): void;
+
+    /**
+     * Defines an algorithm of how to handle success result of executing controller action.
+     *
+     * @param options Handling performs on these options
+     */
+    handleSuccess(options: ResultHandleOptions): void;
 
 }

@@ -1,7 +1,7 @@
 {
   "name": "controllers.ts",
-  "version": "0.1.1",
-  "description": "Allows to use controllers with express.js in Typescript",
+  "version": "0.2.0",
+  "description": "Allows to use class-based controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
   "author": {
@@ -17,8 +17,10 @@
   },
   "tags": [
     "express",
+    "express.js",
     "typescript",
     "typescript-express",
+    "typescript-express.js",
     "express-controllers",
     "controllers"
   ],
@@ -41,7 +43,7 @@
     "require-all": "^2.0.0",
     "run-sequence": "^1.1.4",
     "tsd": "^0.6.4",
-    "typescript": "^1.6.2"
+    "typescript": "^1.7.3"
   },
   "scripts": {
     "postversion": "./node_modules/.bin/gulp package"

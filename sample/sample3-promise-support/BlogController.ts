@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {JsonController, Get, Post, Put, Patch, Delete, Req} from "../../src/Annotations";
+import {JsonController, Get, Post, Put, Patch, Delete, Req} from "../../src/Decorators";
 import {NotFoundError} from "../../src/error/http/NotFoundError";
 
 @JsonController()

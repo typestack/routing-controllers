@@ -1,15 +1,18 @@
 /**
  * Common controller utilities.
+ *
+ * @internal
  */
 export class Utils {
 
-    static flattenRequiredObjects(requiredObjects: any[]): Function[] {
-        return requiredObjects.reduce((allObjects, objects) => {
-            return allObjects.concat(Object.keys(objects).map(key => objects[key]));
-        }, []);
-    }
-
-    static merge(obj1: any, obj2: any) {
+    /**
+     * Merges two objects.
+     *
+     * @param obj1 First object to be merged
+     * @param obj2 Second object to be merged
+     * @returns Merged object
+     */
+    static merge(obj1: any, obj2: any): any {
         const result: any = {};
         for (var i in obj1) {
             if ((i in obj2) && (typeof obj1[i] === 'object') && (i !== null)) {
@@ -22,6 +25,18 @@ export class Utils {
             result[i] = obj2[i];
         }
         return result;
+    }
+
+    /**
+     * Checks if given object is possibly a Promise object.
+     *
+     * @param object Object to be checked
+     * @returns True if given object is a possible Promise, false otherwise
+     */
+    static isPromise(object: any): boolean {
+        return object instanceof Object &&
+            object.then instanceof Function &&
+            object.catch instanceof Function;
     }
 
 }

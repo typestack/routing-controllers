@@ -1,5 +1,8 @@
 import {BadRequestError} from "./http/BadRequestError";
 
+/**
+ * Caused when parameter is required, but is not specified by a user.
+ */
 export class ParameterRequiredError extends BadRequestError {
     name = 'ParameterRequiredError';
 
