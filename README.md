@@ -15,6 +15,10 @@ contribute and implement integrations with other frameworks.
 
     `tsd install --save express es6-promise`
 
+3. Link tsd definitions from installed node modules
+
+    `tsd link`
+
 ## Simple usage
 
 1. Create a file `UserController.ts`
@@ -63,28 +67,18 @@ contribute and implement integrations with other frameworks.
     }
     ```
 
-    This class will register routes specified in method decorators in your http framework (express.js).
+    This class will register routes specified in method decorators in your server framework (express.js).
 
 2. Create a file `app.ts`
 
     ```typescript
-    import {ControllerRunner} from "controllers.ts/ControllerRunner";
-    import {ExpressHttpFramework} from "controllers.ts/http-framework-integration/ExpressHttpFramework";
+    import * as express from "express";
+    import {registerActionsInExpressApp} from "controllers.ts/Factory";
 
-    // create express application
-    let app = express();
-    // you can setup body parser: app.use(bodyParser.json());
-    // or anything else you usually do with express
-
-    // here you need to "load" your controller
-    require('./UserController');
-
-    // create a controller runner that will register all actions in a specific framework (express.js)
-    let controllerRunner = new ControllerRunner(new ExpressHttpFramework(app));
-    controllerRunner.registerAllActions(); // register actions in the app
-
-    // now you can run your express application.
-    app.listen(3000);
+    let app = express(); // create express application
+    require('./UserController'); // here we need to "load" our controller
+    registerActionsInExpressApp(app); // register controllers routes in our express application
+    app.listen(3000); // now we can run your express application.
     ```
 
 3. Open browser on `http://localhost:3000/users`. You should see `Hello all users` in your browser. If you open
@@ -99,21 +93,12 @@ specific directory. To do it you can install [require-all](https://www.npmjs.com
 it like this:
 
 ```typescript
-import {ControllerRunner} from "controllers.ts/ControllerRunner";
-import {ExpressHttpFramework} from "controllers.ts/http-framework-integration/ExpressHttpFramework";
+import * as express from "express";
+import {registerActionsInExpressApp} from "controllers.ts/Factory";
 
-// lets say you have multiple controllers in your ./controllers directory
-// and you want to load them all (and respectively load their actions)
-// we can use require-all module to load all files from the given directory
-// run `npm install require-all --save-dev` in order to use it
-require('require-all')({ dirname: __dirname + '/controllers' });
-
-let app = express(); // create express server
-app.use(bodyParser.json()); // setup body parser
-
-let controllerRunner = new ControllerRunner(new ExpressHttpFramework(app));
-controllerRunner.registerAllActions(); // register actions in the app
-app.listen(3000); // run express app
+let app = express(); // create express application
+registerActionsInExpressApp(app, [__dirname + '/controllers']); // register controllers routes in our express application
+app.listen(3000); // now we can run your express application.
 ```
 
 #### Set response body value returned by a controller action
@@ -259,20 +244,20 @@ getAll(@QueryParam('filter', { required: true }) filter: UserFilter) {
 | `Req()`                                             | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                     | `function (request, response)` |
 | `Res()`                                             | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                     | `function (request, response)` |
 | `Body(options: ParamOptions)`                       | `save(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                           | `request.body`                 |
-| `Param(name: string, options?: ParamOptions)`       | `get(@Param('id') id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                    | `request.param('id')`          |
-| `QueryParam(name: string, options?: ParamOptions)`  | `get(@QueryParam('id') id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.query('id')`          |
-| `BodyParam(name: string, options?: ParamOptions)`   | `post(@BodyParam('name') name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.          | `request.body['name']`         |
+| `Param(name: string, options?: ParamOptions)`       | `get(@Param('id') id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                    | `request.params.id`            |
+| `QueryParam(name: string, options?: ParamOptions)`  | `get(@QueryParam('id') id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.query.id`             |
+| `BodyParam(name: string, options?: ParamOptions)`   | `post(@BodyParam('name') name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.          | `request.body.name`            |
 | `CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam('username') username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.      | `request.cookie('username')`   |
 
 ## Samples
 
 Take a look on samples in [./sample](https://github.com/PLEEROCK/controllers.ts/tree/master/sample) for more examples
-of usages.
+of usage.
 
 ## Todos
 
 * cover with tests
 * make interceptors to work with response.send method too
 * add reversed error override map
-* handle http framework errors (param parse, body parse errors, etc.)
+* handle server framework errors (param parse, body parse errors, etc.)
 * integration with other frameworks (other then express.js) can be easily added, so PRs are welcomed

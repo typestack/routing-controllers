@@ -1,4 +1,4 @@
-import {HttpFramework} from "./http-framework-integration/HttpFramework";
+import {Server} from "./server/Server";
 import {ActionOptions, ActionMetadata} from "./metadata/ActionMetadata";
 import {ControllerMetadata, ControllerType} from "./metadata/ControllerMetadata";
 import {MetadataStorage, defaultMetadataStorage} from "./metadata/MetadataStorage";
@@ -17,7 +17,7 @@ export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverr
 export type DefaultErrorHandlerFunction = (error: any) => any;
 
 /**
- * Registers controllers and actions in the given http framework.
+ * Registers controllers and actions in the given server framework.
  */
 export class ControllerRunner {
 
@@ -38,7 +38,7 @@ export class ControllerRunner {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private framework: HttpFramework) {
+    constructor(private framework: Server) {
         this._paramHandler = new ParamHandler(framework);
     }
 
@@ -120,6 +120,19 @@ export class ControllerRunner {
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
+
+    /**
+     * Loads all controllers from the given directory
+     *
+     * @param directory Directory where from load controllers
+     * @param recursive Indicates if controllers are in nested directories and thy must be loaded tooo
+     * @param filter Regxep to filter speficif files to load
+     * @param excludeDirs Regxep to exclude some files
+     * @see https://www.npmjs.com/package/require-all
+     */
+    loadFiles(directory: string, recursive?: boolean, filter?: RegExp, excludeDirs?: RegExp) {
+        require('require-all')({ dirname: directory, filter: filter, excludeDirs: excludeDirs, recursive: recursive });
+    }
 
     /**
      * Registers all loaded to the metadata storage controllers and their actions.

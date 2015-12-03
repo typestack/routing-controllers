@@ -10,6 +10,13 @@ gulp.task('clean', function (cb) {
     return del(['./build/**'], cb);
 });
 
+gulp.task('npm-publish', function() {
+    return gulp.src('*.js', { read: false })
+        .pipe(shell([
+            'cd ./build/package && npm publish'
+        ]));
+});
+
 gulp.task('compile', function() {
     return gulp.src('*.js', { read: false })
         .pipe(shell([
@@ -53,4 +60,8 @@ gulp.task('package', function(cb) {
         ['package-files', 'package-prepare-package-json', 'package-readme-md', 'package-generate-dts'],
         cb
     );
+});
+
+gulp.task('publish', function(cb) {
+    return runSequence('package', 'npm-publish', cb);
 });

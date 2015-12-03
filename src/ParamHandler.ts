@@ -2,7 +2,7 @@ import {ParamMetadata, ParamType} from "./metadata/ParamMetadata";
 import {ParameterRequiredError} from "./error/ParameterRequiredError";
 import {BodyRequiredError} from "./error/BodyRequiredError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {HttpFramework} from "./http-framework-integration/HttpFramework";
+import {Server} from "./server/Server";
 
 /**
  * Helps to handle parameters.
@@ -13,7 +13,7 @@ export class ParamHandler {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private framework: HttpFramework) {
+    constructor(private framework: Server) {
     }
 
     // -------------------------------------------------------------------------
