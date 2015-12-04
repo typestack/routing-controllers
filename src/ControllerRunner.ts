@@ -275,7 +275,13 @@ export class ControllerRunner {
                     asJson: options.asJson,
                     interceptors: options.interceptors
                 }))
-                .catch((error: any) => this.handleError(options));
+                .catch((error: any) => this.handleError({
+                    response: options.response,
+                    httpCode: options.httpCode,
+                    content: error,
+                    asJson: options.asJson,
+                    interceptors: options.interceptors
+                }));
         } else {
             this.framework.handleSuccess(options);
         }
