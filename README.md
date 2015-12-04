@@ -25,7 +25,7 @@ contribute and implement integrations with other frameworks.
 
     ```typescript
     import {Request, Response} from "express";
-    import {Controller, Get, Post, Put, Patch, Delete, Req, Res} from "controllers.ts/Annotations";
+    import {Controller, Get, Post, Put, Patch, Delete, Req, Res} from "controllers.ts/Decorators";
 
     @Controller()
     export class UserController {
