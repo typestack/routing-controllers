@@ -59,10 +59,16 @@ export class ExpressServer implements Server {
     }
 
     handleSuccess(options: ResultHandleOptions): void {
+        if (options.successHttpCode)
+            options.response.status(options.successHttpCode);
+
         this.handleResult(options);
     }
 
     handleError(options: ResultHandleOptions): void {
+        if (options.errorHttpCode)
+            options.response.status(options.errorHttpCode);
+
         this.handleResult(options);
     }
 
@@ -71,12 +77,33 @@ export class ExpressServer implements Server {
     // -------------------------------------------------------------------------
 
     private handleResult(options: ResultHandleOptions) {
-        if (options.httpCode)
-            options.response.status(options.httpCode);
+        if (options.headers)
+            options.headers.forEach(header => options.response.header(header.name, header.value));
 
         if (options.content !== null && options.content !== undefined) {
             const result = this._interceptorHelper.callInterceptors(options);
-            options.asJson ? options.response.json(result) : options.response.send(result);
+            if (options.renderedTemplate) {
+                const renderOptions = result && result instanceof Object ? result : {};
+                this.express.render(options.renderedTemplate, renderOptions, (err: any, html: string) => {
+                    if (err && options.asJson) {
+                        options.response.json(err);
+
+                    } else if (err && !options.asJson) {
+                        options.response.send(err);
+
+                    } else if (html) {
+                        options.response.send(html);
+                    }
+                });
+            } else if (options.redirect) {
+                options.response.redirect(options.redirect);
+
+            } else if (options.asJson) {
+                options.response.json(result);
+
+            } else {
+                options.response.send(result);
+            }
         }
 
         options.response.end();

@@ -3,6 +3,7 @@ import {ParameterRequiredError} from "./error/ParameterRequiredError";
 import {BodyRequiredError} from "./error/BodyRequiredError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {Server} from "./server/Server";
+import {Utils} from "./Utils";
 
 /**
  * Helps to handle parameters.
@@ -72,7 +73,12 @@ export class ParamHandler {
 
     private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
-            return JSON.parse(value);
+            const parseValue = JSON.parse(value);
+            if (paramMetadata.format) {
+                return Utils.merge(new paramMetadata.format(), parseValue);
+            } else {
+                return parseValue;
+            }
         } catch (er) {
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }

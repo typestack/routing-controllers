@@ -4,7 +4,7 @@ import {ControllerMetadata, ControllerType} from "./metadata/ControllerMetadata"
 import {MetadataStorage, defaultMetadataStorage} from "./metadata/MetadataStorage";
 import {Utils} from "./Utils";
 import {ParamMetadata} from "./metadata/ParamMetadata";
-import {HttpCodeMetadata} from "./metadata/HttpCodeMetadata";
+import {ResponsePropertyMetadata, ResponsePropertyType} from "./metadata/ResponsePropertyMetadata";
 import {ParamHandler} from "./ParamHandler";
 import {HttpError} from "./error/http/HttpError";
 import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
@@ -33,6 +33,7 @@ export class ControllerRunner {
     private _errorOverridingMap: Object;
     private _jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
     private _defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
+    private requireAll: Function = require('require-all');
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -131,7 +132,7 @@ export class ControllerRunner {
      * @see https://www.npmjs.com/package/require-all
      */
     loadFiles(directory: string, recursive?: boolean, filter?: RegExp, excludeDirs?: RegExp) {
-        require('require-all')({ dirname: directory, filter: filter, excludeDirs: excludeDirs, recursive: recursive });
+        this.requireAll({ dirname: directory, filter: filter, excludeDirs: excludeDirs, recursive: recursive });
     }
 
     /**
@@ -160,22 +161,22 @@ export class ControllerRunner {
             this._metadataStorage
                 .findActionMetadatasForControllerMetadata(controller)
                 .forEach(action => {
-                    const extraParams = this._metadataStorage.findParamMetadatasMetadatasForControllerAndActionMetadata(controller, action);
-                    const httpCode = this._metadataStorage.findHttpCodeMetadatasMetadatasForControllerAndActionMetadata(controller, action);
-                    return this.registerAction(controller, action, httpCode, extraParams, this._metadataStorage.responseInterceptorMetadatas);
+                    const extraParams = this._metadataStorage.findParamMetadatasForControllerAndActionMetadata(controller, action);
+                    const propertyMetadatas = this._metadataStorage.findResponsePropertyMetadatasForControllerAndActionMetadata(controller, action);
+                    return this.registerAction(controller, action, propertyMetadatas, extraParams, this._metadataStorage.responseInterceptorMetadatas);
                 });
         });
     }
 
     private registerAction(controller: ControllerMetadata,
                            action: ActionMetadata,
-                           httpCode: HttpCodeMetadata,
+                           responseProperties: ResponsePropertyMetadata[],
                            params: ParamMetadata[],
                            interceptorMetadatas: ResponseInterceptorMetadata[]) {
 
         const path = this.buildActionPath(controller, action);
         this.framework.registerAction(path, action.type, (request: any, response: any) => {
-            return this.handleAction(request, response, controller, action, httpCode, params, interceptorMetadatas);
+            return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas);
         });
     }
 
@@ -193,21 +194,54 @@ export class ControllerRunner {
                          response: any,
                          controllerMetadata: ControllerMetadata,
                          actionMetadata: ActionMetadata,
-                         httpCodeMetadata: HttpCodeMetadata,
+                         responsePropertyMetadatas: ResponsePropertyMetadata[],
                          paramMetadatas: ParamMetadata[],
                          interceptorMetadatas: ResponseInterceptorMetadata[]) {
 
         const isJson = this.isActionMustReturnJson(controllerMetadata.type, actionMetadata.options);
         const controllerObject = this.getControllerInstance(controllerMetadata);
         const interceptors = interceptorMetadatas ? this.getInterceptorInstancesFromMetadatas(interceptorMetadatas) : [];
+
+        const contentTypeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.CONTENT_TYPE ? property : found;
+        }, undefined);
+        const locationMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.LOCATION ? property : found;
+        }, undefined);
+        const redirectMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.REDIRECT ? property : found;
+        }, undefined);
+        const successCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.SUCCESS_CODE ? property : found;
+        }, undefined);
+        const errorCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.ERROR_CODE ? property : found;
+        }, undefined);
+        const renderedTemplateMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.RENDERED_TEMPLATE ? property : found;
+        }, undefined);
+        const headerMetadatas = responsePropertyMetadatas.filter(property => {
+            return property.type === ResponsePropertyType.HEADER;
+        }).map(property => ({ name: property.value, value: property.value2 }));
+
         const handleResultOptions: ResultHandleOptions = {
             request: request,
             response: response,
             content: undefined,
             asJson: isJson,
-            httpCode: httpCodeMetadata ? httpCodeMetadata.code : undefined,
+            successHttpCode: successCodeMetadata ? successCodeMetadata.value : undefined,
+            errorHttpCode: errorCodeMetadata ? errorCodeMetadata.value : undefined,
+            redirect: redirectMetadata ? redirectMetadata.value : undefined,
+            headers: headerMetadatas,
+            renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.value : undefined,
             interceptors: interceptors
         };
+
+        if (contentTypeMetadata && contentTypeMetadata.value)
+            handleResultOptions.headers.push({ name: 'Content-Type', value: contentTypeMetadata.value });
+
+        if (locationMetadata && locationMetadata.value)
+            handleResultOptions.headers.push({ name: 'Location', value: locationMetadata.value });
 
         try {
             const params = paramMetadatas
@@ -215,10 +249,8 @@ export class ControllerRunner {
                 .map(param => this._paramHandler.handleParam(request, response, param));
             const result = controllerObject[actionMetadata.method].apply(controllerObject, params);
 
-            if (result) {
-                handleResultOptions.content = isJson ? result : String(result);
-                this.handleResult(handleResultOptions);
-            }
+            if (result)
+                this.handleResult(isJson ? result : String(result), handleResultOptions);
 
         } catch (error) {
 
@@ -264,26 +296,19 @@ export class ControllerRunner {
         return controllerType === ControllerType.JSON;
     }
 
-    private handleResult(options: ResultHandleOptions) {
+    private handleResult(result: any, options: ResultHandleOptions) {
         if (Utils.isPromise(options.content)) {
-            options.content
-                .then((result: any) => this.framework.handleSuccess({
-                    request: options.request,
-                    response: options.response,
-                    httpCode: options.httpCode,
-                    content: result,
-                    asJson: options.asJson,
-                    interceptors: options.interceptors
-                }))
-                .catch((error: any) => this.handleError({
-                    request: options.request,
-                    response: options.response,
-                    httpCode: options.httpCode,
-                    content: error,
-                    asJson: options.asJson,
-                    interceptors: options.interceptors
-                }));
+            result
+                .then((result: any) => {
+                    options.content = result;
+                    this.framework.handleSuccess(options)
+                })
+                .catch((error: any) => {
+                    options.content = error;
+                    this.handleError(options)
+                });
         } else {
+            options.content = result;
             this.framework.handleSuccess(options);
         }
     }
@@ -294,12 +319,12 @@ export class ControllerRunner {
         if (this._isLogErrorsEnabled)
             console.error(error.stack ? error.stack : error);
 
-        options.httpCode = 500;
+        options.errorHttpCode = options.errorHttpCode || 500;
         if (error instanceof HttpError && error.httpCode) {
-            options.httpCode = error.httpCode;
+            options.errorHttpCode = error.httpCode;
         } else if (typeof responseError === 'object' && responseError.httpCode) {
             // this can be there if custom validation handler decided to return httpCode or error override map did
-            options.httpCode = responseError.httpCode;
+            options.errorHttpCode = responseError.httpCode;
             delete responseError.httpCode;
         }
 

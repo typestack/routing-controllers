@@ -121,11 +121,11 @@ promise is resolved.
 
 ```typescript
 @Get('/users')
-getAll(@Req() request: Request, @Res() response: Response) {
-    return SomeService.loadData();
+getAll() {
+    return Database.loadUsers();
 }
 
-// its the same as SomeService.loadData().then(
+// its the same as Database.loadUsers().then(
 //     result => request.send(result),
 //     error  => { request.status(500); request.send(error) }
 // );

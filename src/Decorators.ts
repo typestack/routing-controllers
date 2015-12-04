@@ -1,7 +1,7 @@
-import 'reflect-metadata';
+import "reflect-metadata";
 import {defaultMetadataStorage} from "./metadata/MetadataStorage";
 import {ActionType} from "./metadata/ActionMetadata";
-import {HttpCodeType} from "./metadata/HttpCodeMetadata";
+import {ResponsePropertyType} from "./metadata/ResponsePropertyMetadata";
 import {ControllerType} from "./metadata/ControllerMetadata";
 import {ParamType, ParamOptions} from "./metadata/ParamMetadata";
 import {ActionOptions} from "./metadata/ActionMetadata";
@@ -340,7 +340,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        const format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -426,11 +426,82 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
  */
 export function SuccessHttpCode(code: number) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addHttpCodeMetadata({
-            code: code,
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: code,
             object: object,
             method: methodName,
-            type: HttpCodeType.SUCCESS
+            type: ResponsePropertyType.SUCCESS_CODE
+        });
+    }
+}
+
+/**
+ * Annotation must be set to controller action and given content-type will be set to response.
+ */
+export function ContentType(type: string) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: type,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.SUCCESS_CODE
+        });
+    }
+}
+
+/**
+ * Annotation must be set to controller action and given content-type will be set to response.
+ */
+export function Header(name: string, value: string) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: name,
+            value2: value,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.HEADER
+        });
+    }
+}
+
+/**
+ * Sets Location header with given value to the response.
+ */
+export function Location(value: string) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: value,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.LOCATION
+        });
+    }
+}
+
+/**
+ * Sets Redirect header with given value to the response.
+ */
+export function Redirect(value: string) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: value,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.REDIRECT
+        });
+    }
+}
+
+/**
+ * Specifies a template to be rendered by controller.
+ */
+export function Render(template: string) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: template,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.RENDERED_TEMPLATE
         });
     }
 }

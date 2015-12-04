@@ -1,7 +1,7 @@
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadata} from "./ParamMetadata";
-import {HttpCodeMetadata} from "./HttpCodeMetadata";
+import {ResponsePropertyMetadata} from "./ResponsePropertyMetadata";
 import {ResponseInterceptorMetadata} from "./ResponseInterceptorMetadata";
 
 /**
@@ -17,7 +17,7 @@ export class MetadataStorage {
     private _responseInterceptorMetadatas: ResponseInterceptorMetadata[] = [];
     private _actionMetadatas: ActionMetadata[] = [];
     private _paramMetadatas: ParamMetadata[] = [];
-    private _httpCodeMetadatas: HttpCodeMetadata[] = [];
+    private _responsePropertyMetadatas: ResponsePropertyMetadata[] = [];
 
     // -------------------------------------------------------------------------
     // Accessors
@@ -35,8 +35,8 @@ export class MetadataStorage {
         return this._paramMetadatas;
     }
 
-    get httpCodeMetadatas(): HttpCodeMetadata[] {
-        return this._httpCodeMetadatas;
+    get responsePropertyMetadatas(): ResponsePropertyMetadata[] {
+        return this._responsePropertyMetadatas;
     }
 
     get responseInterceptorMetadatas(): ResponseInterceptorMetadata[] {
@@ -47,8 +47,8 @@ export class MetadataStorage {
     // Adder Methods
     // -------------------------------------------------------------------------
 
-    addHttpCodeMetadata(metadata: HttpCodeMetadata) {
-        this._httpCodeMetadatas.push(metadata);
+    addResponsePropertyMetadata(metadata: ResponsePropertyMetadata) {
+        this._responsePropertyMetadatas.push(metadata);
     }
 
     addControllerMetadata(metadata: ControllerMetadata) {
@@ -81,16 +81,16 @@ export class MetadataStorage {
         return this._actionMetadatas.filter(action => action.object.constructor === controllerMetadata.object);
     }
 
-    findParamMetadatasMetadatasForControllerAndActionMetadata(controllerMetadata: ControllerMetadata, actionMetadata: ActionMetadata): ParamMetadata[] {
+    findParamMetadatasForControllerAndActionMetadata(controllerMetadata: ControllerMetadata, actionMetadata: ActionMetadata): ParamMetadata[] {
         return this._paramMetadatas.filter(param => {
             return param.object.constructor === controllerMetadata.object && param.method === actionMetadata.method;
         });
     }
 
-    findHttpCodeMetadatasMetadatasForControllerAndActionMetadata(controllerMetadata: ControllerMetadata, actionMetadata: ActionMetadata): HttpCodeMetadata {
-        return this._httpCodeMetadatas.reduce((found, httpCode) => {
-            return httpCode.object.constructor === controllerMetadata.object && httpCode.method === actionMetadata.method ? httpCode : found;
-        }, undefined);
+    findResponsePropertyMetadatasForControllerAndActionMetadata(controllerMetadata: ControllerMetadata, actionMetadata: ActionMetadata): ResponsePropertyMetadata[] {
+        return this._responsePropertyMetadatas.filter(property => {
+            return property.object.constructor === controllerMetadata.object && property.method === actionMetadata.method;
+        });
     }
 
 }
