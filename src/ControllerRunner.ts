@@ -276,6 +276,7 @@ export class ControllerRunner {
                     interceptors: options.interceptors
                 }))
                 .catch((error: any) => this.handleError({
+                    request: options.request,
                     response: options.response,
                     httpCode: options.httpCode,
                     content: error,
