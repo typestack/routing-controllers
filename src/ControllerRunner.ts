@@ -255,11 +255,11 @@ export class ControllerRunner {
         } catch (error) {
 
             if (this.processErrorWithErrorHandler(error, isJson)) {
-                handleResultOptions.content = error;
-                this.handleError(handleResultOptions);
-            } else {
+                this.handleError(error, handleResultOptions);
+            }/* else {
                 throw error;
-            }
+            }*/
+            throw error;
         }
     }
 
@@ -297,15 +297,15 @@ export class ControllerRunner {
     }
 
     private handleResult(result: any, options: ResultHandleOptions) {
-        if (Utils.isPromise(options.content)) {
+        if (Utils.isPromise(result)) {
             result
-                .then((result: any) => {
-                    options.content = result;
+                .then((data: any) => {
+                    options.content = data;
                     this.framework.handleSuccess(options)
                 })
                 .catch((error: any) => {
-                    options.content = error;
-                    this.handleError(options)
+                    this.handleError(error, options);
+                    throw error;
                 });
         } else {
             options.content = result;
@@ -313,8 +313,7 @@ export class ControllerRunner {
         }
     }
 
-    private handleError(options: ResultHandleOptions) {
-        const error = options.content;
+    private handleError(error: any, options: ResultHandleOptions) {
         const responseError = this.processErrorWithErrorHandler(error, options.asJson);
         if (this._isLogErrorsEnabled)
             console.error(error.stack ? error.stack : error);
@@ -328,6 +327,7 @@ export class ControllerRunner {
             delete responseError.httpCode;
         }
 
+        options.content = responseError;
         this.framework.handleError(options);
     }
 
