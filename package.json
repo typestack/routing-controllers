@@ -1,7 +1,7 @@
 {
   "name": "controllers.ts",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Allows to use class-based controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
