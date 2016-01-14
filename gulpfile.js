@@ -48,7 +48,7 @@ gulp.task('package-generate-dts', function () {
             name: name,
             baseDir: './src',
             files: files,
-            out: './build/package/' + name + '.d.ts'
+            out: './build/package/index.d.ts'
         });
     });
 });
