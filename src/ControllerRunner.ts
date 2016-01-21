@@ -22,7 +22,13 @@ export type DefaultErrorHandlerFunction = (error: any) => any;
 export class ControllerRunner {
 
     // -------------------------------------------------------------------------
-    // Properties
+    // Public Properties
+    // -------------------------------------------------------------------------
+
+    errorOverridingMap: Object;
+
+    // -------------------------------------------------------------------------
+    // Private properties
     // -------------------------------------------------------------------------
 
     private _container: Container;
@@ -30,7 +36,6 @@ export class ControllerRunner {
     private _paramHandler: ParamHandler;
     private _isLogErrorsEnabled: boolean;
     private _isStackTraceEnabled: boolean;
-    private _errorOverridingMap: Object;
     private _jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
     private _defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
     private requireAll: Function = require('require-all');
@@ -71,15 +76,6 @@ export class ControllerRunner {
      */
     set isStackTraceEnabled(isEnabled: boolean) {
         this._isStackTraceEnabled = isEnabled;
-    }
-
-    /**
-     * Sets the overriding map that will be used to override errors.
-     *
-     * @param map
-     */
-    set errorOverridingMap(map: Object) {
-        this._errorOverridingMap = map;
     }
 
     /**
@@ -340,7 +336,7 @@ export class ControllerRunner {
      */
     private processErrorWithErrorHandler(error: any, isJson: boolean): any {
         if (isJson && this._jsonErrorHandler) {
-            return this._jsonErrorHandler(error, this._isStackTraceEnabled, this._errorOverridingMap);
+            return this._jsonErrorHandler(error, this._isStackTraceEnabled, this.errorOverridingMap);
 
         } else if (!isJson && this._defaultErrorHandler) {
             return this._defaultErrorHandler(error);
