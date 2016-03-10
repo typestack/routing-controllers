@@ -19,7 +19,7 @@ export function Controller(baseRoute?: string) {
             object: object,
             type: ControllerType.DEFAULT
         });
-    }
+    };
 }
 
 /**
@@ -35,5 +35,5 @@ export function JsonController(baseRoute?: string) {
             object: object,
             type: ControllerType.JSON
         });
-    }
+    };
 }

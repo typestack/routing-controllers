@@ -20,7 +20,7 @@ export class BlogResponseInterceptor implements ResponseInterceptorInterface {
 
     private replaceObjectKeys(object: any): any {
         return Object.keys(object).reduce((obj: any, key: string) => {
-            const underscoredKey = key.replace(/\.?([A-Z])/g, function (x,y){return "_" + y.toLowerCase()}).replace(/^_/, "");
+            const underscoredKey = key.replace(/\.?([A-Z])/g, (x, y) =>  "_" + y.toLowerCase()).replace(/^_/, "");
             obj[underscoredKey] = object[key];
             return obj;
         }, {});

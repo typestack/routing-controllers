@@ -6,38 +6,38 @@ import {JsonController} from "../../../src/decorator/Controllers";
 @JsonController()
 export class BlogController {
 
-    @Get('/blogs')
+    @Get("/blogs")
     getAll() {
         return [
-            { id: 1, name: 'First blog!' },
-            { id: 2, name: 'Second blog!' }
+            { id: 1, name: "First blog!" },
+            { id: 2, name: "Second blog!" }
         ];
     }
 
-    @Get('/blogs/:id')
+    @Get("/blogs/:id")
     getOne() {
-        return { id: 1, name: 'First blog!' };
+        return { id: 1, name: "First blog!" };
     }
 
-    @Post('/blogs')
+    @Post("/blogs")
     post(@Req() request: Request) {
         let blog = JSON.stringify(request.body);
-        return 'Blog ' + blog + ' !saved!';
+        return "Blog " + blog + " !saved!";
     }
 
-    @Put('/blogs/:id')
+    @Put("/blogs/:id")
     put(@Req() request: Request) {
-        return 'Blog #' + request.params.id + ' has been putted!';
+        return "Blog #" + request.params.id + " has been putted!";
     }
 
-    @Patch('/blogs/:id')
+    @Patch("/blogs/:id")
     patch(@Req() request: Request) {
-        return 'Blog #' + request.params.id + ' has been patched!';
+        return "Blog #" + request.params.id + " has been patched!";
     }
 
-    @Delete('/blogs/:id')
+    @Delete("/blogs/:id")
     remove(@Req() request: Request) {
-        return 'Blog #' + request.params.id + ' has been removed!';
+        return "Blog #" + request.params.id + " has been removed!";
     }
 
 }

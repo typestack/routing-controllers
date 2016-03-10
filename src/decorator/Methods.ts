@@ -24,7 +24,7 @@ export function Get(route?: string|RegExp, options?: ActionOptions): Function {
             type: ActionType.GET,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -45,7 +45,7 @@ export function Post(route?: string|RegExp, options?: ActionOptions): Function {
             type: ActionType.POST,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -66,7 +66,7 @@ export function Put(route?: string|RegExp, options?: ActionOptions): Function {
             type: ActionType.PUT,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -87,7 +87,7 @@ export function Patch(route?: string|RegExp, options?: ActionOptions): Function 
             type: ActionType.PATCH,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -108,7 +108,7 @@ export function Delete(route?: string|RegExp, options?: ActionOptions): Function
             type: ActionType.DELETE,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -129,7 +129,7 @@ export function Head(route?: string|RegExp, options?: ActionOptions): Function {
             type: ActionType.HEAD,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -150,7 +150,7 @@ export function Options(route?: string|RegExp, options?: ActionOptions): Functio
             type: ActionType.OPTIONS,
             options: options
         });
-    }
+    };
 }
 
 /**
@@ -172,5 +172,5 @@ export function Method(method: string, route?: string|RegExp, options?: ActionOp
             type: method,
             options: options
         });
-    }
+    };
 }

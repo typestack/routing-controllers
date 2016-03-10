@@ -3,7 +3,7 @@ import {registerActionsInExpressApp} from "../../src/Factory";
 import {ControllerRunner} from "../../src/ControllerRunner";
 import {ExpressServer} from "../../src/server/ExpressServer";
 
-require('./BlogController');
+require("./BlogController");
 
 let app = express(); // create express server
 registerActionsInExpressApp(app); // register loaded controllers in express app
@@ -22,4 +22,4 @@ controllerRunner.errorOverridingMap = {
 controllerRunner.registerAllActions(); // register actions in the app
 app.listen(3005); // run express app
 
-console.log('Express server is running on port 3005. Open http://localhost:3005/blogs/');
+console.log("Express server is running on port 3005. Open http://localhost:3005/blogs/");

@@ -6,38 +6,38 @@ import {JsonController} from "../../../src/decorator/Controllers";
 @JsonController()
 export class PostController {
 
-    @Get('/posts')
+    @Get("/posts")
     getAll() {
         return [
-            { id: 1, name: 'First post!' },
-            { id: 2, name: 'Second post!' }
+            { id: 1, name: "First post!" },
+            { id: 2, name: "Second post!" }
         ];
     }
 
-    @Get('/posts/:id')
+    @Get("/posts/:id")
     getOne() {
-        return { id: 1, name: 'First post!' };
+        return { id: 1, name: "First post!" };
     }
 
-    @Post('/posts')
+    @Post("/posts")
     post(@Req() request: Request) {
         let post = JSON.stringify(request.body);
-        return 'Post ' + post + ' !saved!';
+        return "Post " + post + " !saved!";
     }
 
-    @Put('/posts/:id')
+    @Put("/posts/:id")
     put(@Req() request: Request) {
-        return 'Post #' + request.params.id + ' has been putted!';
+        return "Post #" + request.params.id + " has been putted!";
     }
 
-    @Patch('/posts/:id')
+    @Patch("/posts/:id")
     patch(@Req() request: Request) {
-        return 'Post #' + request.params.id + ' has been patched!';
+        return "Post #" + request.params.id + " has been patched!";
     }
 
-    @Delete('/posts/:id')
+    @Delete("/posts/:id")
     remove(@Req() request: Request) {
-        return 'Post #' + request.params.id + ' has been removed!';
+        return "Post #" + request.params.id + " has been removed!";
     }
 
 }

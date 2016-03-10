@@ -20,7 +20,7 @@ export function Req() {
             parseJson: false,
             isRequired: false
         });
-    }
+    };
 }
 
 /**
@@ -37,7 +37,7 @@ export function Res() {
             parseJson: false,
             isRequired: false
         });
-    }
+    };
 }
 
 /**
@@ -50,7 +50,7 @@ export function Body(options: ParamOptions): Function;
 export function Body(required?: boolean, parseJson?: boolean): Function;
 export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
-    if (typeof requiredOrOptions === 'object') {
+    if (typeof requiredOrOptions === "object") {
         required = requiredOrOptions.required;
         parseJson = requiredOrOptions.parseJson;
     } else {
@@ -58,7 +58,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
     }
 
     return function (object: Object, methodName: string, index: number) {
-        const format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        const format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -68,7 +68,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
             parseJson: parseJson,
             isRequired: required
         });
-    }
+    };
 }
 
 /**
@@ -82,7 +82,7 @@ export function Param(name: string, options: ParamOptions): Function;
 export function Param(name: string, required?: boolean, parseJson?: boolean): Function;
 export function Param(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
-    if (typeof requiredOrOptions === 'object') {
+    if (typeof requiredOrOptions === "object") {
         required = requiredOrOptions.required;
         parseJson = requiredOrOptions.parseJson;
     } else {
@@ -90,7 +90,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -101,7 +101,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
             parseJson: parseJson,
             isRequired: required
         });
-    }
+    };
 }
 
 /**
@@ -115,7 +115,7 @@ export function QueryParam(name: string, options: ParamOptions): Function;
 export function QueryParam(name: string, required?: boolean, parseJson?: boolean): Function;
 export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
-    if (typeof requiredOrOptions === 'object') {
+    if (typeof requiredOrOptions === "object") {
         required = requiredOrOptions.required;
         parseJson = requiredOrOptions.parseJson;
     } else {
@@ -123,7 +123,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
     }
 
     return function (object: Object, methodName: string, index: number) {
-        const format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        const format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -134,7 +134,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
             parseJson: parseJson,
             isRequired: required
         });
-    }
+    };
 }
 
 /**
@@ -148,7 +148,7 @@ export function BodyParam(name: string, options: ParamOptions): Function;
 export function BodyParam(name: string, required?: boolean, parseJson?: boolean): Function;
 export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
-    if (typeof requiredOrOptions === 'object') {
+    if (typeof requiredOrOptions === "object") {
         required = requiredOrOptions.required;
         parseJson = requiredOrOptions.parseJson;
     } else {
@@ -156,7 +156,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -167,7 +167,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
             parseJson: parseJson,
             isRequired: required
         });
-    }
+    };
 }
 
 /**
@@ -181,7 +181,7 @@ export function CookieParam(name: string, options: ParamOptions): Function;
 export function CookieParam(name: string, required?: boolean, parseJson?: boolean): Function;
 export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
     let required = false;
-    if (typeof requiredOrOptions === 'object') {
+    if (typeof requiredOrOptions === "object") {
         required = requiredOrOptions.required;
         parseJson = requiredOrOptions.parseJson;
     } else {
@@ -189,7 +189,7 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata('design:paramtypes', object, methodName)[index];
+        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
         defaultMetadataStorage.addParamMetadata({
             object: object,
             method: methodName,
@@ -200,5 +200,5 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
             parseJson: parseJson,
             isRequired: required
         });
-    }
+    };
 }

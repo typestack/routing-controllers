@@ -21,7 +21,7 @@ export function jsonErrorHandler(error: any, isDebug: boolean, errorOverridingMa
             actionError.stack = error.stack;
 
         Object.keys(error)
-            .filter(key => key !== 'stack' && key !== 'name' && key !== 'message' && key !== 'httpCode')
+            .filter(key => key !== "stack" && key !== "name" && key !== "message" && key !== "httpCode")
             .forEach(key => actionError[key] = error[key]);
 
         if (errorOverridingMap)
@@ -30,7 +30,7 @@ export function jsonErrorHandler(error: any, isDebug: boolean, errorOverridingMa
                 .forEach(key => actionError = Utils.merge(actionError, errorOverridingMap[key]));
 
     } else if (isDebug) {
-        actionError['error'] = error;
+        actionError["error"] = error;
     }
 
     return Object.keys(actionError).length > 0 ? actionError : undefined;

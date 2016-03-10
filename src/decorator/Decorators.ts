@@ -19,7 +19,7 @@ export function ResponseInterceptor(priority: number = 0) {
             object: object,
             priority: priority
         });
-    }
+    };
 }
 
 /**
@@ -34,7 +34,7 @@ export function HttpCode(code: number) {
             method: methodName,
             type: ResponsePropertyType.SUCCESS_CODE
         });
-    }
+    };
 }
 
 /**
@@ -48,7 +48,7 @@ export function ContentType(type: string) {
             method: methodName,
             type: ResponsePropertyType.SUCCESS_CODE
         });
-    }
+    };
 }
 
 /**
@@ -63,7 +63,7 @@ export function Header(name: string, value: string) {
             method: methodName,
             type: ResponsePropertyType.HEADER
         });
-    }
+    };
 }
 
 /**
@@ -77,7 +77,7 @@ export function Location(value: string) {
             method: methodName,
             type: ResponsePropertyType.LOCATION
         });
-    }
+    };
 }
 
 /**
@@ -91,7 +91,7 @@ export function Redirect(value: string) {
             method: methodName,
             type: ResponsePropertyType.REDIRECT
         });
-    }
+    };
 }
 
 /**
@@ -105,5 +105,5 @@ export function Render(template: string) {
             method: methodName,
             type: ResponsePropertyType.RENDERED_TEMPLATE
         });
-    }
+    };
 }

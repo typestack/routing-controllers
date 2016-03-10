@@ -38,7 +38,7 @@ export class ControllerRunner {
     private _isStackTraceEnabled: boolean;
     private _jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
     private _defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
-    private requireAll: Function = require('require-all');
+    private requireAll: Function = require("require-all");
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -180,9 +180,9 @@ export class ControllerRunner {
         if (action.route instanceof RegExp)
             return action.route;
 
-        let path: string = '';
+        let path: string = "";
         if (controller.route) path += controller.route;
-        if (action.route && typeof action.route === 'string') path += action.route;
+        if (action.route && typeof action.route === "string") path += action.route;
         return path;
     }
 
@@ -234,10 +234,10 @@ export class ControllerRunner {
         };
 
         if (contentTypeMetadata && contentTypeMetadata.value)
-            handleResultOptions.headers.push({ name: 'Content-Type', value: contentTypeMetadata.value });
+            handleResultOptions.headers.push({ name: "Content-Type", value: contentTypeMetadata.value });
 
         if (locationMetadata && locationMetadata.value)
-            handleResultOptions.headers.push({ name: 'Location', value: locationMetadata.value });
+            handleResultOptions.headers.push({ name: "Location", value: locationMetadata.value });
 
         try {
             const params = paramMetadatas
@@ -297,7 +297,7 @@ export class ControllerRunner {
             result
                 .then((data: any) => {
                     options.content = data;
-                    this.framework.handleSuccess(options)
+                    this.framework.handleSuccess(options);
                 })
                 .catch((error: any) => {
                     this.handleError(error, options);
@@ -317,7 +317,7 @@ export class ControllerRunner {
         options.errorHttpCode = options.errorHttpCode || 500;
         if (error instanceof HttpError && error.httpCode) {
             options.errorHttpCode = error.httpCode;
-        } else if (typeof responseError === 'object' && responseError.httpCode) {
+        } else if (typeof responseError === "object" && responseError.httpCode) {
             // this can be there if custom validation handler decided to return httpCode or error override map did
             options.errorHttpCode = responseError.httpCode;
             delete responseError.httpCode;

@@ -1,0 +1,16 @@
+{
+  "ambientDevDependencies": {
+    "assertion-error": "registry:dt/assertion-error#1.0.0+20141105053942",
+    "chai": "registry:dt/chai#3.4.0+20160216071402",
+    "mocha": "registry:dt/mocha#2.2.5+20151023103246",
+    "sinon": "registry:dt/sinon#1.16.0+20151027143416"
+  },
+  "ambientDependencies": {
+    "body-parser": "registry:dt/body-parser#0.0.0+20160112113357",
+    "es6-shim": "registry:dt/es6-shim#0.31.2+20160215162030",
+    "express": "registry:dt/express#4.0.0+20160208031452",
+    "mime": "registry:dt/mime#0.0.0+20151204023458",
+    "node": "registry:dt/node#4.0.0+20160226132328",
+    "serve-static": "registry:dt/serve-static#1.7.1+20160104095738"
+  }
+}
