@@ -1,5 +1,5 @@
 import {IKernel} from 'inversify';
-import {Container} from '../src/ControllerRunner';
+import {Container} from 'controllers.ts/ControllerRunner';
 
 export default class InversifyContainer implements Container {
     
