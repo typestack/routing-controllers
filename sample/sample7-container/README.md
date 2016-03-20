@@ -13,15 +13,25 @@
 3. Install Inversify typings
 
     `tsd install inversify`
+    
+4. Install the repository code over the npm version:
 
-4. Link tsd dependencies:
+    `cd ../../`
+    
+    `npm run package`
+    
+    `cp ./build/package/* ./sample/sample7-container/node_modules/controllers.ts/ -r`
+    
+    `cd sample/sample7-container/`
+
+5. Link tsd dependencies:
 
     `tsd link`
 
-5. Run application
+6. Run application
 
     `npm start`
 
-6. Open browser (or use curl) to check if your app is working:
+7. Open browser (or use curl) to check if your app is working:
 
     <a href="http://localhost:3001/respond/">http://localhost:3001/respond/</a>
