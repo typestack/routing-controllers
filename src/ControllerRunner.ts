@@ -12,7 +12,7 @@ import {ResponseInterceptorInterface} from "./interceptor/ResponseInterceptorInt
 import {ResponseInterceptorMetadata} from "./metadata/ResponseInterceptorMetadata";
 import {ResultHandleOptions} from "./ResultHandleOptions";
 
-export type Container = { get(someClass: any): any };
+export interface Container { get(someClass: any): any };
 export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
 export type DefaultErrorHandlerFunction = (error: any) => any;
 
