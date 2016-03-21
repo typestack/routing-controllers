@@ -1,9 +1,9 @@
 import {Request, Response} from 'express';
-import {inject} from 'inversify';
 import {IHelloWorldService} from '../services/HelloWorldService';
-import {Req, Res, Get, Controller} from 'controllers.ts/Decorators';
+import {Get} from '../../../src/decorator/Methods'
+import {Req, Res} from '../../../src/decorator/Params'
+import {Controller} from '../../../src/decorator/Controllers';
 
-@inject('IHelloWorldService')
 @Controller()
 export default class ResponseController {
     
