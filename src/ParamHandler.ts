@@ -53,15 +53,15 @@ export class ParamHandler {
 
     private handleParamFormat(value: any, paramMetadata: ParamMetadata): any {
         const format = paramMetadata.format;
-        const formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : '';
+        const formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : "";
         switch (formatName.toLowerCase()) {
-            case 'number':
+            case "number":
                 return +value;
 
-            case 'string':
+            case "string":
                 return value;
 
-            case 'boolean':
+            case "boolean":
                 return !!value;
 
             default:

@@ -4,7 +4,7 @@ import {HttpError} from "./HttpError";
  * Exception for 406 HTTP error.
  */
 export class NotAcceptableError extends HttpError {
-    name = 'NotAcceptableError';
+    name = "NotAcceptableError";
 
     constructor(message?: string) {
         super(406);
