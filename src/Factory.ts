@@ -16,11 +16,13 @@ export interface FactoryOptions {
  */
 export function registerActionsInExpressApp(expressApp: any, options?: FactoryOptions): ControllerRunner {
     const controllerRunner = new ControllerRunner(new ExpressServer(expressApp));
-    if (options && options.container)
-        controllerRunner.container = options.container;
-    
-    if (options && options.requireDirs && options.requireDirs.length)
-        options.requireDirs.map(dir => controllerRunner.loadFiles(dir));
+    if (options) {
+        if (options.container)
+            controllerRunner.container = options.container;
+        
+        if (options.requireDirs && options.requireDirs.length)
+            options.requireDirs.map(dir => controllerRunner.loadFiles(dir));
+    }
 
     controllerRunner.registerAllActions();
     return controllerRunner;
