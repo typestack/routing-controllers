@@ -1,4 +1,4 @@
-# Controllers.ts
+# routing-controllers
 
 Allows to create controller classes with methods as actions that handle requests.
 
@@ -7,8 +7,10 @@ contribute and implement integrations with other frameworks.
 
 ## Release notes
 
-0.5.0
+**0.5.0**
 
+* renamed package from `controllers.ts` to `routing-controllers`
+* added integration with `constructor-utils` for serialization and deserialization
 
 ## Installation
 
@@ -83,7 +85,7 @@ contribute and implement integrations with other frameworks.
 
     ```typescript
     import * as express from "express";
-    import {registerActionsInExpressApp} from "routing-controllers/Factory";
+    import {registerActionsInExpressApp} from "routing-controllers/routing-controllers";
     import "./UserController";  // we need to "load" our controller
 
     let app = express(); // create express application
@@ -104,7 +106,7 @@ it like this:
 
 ```typescript
 import * as express from "express";
-import {registerActionsInExpressApp} from "routing-controllers/Factory";
+import {registerActionsInExpressApp} from "routing-controllers/routing-controllers";
 
 let app = express(); // create express application
 registerActionsInExpressApp(app, [__dirname + "/controllers"]); // register controllers routes in our express application
