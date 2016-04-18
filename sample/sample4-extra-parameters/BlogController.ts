@@ -1,6 +1,6 @@
-import {JsonController} from "../../src/decorator/Controllers";
-import {Get, Post, Put, Patch, Delete} from "../../src/decorator/Methods";
-import {QueryParam, Param, Body} from "../../src/decorator/Params";
+import {JsonController} from "../../src/decorator/controllers";
+import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";
+import {QueryParam, Param, Body} from "../../src/decorator/params";
 
 export interface BlogFilter {
     keyword: string;

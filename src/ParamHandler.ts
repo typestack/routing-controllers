@@ -4,6 +4,7 @@ import {BodyRequiredError} from "./error/BodyRequiredError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {Server} from "./server/Server";
 import {Utils} from "./Utils";
+import {plainToConstructor} from "constructor-utils/constructor-utils";
 
 /**
  * Helps to handle parameters.
@@ -73,9 +74,9 @@ export class ParamHandler {
 
     private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
-            const parseValue = JSON.parse(value);
+            const parseValue = typeof value === "string" ? JSON.parse(value) : value;
             if (paramMetadata.format) {
-                return Utils.merge(new paramMetadata.format(), parseValue);
+                return plainToConstructor(paramMetadata.format, parseValue);
             } else {
                 return parseValue;
             }

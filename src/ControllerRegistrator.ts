@@ -11,6 +11,7 @@ import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
 import {ResponseInterceptorInterface} from "./interceptor/ResponseInterceptorInterface";
 import {ResponseInterceptorMetadata} from "./metadata/ResponseInterceptorMetadata";
 import {ResultHandleOptions} from "./ResultHandleOptions";
+import {constructorToPlain} from "constructor-utils/constructor-utils";
 
 export type Container = { get(someClass: any): any };
 export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
@@ -19,7 +20,7 @@ export type DefaultErrorHandlerFunction = (error: any) => any;
 /**
  * Registers controllers and actions in the given server framework.
  */
-export class ControllerRunner {
+export class ControllerRegistrator {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -134,7 +135,7 @@ export class ControllerRunner {
     /**
      * Registers all loaded to the metadata storage controllers and their actions.
      */
-    registerAllActions(): ControllerRunner {
+    registerAllActions(): ControllerRegistrator {
         this.registerControllerActions(this._metadataStorage.controllerMetadatas);
         return this;
     }
@@ -142,7 +143,7 @@ export class ControllerRunner {
     /**
      * Registers actions from the given controllers.
      */
-    registerActions(classes: Function[]): ControllerRunner {
+    registerActions(classes: Function[]): ControllerRegistrator {
         const controllerMetadatas = this._metadataStorage.findControllerMetadatasForClasses(classes);
         this.registerControllerActions(controllerMetadatas);
         return this;
@@ -296,7 +297,7 @@ export class ControllerRunner {
         if (Utils.isPromise(result)) {
             result
                 .then((data: any) => {
-                    options.content = data;
+                    options.content = constructorToPlain(data);
                     this.framework.handleSuccess(options);
                 })
                 .catch((error: any) => {
@@ -304,7 +305,7 @@ export class ControllerRunner {
                     throw error;
                 });
         } else {
-            options.content = result;
+            options.content = constructorToPlain(result);
             this.framework.handleSuccess(options);
         }
     }

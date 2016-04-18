@@ -5,11 +5,16 @@ Allows to create controller classes with methods as actions that handle requests
 Right now it works only with express.js. If you are interested to make it work with other frameworks, feel free to
 contribute and implement integrations with other frameworks.
 
+## Release notes
+
+0.5.0
+
+
 ## Installation
 
 1. Install module:
 
-    `npm install controllers.ts --save`
+    `npm install routing-controllers --save`
 
 2. Use [typings](https://github.com/typings/typings) to install all required definition dependencies.
 
@@ -28,9 +33,9 @@ contribute and implement integrations with other frameworks.
 
     ```typescript
     import {Request, Response} from "express";
-    import {Controller} from "controllers.ts/decorator/Controllers";
-    import {Get, Post, Put, Patch, Delete} from "controllers.ts/decorator/Methods";
-    import {Req, Res} from "controllers.ts/decorator/Params";
+    import {Controller} from "routing-controllers/decorator/Controllers";
+    import {Get, Post, Put, Patch, Delete} from "routing-controllers/decorator/Methods";
+    import {Req, Res} from "routing-controllers/decorator/Params";
 
     @Controller()
     export class UserController {
@@ -78,7 +83,7 @@ contribute and implement integrations with other frameworks.
 
     ```typescript
     import * as express from "express";
-    import {registerActionsInExpressApp} from "controllers.ts/Factory";
+    import {registerActionsInExpressApp} from "routing-controllers/Factory";
     import "./UserController";  // we need to "load" our controller
 
     let app = express(); // create express application
@@ -99,7 +104,7 @@ it like this:
 
 ```typescript
 import * as express from "express";
-import {registerActionsInExpressApp} from "controllers.ts/Factory";
+import {registerActionsInExpressApp} from "routing-controllers/Factory";
 
 let app = express(); // create express application
 registerActionsInExpressApp(app, [__dirname + "/controllers"]); // register controllers routes in our express application
@@ -256,7 +261,7 @@ getAll(@QueryParam("filter", { required: true }) filter: UserFilter) {
 
 ## Samples
 
-Take a look on samples in [./sample](https://github.com/pleerock/controllers.ts/tree/master/sample) for more examples
+Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
 of usage.
 
 ## Todos

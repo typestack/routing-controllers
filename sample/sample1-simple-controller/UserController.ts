@@ -1,7 +1,7 @@
 import {Request} from "express";
-import {Controller} from "../../src/decorator/Controllers";
-import {Get, Post, Put, Patch, Delete} from "../../src/decorator/Methods";
-import {Req} from "../../src/decorator/Params";
+import {Controller} from "../../src/decorator/controllers";
+import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";
+import {Req} from "../../src/decorator/params";
 
 @Controller()
 export class UserController {

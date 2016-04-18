@@ -1,6 +1,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {registerActionsInExpressApp} from "../../src/Factory";
+import {registerActionsInExpressApp} from "../../src/routing-controllers";
 import "./BlogController"; // this can be require("./BlogController") actually
 
 let app = express(); // create express server

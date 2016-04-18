@@ -1,5 +1,5 @@
-import {Controller} from "../../src/decorator/Controllers";
-import {Get} from "../../src/decorator/Methods";
+import {Controller} from "../../src/decorator/controllers";
+import {Get} from "../../src/decorator/methods";
 
 @Controller()
 export class BlogController {

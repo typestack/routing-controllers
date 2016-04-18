@@ -1,5 +1,5 @@
 import * as express from "express";
-import {registerActionsInExpressApp} from "../../src/Factory";
+import {registerActionsInExpressApp} from "../../src/routing-controllers";
 
 let app = express(); // create express server
 registerActionsInExpressApp(app, [__dirname + "/controllers"]); // register controllers routes in our express app

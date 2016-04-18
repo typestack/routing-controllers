@@ -1,5 +1,5 @@
-import {JsonController} from "../../src/decorator/Controllers";
-import {Get} from "../../src/decorator/Methods";
+import {JsonController} from "../../src/decorator/controllers";
+import {Get} from "../../src/decorator/methods";
 import {ForbiddenError} from "../../src/error/http/ForbiddenError";
 
 export class ValidationError extends Error {
