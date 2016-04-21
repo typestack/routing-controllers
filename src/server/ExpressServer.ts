@@ -59,8 +59,19 @@ export class ExpressServer implements Server {
     }
 
     handleSuccess(options: ResultHandleOptions): void {
-        if (options.successHttpCode)
+
+        if (options.undefinedResultCode && options.content === undefined) {
+            options.response.status(options.undefinedResultCode);
+
+        } else if (options.nullResultCode && options.content === null) {
+            options.response.status(options.nullResultCode);
+
+        } else if (options.emptyResultCode && (options.content === null || options.content === undefined || options.content === false || options.content === "")) {
+            options.response.status(options.emptyResultCode);
+
+        } else if (options.successHttpCode) {
             options.response.status(options.successHttpCode);
+        }
 
         this.handleResult(options);
     }
@@ -79,7 +90,7 @@ export class ExpressServer implements Server {
     private handleResult(options: ResultHandleOptions) {
         if (options.headers)
             options.headers.forEach(header => options.response.header(header.name, header.value));
-
+        
         if (options.content !== null && options.content !== undefined) {
             const result = this._interceptorHelper.callInterceptors(options);
             if (options.renderedTemplate) {
@@ -103,6 +114,13 @@ export class ExpressServer implements Server {
 
             } else {
                 options.response.send(result);
+            }
+        } else {
+            if (options.asJson) {
+                options.response.json();
+            } else {
+                options.response.send();
+
             }
         }
 

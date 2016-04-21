@@ -211,6 +211,15 @@ export class ControllerRegistrator {
         const successCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
             return property.type === ResponsePropertyType.SUCCESS_CODE ? property : found;
         }, undefined);
+        const emptyResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.EMPTY_RESULT_CODE ? property : found;
+        }, undefined);
+        const nullResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.NULL_RESULT_CODE ? property : found;
+        }, undefined);
+        const undefinedResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
+            return property.type === ResponsePropertyType.UNDEFINED_RESULT_CODE ? property : found;
+        }, undefined);
         const errorCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
             return property.type === ResponsePropertyType.ERROR_CODE ? property : found;
         }, undefined);
@@ -228,6 +237,9 @@ export class ControllerRegistrator {
             asJson: isJson,
             successHttpCode: successCodeMetadata ? successCodeMetadata.value : undefined,
             errorHttpCode: errorCodeMetadata ? errorCodeMetadata.value : undefined,
+            emptyResultCode: emptyResultCodeMetadata ? emptyResultCodeMetadata.value : undefined,
+            nullResultCode: nullResultCodeMetadata ? nullResultCodeMetadata.value : undefined,
+            undefinedResultCode: undefinedResultCodeMetadata ? undefinedResultCodeMetadata.value : undefined,
             redirect: redirectMetadata ? redirectMetadata.value : undefined,
             headers: headerMetadatas,
             renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.value : undefined,
@@ -297,7 +309,11 @@ export class ControllerRegistrator {
         if (Utils.isPromise(result)) {
             result
                 .then((data: any) => {
-                    options.content = constructorToPlain(data);
+                    if (data && data instanceof Object) {
+                        options.content = constructorToPlain(data);
+                    } else {
+                        options.content = data;
+                    }
                     this.framework.handleSuccess(options);
                 })
                 .catch((error: any) => {
@@ -305,7 +321,11 @@ export class ControllerRegistrator {
                     throw error;
                 });
         } else {
-            options.content = constructorToPlain(result);
+            if (result && result instanceof Object) {
+                options.content = constructorToPlain(result);
+            } else {
+                options.content = result;
+            }
             this.framework.handleSuccess(options);
         }
     }

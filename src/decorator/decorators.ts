@@ -38,6 +38,48 @@ export function HttpCode(code: number) {
 }
 
 /**
+ * This decorator is used when user wants to get some specific HTTP code on empty result returned by a controller.
+ */
+export function EmptyResultCode(code: number) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: code,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.EMPTY_RESULT_CODE
+        });
+    };
+}
+
+/**
+ * This decorator is used when user wants to get some specific HTTP code on null result returned by a controller.
+ */
+export function NullResultCode(code: number) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: code,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.NULL_RESULT_CODE
+        });
+    };
+}
+
+/**
+ * This decorator is used when user wants to get some specific HTTP code on undefined result returned by a controller.
+ */
+export function UndefinedResultCode(code: number) {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addResponsePropertyMetadata({
+            value: code,
+            object: object,
+            method: methodName,
+            type: ResponsePropertyType.UNDEFINED_RESULT_CODE
+        });
+    };
+}
+
+/**
  * Annotation must be set to controller action and given content-type will be set to response.
  */
 export function ContentType(type: string) {
@@ -46,7 +88,7 @@ export function ContentType(type: string) {
             value: type,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.SUCCESS_CODE
+            type: ResponsePropertyType.CONTENT_TYPE
         });
     };
 }
