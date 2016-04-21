@@ -36,6 +36,21 @@ export interface ResultHandleOptions {
     errorHttpCode: number;
 
     /**
+     * Status code to be set in the response when controller returned empty result.
+     */
+    emptyResultCode: number;
+
+    /**
+     * Status code to be set in the response when controller returned null result.
+     */
+    nullResultCode: number;
+
+    /**
+     * Status code to be set in the response when controller returned undefined result.
+     */
+    undefinedResultCode: number;
+
+    /**
      * If set then redirection will work on the given address.
      */
     redirect: string;

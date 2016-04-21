@@ -36,5 +36,8 @@ export enum ResponsePropertyType {
     HEADER = 4,
     RENDERED_TEMPLATE = 5,
     REDIRECT = 6,
-    LOCATION = 7
+    LOCATION = 7,
+    EMPTY_RESULT_CODE = 8,
+    NULL_RESULT_CODE = 9,
+    UNDEFINED_RESULT_CODE = 10
 }
