@@ -3,7 +3,7 @@ import {ActionOptions, ActionMetadata} from "./metadata/ActionMetadata";
 import {ControllerMetadata, ControllerType} from "./metadata/ControllerMetadata";
 import {MetadataStorage, defaultMetadataStorage} from "./metadata/MetadataStorage";
 import {Utils} from "./Utils";
-import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ParamMetadata, ParamType} from "./metadata/ParamMetadata";
 import {ResponsePropertyMetadata, ResponsePropertyType} from "./metadata/ResponsePropertyMetadata";
 import {ParamHandler} from "./ParamHandler";
 import {HttpError} from "./error/http/HttpError";
@@ -252,16 +252,18 @@ export class ControllerRegistrator {
         if (locationMetadata && locationMetadata.value)
             handleResultOptions.headers.push({ name: "Location", value: locationMetadata.value });
 
-        try {
-            const params = paramMetadatas
-                .sort((param1, param2) => param1.index - param2.index)
-                .map(param => this._paramHandler.handleParam(request, response, param));
+        const paramsPromises = paramMetadatas
+            .sort((param1, param2) => param1.index - param2.index)
+            .map(param => {
+                return this._paramHandler.handleParam(request, response, param, handleResultOptions);
+            });
+        Promise.all(paramsPromises).then(params => {
             const result = controllerObject[actionMetadata.method].apply(controllerObject, params);
 
             if (result)
                 this.handleResult(isJson ? result : String(result), handleResultOptions);
 
-        } catch (error) {
+        }).catch(error => {
 
             if (this.processErrorWithErrorHandler(error, isJson)) {
                 this.handleError(error, handleResultOptions);
@@ -269,7 +271,7 @@ export class ControllerRegistrator {
                 throw error;
             }*/
             throw error;
-        }
+        });
     }
 
     private getControllerInstance(metadata: ControllerMetadata): any {

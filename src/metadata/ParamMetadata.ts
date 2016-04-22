@@ -42,6 +42,11 @@ export interface ParamMetadata {
      * Indicates if this parameter is required or not
      */
     isRequired: boolean;
+
+    /**
+     * Transforms the value.
+     */
+    transform?: (value: any) => Promise<any>|any;
 }
 
 /**
