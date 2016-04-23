@@ -47,7 +47,7 @@ export class ParamHandler {
         }
 
         if (param.transform)
-            value = param.transform(value);
+            value = param.transform(value, request, response);
         
         const promiseValue = Utils.isPromise(value) ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {

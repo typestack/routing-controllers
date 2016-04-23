@@ -46,7 +46,7 @@ export interface ParamMetadata {
     /**
      * Transforms the value.
      */
-    transform?: (value: any) => Promise<any>|any;
+    transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
 }
 
 /**
@@ -59,7 +59,8 @@ export enum ParamType {
     PARAM = 4,
     COOKIE = 5,
     REQUEST = 6,
-    RESPONSE = 7
+    RESPONSE = 7,
+    CUSTOM_CONVERTER = 8
 }
 
 /**
