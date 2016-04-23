@@ -40,10 +40,10 @@ export class ParamHandler {
         }
         
         if (param.name && param.isRequired && (value === null || value === undefined)) {
-            throw new ParameterRequiredError(request.url, request.method, param.name);
+            return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
 
         } else if (!param.name && param.isRequired && (value === null || value === undefined || (value instanceof Object && Object.keys(value).length === 0))) {
-            throw new BodyRequiredError(request.url, request.method);
+            return Promise.reject("Request body is required for request on " + request.method + " " + request.url);
         }
 
         if (param.transform)
@@ -81,7 +81,7 @@ export class ParamHandler {
                 return !!value;
 
             default:
-                const isObjectFormat = formatName.toLowerCase() === "object";
+                const isObjectFormat = format instanceof Function || formatName.toLowerCase() === "object";
                 if (value && (paramMetadata.parseJson || isObjectFormat))
                     value = this.parseValue(value, paramMetadata);
         }
