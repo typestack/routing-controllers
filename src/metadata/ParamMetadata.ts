@@ -34,6 +34,11 @@ export interface ParamMetadata {
     format?: any;
 
     /**
+     * Parameter target.
+     */
+    target?: any;
+
+    /**
      * Specifies if parameter should be parsed as json or not.
      */
     parseJson: boolean;

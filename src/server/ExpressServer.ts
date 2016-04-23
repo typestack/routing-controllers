@@ -90,8 +90,16 @@ export class ExpressServer implements Server {
     private handleResult(options: ResultHandleOptions) {
         if (options.headers)
             options.headers.forEach(header => options.response.header(header.name, header.value));
-        
-        if (options.content !== null && options.content !== undefined) {
+
+        // think no need of it, since framework automatically handles it?
+        /*if (!err && options.successHttpCode === 204) {
+            if (options.asJson) {
+                options.response.json();
+            } else {
+                options.response.send();
+            }
+            
+        } else */if (options.content !== null && options.content !== undefined) {
             const result = this._interceptorHelper.callInterceptors(options);
             if (options.renderedTemplate) {
                 const renderOptions = result && result instanceof Object ? result : {};

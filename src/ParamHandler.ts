@@ -54,7 +54,7 @@ export class ParamHandler {
 
             if (param.isRequired && originalValue !== null && originalValue !== undefined && (value === null || value === undefined)) {
                 handleResultOptions.errorHttpCode = 404;
-                const contentType = param.format && param.format.name ? param.format.name : "content";
+                const contentType = param.target && param.target.name ? param.target.name : "content";
                 const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
                 return Promise.reject(`Requested ${contentType + message} was not found`);
             }
