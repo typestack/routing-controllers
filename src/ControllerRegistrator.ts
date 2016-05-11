@@ -1,4 +1,5 @@
 import {Server} from "./server/Server";
+import {MiddlewareOptions, MiddlewareMetadata} from "./metadata/MiddlewareMetadata";
 import {ActionOptions, ActionMetadata} from "./metadata/ActionMetadata";
 import {ControllerMetadata, ControllerType} from "./metadata/ControllerMetadata";
 import {MetadataStorage, defaultMetadataStorage} from "./metadata/MetadataStorage";
@@ -155,6 +156,13 @@ export class ControllerRegistrator {
 
     private registerControllerActions(controllerMetadatas: ControllerMetadata[]) {
         controllerMetadatas.forEach(controller => {
+          this._metadataStorage
+              .findMiddlewareMetadatasForControllerMetadata(controller)
+              .forEach(action => {
+                  const extraParams = this._metadataStorage.findParamMetadatasForControllerAndActionMetadata(controller, action);
+                  const propertyMetadatas = this._metadataStorage.findResponsePropertyMetadatasForControllerAndActionMetadata(controller, action);
+                  return this.registerMiddleware(controller, action, propertyMetadatas, extraParams, this._metadataStorage.responseInterceptorMetadatas);
+              });
             this._metadataStorage
                 .findActionMetadatasForControllerMetadata(controller)
                 .forEach(action => {
@@ -164,20 +172,44 @@ export class ControllerRegistrator {
                 });
         });
     }
-
-    private registerAction(controller: ControllerMetadata,
-                           action: ActionMetadata,
-                           responseProperties: ResponsePropertyMetadata[],
-                           params: ParamMetadata[],
-                           interceptorMetadatas: ResponseInterceptorMetadata[]) {
-
+    private registerMiddleware(controller: ControllerMetadata,
+        action: MiddlewareMetadata,
+        responseProperties: ResponsePropertyMetadata[],
+        params: ParamMetadata[],
+        interceptorMetadatas: ResponseInterceptorMetadata[]) {
         const path = this.buildActionPath(controller, action);
-        this.framework.registerAction(path, action.type, (request: any, response: any) => {
-            return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas);
-        });
+        const hasNext = params.findIndex(p => p.type === ParamType.NEXT_FN) !== undefined;
+        if (hasNext) {
+            this.framework.registerMiddleware(path, (request: any, response: any, next: any) => {
+                return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas, next);
+            });
+        } else {
+            throw new Error("You should specify a Next parameters");
+        }
+
     }
 
-    private buildActionPath(controller: ControllerMetadata, action: ActionMetadata): string|RegExp {
+    private registerAction(controller: ControllerMetadata,
+        action: ActionMetadata,
+        responseProperties: ResponsePropertyMetadata[],
+        params: ParamMetadata[],
+        interceptorMetadatas: ResponseInterceptorMetadata[]) {
+
+        const path = this.buildActionPath(controller, action);
+        const hasNext = params.findIndex(p => p.type === ParamType.NEXT_FN) !== undefined;
+        if (hasNext) {
+            this.framework.registerAction(path, action.type, (request: any, response: any, next: any) => {
+                return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas, next);
+            });
+        } else {
+            this.framework.registerAction(path, action.type, (request: any, response: any) => {
+                return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas);
+            });
+        }
+
+    }
+
+    private buildActionPath(controller: ControllerMetadata, action: ActionMetadata | MiddlewareMetadata): string | RegExp {
         if (action.route instanceof RegExp)
             return action.route;
 
@@ -188,12 +220,13 @@ export class ControllerRegistrator {
     }
 
     private handleAction(request: any,
-                         response: any,
-                         controllerMetadata: ControllerMetadata,
-                         actionMetadata: ActionMetadata,
-                         responsePropertyMetadatas: ResponsePropertyMetadata[],
-                         paramMetadatas: ParamMetadata[],
-                         interceptorMetadatas: ResponseInterceptorMetadata[]) {
+        response: any,
+        controllerMetadata: ControllerMetadata,
+        actionMetadata: ActionMetadata | MiddlewareMetadata,
+        responsePropertyMetadatas: ResponsePropertyMetadata[],
+        paramMetadatas: ParamMetadata[],
+        interceptorMetadatas: ResponseInterceptorMetadata[],
+        nextFn?: any) {
 
         const isJson = this.isActionMustReturnJson(controllerMetadata.type, actionMetadata.options);
         const controllerObject = this.getControllerInstance(controllerMetadata);
@@ -243,7 +276,8 @@ export class ControllerRegistrator {
             redirect: redirectMetadata ? redirectMetadata.value : undefined,
             headers: headerMetadatas,
             renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.value : undefined,
-            interceptors: interceptors
+            interceptors: interceptors,
+            nextFn: nextFn
         };
 
         if (contentTypeMetadata && contentTypeMetadata.value)

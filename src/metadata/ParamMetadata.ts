@@ -59,7 +59,8 @@ export enum ParamType {
     PARAM = 4,
     COOKIE = 5,
     REQUEST = 6,
-    RESPONSE = 7
+    RESPONSE = 7,
+    NEXT_FN = 8
 }
 
 /**

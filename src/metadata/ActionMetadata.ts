@@ -46,6 +46,9 @@ export interface ActionOptions {
     textResponse?: boolean;
 }
 
+
+
+
 /**
  * All action types that can be used for the controller method.
  */

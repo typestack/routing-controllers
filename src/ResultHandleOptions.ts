@@ -72,5 +72,9 @@ export interface ResultHandleOptions {
      * Template to be rendered.
      */
     renderedTemplate: string;
+    /**
+     * next function for middlewares.
+     */
+    nextFn?: any;
 
 }
