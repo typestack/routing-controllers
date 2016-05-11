@@ -5,11 +5,35 @@ import {ResponsePropertyType} from "./../metadata/ResponsePropertyMetadata";
 import {ControllerType} from "./../metadata/ControllerMetadata";
 import {ParamType, ParamOptions} from "./../metadata/ParamMetadata";
 import {ActionOptions} from "./../metadata/ActionMetadata";
+import {MiddlewareOptions} from "../metadata/MiddlewareMetadata";
 
 /**
  * Registers an action to be executed when GET request comes on a given route.
  * Applied to controller class methods.
- * 
+ *
+ * @param route When request comes to this route this action will be executed
+ * @param options Extra action options to be applied
+ */
+export function Use(route?: RegExp, options?: MiddlewareOptions): Function;
+export function Use(route?: string, options?: MiddlewareOptions): Function;
+export function Use(route?: string|RegExp, options?: MiddlewareOptions): Function {
+    return function (object: Object, methodName: string) {
+        defaultMetadataStorage.addMiddlewareMetadata({
+            route: route,
+            object: object,
+            method: methodName,
+            options: options
+        });
+    };
+}
+
+
+
+
+/**
+ * Registers an action to be executed when GET request comes on a given route.
+ * Applied to controller class methods.
+ *
  * @param route When request comes to this route this action will be executed
  * @param options Extra action options to be applied
  */

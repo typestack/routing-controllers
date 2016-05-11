@@ -32,13 +32,16 @@ export class ParamHandler {
             case ParamType.RESPONSE:
                 value = response;
                 break;
+            case ParamType.NEXT_FN:
+                value = handleResultOptions.nextFn;
+                break;
             default:
                 value = originalValue = this.framework.getParamFromRequest(request, param.name, param.type);
                 if (value)
                     value = this.handleParamFormat(value, param);
                 break;
         }
-        
+
         if (param.name && param.isRequired && (value === null || value === undefined)) {
             return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
 
@@ -48,7 +51,7 @@ export class ParamHandler {
 
         if (param.transform)
             value = param.transform(value);
-        
+
         const promiseValue = Utils.isPromise(value) ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {
 

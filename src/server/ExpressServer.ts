@@ -35,12 +35,21 @@ export class ExpressServer implements Server {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerAction(route: string|RegExp, actionType: string, executeCallback: (request: any, response: any) => any): void {
+    registerMiddleware(route: string | RegExp, executeCallback: (request: any, response: any, next?: any) => any): void {
+        if (route) {
+            this.express.use(route, (request: any, response: any, next?: any) => executeCallback(request, response, next));
+        } else {
+            this.express.use((request: any, response: any, next?: any) => executeCallback(request, response, next));
+        }
+
+    }
+
+    registerAction(route: string | RegExp, actionType: string, executeCallback: (request: any, response: any, next?: any) => any): void {
         const expressAction = actionType.toLowerCase();
         if (!this.express[expressAction])
             throw new BadHttpActionError(actionType);
 
-        this.express[expressAction](route, (request: any, response: any) => executeCallback(request, response));
+        this.express[expressAction](route, (request: any, response: any, next?: any) => executeCallback(request, response, next));
     }
 
     getParamFromRequest(request: any, paramName: string, paramType: ParamType): void {
@@ -90,7 +99,7 @@ export class ExpressServer implements Server {
     private handleResult(options: ResultHandleOptions) {
         if (options.headers)
             options.headers.forEach(header => options.response.header(header.name, header.value));
-        
+
         if (options.content !== null && options.content !== undefined) {
             const result = this._interceptorHelper.callInterceptors(options);
             if (options.renderedTemplate) {

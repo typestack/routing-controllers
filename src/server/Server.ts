@@ -13,8 +13,16 @@ export interface Server {
      * @param actionType HTTP action to be performed on registered path (GET, POST, etc.)
      * @param executeCallback Function to be called when request comes on the given route with the given action
      */
-    registerAction(route: string|RegExp, actionType: string, executeCallback: (request: any, response: any) => any): void;
+    registerAction(route: string | RegExp, actionType: string, executeCallback: (request: any, response: any, next?: any) => any): void;
 
+    /**
+     * Registers middleware in the server framework.
+     *
+     * @param route URI path to be registered (for example /users/:id/photos)
+     * @param actionType HTTP action to be performed on registered path (GET, POST, etc.)
+     * @param executeCallback Function to be called when request comes on the given route with the given action
+     */
+    registerMiddleware(route: string | RegExp, executeCallback: (request: any, response: any, next?: any) => any): void;
     /**
      * Gets param from the request.
      *

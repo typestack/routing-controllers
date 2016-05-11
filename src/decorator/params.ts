@@ -6,6 +6,26 @@ import {ControllerType} from "./../metadata/ControllerMetadata";
 import {ParamType, ParamOptions} from "./../metadata/ParamMetadata";
 import {ActionOptions} from "./../metadata/ActionMetadata";
 
+
+
+/**
+ * This decorator allows to inject a Request object to the controller action parameter. After that you can fully use
+ * Request object in your action method. Applied to class method parameters.
+ */
+export function Next() {
+    return function (object: Object, methodName: string, index: number) {
+        defaultMetadataStorage.addParamMetadata({
+            object: object,
+            method: methodName,
+            index: index,
+            type: ParamType.NEXT_FN,
+            parseJson: false,
+            isRequired: false
+        });
+    };
+}
+
+
 /**
  * This decorator allows to inject a Request object to the controller action parameter. After that you can fully use
  * Request object in your action method. Applied to class method parameters.

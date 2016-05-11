@@ -18,5 +18,5 @@ export class UserController {
         console.log("Is photo url empty?: ", user.photo.isUrlEmpty());
         return user;
     }
-    
+
 }
