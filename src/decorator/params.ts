@@ -1,7 +1,7 @@
-import {defaultMetadataStorage} from "../index";
+import {defaultMetadataArgsStorage} from "../index";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamOptions} from "./options/ParamOptions";
-import {ParamMetadata} from "../metadata/ParamMetadata";
+import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
  * This decorator allows to inject a Request object to the controller action parameter. After that you can fully use
@@ -9,7 +9,7 @@ import {ParamMetadata} from "../metadata/ParamMetadata";
  */
 export function Req() {
     return function (object: Object, methodName: string, index: number) {
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -17,7 +17,7 @@ export function Req() {
             parseJson: false,
             isRequired: false
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -27,7 +27,7 @@ export function Req() {
  */
 export function Res() {
     return function (object: Object, methodName: string, index: number) {
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -35,7 +35,7 @@ export function Res() {
             parseJson: false,
             isRequired: false
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -58,7 +58,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
 
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -67,7 +67,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
             parseJson: parseJson,
             isRequired: required
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -91,7 +91,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
 
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -101,7 +101,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
             parseJson: parseJson,
             isRequired: required
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -125,7 +125,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
 
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -135,7 +135,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
             parseJson: parseJson,
             isRequired: required
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -159,7 +159,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
 
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -169,7 +169,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
             parseJson: parseJson,
             isRequired: required
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }
 
@@ -193,7 +193,7 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
 
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadata = {
+        const metadata: ParamMetadataArgs = {
             object: object,
             method: methodName,
             index: index,
@@ -203,6 +203,6 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
             parseJson: parseJson,
             isRequired: required
         };
-        defaultMetadataStorage().paramMetadatas.push(metadata);
+        defaultMetadataArgsStorage().params.push(metadata);
     };
 }

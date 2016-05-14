@@ -1,5 +1,4 @@
-import {ServerResponse} from "http";
-import {ServerRequest} from "http";
+import {ServerResponse, ServerRequest} from "http";
 
 /**
  * Classes that intercepts response result must implement this interface.

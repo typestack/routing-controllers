@@ -1,7 +1,7 @@
-import {defaultMetadataStorage} from "../index";
+import {defaultMetadataArgsStorage} from "../index";
 import {ActionOptions} from "./options/ActionOptions";
 import {ActionTypes, ActionType} from "../metadata/types/ActionTypes";
-import {ActionMetadata} from "../metadata/ActionMetadata";
+import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
  * Registers an action to be executed when GET request comes on a given route.
@@ -14,14 +14,15 @@ export function Get(route?: RegExp, options?: ActionOptions): Function;
 export function Get(route?: string, options?: ActionOptions): Function;
 export function Get(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.GET,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -36,14 +37,15 @@ export function Post(route?: RegExp, options?: ActionOptions): Function;
 export function Post(route?: string, options?: ActionOptions): Function;
 export function Post(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.POST,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -58,14 +60,15 @@ export function Put(route?: RegExp, options?: ActionOptions): Function;
 export function Put(route?: string, options?: ActionOptions): Function;
 export function Put(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.PUT,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -80,14 +83,15 @@ export function Patch(route?: RegExp, options?: ActionOptions): Function;
 export function Patch(route?: string, options?: ActionOptions): Function;
 export function Patch(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.PATCH,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -102,14 +106,15 @@ export function Delete(route?: RegExp, options?: ActionOptions): Function;
 export function Delete(route?: string, options?: ActionOptions): Function;
 export function Delete(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.DELETE,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -124,14 +129,15 @@ export function Head(route?: RegExp, options?: ActionOptions): Function;
 export function Head(route?: string, options?: ActionOptions): Function;
 export function Head(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.HEAD,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -146,14 +152,15 @@ export function Options(route?: RegExp, options?: ActionOptions): Function;
 export function Options(route?: string, options?: ActionOptions): Function;
 export function Options(route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: ActionTypes.OPTIONS,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }
 
@@ -169,13 +176,14 @@ export function Method(method: ActionType, route?: RegExp, options?: ActionOptio
 export function Method(method: ActionType, route?: string, options?: ActionOptions): Function;
 export function Method(method: ActionType, route?: string|RegExp, options?: ActionOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadata = {
+        const metadata: ActionMetadataArgs = {
             route: route,
             object: object,
+            target: object.constructor,
             method: methodName,
             type: method,
             options: options
         };
-        defaultMetadataStorage().actionMetadatas.push(metadata);
+        defaultMetadataArgsStorage().actions.push(metadata);
     };
 }

@@ -33,9 +33,9 @@ export class Utils {
      * @returns True if given object is a possible Promise, false otherwise
      */
     static isPromise(object: any): boolean {
-        return object instanceof Object &&
+        return object instanceof Promise || (object instanceof Object &&
             object.then instanceof Function &&
-            object.catch instanceof Function;
+            object.catch instanceof Function);
     }
 
 }

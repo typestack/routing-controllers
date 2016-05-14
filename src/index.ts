@@ -1,4 +1,26 @@
-import {MetadataStorage} from "./metadata-storage/MetadataStorage";
+import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
+import {ExpressServer} from "./server/ExpressServer";
+import {ControllerRegistrator} from "./ControllerRegistrator";
+
+// -------------------------------------------------------------------------
+// Helper Functions
+// -------------------------------------------------------------------------
+
+/**
+ * Registers all loaded actions in your express application.
+ *
+ * @param expressApp Express application instance
+ * @param requireDirs Array of directories where from controller files will be loaded
+ */
+export function registerActionsInExpressApp(expressApp: any, requireDirs?: string[]): ControllerRegistrator {
+    const controllerRegistrator = new ControllerRegistrator(new ExpressServer(expressApp));
+    if (requireDirs && requireDirs.length)
+        importClassesFromDirectories(requireDirs);
+
+    controllerRegistrator.registerAllActions(); // register only for loaded controllers?
+    return controllerRegistrator;
+}
 
 // -------------------------------------------------------------------------
 // Global Container
@@ -39,10 +61,10 @@ export function getContainer() {
 // -------------------------------------------------------------------------
 
 /**
- * Gets the metadata storage.
+ * Gets the metadata arguments storage.
  */
-export function defaultMetadataStorage() {
-    return container.get(MetadataStorage);
+export function defaultMetadataArgsStorage(): MetadataArgsStorage {
+    return container.get(MetadataArgsStorage);
 }
 
 // -------------------------------------------------------------------------

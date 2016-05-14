@@ -1,8 +1,8 @@
 import {Driver} from "./Server";
 import {BadHttpActionError} from "./error/BadHttpActionError";
-import {ResultHandleOptions} from "./../ResultHandleOptions";
-import {MiddlewareHelper} from "../middleware/MiddlewareHelper";
 import {ParamTypes} from "../metadata/types/ParamTypes";
+import {ActionMetadata} from "../metadata/ActionMetadata";
+import {ServerResponse, IncomingMessage} from "http";
 
 /**
  * Integration with Express.js framework.
@@ -13,8 +13,6 @@ export class ExpressServer implements Driver {
     // Properties
     // -------------------------------------------------------------------------
 
-    private _interceptorHelper = new MiddlewareHelper();
-
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -23,41 +21,57 @@ export class ExpressServer implements Driver {
     }
 
     // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    set interceptorHelper(interceptorHelper: MiddlewareHelper) {
-        this._interceptorHelper = interceptorHelper;
-    }
-
-    // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerAction(route: string|RegExp, actionType: string, executeCallback: (request: any, response: any) => any): void {
-        const expressAction = actionType.toLowerCase();
+    registerAction(action: ActionMetadata, executeCallback: (request: IncomingMessage, response: ServerResponse) => any): void {
+        const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
-            throw new BadHttpActionError(actionType);
+            throw new BadHttpActionError(action.type);
 
-        this.express[expressAction](route, (request: any, response: any) => executeCallback(request, response));
+        this.express[expressAction](action.fullRoute, (request: any, response: any) => executeCallback(request, response));
     }
 
-    getParamFromRequest(request: any, paramName: string, paramType: ParamTypes): void {
-        switch (paramType) {
+    getParamFromRequest(request: any, param: any): void {
+        switch (param.type) {
             case ParamTypes.BODY:
                 return request.body;
             case ParamTypes.PARAM:
-                return request.params[paramName];
+                return request.params[param.name];
             case ParamTypes.QUERY:
-                return request.query[paramName];
+                return request.query[param.name];
             case ParamTypes.BODY_PARAM:
-                return request.body[paramName];
+                return request.body[param.name];
             case ParamTypes.COOKIE:
-                return request.cookies[paramName];
+                return request.cookies[param.name];
         }
     }
 
-    handleSuccess(options: ResultHandleOptions): void {
+    handleSuccess(action: ActionMetadata, result: any): void {
+
+
+        /* const handleResultOptions: ResultHandleOptions = {
+         request: request,
+         response: response,
+         content: undefined,
+         asJson: action.isJsonTyped,
+         successHttpCode: successCodeMetadata ? successCodeMetadata.value : undefined,
+         errorHttpCode: errorCodeMetadata ? errorCodeMetadata.value : undefined,
+         emptyResultCode: emptyResultCodeMetadata ? emptyResultCodeMetadata.value : undefined,
+         nullResultCode: nullResultCodeMetadata ? nullResultCodeMetadata.value : undefined,
+         undefinedResultCode: undefinedResultCodeMetadata ? undefinedResultCodeMetadata.value : undefined,
+         redirect: redirectMetadata ? redirectMetadata.value : undefined,
+         headers: headerMetadatas,
+         renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.value : undefined,
+         interceptors: []
+         };
+
+         if (contentTypeMetadata && contentTypeMetadata.value)
+         handleResultOptions.headers.push({ name: "Content-Type", value: contentTypeMetadata.value });
+
+         if (locationMetadata && locationMetadata.value)
+         handleResultOptions.headers.push({ name: "Location", value: locationMetadata.value });*/
+
 
         if (options.undefinedResultCode && options.content === undefined) {
             options.response.status(options.undefinedResultCode);
@@ -75,7 +89,7 @@ export class ExpressServer implements Driver {
         this.handleResult(options);
     }
 
-    handleError(options: ResultHandleOptions): void {
+    handleError(action: ActionMetadata, error: any): void {
         if (options.errorHttpCode)
             options.response.status(options.errorHttpCode);
 
@@ -86,7 +100,7 @@ export class ExpressServer implements Driver {
     // Private Methods
     // -------------------------------------------------------------------------
 
-    private handleResult(options: ResultHandleOptions) {
+    private handleResult() {
         if (options.headers)
             options.headers.forEach(header => options.response.header(header.name, header.value));
 

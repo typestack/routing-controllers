@@ -1,6 +1,6 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {registerActionsInExpressApp} from "../../src/routing-controllers";
+import {registerActionsInExpressApp} from "../../src/index";
 
 require("./UserController");
 

@@ -1,21 +1,21 @@
-import {defaultMetadataStorage} from "../index";
+import {defaultMetadataArgsStorage} from "../index";
 import {MiddlewareOptions} from "./options/MiddlewareOptions";
-import {ResponseHandleTypes} from "../metadata/types/ResponsePropertyTypes";
-import {ResponseHandleMetadata} from "../metadata/ResponseHandleMetadata";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
+import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 
 /**
  * Registers a new middleware.
  */
 export function Middleware(name?: string, options?: MiddlewareOptions) {
     return function (target: Function) {
-        const metadata: MiddlewareMetadata = {
+        const metadata: MiddlewareMetadataArgs = {
             target: target,
             name: name,
             priority: options && options.priority ? options.priority : undefined,
             routes: options && options.routes ? options.routes : undefined
         };
-        defaultMetadataStorage().middlewareMetadatas.push(metadata);
+        defaultMetadataArgsStorage().middlewares.push(metadata);
     };
 }
 
@@ -25,13 +25,14 @@ export function Middleware(name?: string, options?: MiddlewareOptions) {
  */
 export function HttpCode(code: number) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: code,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: code,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.SUCCESS_CODE
+            type: ResponseHandlerTypes.SUCCESS_CODE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -40,13 +41,14 @@ export function HttpCode(code: number) {
  */
 export function EmptyResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: code,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: code,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.EMPTY_RESULT_CODE
+            type: ResponseHandlerTypes.EMPTY_RESULT_CODE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -55,13 +57,14 @@ export function EmptyResultCode(code: number) {
  */
 export function NullResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: code,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: code,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.NULL_RESULT_CODE
+            type: ResponseHandlerTypes.NULL_RESULT_CODE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -70,13 +73,14 @@ export function NullResultCode(code: number) {
  */
 export function UndefinedResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: code,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: code,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.UNDEFINED_RESULT_CODE
+            type: ResponseHandlerTypes.UNDEFINED_RESULT_CODE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -85,13 +89,14 @@ export function UndefinedResultCode(code: number) {
  */
 export function ContentType(type: string) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: type,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: type,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.CONTENT_TYPE
+            type: ResponseHandlerTypes.CONTENT_TYPE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -100,14 +105,15 @@ export function ContentType(type: string) {
  */
 export function Header(name: string, value: string) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: name,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: name,
             secondaryValue: value,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.HEADER
+            type: ResponseHandlerTypes.HEADER
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -116,13 +122,14 @@ export function Header(name: string, value: string) {
  */
 export function Location(value: string) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: value,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: value,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.LOCATION
+            type: ResponseHandlerTypes.LOCATION
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -131,13 +138,14 @@ export function Location(value: string) {
  */
 export function Redirect(value: string) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: value,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: value,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.REDIRECT
+            type: ResponseHandlerTypes.REDIRECT
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }
 
@@ -146,12 +154,13 @@ export function Redirect(value: string) {
  */
 export function Render(template: string) {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandleMetadata = {
-            primaryValue: template,
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: template,
             object: object,
+            target: object.constructor,
             method: methodName,
-            type: ResponseHandleTypes.RENDERED_TEMPLATE
+            type: ResponseHandlerTypes.RENDERED_TEMPLATE
         };
-        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
 }

@@ -1,9 +1,17 @@
+import {ActionMetadata} from "./ActionMetadata";
+import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
 import {ParamTypes} from "./types/ParamTypes";
 
-/**
- * Controller metadata used to storage information about registered parameters.
- */
-export interface ParamMetadata {
+export class ParamMetadata {
+
+    // -------------------------------------------------------------------------
+    // Properties
+    // -------------------------------------------------------------------------
+
+    /**
+     * Parameter's action.
+     */
+    actionMetadata: ActionMetadata;
 
     /**
      * Object on which's method's parameter this parameter is attached.
@@ -28,17 +36,17 @@ export interface ParamMetadata {
     /**
      * Parameter name.
      */
-    name?: string;
+    name: string;
 
     /**
      * Parameter format.
      */
-    format?: any;
+    format: any;
 
     /**
      * Parameter target.
      */
-    target?: any;
+    target: any;
 
     /**
      * Specifies if parameter should be parsed as json or not.
@@ -53,5 +61,40 @@ export interface ParamMetadata {
     /**
      * Transforms the value.
      */
-    transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
+    transform: (value?: any, request?: any, response?: any) => Promise<any>|any;
+
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
+    constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
+        this.actionMetadata = actionMetadata;
+
+        if (args.object)
+            this.object = args.object;
+        if (args.target)
+            this.target = args.target;
+        if (args.method)
+            this.method = args.method;
+        if (args.index)
+            this.index = args.index;
+        if (args.type)
+            this.type = args.type;
+        if (args.name)
+            this.name = args.name;
+        if (args.format)
+            this.format = args.format;
+        if (args.parseJson)
+            this.parseJson = args.parseJson;
+        if (args.isRequired)
+            this.isRequired = args.isRequired;
+        if (args.transform)
+            this.transform = args.transform;
+    }
+
+    // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+
+    
 }

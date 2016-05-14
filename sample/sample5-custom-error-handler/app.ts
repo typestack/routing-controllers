@@ -1,5 +1,5 @@
 import * as express from "express";
-import {registerActionsInExpressApp} from "../../src/routing-controllers";
+import {registerActionsInExpressApp} from "../../src/index";
 import {ControllerRegistrator} from "../../src/ControllerRegistrator";
 import {ExpressServer} from "../../src/server/ExpressServer";
 

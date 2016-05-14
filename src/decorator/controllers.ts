@@ -1,5 +1,5 @@
-import {defaultMetadataStorage} from "../index";
-import {ControllerMetadata} from "../metadata/ControllerMetadata";
+import {defaultMetadataArgsStorage} from "../index";
+import {ControllerMetadataArgs} from "../metadata/args/ControllerMetadataArgs";
 
 /**
  * Defines a class as a controller. All methods with special decorators will be registered as controller actions.
@@ -9,12 +9,12 @@ import {ControllerMetadata} from "../metadata/ControllerMetadata";
  */
 export function Controller(baseRoute?: string) {
     return function (object: Function) {
-        const metadata: ControllerMetadata = {
+        const metadata: ControllerMetadataArgs = {
             route: baseRoute,
-            object: object,
+            target: object,
             type: "default"
         };
-        defaultMetadataStorage().controllerMetadatas.push(metadata);
+        defaultMetadataArgsStorage().controllers.push(metadata);
     };
 }
 
@@ -26,11 +26,11 @@ export function Controller(baseRoute?: string) {
  */
 export function JsonController(baseRoute?: string) {
     return function (object: Function) {
-        const metadata: ControllerMetadata = {
+        const metadata: ControllerMetadataArgs = {
             route: baseRoute,
-            object: object,
+            target: object,
             type: "json"
         };
-        defaultMetadataStorage().controllerMetadatas.push(metadata);
+        defaultMetadataArgsStorage().controllers.push(metadata);
     };
 }

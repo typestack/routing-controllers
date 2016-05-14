@@ -1,15 +1,15 @@
-export type ResponseHandleType = "success_code"|"error_code"|"content_type"|"header"|"rendered_template"
+export type ResponseHandlerType = "success_code"|"error_code"|"content_type"|"header"|"rendered_template"
     |"redirect"|"location"|"empty_result_code"|"null_result_code"|"undefined_result_code";
 
-export class ResponseHandleTypes {
-    static SUCCESS_CODE: ResponseHandleType = "success_code";
-    static ERROR_CODE: ResponseHandleType = "error_code";
-    static CONTENT_TYPE: ResponseHandleType = "content_type";
-    static HEADER: ResponseHandleType = "header";
-    static RENDERED_TEMPLATE: ResponseHandleType = "rendered_template";
-    static REDIRECT: ResponseHandleType = "redirect";
-    static LOCATION: ResponseHandleType = "location";
-    static EMPTY_RESULT_CODE: ResponseHandleType = "empty_result_code";
-    static NULL_RESULT_CODE: ResponseHandleType = "null_result_code";
-    static UNDEFINED_RESULT_CODE: ResponseHandleType = "undefined_result_code";
+export class ResponseHandlerTypes {
+    static SUCCESS_CODE: ResponseHandlerType = "success_code";
+    static ERROR_CODE: ResponseHandlerType = "error_code";
+    static CONTENT_TYPE: ResponseHandlerType = "content_type";
+    static HEADER: ResponseHandlerType = "header";
+    static RENDERED_TEMPLATE: ResponseHandlerType = "rendered_template";
+    static REDIRECT: ResponseHandlerType = "redirect";
+    static LOCATION: ResponseHandlerType = "location";
+    static EMPTY_RESULT_CODE: ResponseHandlerType = "empty_result_code";
+    static NULL_RESULT_CODE: ResponseHandlerType = "null_result_code";
+    static UNDEFINED_RESULT_CODE: ResponseHandlerType = "undefined_result_code";
 }

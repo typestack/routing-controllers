@@ -1,12 +1,22 @@
-/**
- * Controller metadata used to storage information about registered controller.
- */
-export interface ControllerMetadata {
+import {ActionMetadata} from "./ActionMetadata";
+import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
+import {getContainer} from "../index";
+
+export class ControllerMetadata {
+
+    // -------------------------------------------------------------------------
+    // Properties
+    // -------------------------------------------------------------------------
+
+    /**
+     * Controller actions.
+     */
+    actions: ActionMetadata[];
 
     /**
      * Indicates object which is used by this controller.
      */
-    object: Function;
+    target: Function;
 
     /**
      * Base route for all actions registered in this controller.
@@ -17,5 +27,30 @@ export interface ControllerMetadata {
      * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
     type: "default"|"json";
+
+    // -------------------------------------------------------------------------
+    // Constructor
+    // -------------------------------------------------------------------------
+    
+    constructor(args: ControllerMetadataArgs) {
+        if (args.target)
+            this.target = args.target;
+        if (args.route)
+            this.route = args.route;
+        if (args.type)
+            this.type = args.type;
+    }
+
+    // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+    
+    get isJsonTyped() {
+        return this.type === "json";
+    }
+
+    get instance(): any {
+        return getContainer().get(this.target);
+    }
     
 }

@@ -1,5 +1,5 @@
 import * as express from "express";
-import {registerActionsInExpressApp} from "../../src/routing-controllers";
+import {registerActionsInExpressApp} from "../../src/index";
 
 require("./UserController");
 

@@ -2,9 +2,10 @@ import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {Driver} from "./server/Server";
 import {Utils} from "./Utils";
 import {plainToConstructor} from "constructor-utils";
-import {ResultHandleOptions} from "./ResultHandleOptions";
-import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
+import {IncomingMessage, ServerResponse} from "http";
+import {ParamMetadata} from "./metadata/ParamMetadata";
 
 /**
  * Helps to handle parameters.
@@ -22,37 +23,42 @@ export class ParamHandler {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    handleParam(request: any, response: any, param: ParamMetadata, handleResultOptions: ResultHandleOptions): Promise<any> {
+    handleParam(request: IncomingMessage, response: ServerResponse, param: ParamMetadata): Promise<any> {
+
+        if (param.type === ParamTypes.REQUEST)
+            return Promise.resolve(request);
+
+        if (param.type === ParamTypes.RESPONSE)
+            return Promise.resolve(response);
+
         let value: any, originalValue: any;
-        switch (param.type) {
-            case ParamTypes.REQUEST:
-                value = request;
-                break;
-            case ParamTypes.RESPONSE:
-                value = response;
-                break;
-            default:
-                value = originalValue = this.framework.getParamFromRequest(request, param.name, param.type);
-                if (value)
-                    value = this.handleParamFormat(value, param);
-                break;
-        }
+        value = originalValue = this.framework.getParamFromRequest(request, param);
+        if (value)
+            value = this.handleParamFormat(value, param);
         
-        if (param.name && param.isRequired && (value === null || value === undefined)) {
-            return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
+        const isValueEmpty = value === null || value === undefined;
+        const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
-        } else if (!param.name && param.isRequired && (value === null || value === undefined || (value instanceof Object && Object.keys(value).length === 0))) {
-            return Promise.reject("Request body is required for request on " + request.method + " " + request.url);
+        // check cases when parameter is required but its empty and throw errors in such cases
+        if (param.isRequired) {
+            // todo: make better error messages here
+            if (param.name && isValueEmpty) {
+                return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
+
+            } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
+                return Promise.reject("Request body is required for request on " + request.method + " " + request.url);
+            }
         }
 
+        // if transform function is given for this param then apply it
         if (param.transform)
             value = param.transform(value, request, response);
         
         const promiseValue = Utils.isPromise(value) ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {
 
-            if (param.isRequired && originalValue !== null && originalValue !== undefined && (value === null || value === undefined)) {
-                handleResultOptions.errorHttpCode = 404;
+            if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {
+                // TODO: handleResultOptions.errorHttpCode = 404;
                 const contentType = param.target && param.target.name ? param.target.name : "content";
                 const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
                 return Promise.reject(`Requested ${contentType + message} was not found`);
@@ -66,8 +72,8 @@ export class ParamHandler {
     // Private Methods
     // -------------------------------------------------------------------------
 
-    private handleParamFormat(value: any, paramMetadata: ParamMetadata): any {
-        const format = paramMetadata.format;
+    private handleParamFormat(value: any, param: ParamMetadata): any {
+        const format = param.format;
         const formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : "";
         switch (formatName.toLowerCase()) {
             case "number":
@@ -81,13 +87,13 @@ export class ParamHandler {
 
             default:
                 const isObjectFormat = format instanceof Function || formatName.toLowerCase() === "object";
-                if (value && (paramMetadata.parseJson || isObjectFormat))
-                    value = this.parseValue(value, paramMetadata);
+                if (value && (param.parseJson || isObjectFormat))
+                    value = this.parseValue(value, param);
         }
         return value;
     }
 
-    private parseValue(value: any, paramMetadata: ParamMetadata) {
+    private parseValue(value: any, paramMetadata: ParamMetadataArgs) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
             if (paramMetadata.format) {

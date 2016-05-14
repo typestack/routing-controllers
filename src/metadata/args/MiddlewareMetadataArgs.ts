@@ -1,7 +1,7 @@
 /**
  * Metadata used to store registered middlewares.
  */
-export interface MiddlewareMetadata {
+export interface MiddlewareMetadataArgs {
     
     /**
      * Object class of the middleware class.
