@@ -2,7 +2,8 @@ import * as express from "express";
 import {registerActionsInExpressApp} from "../../src/routing-controllers";
 
 require("./BlogController");
-require("./BlogResponseInterceptor");
+require("./CompressionMiddleware");
+require("./LoggerMiddleware");
 
 let app = express(); // create express server
 registerActionsInExpressApp(app); // register controller actions in express app

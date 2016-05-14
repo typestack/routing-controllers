@@ -1,10 +1,7 @@
-import "reflect-metadata";
-import {defaultMetadataStorage} from "./../metadata/MetadataStorage";
-import {ActionType} from "./../metadata/ActionMetadata";
-import {ResponsePropertyType} from "./../metadata/ResponsePropertyMetadata";
-import {ControllerType} from "./../metadata/ControllerMetadata";
-import {ParamType, ParamOptions} from "./../metadata/ParamMetadata";
-import {ActionOptions} from "./../metadata/ActionMetadata";
+import {defaultMetadataStorage} from "../index";
+import {ParamTypes} from "../metadata/types/ParamTypes";
+import {ParamOptions} from "./options/ParamOptions";
+import {ParamMetadata} from "../metadata/ParamMetadata";
 
 /**
  * This decorator allows to inject a Request object to the controller action parameter. After that you can fully use
@@ -12,14 +9,15 @@ import {ActionOptions} from "./../metadata/ActionMetadata";
  */
 export function Req() {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataStorage.addParamMetadata({
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.REQUEST,
+            type: ParamTypes.REQUEST,
             parseJson: false,
             isRequired: false
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -29,14 +27,15 @@ export function Req() {
  */
 export function Res() {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataStorage.addParamMetadata({
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.RESPONSE,
+            type: ParamTypes.RESPONSE,
             parseJson: false,
             isRequired: false
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -58,16 +57,17 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
     }
 
     return function (object: Object, methodName: string, index: number) {
-        const format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
-        defaultMetadataStorage.addParamMetadata({
+        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.BODY,
+            type: ParamTypes.BODY,
             format: format,
             parseJson: parseJson,
             isRequired: required
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -90,17 +90,18 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
-        defaultMetadataStorage.addParamMetadata({
+        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.PARAM,
+            type: ParamTypes.PARAM,
             name: name,
             format: format,
             parseJson: parseJson,
             isRequired: required
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -123,17 +124,18 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
     }
 
     return function (object: Object, methodName: string, index: number) {
-        const format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
-        defaultMetadataStorage.addParamMetadata({
+        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.QUERY,
+            type: ParamTypes.QUERY,
             name: name,
             format: format,
             parseJson: parseJson,
             isRequired: required
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -156,17 +158,18 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
-        defaultMetadataStorage.addParamMetadata({
+        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.BODY_PARAM,
+            type: ParamTypes.BODY_PARAM,
             name: name,
             format: format,
             parseJson: parseJson,
             isRequired: required
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }
 
@@ -189,16 +192,17 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
     }
 
     return function (object: Object, methodName: string, index: number) {
-        let format = Reflect.getMetadata("design:paramtypes", object, methodName)[index];
-        defaultMetadataStorage.addParamMetadata({
+        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadata = {
             object: object,
             method: methodName,
             index: index,
-            type: ParamType.COOKIE,
+            type: ParamTypes.COOKIE,
             name: name,
             format: format,
             parseJson: parseJson,
             isRequired: required
-        });
+        };
+        defaultMetadataStorage().paramMetadatas.push(metadata);
     };
 }

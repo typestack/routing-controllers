@@ -1,11 +1,10 @@
-import {ParamMetadata, ParamType} from "./metadata/ParamMetadata";
-import {ParameterRequiredError} from "./error/ParameterRequiredError";
-import {BodyRequiredError} from "./error/BodyRequiredError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {Server} from "./server/Server";
+import {Driver} from "./server/Server";
 import {Utils} from "./Utils";
-import {plainToConstructor} from "constructor-utils/constructor-utils";
+import {plainToConstructor} from "constructor-utils";
 import {ResultHandleOptions} from "./ResultHandleOptions";
+import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ParamTypes} from "./metadata/types/ParamTypes";
 
 /**
  * Helps to handle parameters.
@@ -16,7 +15,7 @@ export class ParamHandler {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private framework: Server) {
+    constructor(private framework: Driver) {
     }
 
     // -------------------------------------------------------------------------
@@ -26,10 +25,10 @@ export class ParamHandler {
     handleParam(request: any, response: any, param: ParamMetadata, handleResultOptions: ResultHandleOptions): Promise<any> {
         let value: any, originalValue: any;
         switch (param.type) {
-            case ParamType.REQUEST:
+            case ParamTypes.REQUEST:
                 value = request;
                 break;
-            case ParamType.RESPONSE:
+            case ParamTypes.RESPONSE:
                 value = response;
                 break;
             default:

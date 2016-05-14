@@ -1,10 +1,10 @@
-import {ParamType} from "../metadata/ParamMetadata";
 import {ResultHandleOptions} from "./../ResultHandleOptions";
+import {ParamTypes} from "../metadata/types/ParamTypes";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
  */
-export interface Server {
+export interface Driver {
 
     /**
      * Registers action in the server framework.
@@ -22,7 +22,7 @@ export interface Server {
      * @param paramName Parameter name
      * @param paramType Parameter type
      */
-    getParamFromRequest(request: any, paramName: string, paramType: ParamType): void;
+    getParamFromRequest(request: any, paramName: string, paramType: ParamTypes): void;
 
     /**
      * Defines an algorithm of how to handle error during executing controller action.

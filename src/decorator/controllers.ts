@@ -1,10 +1,5 @@
-import "reflect-metadata";
-import {defaultMetadataStorage} from "./../metadata/MetadataStorage";
-import {ActionType} from "./../metadata/ActionMetadata";
-import {ResponsePropertyType} from "./../metadata/ResponsePropertyMetadata";
-import {ControllerType} from "./../metadata/ControllerMetadata";
-import {ParamType, ParamOptions} from "./../metadata/ParamMetadata";
-import {ActionOptions} from "./../metadata/ActionMetadata";
+import {defaultMetadataStorage} from "../index";
+import {ControllerMetadata} from "../metadata/ControllerMetadata";
 
 /**
  * Defines a class as a controller. All methods with special decorators will be registered as controller actions.
@@ -14,11 +9,12 @@ import {ActionOptions} from "./../metadata/ActionMetadata";
  */
 export function Controller(baseRoute?: string) {
     return function (object: Function) {
-        defaultMetadataStorage.addControllerMetadata({
+        const metadata: ControllerMetadata = {
             route: baseRoute,
             object: object,
-            type: ControllerType.DEFAULT
-        });
+            type: "default"
+        };
+        defaultMetadataStorage().controllerMetadatas.push(metadata);
     };
 }
 
@@ -30,10 +26,11 @@ export function Controller(baseRoute?: string) {
  */
 export function JsonController(baseRoute?: string) {
     return function (object: Function) {
-        defaultMetadataStorage.addControllerMetadata({
+        const metadata: ControllerMetadata = {
             route: baseRoute,
             object: object,
-            type: ControllerType.JSON
-        });
+            type: "json"
+        };
+        defaultMetadataStorage().controllerMetadatas.push(metadata);
     };
 }

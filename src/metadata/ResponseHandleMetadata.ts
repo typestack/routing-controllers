@@ -1,7 +1,9 @@
+import {ResponseHandleType} from "./types/ResponsePropertyTypes";
+
 /**
- * Controller metadata used to storage information about different response properties.
+ * Storages information about registered response handlers.
  */
-export interface ResponsePropertyMetadata {
+export interface ResponseHandleMetadata {
 
     /**
      * Object on which's method decorator is set.
@@ -16,28 +18,16 @@ export interface ResponsePropertyMetadata {
     /**
      * Property type. See ResponsePropertyMetadataType for possible values.
      */
-    type: number;
+    type: ResponseHandleType;
 
     /**
      * Property value. Can be status code, content-type, header name, template name, etc.
      */
-    value: any;
+    primaryValue: any;
 
     /**
      * Secondary property value. Can be header value for example.
      */
-    value2?: any;
-}
-
-export enum ResponsePropertyType {
-    SUCCESS_CODE = 1,
-    ERROR_CODE = 2,
-    CONTENT_TYPE = 3,
-    HEADER = 4,
-    RENDERED_TEMPLATE = 5,
-    REDIRECT = 6,
-    LOCATION = 7,
-    EMPTY_RESULT_CODE = 8,
-    NULL_RESULT_CODE = 9,
-    UNDEFINED_RESULT_CODE = 10
+    secondaryValue?: any;
+    
 }

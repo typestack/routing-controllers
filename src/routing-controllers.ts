@@ -1,5 +1,6 @@
 import {ControllerRegistrator} from "./ControllerRegistrator";
 import {ExpressServer} from "./server/ExpressServer";
+import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 
 /**
  * Registers all loaded actions in your express application.
@@ -10,8 +11,8 @@ import {ExpressServer} from "./server/ExpressServer";
 export function registerActionsInExpressApp(expressApp: any, requireDirs?: string[]): ControllerRegistrator {
     const controllerRegistrator = new ControllerRegistrator(new ExpressServer(expressApp));
     if (requireDirs && requireDirs.length)
-        requireDirs.map(dir => controllerRegistrator.loadFiles(dir));
+        importClassesFromDirectories(requireDirs);
 
-    controllerRegistrator.registerAllActions();
+    controllerRegistrator.registerAllActions(); // register only for loaded controllers?
     return controllerRegistrator;
 }

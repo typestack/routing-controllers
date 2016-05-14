@@ -1,4 +1,4 @@
-import {ResponseInterceptorInterface} from "./interceptor/ResponseInterceptorInterface";
+import {MiddlewareInterface} from "./middleware/MiddlewareInterface";
 
 /**
  * Options used to send to framework result handlers.
@@ -58,7 +58,7 @@ export interface ResultHandleOptions {
     /**
      * Interceptors used to catch (and do something) with response result before it will be sent.
      */
-    interceptors: ResponseInterceptorInterface[];
+    interceptors: MiddlewareInterface[];
 
     /**
      * Custom response headers.

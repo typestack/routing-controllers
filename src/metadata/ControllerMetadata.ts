@@ -4,38 +4,18 @@
 export interface ControllerMetadata {
 
     /**
-     * Base route for all actions registered in this controller.
-     */
-    route: string;
-
-    /**
      * Indicates object which is used by this controller.
      */
     object: Function;
 
     /**
-     * Instance of the object that is used to call controller methods on.
+     * Base route for all actions registered in this controller.
      */
-    instance?: Object;
+    route: string;
 
     /**
-     * Controller type. Can be default, or json-typed. Can be one of the value defined in ControllerType class.
+     * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
-    type: number;
-}
-
-/**
- * List of controller types.
- */
-export enum ControllerType {
-
-    /**
-     * Default controller type.
-     */
-    DEFAULT = 0,
-
-    /**
-     * JSON controller type.
-     */
-    JSON = 1
+    type: "default"|"json";
+    
 }

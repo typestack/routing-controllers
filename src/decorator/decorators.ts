@@ -1,24 +1,21 @@
-import "reflect-metadata";
-import {defaultMetadataStorage} from "./../metadata/MetadataStorage";
-import {ActionType} from "./../metadata/ActionMetadata";
-import {ResponsePropertyType} from "./../metadata/ResponsePropertyMetadata";
-import {ControllerType} from "./../metadata/ControllerMetadata";
-import {ParamType, ParamOptions} from "./../metadata/ParamMetadata";
-import {ActionOptions} from "./../metadata/ActionMetadata";
+import {defaultMetadataStorage} from "../index";
+import {MiddlewareOptions} from "./options/MiddlewareOptions";
+import {ResponseHandleTypes} from "../metadata/types/ResponsePropertyTypes";
+import {ResponseHandleMetadata} from "../metadata/ResponseHandleMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 
 /**
- * Defines a class which will intercept all response to be sent to the client. Using such classes gives ability to
- * change content of the response (both success and error) on-the-fly. Classes that uses this decorator must
- * implement ResponseInterceptorInterface.
- * 
- * @param priority Special priority to be used to define order of interceptors to be executed
+ * Registers a new middleware.
  */
-export function ResponseInterceptor(priority: number = 0) {
-    return function (object: Function) {
-        defaultMetadataStorage.addResponseInterceptorMetadata({
-            object: object,
-            priority: priority
-        });
+export function Middleware(name?: string, options?: MiddlewareOptions) {
+    return function (target: Function) {
+        const metadata: MiddlewareMetadata = {
+            target: target,
+            name: name,
+            priority: options && options.priority ? options.priority : undefined,
+            routes: options && options.routes ? options.routes : undefined
+        };
+        defaultMetadataStorage().middlewareMetadatas.push(metadata);
     };
 }
 
@@ -28,12 +25,13 @@ export function ResponseInterceptor(priority: number = 0) {
  */
 export function HttpCode(code: number) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: code,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: code,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.SUCCESS_CODE
-        });
+            type: ResponseHandleTypes.SUCCESS_CODE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -42,12 +40,13 @@ export function HttpCode(code: number) {
  */
 export function EmptyResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: code,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: code,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.EMPTY_RESULT_CODE
-        });
+            type: ResponseHandleTypes.EMPTY_RESULT_CODE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -56,12 +55,13 @@ export function EmptyResultCode(code: number) {
  */
 export function NullResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: code,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: code,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.NULL_RESULT_CODE
-        });
+            type: ResponseHandleTypes.NULL_RESULT_CODE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -70,12 +70,13 @@ export function NullResultCode(code: number) {
  */
 export function UndefinedResultCode(code: number) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: code,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: code,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.UNDEFINED_RESULT_CODE
-        });
+            type: ResponseHandleTypes.UNDEFINED_RESULT_CODE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -84,12 +85,13 @@ export function UndefinedResultCode(code: number) {
  */
 export function ContentType(type: string) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: type,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: type,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.CONTENT_TYPE
-        });
+            type: ResponseHandleTypes.CONTENT_TYPE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -98,13 +100,14 @@ export function ContentType(type: string) {
  */
 export function Header(name: string, value: string) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: name,
-            value2: value,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: name,
+            secondaryValue: value,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.HEADER
-        });
+            type: ResponseHandleTypes.HEADER
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -113,12 +116,13 @@ export function Header(name: string, value: string) {
  */
 export function Location(value: string) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: value,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: value,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.LOCATION
-        });
+            type: ResponseHandleTypes.LOCATION
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -127,12 +131,13 @@ export function Location(value: string) {
  */
 export function Redirect(value: string) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: value,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: value,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.REDIRECT
-        });
+            type: ResponseHandleTypes.REDIRECT
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }
 
@@ -141,11 +146,12 @@ export function Redirect(value: string) {
  */
 export function Render(template: string) {
     return function (object: Object, methodName: string) {
-        defaultMetadataStorage.addResponsePropertyMetadata({
-            value: template,
+        const metadata: ResponseHandleMetadata = {
+            primaryValue: template,
             object: object,
             method: methodName,
-            type: ResponsePropertyType.RENDERED_TEMPLATE
-        });
+            type: ResponseHandleTypes.RENDERED_TEMPLATE
+        };
+        defaultMetadataStorage().responseHandleMetadatas.push(metadata);
     };
 }

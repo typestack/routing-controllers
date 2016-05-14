@@ -1,20 +1,19 @@
-import {Server} from "./Server";
-import {ParamType} from "../metadata/ParamMetadata";
-import {ResponseInterceptorInterface} from "../interceptor/ResponseInterceptorInterface";
+import {Driver} from "./Server";
 import {BadHttpActionError} from "./error/BadHttpActionError";
 import {ResultHandleOptions} from "./../ResultHandleOptions";
-import {InterceptorHelper} from "../interceptor/InterceptorHelper";
+import {MiddlewareHelper} from "../middleware/MiddlewareHelper";
+import {ParamTypes} from "../metadata/types/ParamTypes";
 
 /**
  * Integration with Express.js framework.
  */
-export class ExpressServer implements Server {
+export class ExpressServer implements Driver {
 
     // -------------------------------------------------------------------------
     // Properties
     // -------------------------------------------------------------------------
 
-    private _interceptorHelper = new InterceptorHelper();
+    private _interceptorHelper = new MiddlewareHelper();
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -27,7 +26,7 @@ export class ExpressServer implements Server {
     // Accessors
     // -------------------------------------------------------------------------
 
-    set interceptorHelper(interceptorHelper: InterceptorHelper) {
+    set interceptorHelper(interceptorHelper: MiddlewareHelper) {
         this._interceptorHelper = interceptorHelper;
     }
 
@@ -43,17 +42,17 @@ export class ExpressServer implements Server {
         this.express[expressAction](route, (request: any, response: any) => executeCallback(request, response));
     }
 
-    getParamFromRequest(request: any, paramName: string, paramType: ParamType): void {
+    getParamFromRequest(request: any, paramName: string, paramType: ParamTypes): void {
         switch (paramType) {
-            case ParamType.BODY:
+            case ParamTypes.BODY:
                 return request.body;
-            case ParamType.PARAM:
+            case ParamTypes.PARAM:
                 return request.params[paramName];
-            case ParamType.QUERY:
+            case ParamTypes.QUERY:
                 return request.query[paramName];
-            case ParamType.BODY_PARAM:
+            case ParamTypes.BODY_PARAM:
                 return request.body[paramName];
-            case ParamType.COOKIE:
+            case ParamTypes.COOKIE:
                 return request.cookies[paramName];
         }
     }

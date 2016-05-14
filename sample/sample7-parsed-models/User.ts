@@ -1,5 +1,5 @@
 import {Photo} from "./Photo";
-import {Type, Skip} from "constructor-utils/constructor-utils";
+import {Type, Skip} from "constructor-utils";
 
 export class User {
     

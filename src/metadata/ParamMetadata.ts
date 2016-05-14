@@ -1,3 +1,5 @@
+import {ParamTypes} from "./types/ParamTypes";
+
 /**
  * Controller metadata used to storage information about registered parameters.
  */
@@ -21,7 +23,7 @@ export interface ParamMetadata {
     /**
      * Parameter type.
      */
-    type: ParamType;
+    type: ParamTypes;
 
     /**
      * Parameter name.
@@ -52,34 +54,4 @@ export interface ParamMetadata {
      * Transforms the value.
      */
     transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
-}
-
-/**
- * Action parameter types.
- */
-export enum ParamType {
-    BODY = 1,
-    QUERY = 2,
-    BODY_PARAM = 3,
-    PARAM = 4,
-    COOKIE = 5,
-    REQUEST = 6,
-    RESPONSE = 7,
-    CUSTOM_CONVERTER = 8
-}
-
-/**
- * Extra parameters set to the parameter.
- */
-export interface ParamOptions {
-
-    /**
-     * If set to true then parameter will be required.
-     */
-    required?: boolean;
-
-    /**
-     * If set to true then parameter will be parsed to json.
-     */
-    parseJson?: boolean;
 }

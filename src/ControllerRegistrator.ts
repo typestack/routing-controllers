@@ -1,19 +1,20 @@
-import {Server} from "./server/Server";
-import {ActionOptions, ActionMetadata} from "./metadata/ActionMetadata";
-import {ControllerMetadata, ControllerType} from "./metadata/ControllerMetadata";
-import {MetadataStorage, defaultMetadataStorage} from "./metadata/MetadataStorage";
+import {Driver} from "./server/Server";
+import {ActionMetadata} from "./metadata/ActionMetadata";
+import {ControllerMetadata} from "./metadata/ControllerMetadata";
 import {Utils} from "./Utils";
-import {ParamMetadata, ParamType} from "./metadata/ParamMetadata";
-import {ResponsePropertyMetadata, ResponsePropertyType} from "./metadata/ResponsePropertyMetadata";
+import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ResponseHandleMetadata} from "./metadata/ResponseHandleMetadata";
 import {ParamHandler} from "./ParamHandler";
 import {HttpError} from "./error/http/HttpError";
 import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
-import {ResponseInterceptorInterface} from "./interceptor/ResponseInterceptorInterface";
-import {ResponseInterceptorMetadata} from "./metadata/ResponseInterceptorMetadata";
+import {MiddlewareInterface} from "./middleware/MiddlewareInterface";
+import {MiddlewareMetadata} from "./metadata/MiddlewareMetadata";
 import {ResultHandleOptions} from "./ResultHandleOptions";
-import {constructorToPlain} from "constructor-utils/constructor-utils";
+import {constructorToPlain} from "constructor-utils";
+import {defaultMetadataStorage, getContainer} from "./index";
+import {ActionOptions} from "./decorator/options/ActionOptions";
+import {ResponseHandleTypes} from "./metadata/types/ResponsePropertyTypes";
 
-export type Container = { get(someClass: any): any };
 export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
 export type DefaultErrorHandlerFunction = (error: any) => any;
 
@@ -32,87 +33,36 @@ export class ControllerRegistrator {
     // Private properties
     // -------------------------------------------------------------------------
 
-    private _container: Container;
-    private _metadataStorage: MetadataStorage = defaultMetadataStorage;
-    private _paramHandler: ParamHandler;
-    private _isLogErrorsEnabled: boolean;
-    private _isStackTraceEnabled: boolean;
-    private _jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
-    private _defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
-    private requireAll: Function = require("require-all");
-
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-
-    constructor(private framework: Server) {
-        this._paramHandler = new ParamHandler(framework);
-    }
-
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    /**
-     * Sets a container that can be used in your controllers. This allows you to inject services in your
-     * controllers.
-     */
-    set container(container: Container) {
-        this._container = container;
-    }
-
     /**
      * Enables console.logging of errors if error occur in handled result.
-     *
-     * @param isEnabled
      */
-    set isLogErrorsEnabled(isEnabled: boolean) {
-        this._isLogErrorsEnabled = isEnabled;
-    }
+    isLogErrorsEnabled: boolean;
 
     /**
      * Enables stack trace output if error occur in handled result.
-     *
-     * @param isEnabled
      */
-    set isStackTraceEnabled(isEnabled: boolean) {
-        this._isStackTraceEnabled = isEnabled;
-    }
+    isStackTraceEnabled: boolean;
 
     /**
      * Sets custom json error handler.
-     *
-     * @param handler
      */
-    set jsonErrorHandler(handler: JsonErrorHandlerFunction) {
-        this._jsonErrorHandler = handler;
-    }
+    jsonErrorHandler: JsonErrorHandlerFunction = jsonErrorHandler;
 
     /**
      * Sets custom error handler.
      *
      * @param handler
      */
-    set defaultErrorHandler(handler: DefaultErrorHandlerFunction) {
-        this._defaultErrorHandler = handler;
-    }
+    defaultErrorHandler: DefaultErrorHandlerFunction = defaultErrorHandler;
 
-    /**
-     * Sets param handler.
-     *
-     * @param handler
-     */
-    set paramHandler(handler: ParamHandler) {
-        this._paramHandler = handler;
-    }
+    private paramHandler: ParamHandler;
 
-    /**
-     * Sets metadata storage.
-     *
-     * @param metadataStorage
-     */
-    set metadataStorage(metadataStorage: MetadataStorage) {
-        this._metadataStorage = metadataStorage;
+    // -------------------------------------------------------------------------
+    // Constructor
+    // -------------------------------------------------------------------------
+
+    constructor(private driver: Driver) {
+        this.paramHandler = new ParamHandler(driver);
     }
 
     // -------------------------------------------------------------------------
@@ -120,31 +70,18 @@ export class ControllerRegistrator {
     // -------------------------------------------------------------------------
 
     /**
-     * Loads all controllers from the given directory
-     *
-     * @param directory Directory where from load controllers
-     * @param recursive Indicates if controllers are in nested directories and thy must be loaded tooo
-     * @param filter Regxep to filter speficif files to load
-     * @param excludeDirs Regxep to exclude some files
-     * @see https://www.npmjs.com/package/require-all
-     */
-    loadFiles(directory: string, recursive?: boolean, filter?: RegExp, excludeDirs?: RegExp) {
-        this.requireAll({ dirname: directory, filter: filter, excludeDirs: excludeDirs, recursive: recursive });
-    }
-
-    /**
      * Registers all loaded to the metadata storage controllers and their actions.
      */
-    registerAllActions(): ControllerRegistrator {
-        this.registerControllerActions(this._metadataStorage.controllerMetadatas);
+    registerAllActions(): this {
+        this.registerControllerActions(defaultMetadataStorage().controllerMetadatas);
         return this;
     }
 
     /**
      * Registers actions from the given controllers.
      */
-    registerActions(classes: Function[]): ControllerRegistrator {
-        const controllerMetadatas = this._metadataStorage.findControllerMetadatasForClasses(classes);
+    registerActions(classes: Function[]): this {
+        const controllerMetadatas = defaultMetadataStorage().findControllerMetadatasForClasses(classes);
         this.registerControllerActions(controllerMetadatas);
         return this;
     }
@@ -154,25 +91,26 @@ export class ControllerRegistrator {
     // -------------------------------------------------------------------------
 
     private registerControllerActions(controllerMetadatas: ControllerMetadata[]) {
+        const metadataStorage = defaultMetadataStorage();
         controllerMetadatas.forEach(controller => {
-            this._metadataStorage
+            metadataStorage
                 .findActionMetadatasForControllerMetadata(controller)
                 .forEach(action => {
-                    const extraParams = this._metadataStorage.findParamMetadatasForControllerAndActionMetadata(controller, action);
-                    const propertyMetadatas = this._metadataStorage.findResponsePropertyMetadatasForControllerAndActionMetadata(controller, action);
-                    return this.registerAction(controller, action, propertyMetadatas, extraParams, this._metadataStorage.responseInterceptorMetadatas);
+                    const extraParams = metadataStorage.findParamMetadatasForControllerAndActionMetadata(controller, action);
+                    const propertyMetadatas = metadataStorage.findResponsePropertyMetadatasForControllerAndActionMetadata(controller, action);
+                    this.registerAction(controller, action, propertyMetadatas, extraParams, metadataStorage.middlewareMetadatas);
                 });
         });
     }
 
     private registerAction(controller: ControllerMetadata,
                            action: ActionMetadata,
-                           responseProperties: ResponsePropertyMetadata[],
+                           responseProperties: ResponseHandleMetadata[],
                            params: ParamMetadata[],
-                           interceptorMetadatas: ResponseInterceptorMetadata[]) {
+                           interceptorMetadatas: MiddlewareMetadata[]) {
 
         const path = this.buildActionPath(controller, action);
-        this.framework.registerAction(path, action.type, (request: any, response: any) => {
+        this.driver.registerAction(path, action.type, (request: any, response: any) => {
             return this.handleAction(request, response, controller, action, responseProperties, params, interceptorMetadatas);
         });
     }
@@ -191,74 +129,74 @@ export class ControllerRegistrator {
                          response: any,
                          controllerMetadata: ControllerMetadata,
                          actionMetadata: ActionMetadata,
-                         responsePropertyMetadatas: ResponsePropertyMetadata[],
+                         responsePropertyMetadatas: ResponseHandleMetadata[],
                          paramMetadatas: ParamMetadata[],
-                         interceptorMetadatas: ResponseInterceptorMetadata[]) {
+                         interceptorMetadatas: MiddlewareMetadata[]) {
 
         const isJson = this.isActionMustReturnJson(controllerMetadata.type, actionMetadata.options);
-        const controllerObject = this.getControllerInstance(controllerMetadata);
+        const controllerInstance = getContainer().get<any>(controllerMetadata.object);
         const interceptors = interceptorMetadatas ? this.getInterceptorInstancesFromMetadatas(interceptorMetadatas) : [];
 
         const contentTypeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.CONTENT_TYPE ? property : found;
+            return property.type === ResponseHandleTypes.CONTENT_TYPE ? property : found;
         }, undefined);
         const locationMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.LOCATION ? property : found;
+            return property.type === ResponseHandleTypes.LOCATION ? property : found;
         }, undefined);
         const redirectMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.REDIRECT ? property : found;
+            return property.type === ResponseHandleTypes.REDIRECT ? property : found;
         }, undefined);
         const successCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.SUCCESS_CODE ? property : found;
+            return property.type === ResponseHandleTypes.SUCCESS_CODE ? property : found;
         }, undefined);
         const emptyResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.EMPTY_RESULT_CODE ? property : found;
+            return property.type === ResponseHandleTypes.EMPTY_RESULT_CODE ? property : found;
         }, undefined);
         const nullResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.NULL_RESULT_CODE ? property : found;
+            return property.type === ResponseHandleTypes.NULL_RESULT_CODE ? property : found;
         }, undefined);
         const undefinedResultCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.UNDEFINED_RESULT_CODE ? property : found;
+            return property.type === ResponseHandleTypes.UNDEFINED_RESULT_CODE ? property : found;
         }, undefined);
         const errorCodeMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.ERROR_CODE ? property : found;
+            return property.type === ResponseHandleTypes.ERROR_CODE ? property : found;
         }, undefined);
         const renderedTemplateMetadata = responsePropertyMetadatas.reduce((found, property) => {
-            return property.type === ResponsePropertyType.RENDERED_TEMPLATE ? property : found;
+            return property.type === ResponseHandleTypes.RENDERED_TEMPLATE ? property : found;
         }, undefined);
         const headerMetadatas = responsePropertyMetadatas.filter(property => {
-            return property.type === ResponsePropertyType.HEADER;
-        }).map(property => ({ name: property.value, value: property.value2 }));
+            return property.type === ResponseHandleTypes.HEADER;
+        }).map(property => ({ name: property.primaryValue, value: property.secondaryValue }));
 
         const handleResultOptions: ResultHandleOptions = {
             request: request,
             response: response,
             content: undefined,
             asJson: isJson,
-            successHttpCode: successCodeMetadata ? successCodeMetadata.value : undefined,
-            errorHttpCode: errorCodeMetadata ? errorCodeMetadata.value : undefined,
-            emptyResultCode: emptyResultCodeMetadata ? emptyResultCodeMetadata.value : undefined,
-            nullResultCode: nullResultCodeMetadata ? nullResultCodeMetadata.value : undefined,
-            undefinedResultCode: undefinedResultCodeMetadata ? undefinedResultCodeMetadata.value : undefined,
-            redirect: redirectMetadata ? redirectMetadata.value : undefined,
+            successHttpCode: successCodeMetadata ? successCodeMetadata.primaryValue : undefined,
+            errorHttpCode: errorCodeMetadata ? errorCodeMetadata.primaryValue : undefined,
+            emptyResultCode: emptyResultCodeMetadata ? emptyResultCodeMetadata.primaryValue : undefined,
+            nullResultCode: nullResultCodeMetadata ? nullResultCodeMetadata.primaryValue : undefined,
+            undefinedResultCode: undefinedResultCodeMetadata ? undefinedResultCodeMetadata.primaryValue : undefined,
+            redirect: redirectMetadata ? redirectMetadata.primaryValue : undefined,
             headers: headerMetadatas,
-            renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.value : undefined,
+            renderedTemplate: renderedTemplateMetadata ? renderedTemplateMetadata.primaryValue : undefined,
             interceptors: interceptors
         };
 
-        if (contentTypeMetadata && contentTypeMetadata.value)
-            handleResultOptions.headers.push({ name: "Content-Type", value: contentTypeMetadata.value });
+        if (contentTypeMetadata && contentTypeMetadata.primaryValue)
+            handleResultOptions.headers.push({ name: "Content-Type", value: contentTypeMetadata.primaryValue });
 
-        if (locationMetadata && locationMetadata.value)
-            handleResultOptions.headers.push({ name: "Location", value: locationMetadata.value });
+        if (locationMetadata && locationMetadata.primaryValue)
+            handleResultOptions.headers.push({ name: "Location", value: locationMetadata.primaryValue });
 
         const paramsPromises = paramMetadatas
             .sort((param1, param2) => param1.index - param2.index)
             .map(param => {
-                return this._paramHandler.handleParam(request, response, param, handleResultOptions);
+                return this.paramHandler.handleParam(request, response, param, handleResultOptions);
             });
         Promise.all(paramsPromises).then(params => {
-            const result = controllerObject[actionMetadata.method].apply(controllerObject, params);
+            const result = controllerInstance[actionMetadata.method].apply(controllerInstance, params);
 
             if (result)
                 this.handleResult(isJson ? result : String(result), handleResultOptions);
@@ -274,37 +212,19 @@ export class ControllerRegistrator {
         });
     }
 
-    private getControllerInstance(metadata: ControllerMetadata): any {
-        if (this._container)
-            return this._container.get(metadata.object);
-
-        if (!metadata.instance)
-            metadata.instance = new (<any>metadata.object)();
-        return metadata.instance;
-    }
-
-    private getInterceptorInstancesFromMetadatas(interceptorMetadatas: ResponseInterceptorMetadata[]): ResponseInterceptorInterface[] {
+    private getInterceptorInstancesFromMetadatas(interceptorMetadatas: MiddlewareMetadata[]): MiddlewareInterface[] {
         return interceptorMetadatas
             .sort(inter => inter.priority)
-            .map(inter => this.getResponseInterceptorInstance(inter));
+            .map(inter => getContainer().get<MiddlewareInterface>(inter.target));
     }
 
-    private getResponseInterceptorInstance(metadata: ResponseInterceptorMetadata): any {
-        if (this._container)
-            return this._container.get(metadata.object);
-
-        if (!metadata.instance)
-            metadata.instance = new (<any>metadata.object)();
-        return metadata.instance;
-    }
-
-    private isActionMustReturnJson(controllerType: ControllerType, actionOptions: ActionOptions): boolean {
+    private isActionMustReturnJson(controllerType: "default"|"json", actionOptions: ActionOptions): boolean {
         if (actionOptions && actionOptions.jsonResponse)
             return true;
-        if (controllerType === ControllerType.JSON && actionOptions && actionOptions.textResponse)
+        if (controllerType === "json" && actionOptions && actionOptions.textResponse)
             return false;
 
-        return controllerType === ControllerType.JSON;
+        return controllerType === "json";
     }
 
     private handleResult(result: any, options: ResultHandleOptions) {
@@ -316,7 +236,7 @@ export class ControllerRegistrator {
                     } else {
                         options.content = data;
                     }
-                    this.framework.handleSuccess(options);
+                    this.driver.handleSuccess(options);
                 })
                 .catch((error: any) => {
                     this.handleError(error, options);
@@ -328,13 +248,13 @@ export class ControllerRegistrator {
             } else {
                 options.content = result;
             }
-            this.framework.handleSuccess(options);
+            this.driver.handleSuccess(options);
         }
     }
 
     private handleError(error: any, options: ResultHandleOptions) {
         const responseError = this.processErrorWithErrorHandler(error, options.asJson);
-        if (this._isLogErrorsEnabled)
+        if (this.isLogErrorsEnabled)
             console.error(error.stack ? error.stack : error);
 
         options.errorHttpCode = options.errorHttpCode || 500;
@@ -347,7 +267,7 @@ export class ControllerRegistrator {
         }
 
         options.content = responseError;
-        this.framework.handleError(options);
+        this.driver.handleError(options);
     }
 
     /**
@@ -358,11 +278,11 @@ export class ControllerRegistrator {
      * @returns {any}
      */
     private processErrorWithErrorHandler(error: any, isJson: boolean): any {
-        if (isJson && this._jsonErrorHandler) {
-            return this._jsonErrorHandler(error, this._isStackTraceEnabled, this.errorOverridingMap);
+        if (isJson && this.jsonErrorHandler) {
+            return this.jsonErrorHandler(error, this.isStackTraceEnabled, this.errorOverridingMap);
 
-        } else if (!isJson && this._defaultErrorHandler) {
-            return this._defaultErrorHandler(error);
+        } else if (!isJson && this.defaultErrorHandler) {
+            return this.defaultErrorHandler(error);
         }
     }
 

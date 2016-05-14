@@ -1,4 +1,3 @@
-import {HttpError} from "./error/http/HttpError";
 import {Utils} from "./Utils";
 
 /**
