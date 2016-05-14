@@ -1,5 +1,5 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {Driver} from "./server/Server";
+import {Driver} from "./driver/Server";
 import {Utils} from "./Utils";
 import {plainToConstructor} from "constructor-utils";
 import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
@@ -58,7 +58,7 @@ export class ParamHandler {
         return promiseValue.then((value: any) => {
 
             if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {
-                // TODO: handleResultOptions.errorHttpCode = 404;
+                // TODO: handleResultOptions.errorHttpCode = 404; // maybe throw ErrorNotFoundError here?
                 const contentType = param.target && param.target.name ? param.target.name : "content";
                 const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
                 return Promise.reject(`Requested ${contentType + message} was not found`);

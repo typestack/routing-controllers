@@ -20,11 +20,11 @@ export interface Driver {
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(action: ActionMetadata, error: any): void;
+    handleError(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, error: any): void;
 
     /**
      * Defines an algorithm of how to handle success result of executing controller action.
      */
-    handleSuccess(action: ActionMetadata, result: any): void;
+    handleSuccess(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, result: any): void;
 
 }

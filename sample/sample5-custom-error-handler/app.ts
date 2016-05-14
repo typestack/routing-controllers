@@ -1,7 +1,7 @@
 import * as express from "express";
 import {registerActionsInExpressApp} from "../../src/index";
 import {ControllerRegistrator} from "../../src/ControllerRegistrator";
-import {ExpressServer} from "../../src/server/ExpressServer";
+import {ExpressDriver} from "../../src/driver/ExpressDriver";
 
 require("./BlogController");
 
@@ -9,7 +9,7 @@ let app = express(); // create express server
 registerActionsInExpressApp(app); // register loaded controllers in express app
 
 // alternative way of registering controllers
-let controllerRunner = new ControllerRegistrator(new ExpressServer(app));
+let controllerRunner = new ControllerRegistrator(new ExpressDriver(app));
 controllerRunner.errorOverridingMap = {
     ForbiddenError: {
         message: "Access is denied"

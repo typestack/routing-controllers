@@ -1,4 +1,4 @@
-import {Driver} from "./server/Server";
+import {Driver} from "./driver/Server";
 import {Utils} from "./Utils";
 import {ParamHandler} from "./ParamHandler";
 import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
@@ -89,7 +89,7 @@ export class ControllerRegistrator {
     private registerControllerActions(controllers: ControllerMetadata[]) {
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, (request, response) => {
+                this.driver.registerAction(action, (request: IncomingMessage, response: ServerResponse) => {
                     this.handleAction(request, response, action);
                 });
             });
@@ -106,39 +106,39 @@ export class ControllerRegistrator {
         // after all parameters are computed
         Promise.all(paramsPromises).then(params => {
 
-            // execute action
+            // execute action and handle result
             const result = action.executeAction(params);
-
             if (result)
-                this.handleResult(action, result);
+                this.handleResult(request, response, action, result);
 
         }).catch(error => {
 
+            // if error then handle the error
             if (this.processErrorWithErrorHandler(error, action.isJsonTyped))
-                this.handleError(action, error);
+                this.handleError(request, response, action, error);
 
             throw error;
         });
     }
 
-    private handleResult(action: ActionMetadata, result: any) {
+    private handleResult(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, result: any) {
         // result = action.isJsonTyped ? result : String(result); // todo: don't think this is correct. result can be a promise
         if (Utils.isPromise(result)) {
             result
-                .then((data: any) => this.handleResult(action, data))
+                .then((data: any) => this.handleResult(request, response, action, data))
                 .catch((error: any) => {
-                    this.handleError(action, error);
+                    this.handleError(request, response, action, error);
                     throw error;
                 });
         } else {
             if (result && result instanceof Object) {
                 result = constructorToPlain(result); // todo: specify option to disable it?
             }
-            this.driver.handleSuccess(action, result);
+            this.driver.handleSuccess(request, response, action, result);
         }
     }
 
-    private handleError(action: ActionMetadata, error: any) {
+    private handleError(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, error: any) {
         const responseError = this.processErrorWithErrorHandler(error, action.isJsonTyped);
         // if (this.isLogErrorsEnabled) // todo: middleware?
         //     console.error(error.stack ? error.stack : error);
@@ -154,7 +154,7 @@ export class ControllerRegistrator {
         }*/
 
         // options.content = responseError;
-        this.driver.handleError(action, error);
+        this.driver.handleError(request, response, action, error);
     }
 
     /**

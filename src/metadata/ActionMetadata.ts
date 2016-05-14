@@ -80,9 +80,9 @@ export class ActionMetadata {
             this.method = args.method;
         if (args.type)
             this.type = args.type;
-        if (args.options.jsonResponse)
+        if (args.options && args.options.jsonResponse)
             this.jsonResponse = args.options.jsonResponse;
-        if (args.options.textResponse)
+        if (args.options && args.options.textResponse)
             this.textResponse = args.options.textResponse;
     }
 
@@ -140,12 +140,72 @@ export class ActionMetadata {
         return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.ERROR_CODE);
     }
     
+    get redirectHandler(): ResponseHandlerMetadata {
+        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.REDIRECT);
+    }
+    
     get renderedTemplateHandler(): ResponseHandlerMetadata {
         return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RENDERED_TEMPLATE);
     }
     
-    get headerHandlers(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.HEADER);
+    get headerHandlers(): ResponseHandlerMetadata[] {
+        return this.responseHandlers.filter(handler => handler.type === ResponseHandlerTypes.HEADER);
+    }
+
+    get undefinedResultCode(): number {
+        if (this.undefinedResultHandler)
+            return this.undefinedResultHandler.value;
+        
+        return undefined;
+    }
+
+    get nullResultCode(): number {
+        if (this.nullResultHandler)
+            return this.nullResultHandler.value;
+        
+        return undefined;
+    }
+    
+    get emptyResultCode(): number {
+        if (this.emptyResultHandler)
+            return this.emptyResultHandler.value;
+        
+        return undefined;
+    }
+    
+    get successHttpCode(): number {
+        if (this.successCodeHandler)
+            return this.successCodeHandler.value;
+        
+        return undefined;
+    }
+    
+    get headers(): { [name: string]: any } {
+        const headers: { [name: string]: any } = {};
+        if (this.locationHandler)
+            headers["Location"] = this.locationHandler.value;
+        
+        if (this.contentTypeHandler)
+            headers["Content-type"] = this.contentTypeHandler.value;
+        
+        if (this.headerHandlers)
+            this.headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
+        
+        return headers;
+    }
+    
+    get redirect() {
+        if (this.redirectHandler)
+            return this.redirectHandler.value;
+
+        return undefined;
+    }
+    
+    get renderedTemplate() {
+        if (this.renderedTemplateHandler)
+            return this.renderedTemplateHandler.value;
+
+        return undefined;
     }
     
     // -------------------------------------------------------------------------

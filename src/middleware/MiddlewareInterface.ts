@@ -1,5 +1,11 @@
 import {ServerResponse, ServerRequest} from "http";
 
+export interface MiddlewareUseOption {
+    request?: ServerRequest;
+    response?: ServerResponse;
+    next?: Function;
+}
+
 /**
  * Classes that intercepts response result must implement this interface.
  */

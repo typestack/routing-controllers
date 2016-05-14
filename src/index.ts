@@ -1,6 +1,6 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
-import {ExpressServer} from "./server/ExpressServer";
+import {ExpressDriver} from "./driver/ExpressDriver";
 import {ControllerRegistrator} from "./ControllerRegistrator";
 
 // -------------------------------------------------------------------------
@@ -14,7 +14,7 @@ import {ControllerRegistrator} from "./ControllerRegistrator";
  * @param requireDirs Array of directories where from controller files will be loaded
  */
 export function registerActionsInExpressApp(expressApp: any, requireDirs?: string[]): ControllerRegistrator {
-    const controllerRegistrator = new ControllerRegistrator(new ExpressServer(expressApp));
+    const controllerRegistrator = new ControllerRegistrator(new ExpressDriver(expressApp));
     if (requireDirs && requireDirs.length)
         importClassesFromDirectories(requireDirs);
 
