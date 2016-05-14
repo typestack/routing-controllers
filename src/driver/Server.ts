@@ -1,11 +1,14 @@
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ServerResponse, IncomingMessage} from "http";
 import {ParamMetadata} from "../metadata/ParamMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
  */
 export interface Driver {
+
+    registerMiddleware(middleware: MiddlewareMetadata): void;
 
     /**
      * Registers action in the server framework.

@@ -4,6 +4,7 @@ import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ServerResponse, IncomingMessage} from "http";
 import {HttpError} from "../error/http/HttpError";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 
 /**
  * Integration with Express.js framework.
@@ -21,6 +22,13 @@ export class ExpressDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
+
+    registerMiddleware(middleware: MiddlewareMetadata): void {
+        this.express.use(function (request: any, response: any, next: Function) {
+            middleware.instance.use(request, response, next);
+        });
+    }
+    
     registerAction(action: ActionMetadata, executeCallback: (request: IncomingMessage, response: ServerResponse) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])

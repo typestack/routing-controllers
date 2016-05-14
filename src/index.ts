@@ -1,7 +1,16 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {ExpressDriver} from "./driver/ExpressDriver";
-import {ControllerRegistrator} from "./ControllerRegistrator";
+import {RoutingControllerExecuter} from "./RoutingControllerExecuter";
+
+// -------------------------------------------------------------------------
+// Interfaces
+// -------------------------------------------------------------------------
+
+export interface RoutingControllersOptions {
+    controllerDirs?: string[];
+    middlewareDirs?: string[];
+}
 
 // -------------------------------------------------------------------------
 // Helper Functions
@@ -9,17 +18,37 @@ import {ControllerRegistrator} from "./ControllerRegistrator";
 
 /**
  * Registers all loaded actions in your express application.
- *
- * @param expressApp Express application instance
- * @param requireDirs Array of directories where from controller files will be loaded
  */
-export function registerActionsInExpressApp(expressApp: any, requireDirs?: string[]): ControllerRegistrator {
-    const controllerRegistrator = new ControllerRegistrator(new ExpressDriver(expressApp));
-    if (requireDirs && requireDirs.length)
-        importClassesFromDirectories(requireDirs);
+export function useExpressServer(expressApp: any, options?: RoutingControllersOptions): void {
+    const controllerRegistrator = new RoutingControllerExecuter(new ExpressDriver(expressApp));
 
-    controllerRegistrator.registerAllActions(); // register only for loaded controllers?
-    return controllerRegistrator;
+    if (options && options.controllerDirs && options.controllerDirs.length)
+        importClassesFromDirectories(options.controllerDirs);
+    if (options && options.middlewareDirs && options.middlewareDirs.length)
+        importClassesFromDirectories(options.middlewareDirs);
+
+    controllerRegistrator.registerActions(); // register only for loaded controllers?
+    controllerRegistrator.registerMiddlewares();
+}
+
+/**
+ * Registers all loaded actions in your express application.
+ */
+export function createExpressServer(options?: RoutingControllersOptions): any {
+
+    let expressApp: any;
+    if (require) {
+        try {
+            expressApp = require("express");
+        } catch (e) {
+            throw new Error("express package was not found installed. Try to install it: npm install express --save");
+        }
+    } else {
+        throw new Error("Cannot load express. Try to install all required dependencies.");
+    }
+    
+    useExpressServer(expressApp, options);
+    return expressApp;
 }
 
 // -------------------------------------------------------------------------

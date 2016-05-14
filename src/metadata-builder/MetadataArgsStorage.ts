@@ -23,6 +23,12 @@ export class MetadataArgsStorage {
     // Public Methods
     // -------------------------------------------------------------------------
 
+    findMiddlewareMetadatasForClasses(controllerClasses: Function[]): MiddlewareMetadataArgs[] {
+        return this.middlewares.filter(ctrl => {
+            return controllerClasses.filter(cls => ctrl.target === cls).length > 0;
+        });
+    }
+
     findControllerMetadatasForClasses(controllerClasses: Function[]): ControllerMetadataArgs[] {
         return this.controllers.filter(ctrl => {
             return controllerClasses.filter(cls => ctrl.target === cls).length > 0;

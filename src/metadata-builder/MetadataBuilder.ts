@@ -3,6 +3,7 @@ import {ControllerMetadata} from "../metadata/ControllerMetadata";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -21,9 +22,21 @@ export class MetadataBuilder {
         return this.createControllers(classes);
     }
 
+    buildMiddlewareMetadata(classes?: Function[]) {
+        return this.createMiddlewares(classes);
+    }
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
+    
+    private createMiddlewares(classes?: Function[]) {
+        const storage = defaultMetadataArgsStorage();
+        const middlewares = !classes ? storage.middlewares : storage.findMiddlewareMetadatasForClasses(classes);
+        return middlewares.map(middlewareArgs => {
+            return new MiddlewareMetadata(middlewareArgs);
+        });
+    }
     
     private createControllers(classes?: Function[]) {
         const storage = defaultMetadataArgsStorage();

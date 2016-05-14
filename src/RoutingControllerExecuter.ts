@@ -14,7 +14,7 @@ export type DefaultErrorHandlerFunction = (error: any) => any;
 /**
  * Registers controllers and actions in the given server framework.
  */
-export class ControllerRegistrator {
+export class RoutingControllerExecuter {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -65,28 +65,10 @@ export class ControllerRegistrator {
     // -------------------------------------------------------------------------
 
     /**
-     * Registers all loaded to the metadata storage controllers and their actions.
-     */
-    registerAllActions(): this {
-        const controllers = this.metadataBuilder.buildControllerMetadata();
-        this.registerControllerActions(controllers);
-        return this;
-    }
-
-    /**
      * Registers actions from the given controllers.
      */
-    registerActions(classes: Function[]): this {
+    registerActions(classes?: Function[]): this {
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
-        this.registerControllerActions(controllers);
-        return this;
-    }
-
-    // -------------------------------------------------------------------------
-    // Private Methods
-    // -------------------------------------------------------------------------
-
-    private registerControllerActions(controllers: ControllerMetadata[]) {
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
                 this.driver.registerAction(action, (request: IncomingMessage, response: ServerResponse) => {
@@ -94,7 +76,21 @@ export class ControllerRegistrator {
                 });
             });
         });
+        return this;
     }
+
+    /**
+     * Registers actions from the given controllers.
+     */
+    registerMiddlewares(classes?: Function[]): this {
+        const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
+        middlewares.forEach(middleware => this.driver.registerMiddleware(middleware));
+        return this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
 
     private handleAction(request: IncomingMessage, response: ServerResponse, action: ActionMetadata) {
 
