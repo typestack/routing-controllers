@@ -3,6 +3,7 @@ import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
+import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 
 /**
  * Storage all metadatas read from decorators.
@@ -15,6 +16,7 @@ export class MetadataArgsStorage {
 
     controllers: ControllerMetadataArgs[] = [];
     middlewares: MiddlewareMetadataArgs[] = [];
+    errorHandlers: ErrorHandlerMetadataArgs[] = [];
     actions: ActionMetadataArgs[] = [];
     params: ParamMetadataArgs[] = [];
     responseHandlers: ResponseHandlerMetadataArgs[] = [];
@@ -23,15 +25,21 @@ export class MetadataArgsStorage {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    findMiddlewareMetadatasForClasses(controllerClasses: Function[]): MiddlewareMetadataArgs[] {
-        return this.middlewares.filter(ctrl => {
-            return controllerClasses.filter(cls => ctrl.target === cls).length > 0;
+    findErrorHandlerMetadatasForClasses(classes: Function[]): ErrorHandlerMetadataArgs[] {
+        return this.errorHandlers.filter(ctrl => {
+            return classes.filter(cls => ctrl.target === cls).length > 0;
         });
     }
 
-    findControllerMetadatasForClasses(controllerClasses: Function[]): ControllerMetadataArgs[] {
+    findMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
+        return this.middlewares.filter(ctrl => {
+            return classes.filter(cls => ctrl.target === cls).length > 0;
+        });
+    }
+
+    findControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
         return this.controllers.filter(ctrl => {
-            return controllerClasses.filter(cls => ctrl.target === cls).length > 0;
+            return classes.filter(cls => ctrl.target === cls).length > 0;
         });
     }
 

@@ -1,7 +1,7 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {ExpressDriver} from "./driver/ExpressDriver";
-import {RoutingControllerExecuter} from "./RoutingControllerExecuter";
+import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -10,6 +10,8 @@ import {RoutingControllerExecuter} from "./RoutingControllerExecuter";
 export interface RoutingControllersOptions {
     controllerDirs?: string[];
     middlewareDirs?: string[];
+    errorHandlerDirs?: string[];
+    container?: { get: (cls: any) => any };
 }
 
 // -------------------------------------------------------------------------
@@ -20,15 +22,25 @@ export interface RoutingControllersOptions {
  * Registers all loaded actions in your express application.
  */
 export function useExpressServer(expressApp: any, options?: RoutingControllersOptions): void {
-    const controllerRegistrator = new RoutingControllerExecuter(new ExpressDriver(expressApp));
+    
+    // first of all setup a container if its specified
+    if (options && options.container)
+        useContainer(options.container);
 
+    // second import all controllers and middlewares and error handlers
     if (options && options.controllerDirs && options.controllerDirs.length)
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)
         importClassesFromDirectories(options.middlewareDirs);
+    if (options && options.errorHandlerDirs && options.errorHandlerDirs.length)
+        importClassesFromDirectories(options.errorHandlerDirs);
 
-    controllerRegistrator.registerActions(); // register only for loaded controllers?
-    controllerRegistrator.registerMiddlewares();
+    // next create a controller executor
+    new RoutingControllerExecutor(new ExpressDriver(expressApp))
+        .registerPreExecutionMiddlewares()
+        .registerActions()
+        .registerPostExecutionMiddlewares()
+        .registerErrorHandlers(); // todo: register only for loaded controllers?
 }
 
 /**
@@ -39,7 +51,7 @@ export function createExpressServer(options?: RoutingControllersOptions): any {
     let expressApp: any;
     if (require) {
         try {
-            expressApp = require("express");
+            expressApp = require("express")();
         } catch (e) {
             throw new Error("express package was not found installed. Try to install it: npm install express --save");
         }

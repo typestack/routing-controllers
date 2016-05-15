@@ -1,7 +1,7 @@
 /**
- * Middleware decorator options.
+ * ErrorHandler decorator options.
  */
-export interface MiddlewareOptions {
+export interface ErrorHandlerOptions {
 
     /**
      * Special priority to be used to define order of middlewares to be executed.
@@ -12,10 +12,5 @@ export interface MiddlewareOptions {
      * Defines on which routes this middleware is applied.
      */
     routes?: string[];
-
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    afterAction: boolean;
 
 }

@@ -1,15 +1,15 @@
 import {getContainer} from "../index";
-import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
+import {ErrorHandlerInterface} from "../middleware/ErrorHandlerInterface";
+import {ErrorHandlerMetadataArgs} from "./args/ErrorHandlerMetadataArgs";
 
-export class MiddlewareMetadata {
+export class ErrorHandlerMetadata {
 
     // -------------------------------------------------------------------------
     // Properties
     // -------------------------------------------------------------------------
 
     /**
-     * Object class of the middleware class.
+     * Object class of the error handler class.
      */
     target: Function;
 
@@ -19,25 +19,20 @@ export class MiddlewareMetadata {
     name: string;
 
     /**
-     * Execution priority of the middleware.
+     * Execution priority of the error handler.
      */
     priority: number;
 
     /**
-     * List of routes to which this middleware is applied.
+     * List of routes to which this error handler is applied.
      */
     routes: string[];
-
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    afterAction: boolean;
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
     
-    constructor(args: MiddlewareMetadataArgs) {
+    constructor(args: ErrorHandlerMetadataArgs) {
         if (args.target)
             this.target = args.target;
         if (args.name)
@@ -46,16 +41,14 @@ export class MiddlewareMetadata {
             this.priority = args.priority;
         if (args.routes)
             this.routes = args.routes;
-        if (args.afterAction)
-            this.afterAction = args.afterAction;
     }
 
     // -------------------------------------------------------------------------
     // Accessors
     // -------------------------------------------------------------------------
 
-    get instance(): MiddlewareInterface {
-        return getContainer().get<MiddlewareInterface>(this.target);
+    get instance(): ErrorHandlerInterface {
+        return getContainer().get<ErrorHandlerInterface>(this.target);
     }
 
     get hasRoutes() {

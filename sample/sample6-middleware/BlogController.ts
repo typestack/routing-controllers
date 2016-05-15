@@ -6,6 +6,8 @@ export class BlogController {
 
     @Get("/blogs", { jsonResponse: true })
     getAll() {
+        console.log("hello blog");
+        throw new Error("Nooooo this message will be lost");
         return [
             { id: 1, firstName: "First", secondName: "blog" },
             { id: 2, firstName: "Second", secondName: "blog" }

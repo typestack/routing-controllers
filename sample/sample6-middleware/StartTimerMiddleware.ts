@@ -3,10 +3,10 @@ import {Middleware} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
 @Middleware()
-export class CompressionMiddleware implements MiddlewareInterface {
+export class StartTimerMiddleware implements MiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {
-        console.log("hello compression ...");
+        console.log("timer is started.");
         next();
     }
     

@@ -4,6 +4,7 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -26,9 +27,21 @@ export class MetadataBuilder {
         return this.createMiddlewares(classes);
     }
 
+    buildErrorHandlerMetadata(classes?: Function[]) {
+        return this.createErrorHandlers(classes);
+    }
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
+    
+    private createErrorHandlers(classes?: Function[]) {
+        const storage = defaultMetadataArgsStorage();
+        const errorHandlers = !classes ? storage.errorHandlers : storage.findErrorHandlerMetadatasForClasses(classes);
+        return errorHandlers.map(errorHandlerArgs => {
+            return new ErrorHandlerMetadata(errorHandlerArgs);
+        });
+    }
     
     private createMiddlewares(classes?: Function[]) {
         const storage = defaultMetadataArgsStorage();

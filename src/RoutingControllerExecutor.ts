@@ -4,9 +4,8 @@ import {ParamHandler} from "./ParamHandler";
 import {jsonErrorHandler, defaultErrorHandler} from "./ErrorHandlers";
 import {constructorToPlain} from "constructor-utils";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
-import {ControllerMetadata} from "./metadata/ControllerMetadata";
 import {ActionMetadata} from "./metadata/ActionMetadata";
-import {IncomingMessage, ServerResponse} from "http";
+import {ActionCallbackOptions} from "./ActionCallbackOptions";
 
 export type JsonErrorHandlerFunction = (error: any, isDebug: boolean, errorOverridingMap: any) => any;
 export type DefaultErrorHandlerFunction = (error: any) => any;
@@ -14,7 +13,7 @@ export type DefaultErrorHandlerFunction = (error: any) => any;
 /**
  * Registers controllers and actions in the given server framework.
  */
-export class RoutingControllerExecuter {
+export class RoutingControllerExecutor {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -65,14 +64,14 @@ export class RoutingControllerExecuter {
     // -------------------------------------------------------------------------
 
     /**
-     * Registers actions from the given controllers.
+     * Registers actions in the driver.
      */
     registerActions(classes?: Function[]): this {
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, (request: IncomingMessage, response: ServerResponse) => {
-                    this.handleAction(request, response, action);
+                this.driver.registerAction(action, (options: ActionCallbackOptions) => {
+                    this.handleAction(action, options);
                 });
             });
         });
@@ -80,11 +79,41 @@ export class RoutingControllerExecuter {
     }
 
     /**
-     * Registers actions from the given controllers.
+     * Registers error handler middlewares in the driver.
      */
-    registerMiddlewares(classes?: Function[]): this {
-        const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
-        middlewares.forEach(middleware => this.driver.registerMiddleware(middleware));
+    registerErrorHandlers(classes?: Function[]): this {
+        this.metadataBuilder
+            .buildErrorHandlerMetadata(classes)
+            .filter(errorHandler => !errorHandler.hasRoutes)
+            .sort((errorHandler1, errorHandler2) => errorHandler1.priority - errorHandler2.priority)
+            .forEach(errorHandler => this.driver.registerErrorHandler(errorHandler));
+        
+        return this;
+    }
+
+    /**
+     * Registers pre-execution middlewares in the driver.
+     */
+    registerPreExecutionMiddlewares(classes?: Function[]): this {
+        this.metadataBuilder
+            .buildMiddlewareMetadata(classes)
+            .filter(middleware => !middleware.hasRoutes && !middleware.afterAction)
+            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
+            .forEach(middleware => this.driver.registerMiddleware(middleware));
+        
+        return this;
+    }
+
+    /**
+     * Registers post-execution middlewares in the driver.
+     */
+    registerPostExecutionMiddlewares(classes?: Function[]): this {
+        this.metadataBuilder
+            .buildMiddlewareMetadata(classes)
+            .filter(middleware => !middleware.hasRoutes && middleware.afterAction)
+            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
+            .forEach(middleware => this.driver.registerMiddleware(middleware));
+        
         return this;
     }
 
@@ -92,12 +121,12 @@ export class RoutingControllerExecuter {
     // Private Methods
     // -------------------------------------------------------------------------
 
-    private handleAction(request: IncomingMessage, response: ServerResponse, action: ActionMetadata) {
+    private handleAction(action: ActionMetadata, options: ActionCallbackOptions) {
 
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)
-            .map(param => this.paramHandler.handleParam(request, response, param));
+            .map(param => this.paramHandler.handleParam(options.request, options.response, param));
 
         // after all parameters are computed
         Promise.all(paramsPromises).then(params => {
@@ -105,36 +134,36 @@ export class RoutingControllerExecuter {
             // execute action and handle result
             const result = action.executeAction(params);
             if (result)
-                this.handleResult(request, response, action, result);
+                this.handleResult(result, action, options);
 
         }).catch(error => {
 
             // if error then handle the error
             if (this.processErrorWithErrorHandler(error, action.isJsonTyped))
-                this.handleError(request, response, action, error);
+                this.handleError(error, action, options);
 
             throw error;
         });
     }
 
-    private handleResult(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, result: any) {
+    private handleResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
         // result = action.isJsonTyped ? result : String(result); // todo: don't think this is correct. result can be a promise
         if (Utils.isPromise(result)) {
             result
-                .then((data: any) => this.handleResult(request, response, action, data))
+                .then((data: any) => this.handleResult(data, action, options))
                 .catch((error: any) => {
-                    this.handleError(request, response, action, error);
+                    this.handleError(error, action, options);
                     throw error;
                 });
         } else {
             if (result && result instanceof Object) {
                 result = constructorToPlain(result); // todo: specify option to disable it?
             }
-            this.driver.handleSuccess(request, response, action, result);
+            this.driver.handleSuccess(result, action, options);
         }
     }
 
-    private handleError(request: IncomingMessage, response: ServerResponse, action: ActionMetadata, error: any) {
+    private handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions) {
         const responseError = this.processErrorWithErrorHandler(error, action.isJsonTyped);
         // if (this.isLogErrorsEnabled) // todo: middleware?
         //     console.error(error.stack ? error.stack : error);
@@ -150,7 +179,7 @@ export class RoutingControllerExecuter {
         }*/
 
         // options.content = responseError;
-        this.driver.handleError(request, response, action, error);
+        this.driver.handleError(error, action, options);
     }
 
     /**

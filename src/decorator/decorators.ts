@@ -3,19 +3,47 @@ import {MiddlewareOptions} from "./options/MiddlewareOptions";
 import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
+import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
+import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 
 /**
  * Registers a new middleware.
  */
-export function Middleware(name?: string, options?: MiddlewareOptions) {
+export function Middleware(options?: MiddlewareOptions): Function;
+export function Middleware(name?: string, options?: MiddlewareOptions): Function;
+export function Middleware(nameOrOptions?: string|MiddlewareOptions, maybeOptions?: MiddlewareOptions): Function {
+    const name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
+    const options = nameOrOptions instanceof Object ? <MiddlewareOptions> nameOrOptions : maybeOptions;
+    
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
             name: name,
             priority: options && options.priority ? options.priority : undefined,
-            routes: options && options.routes ? options.routes : undefined
+            routes: options && options.routes ? options.routes : undefined,
+            afterAction: options && options.afterAction ? options.afterAction : false
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Registers a new error handler middleware.
+ */
+export function ErrorHandler(options?: ErrorHandlerOptions): Function;
+export function ErrorHandler(name?: string, options?: ErrorHandlerOptions): Function;
+export function ErrorHandler(nameOrOptions?: string|ErrorHandlerOptions, maybeOptions?: ErrorHandlerOptions): Function {
+    const name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
+    const options = nameOrOptions instanceof Object ? <ErrorHandlerOptions> nameOrOptions : maybeOptions;
+    
+    return function (target: Function) {
+        const metadata: ErrorHandlerMetadataArgs = {
+            target: target,
+            name: name,
+            priority: options && options.priority ? options.priority : undefined,
+            routes: options && options.routes ? options.routes : undefined
+        };
+        defaultMetadataArgsStorage().errorHandlers.push(metadata);
     };
 }
 

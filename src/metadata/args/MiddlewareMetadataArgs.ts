@@ -22,5 +22,10 @@ export interface MiddlewareMetadataArgs {
      * List of routes to which this middleware is applied.
      */
     routes: string[];
+
+    /**
+     * Indicates if middleware must be executed after routing action is executed.
+     */
+    afterAction: boolean;
     
 }
