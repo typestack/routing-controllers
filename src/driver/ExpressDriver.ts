@@ -1,4 +1,4 @@
-import {Driver} from "./Server";
+import {Driver} from "./Driver";
 import {BadHttpActionError} from "./error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
@@ -7,17 +7,19 @@ import {HttpError} from "../error/http/HttpError";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
+import {BaseDriver} from "./BaseDriver";
 
 /**
  * Integration with Express.js framework.
  */
-export class ExpressDriver implements Driver {
+export class ExpressDriver extends BaseDriver implements Driver {
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
     constructor(private express: any) {
+        super();
     }
 
     // -------------------------------------------------------------------------
@@ -100,10 +102,12 @@ export class ExpressDriver implements Driver {
 
             this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
-                    response.json(err);
+                    // response.json(err);
+                    return options.next(err);
 
                 } else if (err && !action.isJsonTyped) {
-                    response.send(err);
+                    // response.send(err);
+                    return options.next(err);
 
                 } else if (html) {
                     response.send(html);
@@ -141,9 +145,9 @@ export class ExpressDriver implements Driver {
 
         // send error content
         if (action.isJsonTyped) {
-            response.json(error);
+            response.json(this.processJsonError(error));
         } else {
-            response.send(error);
+            response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
         }
         options.next(error);
     }

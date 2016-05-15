@@ -1,6 +1,6 @@
 import {getContainer} from "../index";
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
+import {MiddlewareInterface} from "../MiddlewareInterface";
 
 export class MiddlewareMetadata {
 

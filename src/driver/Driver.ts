@@ -1,5 +1,5 @@
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ServerResponse, IncomingMessage} from "http";
+import {IncomingMessage} from "http";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
@@ -10,12 +10,33 @@ import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
  */
 export interface Driver {
 
+    /**
+     * Indicates if default routing-controller's error handling is enabled or not.
+     */
+    isDefaultErrorHandlingEnabled: boolean;
+
+    /**
+     * Indicates if debug mode is enabled or not. In debug mode additional information may be exposed.
+     */
+    developmentMode: boolean;
+
+    /**
+     * Map of error overrides.
+     */
+    errorOverridingMap: { [key: string]: any };
+
+    /**
+     * Registers given error handler in the driver.
+     */
     registerErrorHandler(errorHandler: ErrorHandlerMetadata): void;
-    
+
+    /**
+     * Registers given middleware in the driver.
+     */
     registerMiddleware(middleware: MiddlewareMetadata): void;
 
     /**
-     * Registers action in the server framework.
+     * Registers action in the driver.
      */
     registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void;
 

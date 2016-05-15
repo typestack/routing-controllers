@@ -1,5 +1,5 @@
 import {getContainer} from "../index";
-import {ErrorHandlerInterface} from "../middleware/ErrorHandlerInterface";
+import {ErrorHandlerInterface} from "../ErrorHandlerInterface";
 import {ErrorHandlerMetadataArgs} from "./args/ErrorHandlerMetadataArgs";
 
 export class ErrorHandlerMetadata {

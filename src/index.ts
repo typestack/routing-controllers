@@ -2,45 +2,62 @@ import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {ExpressDriver} from "./driver/ExpressDriver";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
+import {Driver} from "./driver/Driver";
 
 // -------------------------------------------------------------------------
 // Interfaces
 // -------------------------------------------------------------------------
 
+/**
+ * Routing controller initialization options.
+ */
 export interface RoutingControllersOptions {
+
+    /**
+     * List of directories from where to "require" all your controllers.
+     */
     controllerDirs?: string[];
+
+    /**
+     * List of directories from where to "require" all your middlewares.
+     */
     middlewareDirs?: string[];
+
+    /**
+     * List of directories from where to "require" all your error handlers.
+     */
     errorHandlerDirs?: string[];
+
+    /**
+     * IOC Container to be used to initialize your controllers, middlewares and error handlers.
+     */
     container?: { get: (cls: any) => any };
+
+    /**
+     * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
+     */
+    developmentMode?: boolean;
+
+    /**
+     * Indicates if default routing-controller's error handler is enabled or not. By default its enabled.
+     */
+    defaultErrorHandler?: boolean;
+
+    /**
+     * Map of error overrides.
+     */
+    errorOverridingMap?: Object;
 }
 
 // -------------------------------------------------------------------------
-// Helper Functions
+// Main Functions
 // -------------------------------------------------------------------------
 
 /**
  * Registers all loaded actions in your express application.
  */
 export function useExpressServer(expressApp: any, options?: RoutingControllersOptions): void {
-    
-    // first of all setup a container if its specified
-    if (options && options.container)
-        useContainer(options.container);
-
-    // second import all controllers and middlewares and error handlers
-    if (options && options.controllerDirs && options.controllerDirs.length)
-        importClassesFromDirectories(options.controllerDirs);
-    if (options && options.middlewareDirs && options.middlewareDirs.length)
-        importClassesFromDirectories(options.middlewareDirs);
-    if (options && options.errorHandlerDirs && options.errorHandlerDirs.length)
-        importClassesFromDirectories(options.errorHandlerDirs);
-
-    // next create a controller executor
-    new RoutingControllerExecutor(new ExpressDriver(expressApp))
-        .registerPreExecutionMiddlewares()
-        .registerActions()
-        .registerPostExecutionMiddlewares()
-        .registerErrorHandlers(); // todo: register only for loaded controllers?
+    createExecutor(new ExpressDriver(expressApp), options || {});
 }
 
 /**
@@ -58,9 +75,49 @@ export function createExpressServer(options?: RoutingControllersOptions): any {
     } else {
         throw new Error("Cannot load express. Try to install all required dependencies.");
     }
-    
+
     useExpressServer(expressApp, options);
     return expressApp;
+}
+
+/**
+ * Registers all loaded actions in your express application.
+ */
+function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
+    
+    // first of all setup a container if its specified
+    if (options && options.container)
+        useContainer(options.container);
+
+    // second import all controllers and middlewares and error handlers
+    if (options && options.controllerDirs && options.controllerDirs.length)
+        importClassesFromDirectories(options.controllerDirs);
+    if (options && options.middlewareDirs && options.middlewareDirs.length)
+        importClassesFromDirectories(options.middlewareDirs);
+    if (options && options.errorHandlerDirs && options.errorHandlerDirs.length)
+        importClassesFromDirectories(options.errorHandlerDirs);
+
+    if (options && options.developmentMode !== undefined) {
+        driver.developmentMode = options.developmentMode;
+    } else {
+        driver.developmentMode = process.env.NODE_ENV !== 'production';
+    }
+
+    if (options.defaultErrorHandler !== undefined) {
+        driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
+    } else {
+        driver.isDefaultErrorHandlingEnabled = true;
+    }
+
+    if (options.errorOverridingMap !== undefined)
+        driver.errorOverridingMap = options.errorOverridingMap;
+
+    // next create a controller executor
+    new RoutingControllerExecutor(driver)
+        .registerPreExecutionMiddlewares()
+        .registerActions()
+        .registerPostExecutionMiddlewares()
+        .registerErrorHandlers(); // todo: register only for loaded controllers?
 }
 
 // -------------------------------------------------------------------------
@@ -116,3 +173,5 @@ export * from "./decorator/controllers";
 export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
+export * from "./MiddlewareInterface";
+export * from "./ErrorHandlerInterface";
