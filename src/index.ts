@@ -3,6 +3,7 @@ import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoade
 import {ExpressDriver} from "./driver/ExpressDriver";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
 import {Driver} from "./driver/Driver";
+import {KoaDriver} from "./driver/KoaDriver";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -32,6 +33,11 @@ export interface RoutingControllersOptions {
      * IOC Container to be used to initialize your controllers, middlewares and error handlers.
      */
     container?: { get: (cls: any) => any };
+
+    /**
+     * Indicates if constructor-utils should be used to perform serialization / deserialization.
+     */
+    useConstructorUtils?: boolean;
 
     /**
      * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
@@ -81,6 +87,40 @@ export function createExpressServer(options?: RoutingControllersOptions): any {
 }
 
 /**
+ * Registers all loaded actions in your koa application.
+ */
+export function useKoaServer(koaApp: any, koaRouter: any, options?: RoutingControllersOptions): void {
+    createExecutor(new KoaDriver(koaApp, koaRouter), options || {});
+}
+
+/**
+ * Registers all loaded actions in your koa application.
+ */
+export function createKoaServer(options?: RoutingControllersOptions): [any, any] {
+
+    let koaApp: any, koaRouter: any;
+    if (require) {
+        try {
+            koaApp = new (require("koa"))();
+        } catch (e) {
+            throw new Error("koa package was not found installed. Try to install it: npm install koa --save");
+        }
+        try {
+            koaRouter = new (require("koa-router"))();
+        } catch (e) {
+            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router --save");
+        }
+    } else {
+        throw new Error("Cannot load koa. Try to install all required dependencies.");
+    }
+
+    koaApp.use(koaRouter.routes());
+    koaApp.use(koaRouter.allowedMethods());
+    useKoaServer(koaApp, koaRouter, options);
+    return [koaApp, koaRouter];
+}
+
+/**
  * Registers all loaded actions in your express application.
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
@@ -107,6 +147,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
     } else {
         driver.isDefaultErrorHandlingEnabled = true;
+    }
+
+    if (options.useConstructorUtils !== undefined) {
+        driver.useConstructorUtils = options.useConstructorUtils;
+    } else {
+        driver.useConstructorUtils = true;
     }
 
     if (options.errorOverridingMap !== undefined)

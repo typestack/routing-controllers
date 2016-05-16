@@ -119,9 +119,6 @@ export class RoutingControllerExecutor {
                     throw error;
                 });
         } else {
-            if (result && result instanceof Object) {
-                result = constructorToPlain(result); // todo: specify option to disable it?
-            }
             this.driver.handleSuccess(result, action, options);
         }
     }

@@ -10,6 +10,7 @@ export class BaseDriver {
     // Public Properties
     // -------------------------------------------------------------------------
 
+    useConstructorUtils: boolean;
     isDefaultErrorHandlingEnabled: boolean;
     developmentMode: boolean;
     errorOverridingMap: { [key: string]: any };

@@ -4,6 +4,8 @@ export interface ActionCallbackOptions {
     
     request: IncomingMessage;
     response: ServerResponse;
-    next: Function
+    next: Function;
+    resolver?: Function;
+    rejecter?: Function;
     
 }

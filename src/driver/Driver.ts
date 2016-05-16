@@ -11,6 +11,11 @@ import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
 export interface Driver {
 
     /**
+     * Indicates if constructor-utils should be used to perform serialization / deserialization.
+     */
+    useConstructorUtils: boolean;
+
+    /**
      * Indicates if default routing-controller's error handling is enabled or not.
      */
     isDefaultErrorHandlingEnabled: boolean;

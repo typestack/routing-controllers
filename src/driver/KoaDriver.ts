@@ -2,7 +2,6 @@ import {Driver} from "./Driver";
 import {BadHttpActionError} from "./error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ServerResponse, IncomingMessage} from "http";
 import {HttpError} from "../error/http/HttpError";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
@@ -11,15 +10,15 @@ import {BaseDriver} from "./BaseDriver";
 import {constructorToPlain} from "constructor-utils/index";
 
 /**
- * Integration with Express.js framework.
+ * Integration with koa framework.
  */
-export class ExpressDriver extends BaseDriver implements Driver {
+export class KoaDriver extends BaseDriver implements Driver {
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private express: any) {
+    constructor(private koa: any, private router: any) {
         super();
     }
 
@@ -28,29 +27,33 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // -------------------------------------------------------------------------
 
     registerErrorHandler(errorHandler: ErrorHandlerMetadata): void {
-        this.express.use(function (error: any, request: any, response: any, next: Function) {
+        this.koa.use(function (error: any, request: any, response: any, next: Function) {
             errorHandler.instance.handle(error, request, response, next);
         });
     }
 
     registerMiddleware(middleware: MiddlewareMetadata): void {
-        this.express.use(function (request: any, response: any, next: Function) {
+        this.koa.use(function (request: any, response: any, next: Function) {
             middleware.instance.use(request, response, next);
         });
     }
     
     registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void {
-        const expressAction = action.type.toLowerCase();
-        if (!this.express[expressAction])
+        const koaAction = action.type.toLowerCase();
+        if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
 
-        this.express[expressAction](action.fullRoute, function(request: IncomingMessage, response: ServerResponse, next: Function) {
-            const options: ActionCallbackOptions = {
-                request: request,
-                response: response,
-                next: next
-            };
-            executeCallback(options);
+        this.router[koaAction](action.fullRoute, function(ctx: any, next: Function) {
+            return new Promise((resolve, reject) => {
+                const options: ActionCallbackOptions = {
+                    request: ctx.request,
+                    response: ctx.response,
+                    next: next,
+                    resolver: resolve,
+                    rejecter: reject
+                };
+                executeCallback(options);
+            });
         });
     }
 
@@ -70,7 +73,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     }
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        
+
         if (this.useConstructorUtils && result && result instanceof Object) {
             result = constructorToPlain(result); // todo: specify option to disable it?
         }
@@ -82,55 +85,55 @@ export class ExpressDriver extends BaseDriver implements Driver {
         
         // set http status
         if (action.undefinedResultCode && isResultUndefined) {
-            response.status(action.undefinedResultCode);
+            response.status = action.undefinedResultCode;
 
         } else if (action.nullResultCode && isResultNull) {
-            response.status(action.nullResultCode);
+            response.status = action.nullResultCode;
 
         } else if (action.emptyResultCode && isResultEmpty) {
-            response.status(action.emptyResultCode);
+            response.status = action.emptyResultCode;
             
         } else if (action.successHttpCode) {
-            response.status(action.successHttpCode);
+            response.status = action.successHttpCode;
         }
 
         // apply http headers
         Object.keys(action.headers).forEach(name => {
-            response.header(name, action.headers[name]);
+            response.set(name, action.headers[name]);
         });
 
         if (action.redirect) { // if redirect is set then do it
             response.redirect(action.redirect);
             options.next();
+            options.resolver();
 
-        } else if (action.renderedTemplate) { // if template is set then render it
+        } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
 
-            this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
+            this.koa.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
-                    // response.json(err);
-                    return options.next(err);
+                    options.next(err);
+                    options.rejecter(err);
 
                 } else if (err && !action.isJsonTyped) {
-                    // response.send(err);
-                    return options.next(err);
+                    options.next(err);
+                    options.rejecter(err);
 
                 } else if (html) {
-                    response.send(html);
+                    response.body = html;
                 }
                 options.next();
+                options.resolver();
             });
 
         } else if (result !== null && result !== undefined) { // send regular result
-            if (action.isJsonTyped) {
-                response.json(result);
-            } else {
-                response.send(result);
-            }
+            response.body = result;
             options.next();
+            options.resolver();
 
         } else {
             options.next();
+            options.resolver();
         }
     }
 
@@ -146,16 +149,17 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         // apply http headers
         Object.keys(action.headers).forEach(name => {
-            response.header(name, action.headers[name]);
+            response.set(name, action.headers[name]);
         });
 
         // send error content
         if (action.isJsonTyped) {
-            response.json(this.processJsonError(error));
+            response.body = this.processJsonError(error);
         } else {
-            response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+            response.body = this.processJsonError(error);
         }
         options.next(error);
+        options.rejecter(error);
     }
 
 }

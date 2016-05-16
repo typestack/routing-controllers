@@ -16,7 +16,7 @@ export class ParamHandler {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private framework: Driver) {
+    constructor(private driver: Driver) {
     }
 
     // -------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export class ParamHandler {
             return Promise.resolve(response);
 
         let value: any, originalValue: any;
-        value = originalValue = this.framework.getParamFromRequest(request, param);
+        value = originalValue = this.driver.getParamFromRequest(request, param);
         if (value)
             value = this.handleParamFormat(value, param);
         
@@ -96,7 +96,7 @@ export class ParamHandler {
     private parseValue(value: any, paramMetadata: ParamMetadataArgs) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format) {
+            if (paramMetadata.format && this.driver.useConstructorUtils) {
                 return plainToConstructor(paramMetadata.format, parseValue);
             } else {
                 return parseValue;

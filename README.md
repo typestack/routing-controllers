@@ -5,13 +5,6 @@ Allows to create controller classes with methods as actions that handle requests
 Right now it works only with express.js. If you are interested to make it work with other frameworks, feel free to
 contribute and implement integrations with other frameworks.
 
-## Release notes
-
-**0.5.0**
-
-* renamed package from `controllers.ts` to `routing-controllers`
-* added integration with `constructor-utils` for serialization and deserialization
-
 ## Installation
 
 1. Install module:
@@ -269,7 +262,19 @@ of usage.
 ## Todos
 
 * cover with tests
-* make interceptors to work with response.send method too
 * add reversed error override map
-* handle server framework errors (param parse, body parse errors, etc.)
 * integration with other frameworks (other then express.js) can be easily added, so PRs are welcomed
+
+## Release notes
+
+**0.6.0**
+
+* middleware and error handlers support
+* added beta support of koa v2 framework
+* refactored core
+* everything important is packed into "routing-controllers" main entrypoint now
+
+**0.5.0**
+
+* renamed package from `controllers.ts` to `routing-controllers`
+* added integration with `constructor-utils` for serialization and deserialization
