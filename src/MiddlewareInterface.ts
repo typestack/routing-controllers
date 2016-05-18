@@ -6,9 +6,13 @@ import {ServerResponse, ServerRequest} from "http";
 export interface MiddlewareInterface {
 
     /**
-     * Called before response.send is being called. The data passed to method is the data passed to .send method.
-     * Note that you must return same (or changed) data and it will be passed to .send method.
+     * Called before controller action is being executed.
      */
-    use(request: ServerRequest, response: ServerResponse, next: Function): void;
+    use?(request: ServerRequest, response: ServerResponse, next: Function): void;
+
+    /**
+     * Called after controller action is being executed.
+     */
+    afterUse?(request: ServerRequest, response: ServerResponse, finish: Function): void;
 
 }

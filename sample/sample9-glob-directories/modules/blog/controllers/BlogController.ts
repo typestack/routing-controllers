@@ -1,13 +1,14 @@
 import {Request} from "express";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";
-import {Req} from "../../src/decorator/params";
+import {JsonController} from "../../../../../src/decorator/controllers";
+import {Get, Post, Put, Patch, Delete} from "../../../../../src/decorator/methods";
+import {Req} from "../../../../../src/decorator/params";
 
 @JsonController()
 export class BlogController {
 
     @Get("/blogs")
     getAll() {
+        console.log("Getting blogs...");
         return this.createPromise([
             { id: 1, name: "Blog 1!"},
             { id: 2, name: "Blog 2!"},
@@ -22,7 +23,7 @@ export class BlogController {
     @Post("/blogs")
     post(@Req() request: Request) {
         let blog = JSON.stringify(request.body);
-        return this.createPromise("Blog " + blog + " saved!", 3000);
+        return this.createPromise("Blog " + blog + " !saved!", 3000);
     }
 
     @Put("/blogs/:id")
@@ -40,9 +41,6 @@ export class BlogController {
         return this.createPromise("Blog #" + request.params.id + " has been removed!", 3000);
     }
 
-    /**
-     * Creates a fake promise with timeout.
-     */
     private createPromise(data: any, timeout: number): Promise<any> {
         return new Promise<any>((ok, fail) => {
             setTimeout(() => ok(data), timeout);

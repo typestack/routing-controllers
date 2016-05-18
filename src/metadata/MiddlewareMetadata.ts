@@ -28,11 +28,6 @@ export class MiddlewareMetadata {
      */
     routes: string[];
 
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    afterAction: boolean;
-
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -46,8 +41,6 @@ export class MiddlewareMetadata {
             this.priority = args.priority;
         if (args.routes)
             this.routes = args.routes;
-        if (args.afterAction)
-            this.afterAction = args.afterAction;
     }
 
     // -------------------------------------------------------------------------

@@ -20,8 +20,7 @@ export function Middleware(nameOrOptions?: string|MiddlewareOptions, maybeOption
             target: target,
             name: name,
             priority: options && options.priority ? options.priority : undefined,
-            routes: options && options.routes ? options.routes : undefined,
-            afterAction: options && options.afterAction ? options.afterAction : false
+            routes: options && options.routes ? options.routes : undefined
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
     };

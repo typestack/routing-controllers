@@ -6,6 +6,7 @@ import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {IncomingMessage, ServerResponse} from "http";
 import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ActionCallbackOptions} from "./ActionCallbackOptions";
 
 /**
  * Helps to handle parameters.
@@ -23,16 +24,19 @@ export class ParamHandler {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    handleParam(request: IncomingMessage, response: ServerResponse, param: ParamMetadata): Promise<any> {
+    handleParam(actionOptions: ActionCallbackOptions, param: ParamMetadata): Promise<any> {
 
+        const request = actionOptions.request;
+        const response = actionOptions.response;
+        
         if (param.type === ParamTypes.REQUEST)
             return Promise.resolve(request);
 
         if (param.type === ParamTypes.RESPONSE)
             return Promise.resolve(response);
-
+        
         let value: any, originalValue: any;
-        value = originalValue = this.driver.getParamFromRequest(request, param);
+        value = originalValue = this.driver.getParamFromRequest(actionOptions, param);
         if (value)
             value = this.handleParamFormat(value, param);
         

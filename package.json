@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "constructor-utils": "0.0.16",
+    "glob": "^7.0.3",
     "require-all": "^2.0.0"
   },
   "devDependencies": {

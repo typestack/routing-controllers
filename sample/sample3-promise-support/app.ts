@@ -9,6 +9,6 @@ useExpressServer(app); // register controllers routes in our express application
 // controllerRunner.isLogErrorsEnabled = true; // enable error logging of exception error into console
 // controllerRunner.isStackTraceEnabled = true; // enable adding of stack trace to response message
 
-app.listen(3003); // run express app
+app.listen(3001); // run express app
 
-console.log("Express server is running on port 3003. Open http://localhost:3003/blogs/");
+console.log("Express server is running on port 3001. Open http://localhost:3001/blogs/");

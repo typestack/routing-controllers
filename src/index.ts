@@ -114,9 +114,9 @@ export function createKoaServer(options?: RoutingControllersOptions): [any, any]
         throw new Error("Cannot load koa. Try to install all required dependencies.");
     }
 
+    useKoaServer(koaApp, koaRouter, options);
     koaApp.use(koaRouter.routes());
     koaApp.use(koaRouter.allowedMethods());
-    useKoaServer(koaApp, koaRouter, options);
     return [koaApp, koaRouter];
 }
 
@@ -162,7 +162,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     new RoutingControllerExecutor(driver)
         .registerPreExecutionMiddlewares()
         .registerActions()
-        .registerPostExecutionMiddlewares()
+        .registerPostExecutionMiddlewares() // todo: check it with koa
         .registerErrorHandlers(); // todo: register only for loaded controllers?
 }
 

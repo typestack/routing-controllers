@@ -36,9 +36,14 @@ export interface Driver {
     registerErrorHandler(errorHandler: ErrorHandlerMetadata): void;
 
     /**
-     * Registers given middleware in the driver.
+     * Registers middleware that run before controller actions.
      */
-    registerMiddleware(middleware: MiddlewareMetadata): void;
+    registerPreExecutionMiddleware(middleware: MiddlewareMetadata): void;
+
+    /**
+     * Registers middleware that run after controller actions.
+     */
+    registerPostExecutionMiddleware(middleware: MiddlewareMetadata): void;
 
     /**
      * Registers action in the driver.
@@ -48,7 +53,7 @@ export interface Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(request: IncomingMessage, param: ParamMetadata): void;
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void;
 
     /**
      * Defines an algorithm of how to handle error during executing controller action.

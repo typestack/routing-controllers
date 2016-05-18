@@ -2,10 +2,10 @@ import {ServerResponse, ServerRequest} from "http";
 import {Middleware} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/MiddlewareInterface";
 
-@Middleware({ afterAction: true })
+@Middleware()
 export class EndTimerMiddleware implements MiddlewareInterface {
 
-    use(request: ServerRequest, response: ServerResponse, next: Function): void {
+    afterUse(request: ServerRequest, response: ServerResponse, next: Function): void {
         console.log("timer is ended.");
         next();
     }

@@ -15,6 +15,6 @@ useExpressServer(app, {
         }
     }
 });
-app.listen(3005); // run express app
+app.listen(3001); // run express app
 
-console.log("Express server is running on port 3005. Open http://localhost:3005/blogs/");
+console.log("Express server is running on port 3001. Open http://localhost:3001/blogs/");

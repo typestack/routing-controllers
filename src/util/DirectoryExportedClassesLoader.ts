@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 
 /**
  * Loads all exported classes from the given directory.
@@ -7,7 +8,6 @@ import * as fs from "fs";
 export class DirectoryExportedClassesLoader {
 
     // todo: this can be extracted into external module and used across all other modules
-    // todo: add support for glob patterns
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -17,9 +17,14 @@ export class DirectoryExportedClassesLoader {
      * Imports all entities (makes them "require") from the given directories.
      */
     importClassesFromDirectories(directories: string[]): Function[] {
-        const requireAll = require("require-all"); // todo: use glob instead
+
+        const allDirectories = directories.reduce((allDirs, dir) => {
+            return allDirs.concat(require("glob").sync(path.normalize(dir)));
+        }, [] as string[]);
+
+        const requireAll = require("require-all");
         const filter = /(.*)\.js$/;
-        const dirs = directories
+        const dirs = allDirectories
             .filter(directory => fs.existsSync(directory))
             .map(directory => requireAll({ dirname: directory, filter: filter, recursive: true }));
 

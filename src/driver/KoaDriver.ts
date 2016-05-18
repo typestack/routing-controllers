@@ -26,16 +26,69 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
+    // todo: make this to work
     registerErrorHandler(errorHandler: ErrorHandlerMetadata): void {
-        this.koa.use(function (error: any, request: any, response: any, next: Function) {
-            errorHandler.instance.handle(error, request, response, next);
+        /*this.koa.use(function (ctx: any, next: any) {
+            return new Promise((resolve, reject) => {
+                errorHandler.instance.handle(error, request, response, next);
+                middleware.instance.use(ctx.request, ctx.response, (err: any) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    next().then(() => {
+                        if (middleware.instance.afterUse) {
+                            middleware.instance.afterUse(ctx.request, ctx.response, (err: any) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve();
+                                }
+                            });
+                        } else {
+                            resolve();
+                        }
+                    }).catch((error: any) => {
+                        reject(error);
+                    });
+                });
+            });
+        });*/
+    }
+
+    registerPreExecutionMiddleware(middleware: MiddlewareMetadata): void {
+        this.koa.use(function (ctx: any, next: any) {
+            return new Promise((resolve, reject) => {
+                middleware.instance.use(ctx.request, ctx.response, (err: any) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    
+                    next().then(() => {
+                        if (middleware.instance.afterUse) {
+                            middleware.instance.afterUse(ctx.request, ctx.response, (err: any) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve();
+                                }
+                            });
+                        } else {
+                            resolve();
+                        }
+                    }).catch((error: any) => {
+                        reject(error);
+                    });
+                });
+            });
         });
     }
 
-    registerMiddleware(middleware: MiddlewareMetadata): void {
-        this.koa.use(function (request: any, response: any, next: Function) {
-            middleware.instance.use(request, response, next);
-        });
+    registerPostExecutionMiddleware(middleware: MiddlewareMetadata): void {
+        // we don't need to register pre-execution middlewares here because they are already registered
+        // in pre-execution time, in koa-style.
     }
     
     registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void {
@@ -48,27 +101,34 @@ export class KoaDriver extends BaseDriver implements Driver {
                 const options: ActionCallbackOptions = {
                     request: ctx.request,
                     response: ctx.response,
-                    next: next,
-                    resolver: resolve,
-                    rejecter: reject
+                    next: (err: any) => {
+                        console.log("NEXT WITH ERROR: ", err);
+                        if (err)
+                            return reject(err);
+                        
+                        resolve();
+                    },
+                    context: ctx
                 };
                 executeCallback(options);
             });
         });
     }
 
-    getParamFromRequest(request: any, param: any): void {
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+        const context = actionOptions.context;
+        const request: any = actionOptions.request;
         switch (param.type) {
             case ParamTypes.BODY:
                 return request.body;
             case ParamTypes.PARAM:
-                return request.params[param.name];
+                return context.params[param.name];
             case ParamTypes.QUERY:
-                return request.query[param.name];
+                return context.query[param.name];
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
-                return request.cookies[param.name];
+                return context.cookies[param.name];
         }
     }
 
@@ -105,7 +165,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         if (action.redirect) { // if redirect is set then do it
             response.redirect(action.redirect);
             options.next();
-            options.resolver();
+            // options.resolver();
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
@@ -113,27 +173,27 @@ export class KoaDriver extends BaseDriver implements Driver {
             this.koa.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
                     options.next(err);
-                    options.rejecter(err);
+                    // options.rejecter(err);
 
                 } else if (err && !action.isJsonTyped) {
                     options.next(err);
-                    options.rejecter(err);
+                    // options.rejecter(err);
 
                 } else if (html) {
                     response.body = html;
                 }
                 options.next();
-                options.resolver();
+                // options.resolver();
             });
 
         } else if (result !== null && result !== undefined) { // send regular result
             response.body = result;
             options.next();
-            options.resolver();
+            // options.resolver();
 
         } else {
             options.next();
-            options.resolver();
+            // options.resolver();
         }
     }
 
@@ -144,7 +204,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         if (error instanceof HttpError && error.httpCode) {
             response.status(error.httpCode);
         } else {
-            response.status(500);
+            // TODO: FIX response.status(500);
         }
 
         // apply http headers
@@ -159,7 +219,6 @@ export class KoaDriver extends BaseDriver implements Driver {
             response.body = this.processJsonError(error);
         }
         options.next(error);
-        options.rejecter(error);
     }
 
 }

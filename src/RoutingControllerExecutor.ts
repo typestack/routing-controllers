@@ -52,7 +52,7 @@ export class RoutingControllerExecutor {
     registerErrorHandlers(classes?: Function[]): this {
         this.metadataBuilder
             .buildErrorHandlerMetadata(classes)
-            .filter(errorHandler => !errorHandler.hasRoutes)
+            .filter(errorHandler => !errorHandler.hasRoutes && !errorHandler.name)
             .sort((errorHandler1, errorHandler2) => errorHandler1.priority - errorHandler2.priority)
             .forEach(errorHandler => this.driver.registerErrorHandler(errorHandler));
         
@@ -63,11 +63,12 @@ export class RoutingControllerExecutor {
      * Registers pre-execution middlewares in the driver.
      */
     registerPreExecutionMiddlewares(classes?: Function[]): this {
+
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.afterAction)
+            .filter(middleware => !middleware.hasRoutes && !middleware.name)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .forEach(middleware => this.driver.registerMiddleware(middleware));
+            .forEach(middleware => this.driver.registerPreExecutionMiddleware(middleware));
         
         return this;
     }
@@ -78,9 +79,10 @@ export class RoutingControllerExecutor {
     registerPostExecutionMiddlewares(classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && middleware.afterAction)
+            .filter(middleware => !middleware.hasRoutes && !middleware.name)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .forEach(middleware => this.driver.registerMiddleware(middleware));
+            .reverse()
+            .forEach(middleware => this.driver.registerPostExecutionMiddleware(middleware));
         
         return this;
     }
@@ -94,7 +96,7 @@ export class RoutingControllerExecutor {
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)
-            .map(param => this.paramHandler.handleParam(options.request, options.response, param));
+            .map(param => this.paramHandler.handleParam(options, param));
 
         // after all parameters are computed
         Promise.all(paramsPromises).then(params => {

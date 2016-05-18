@@ -5,9 +5,9 @@ const Router = require("koa-router");
 
 const router = new Router();
 const app = new Koa();
+useKoaServer(app, router);
 app.use(router.routes());
 app.use(router.allowedMethods());
-useKoaServer(app, router);
-app.listen(3008);
+app.listen(3001);
 
-console.log("Koa server is running on port 3008. Open http://localhost:3008/blogs/");
+console.log("Koa server is running on port 3001. Open http://localhost:3001/blogs/");

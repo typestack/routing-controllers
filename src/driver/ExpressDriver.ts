@@ -33,9 +33,21 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
     }
 
-    registerMiddleware(middleware: MiddlewareMetadata): void {
+    registerPreExecutionMiddleware(middleware: MiddlewareMetadata): void {
+        if (!middleware.instance.use)
+            return;
+        
         this.express.use(function (request: any, response: any, next: Function) {
             middleware.instance.use(request, response, next);
+        });
+    }
+
+    registerPostExecutionMiddleware(middleware: MiddlewareMetadata): void {
+        if (!middleware.instance.afterUse)
+            return;
+        
+        this.express.use(function (request: any, response: any, next: Function) {
+            middleware.instance.afterUse(request, response, next);
         });
     }
     
@@ -54,7 +66,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
     }
 
-    getParamFromRequest(request: any, param: any): void {
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+        const request: any = actionOptions.request;
         switch (param.type) {
             case ParamTypes.BODY:
                 return request.body;
