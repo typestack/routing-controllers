@@ -50,11 +50,18 @@ export class RoutingControllerExecutor {
      * Registers error handler middlewares in the driver.
      */
     registerErrorHandlers(classes?: Function[]): this {
+
         this.metadataBuilder
+            .buildMiddlewareMetadata(classes)
+            .filter(middleware => !middleware.hasRoutes && !middleware.name && !!middleware.expressErrorHandlerInstance.error)
+            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
+            .forEach(middleware => this.driver.registerErrorHandler(middleware));
+        
+       /* this.metadataBuilder
             .buildErrorHandlerMetadata(classes)
             .filter(errorHandler => !errorHandler.hasRoutes && !errorHandler.name)
             .sort((errorHandler1, errorHandler2) => errorHandler1.priority - errorHandler2.priority)
-            .forEach(errorHandler => this.driver.registerErrorHandler(errorHandler));
+            .forEach(errorHandler => this.driver.registerErrorHandler(errorHandler));*/
         
         return this;
     }
@@ -66,9 +73,9 @@ export class RoutingControllerExecutor {
 
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.name)
+            .filter(middleware => !middleware.hasRoutes && !middleware.name && !middleware.afterAction)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .forEach(middleware => this.driver.registerPreExecutionMiddleware(middleware));
+            .forEach(middleware => this.driver.registerMiddleware(middleware));
         
         return this;
     }
@@ -79,10 +86,10 @@ export class RoutingControllerExecutor {
     registerPostExecutionMiddlewares(classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.name)
+            .filter(middleware => !middleware.hasRoutes && !middleware.name && middleware.afterAction)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .reverse()
-            .forEach(middleware => this.driver.registerPostExecutionMiddleware(middleware));
+            .forEach(middleware => this.driver.registerMiddleware(middleware));
         
         return this;
     }
@@ -115,7 +122,9 @@ export class RoutingControllerExecutor {
     private handleResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
         if (Utils.isPromise(result)) {
             result
-                .then((data: any) => this.handleResult(data, action, options))
+                .then((data: any) => {
+                    return this.handleResult(data, action, options)
+                })
                 .catch((error: any) => {
                     this.driver.handleError(error, action, options);
                     throw error;

@@ -219,5 +219,5 @@ export * from "./decorator/controllers";
 export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
-export * from "./MiddlewareInterface";
+export * from "./middleware/ExpressMiddlewareInterface";
 export * from "./ErrorHandlerInterface";

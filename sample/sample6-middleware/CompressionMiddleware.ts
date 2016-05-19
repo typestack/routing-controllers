@@ -1,9 +1,9 @@
 import {ServerResponse, ServerRequest} from "http";
 import {Middleware} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/middleware/ExpressMiddlewareInterface";
 
 @Middleware()
-export class CompressionMiddleware implements MiddlewareInterface {
+export class CompressionMiddleware implements ExpressMiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {
         console.log("hello compression ...");

@@ -1,18 +1,18 @@
 import {ServerResponse, ServerRequest} from "http";
-import {MiddlewareInterface} from "../../../../../src/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../../../../src/middleware/ExpressMiddlewareInterface";
 import {Middleware} from "../../../../../src/decorator/decorators";
 
 @Middleware()
-export class BlogMiddleware implements MiddlewareInterface {
+export class QuestionMiddleware implements ExpressMiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {
-        console.log("logging request from blog middleware...");
+        console.log("logging request from question middleware...");
         next();
-        console.log("extra logging request from blog middleware...");
+
     }
 
     afterUse(request: ServerRequest, response: ServerResponse, next: Function): void {
-        console.log("blog middleware after all...");
+        console.log("question middleware after all...");
         next();
     }
     

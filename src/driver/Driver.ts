@@ -33,17 +33,12 @@ export interface Driver {
     /**
      * Registers given error handler in the driver.
      */
-    registerErrorHandler(errorHandler: ErrorHandlerMetadata): void;
+    registerErrorHandler(middleware: MiddlewareMetadata): void;
 
     /**
      * Registers middleware that run before controller actions.
      */
-    registerPreExecutionMiddleware(middleware: MiddlewareMetadata): void;
-
-    /**
-     * Registers middleware that run after controller actions.
-     */
-    registerPostExecutionMiddleware(middleware: MiddlewareMetadata): void;
+    registerMiddleware(middleware: MiddlewareMetadata): void;
 
     /**
      * Registers action in the driver.

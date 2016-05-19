@@ -13,4 +13,9 @@ export interface MiddlewareOptions {
      */
     routes?: string[];
 
+    /**
+     * Indicates if middleware must be executed after routing action is executed.
+     */
+    afterAction: boolean;
+
 }

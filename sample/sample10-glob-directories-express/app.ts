@@ -9,10 +9,12 @@ const baseDir = __dirname;
 const [app, router] = createKoaServer({
     controllerDirs: [baseDir + "/modules/**/controllers"],
     middlewareDirs: [baseDir + "/modules/**/middlewares"],
+    errorHandlerDirs: [baseDir + "/modules/**/error-handlers"],
 });
 /*const app = createExpressServer({
     controllerDirs: [baseDir + "/modules/!**!/controllers"],
     middlewareDirs: [baseDir + "/modules/!**!/middlewares"],
+    errorHandlerDirs: [baseDir + "/modules/!**!/error-handlers"],
 });*/
 app.listen(3001);
 

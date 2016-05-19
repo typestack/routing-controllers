@@ -27,27 +27,21 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerErrorHandler(errorHandler: ErrorHandlerMetadata): void {
+    registerErrorHandler(middleware: MiddlewareMetadata): void {
+        if (!middleware.expressErrorHandlerInstance.error)
+            return;
+
         this.express.use(function (error: any, request: any, response: any, next: Function) {
-            errorHandler.instance.handle(error, request, response, next);
+            middleware.expressErrorHandlerInstance.error(error, request, response, next);
         });
     }
 
-    registerPreExecutionMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.instance.use)
+    registerMiddleware(middleware: MiddlewareMetadata): void {
+        if (!middleware.expressInstance.use)
             return;
         
         this.express.use(function (request: any, response: any, next: Function) {
-            middleware.instance.use(request, response, next);
-        });
-    }
-
-    registerPostExecutionMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.instance.afterUse)
-            return;
-        
-        this.express.use(function (request: any, response: any, next: Function) {
-            middleware.instance.afterUse(request, response, next);
+            middleware.expressInstance.use(request, response, next);
         });
     }
     

@@ -17,7 +17,7 @@ export class QuestionController {
     @Get("/questions/:id")
     getOne(@Param("id") id: number) {
         if (!id)
-            throw new Error("No id is specified");
+            return Promise.reject(new Error("No id is specified"));
         
         return this.createPromise({ id: 1, name: "Question 1!"}, 3000);
     }

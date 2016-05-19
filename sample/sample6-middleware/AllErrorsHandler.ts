@@ -1,11 +1,11 @@
 import {ServerResponse, ServerRequest} from "http";
-import {ErrorHandler} from "../../src/decorator/decorators";
-import {ErrorHandlerInterface} from "../../src/ErrorHandlerInterface";
+import {Middleware} from "../../src/decorator/decorators";
+import {ExpressErrorHandlerMiddlewareInterface} from "../../src/middleware/ExpressErrorHandlerMiddlewareInterface";
 
-@ErrorHandler()
-export class AllErrorsHandler implements ErrorHandlerInterface {
+@Middleware()
+export class AllErrorsHandler implements ExpressErrorHandlerMiddlewareInterface {
 
-    handle(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
+    error(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
         console.log("Error handled: ", error);
         next(error);
     }
