@@ -5,7 +5,6 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {HttpError} from "../error/http/HttpError";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
 import {BaseDriver} from "./BaseDriver";
 import {constructorToPlain} from "constructor-utils/index";
 
@@ -26,111 +25,13 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    // todo: make this to work
     registerErrorHandler(middleware: MiddlewareMetadata): void {
-        /*this.koa.use(function (ctx: any, next: any) {
-            return new Promise((resolve, reject) => {
-                errorHandler.instance.handle(error, request, response, next);
-                middleware.instance.use(ctx.request, ctx.response, (err: any) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-
-                    next().then(() => {
-                        if (middleware.instance.afterUse) {
-                            middleware.instance.afterUse(ctx.request, ctx.response, (err: any) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve();
-                                }
-                            });
-                        } else {
-                            resolve();
-                        }
-                    }).catch((error: any) => {
-                        reject(error);
-                    });
-                });
-            });
-        });*/
     }
 
     registerMiddleware(middleware: MiddlewareMetadata): void {
         this.koa.use(function (ctx: any, next: any) {
             return middleware.koaInstance.use(ctx, next);
         });
-        /*this.koa.use(function (ctx: any, next: any) {
-            return new Promise((resolve, reject) => {
-                middleware.instance.use(ctx.request, ctx.response, (err: any) => {
-                    if (err) {
-                        if (middleware.instance.onError) {
-                            middleware.instance.onError(err, ctx.request, ctx.response, (e: any) => {
-                                if (e) {
-                                    reject(e);
-                                } else {
-                                    next().then(() => {
-                                        if (middleware.instance.afterUse) {
-                                            middleware.instance.afterUse(ctx.request, ctx.response, (err: any) => {
-                                                if (err) {
-                                                    reject(err);
-                                                } else {
-                                                    resolve();
-                                                }
-                                            });
-                                        } else {
-                                            resolve();
-                                        }
-                                    }).catch((error: any) => {
-                                        if (middleware.instance.onError) {
-                                            middleware.instance.onError(error, ctx.request, ctx.response, (err: any) => {
-                                                if (err) {
-                                                    reject(err);
-                                                } else {
-                                                    resolve();
-                                                }
-                                            })
-                                        } else {
-                                            reject(error);
-                                        }
-                                    });
-                                }
-                            })
-                        } else {
-                            reject(err);
-                        }
-                        return;
-                    }
-                    
-                    next().then(() => {
-                        if (middleware.instance.afterUse) {
-                            middleware.instance.afterUse(ctx.request, ctx.response, (err: any) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve();
-                                }
-                            });
-                        } else {
-                            resolve();
-                        }
-                    }).catch((error: any) => {
-                        if (middleware.instance.onError) {
-                            middleware.instance.onError(error, ctx.request, ctx.response, (err: any) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve();
-                                }
-                            })
-                        } else {
-                            reject(error);
-                        }
-                    });
-                });
-            });
-        });*/
     }
     
     registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void {

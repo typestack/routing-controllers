@@ -103,12 +103,12 @@ export function createKoaServer(options?: RoutingControllersOptions): [any, any]
         try {
             koaApp = new (require("koa"))();
         } catch (e) {
-            throw new Error("koa package was not found installed. Try to install it: npm install koa --save");
+            throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
         }
         try {
             koaRouter = new (require("koa-router"))();
         } catch (e) {
-            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router --save");
+            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
         }
     } else {
         throw new Error("Cannot load koa. Try to install all required dependencies.");

@@ -1,6 +1,7 @@
 import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
 import {ForbiddenError} from "../../src/error/http/ForbiddenError";
+import {Param} from "../../src/decorator/params";
 
 @Controller()
 export class BlogController {
@@ -15,8 +16,10 @@ export class BlogController {
     }
 
     @Get("/blogs/:id", { jsonResponse: true })
-    getOne() {
-        throw new ForbiddenError();
+    getOne(@Param("id") id: number) {
+        if (!id)
+            throw new ForbiddenError();
+
         return "THIS STRING will BE not SO BIG";
     }
 
