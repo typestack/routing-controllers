@@ -76,7 +76,7 @@ export class ParamMetadata {
             this.target = args.target;
         if (args.method)
             this.method = args.method;
-        if (args.index)
+        if (args.index !== undefined)
             this.index = args.index;
         if (args.type)
             this.type = args.type;
