@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
   "private": true,
-  "version": "0.6.0-alpha.1",
+  "version": "0.6.0-alpha.2",
   "description": "Allows to use class-based controllers with express.js in Typescript",
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
@@ -26,7 +26,7 @@
     "controllers"
   ],
   "dependencies": {
-    "constructor-utils": "0.0.16",
+    "constructor-utils": "~0.0.17",
     "glob": "^7.0.3",
     "require-all": "^2.0.0"
   },
