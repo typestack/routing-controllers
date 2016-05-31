@@ -14,6 +14,7 @@ export class BaseDriver {
     isDefaultErrorHandlingEnabled: boolean;
     developmentMode: boolean;
     errorOverridingMap: { [key: string]: any };
+    routePrefix: string = ''; 
     
     // -------------------------------------------------------------------------
     // Protected Methods
