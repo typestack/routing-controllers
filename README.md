@@ -78,11 +78,11 @@ contribute and implement integrations with other frameworks.
 
     ```typescript
     import * as express from "express";
-    import {registerActionsInExpressApp} from "routing-controllers/routing-controllers";
+    import {useExpressServer} from "routing-controllers";
     import "./UserController";  // we need to "load" our controller
 
     let app = express(); // create express application
-    registerActionsInExpressApp(app); // register controllers routes in our express application
+    useExpressServer(app); // register controllers routes in our express application
     app.listen(3000); // now we can run your express application.
     ```
 
@@ -99,10 +99,16 @@ it like this:
 
 ```typescript
 import * as express from "express";
-import {registerActionsInExpressApp} from "routing-controllers/routing-controllers";
+import {useExpressServer} from "routing-controllers";
+var controllers = require('require-all')({
+    dirname     :  __dirname + '/controllers',
+    filter      :  /(.+Controller)\.js$/,
+    excludeDirs :  /^\.(git|svn)$/,
+    recursive   : true
+});
 
 let app = express(); // create express application
-registerActionsInExpressApp(app, [__dirname + "/controllers"]); // register controllers routes in our express application
+useExpressServer(app); // register controllers routes in our express application
 app.listen(3000); // now we can run your express application.
 ```
 
