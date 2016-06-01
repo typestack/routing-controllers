@@ -112,6 +112,27 @@ useExpressServer(app); // register controllers routes in our express application
 app.listen(3000); // now we can run your express application.
 ```
 
+#### Load all controllers from the given directory and prefix routes
+
+If you want to prefix all routes in some directory eg. /api 
+
+```typescript
+import * as express from "express";
+import {useExpressServer} from "routing-controllers";
+
+let app = express(); // create express application
+useExpressServer(app, {
+    routePrefix: '/api',
+    controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
+});
+useExpressServer(app, {
+    routePrefix: '/auth',
+    controllerDirs: [__dirname + "/auth"] // register controllers routes in our express app
+});
+app.listen(3000); // now we can run your express application.
+```
+
+
 #### Set response body value returned by a controller action
 
 To return a response body you usually do `response.send("Hello world!")`. But there is alternative way of doing it.

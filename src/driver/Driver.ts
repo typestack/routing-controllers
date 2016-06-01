@@ -29,6 +29,11 @@ export interface Driver {
      * Map of error overrides.
      */
     errorOverridingMap: { [key: string]: any };
+    
+    /**
+     * Route prefix. eg '/api'
+     */
+    routePrefix: string; 
 
     /**
      * Registers given error handler in the driver.

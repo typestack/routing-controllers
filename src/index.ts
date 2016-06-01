@@ -53,6 +53,11 @@ export interface RoutingControllersOptions {
      * Map of error overrides.
      */
     errorOverridingMap?: Object;
+    
+    /**
+     * Route prefix. eg '/api'
+     */
+    routePrefix?: string; 
 }
 
 // -------------------------------------------------------------------------
@@ -157,6 +162,9 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     if (options.errorOverridingMap !== undefined)
         driver.errorOverridingMap = options.errorOverridingMap;
+
+    if (options.routePrefix !== undefined)
+        driver.routePrefix = options.routePrefix;
 
     // next create a controller executor
     new RoutingControllerExecutor(driver)

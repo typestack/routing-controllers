@@ -39,7 +39,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
 
-        this.router[koaAction](action.fullRoute, (ctx: any, next: () => Promise<any>) => {
+        this.router[koaAction](`${this.routePrefix}${action.fullRoute}`, (ctx: any, next: () => Promise<any>) => {
             return new Promise((resolve, reject) => {
                 const options: ActionCallbackOptions = {
                     request: ctx.request,

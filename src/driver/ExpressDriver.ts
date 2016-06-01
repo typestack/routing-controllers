@@ -50,7 +50,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
 
-        this.express[expressAction](action.fullRoute, function(request: IncomingMessage, response: ServerResponse, next: Function) {
+        this.express[expressAction](`${this.routePrefix}${action.fullRoute}`, function(request: IncomingMessage, response: ServerResponse, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,
