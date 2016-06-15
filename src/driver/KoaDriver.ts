@@ -132,9 +132,18 @@ export class KoaDriver extends BaseDriver implements Driver {
                 // options.resolver();
             });
 
-        } else if (result !== null && result !== undefined) { // send regular result
-            response.body = result;
-            options.next();
+        } else if (result !== undefined) { // send regular result
+            if (result === null) {
+                response.send();
+                
+            } else {
+                if (action.isJsonTyped) {
+                    response.json(result);
+                } else {
+                    response.send(result);
+                }
+                options.next();
+            }
             // options.resolver();
 
         } else {

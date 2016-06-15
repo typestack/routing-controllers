@@ -10,7 +10,7 @@ import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 export function Req() {
     return function (object: Object, methodName: string, index: number) {
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.REQUEST,
@@ -28,7 +28,7 @@ export function Req() {
 export function Res() {
     return function (object: Object, methodName: string, index: number) {
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.RESPONSE,
@@ -59,7 +59,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.BODY,
@@ -92,7 +92,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.PARAM,
@@ -126,7 +126,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.QUERY,
@@ -160,7 +160,7 @@ export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolea
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.HEADER,
@@ -194,7 +194,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.BODY_PARAM,
@@ -228,7 +228,7 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
     return function (object: Object, methodName: string, index: number) {
         let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
-            object: object,
+            target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.COOKIE,

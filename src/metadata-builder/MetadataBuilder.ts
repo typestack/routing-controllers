@@ -51,7 +51,6 @@ export class MetadataBuilder {
             const controller = new ControllerMetadata(controllerArgs);
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
-            console.log("controller.uses: ", controller.uses);
             return controller;
         });
     }
@@ -87,8 +86,6 @@ export class MetadataBuilder {
     }
 
     private createControllerUses(controller: ControllerMetadata): UseMetadata[] {
-        console.log("target: ", controller.target);
-        console.log(defaultMetadataArgsStorage().uses.filter(use => use.target === controller.target));
         return defaultMetadataArgsStorage()
             .findUsesWithTargetAndMethod(controller.target, undefined)
             .map(useArgs => new UseMetadata(useArgs));

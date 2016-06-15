@@ -67,7 +67,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
         const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
-        console.log("params: ", expressParams);
         this.express[expressAction](...expressParams);
     }
 
@@ -141,13 +140,17 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.next();
             });
 
-        } else if (result !== null && result !== undefined) { // send regular result
-            if (action.isJsonTyped) {
-                response.json(result);
+        } else if (result !== undefined) { // send regular result
+            if (result === null) {
+                response.send();
             } else {
-                response.send(result);
+                if (action.isJsonTyped) {
+                    response.json(result);
+                } else {
+                    response.send(result);
+                }
+                options.next();
             }
-            options.next();
 
         } else {
             options.next();

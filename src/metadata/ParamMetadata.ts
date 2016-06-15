@@ -69,13 +69,9 @@ export class ParamMetadata {
 
     constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
         this.actionMetadata = actionMetadata;
-
-        if (args.object)
-            this.object = args.object;
-        if (args.target)
-            this.target = args.target;
-        if (args.method)
-            this.method = args.method;
+        
+        this.target = args.target;
+        this.method = args.method;
         if (args.index !== undefined)
             this.index = args.index;
         if (args.type)
