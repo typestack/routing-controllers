@@ -11,25 +11,20 @@ export class MiddlewareMetadata {
     // -------------------------------------------------------------------------
 
     /**
+     * Indicates if this middleware is global, thous applied to all routes.
+     */
+    isGlobal: boolean;
+
+    /**
      * Object class of the middleware class.
      */
     target: Function;
 
     /**
-     * Middleware name.
-     */
-    name: string;
-
-    /**
      * Execution priority of the middleware.
      */
     priority: number;
-
-    /**
-     * List of routes to which this middleware is applied.
-     */
-    routes: string[];
-
+    
     /**
      * Indicates if middleware must be executed after routing action is executed.
      */
@@ -40,16 +35,10 @@ export class MiddlewareMetadata {
     // -------------------------------------------------------------------------
     
     constructor(args: MiddlewareMetadataArgs) {
-        if (args.target)
-            this.target = args.target;
-        if (args.name)
-            this.name = args.name;
-        if (args.priority)
-            this.priority = args.priority;
-        if (args.routes)
-            this.routes = args.routes;
-        if (args.afterAction)
-            this.afterAction = args.afterAction;
+        this.isGlobal = args.isGlobal;
+        this.target = args.target;
+        this.priority = args.priority;
+        this.afterAction = args.afterAction;
     }
 
     // -------------------------------------------------------------------------
@@ -66,10 +55,6 @@ export class MiddlewareMetadata {
 
     get koaInstance(): KoaMiddlewareInterface {
         return getContainer().get<KoaMiddlewareInterface>(this.target);
-    }
-
-    get hasRoutes() {
-        return this.routes && this.routes.length > 0;
     }
     
 }

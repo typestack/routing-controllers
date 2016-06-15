@@ -34,7 +34,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         });
     }
     
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void {
+    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
         const koaAction = action.type.toLowerCase();
         if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
@@ -69,6 +69,8 @@ export class KoaDriver extends BaseDriver implements Driver {
                 return context.params[param.name];
             case ParamTypes.QUERY:
                 return context.query[param.name];
+            case ParamTypes.HEADER:
+                return context.headers[param.name];
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:

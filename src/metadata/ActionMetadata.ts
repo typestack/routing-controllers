@@ -4,6 +4,7 @@ import {ActionType} from "./types/ActionTypes";
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
+import {UseMetadata} from "./UseMetadata";
 
 export class ActionMetadata {
 
@@ -20,6 +21,11 @@ export class ActionMetadata {
      * Action's parameters.
      */
     params: ParamMetadata[];
+
+    /**
+     * Action's use metadatas.
+     */
+    uses: UseMetadata[];
 
     /**
      * Action's response handlers.

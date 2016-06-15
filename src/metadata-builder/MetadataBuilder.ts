@@ -5,15 +5,12 @@ import {ParamMetadata} from "../metadata/ParamMetadata";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
+import {UseMetadata} from "../metadata/UseMetadata";
 
 /**
  * Builds metadata from the given metadata arguments.
  */
 export class MetadataBuilder {
-
-    // -------------------------------------------------------------------------
-    // Properties
-    // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -35,53 +32,66 @@ export class MetadataBuilder {
     // Public Methods
     // -------------------------------------------------------------------------
     
-    private createErrorHandlers(classes?: Function[]) {
+    private createErrorHandlers(classes?: Function[]): ErrorHandlerMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const errorHandlers = !classes ? storage.errorHandlers : storage.findErrorHandlerMetadatasForClasses(classes);
-        return errorHandlers.map(errorHandlerArgs => {
-            return new ErrorHandlerMetadata(errorHandlerArgs);
-        });
+        return errorHandlers.map(errorHandlerArgs => new ErrorHandlerMetadata(errorHandlerArgs));
     }
     
-    private createMiddlewares(classes?: Function[]) {
+    private createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const middlewares = !classes ? storage.middlewares : storage.findMiddlewareMetadatasForClasses(classes);
-        return middlewares.map(middlewareArgs => {
-            return new MiddlewareMetadata(middlewareArgs);
-        });
+        return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
     }
     
-    private createControllers(classes?: Function[]) {
+    private createControllers(classes?: Function[]): ControllerMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const controllers = !classes ? storage.controllers : storage.findControllerMetadatasForClasses(classes);
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
             controller.actions = this.createActions(controller);
+            controller.uses = this.createControllerUses(controller);
+            console.log("controller.uses: ", controller.uses);
             return controller;
         });
     }
     
-    private createActions(controller: ControllerMetadata) {
+    private createActions(controller: ControllerMetadata): ActionMetadata[] {
         return defaultMetadataArgsStorage()
             .findActionsWithTarget(controller.target)
             .map(actionArgs => {
                 const action = new ActionMetadata(controller, actionArgs);
                 action.params = this.createParams(action);
                 action.responseHandlers = this.createResponseHandlers(action);
+                action.uses = this.createActionUses(action);
                 return action;
             });
     }
     
-    private createParams(action: ActionMetadata) {
+    private createParams(action: ActionMetadata): ParamMetadata[] {
         return defaultMetadataArgsStorage()
             .findParamsWithTargetAndMethod(action.target, action.method)
-            .map(actionArgs => new ParamMetadata(action, actionArgs));
+            .map(paramArgs => new ParamMetadata(action, paramArgs));
     }
 
-    private createResponseHandlers(action: ActionMetadata) {
+    private createResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
         return defaultMetadataArgsStorage()
             .findResponseHandlersWithTargetAndMethod(action.target, action.method)
-            .map(actionArgs => new ResponseHandlerMetadata(action, actionArgs));
+            .map(handlerArgs => new ResponseHandlerMetadata(action, handlerArgs));
+    }
+
+    private createActionUses(action: ActionMetadata): UseMetadata[] {
+        return defaultMetadataArgsStorage()
+            .findUsesWithTargetAndMethod(action.target, action.method)
+            .map(useArgs => new UseMetadata(useArgs));
+    }
+
+    private createControllerUses(controller: ControllerMetadata): UseMetadata[] {
+        console.log("target: ", controller.target);
+        console.log(defaultMetadataArgsStorage().uses.filter(use => use.target === controller.target));
+        return defaultMetadataArgsStorage()
+            .findUsesWithTargetAndMethod(controller.target, undefined)
+            .map(useArgs => new UseMetadata(useArgs));
     }
 
 }

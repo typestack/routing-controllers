@@ -9,6 +9,7 @@ import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
 import {BaseDriver} from "./BaseDriver";
 import {constructorToPlain} from "constructor-utils/index";
+import {UseMetadata} from "../metadata/UseMetadata";
 
 /**
  * Integration with Express.js framework.
@@ -45,19 +46,29 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
     }
     
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void {
+    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
 
-        this.express[expressAction](`${this.routePrefix}${action.fullRoute}`, function(request: IncomingMessage, response: ServerResponse, next: Function) {
+        const routeHandler = function(request: IncomingMessage, response: ServerResponse, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,
                 next: next
             };
             executeCallback(options);
-        });
+        };
+        
+        const uses = action.controllerMetadata.uses.concat(action.uses);
+        const fullRoute = `${this.routePrefix}${action.fullRoute}`;
+        const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
+        const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
+        const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
+
+        // finally register action
+        console.log("params: ", expressParams);
+        this.express[expressAction](...expressParams);
     }
 
     getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
@@ -69,6 +80,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 return request.params[param.name];
             case ParamTypes.QUERY:
                 return request.query[param.name];
+            case ParamTypes.HEADER:
+                return request.headers[param.name];
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
@@ -165,4 +178,26 @@ export class ExpressDriver extends BaseDriver implements Driver {
         options.next(error);
     }
 
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
+        const middlewareFunctions: Function[] = [];
+        uses.forEach(use => {
+            if (use.middleware.prototype.use) { // if this is function instance of ExpressMiddlewareInterface
+                middlewares.forEach(middleware => {
+                    if (middleware.expressInstance instanceof use.middleware) {
+                        middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: Function) {
+                            middleware.expressInstance.use(request, response, next);
+                        });
+                    }
+                });
+            } else {
+                middlewareFunctions.push(use.middleware);
+            }
+        });
+        return middlewareFunctions;
+    }
+    
 }

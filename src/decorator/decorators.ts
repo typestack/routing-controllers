@@ -5,25 +5,36 @@ import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetada
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
 import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
+import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
 
 /**
  * Registers a new middleware.
  */
-export function Middleware(options?: MiddlewareOptions): Function;
-export function Middleware(name?: string, options?: MiddlewareOptions): Function;
-export function Middleware(nameOrOptions?: string|MiddlewareOptions, maybeOptions?: MiddlewareOptions): Function {
-    const name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
-    const options = nameOrOptions instanceof Object ? <MiddlewareOptions> nameOrOptions : maybeOptions;
-    
+export function Middleware(options?: MiddlewareOptions): Function {
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
-            name: name,
+            isGlobal: options && options.global ? true : false,
             priority: options && options.priority ? options.priority : undefined,
-            routes: options && options.routes ? options.routes : undefined,
             afterAction: options && options.afterAction ? options.afterAction : false
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Annotation must be set to controller action and given to it code will be used as HTTP Status Code in the case
+ * if response result is success.
+ */
+export function Use(middleware: Function, options?: { afterAction: boolean }): Function {
+    return function (objectOrFunction: Object|Function, methodName?: string) {
+        const metadata: UseMetadataArgs = {
+            middleware: middleware,
+            target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
+            method: methodName,
+            afterAction: options && options.afterAction ? true : false
+        };
+        defaultMetadataArgsStorage().uses.push(metadata);
     };
 }
 

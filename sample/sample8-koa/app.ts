@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {useKoaServer} from "../../src/index";
 import "./BlogController"; // this can be require("./BlogController") actually
 const Koa = require("koa");

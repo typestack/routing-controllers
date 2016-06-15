@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {Request} from "express";
 import {Controller} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";

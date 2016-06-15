@@ -1,6 +1,7 @@
 import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {getContainer} from "../index";
+import {UseMetadata} from "./UseMetadata";
 
 export class ControllerMetadata {
 
@@ -27,6 +28,11 @@ export class ControllerMetadata {
      * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
     type: "default"|"json";
+
+    /**
+     * Middleware "use"-s applied to a whole controller.
+     */
+    uses: UseMetadata[];
 
     // -------------------------------------------------------------------------
     // Constructor

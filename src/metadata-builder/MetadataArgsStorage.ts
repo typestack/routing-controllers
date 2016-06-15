@@ -4,6 +4,7 @@ import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
+import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
 
 /**
  * Storage all metadatas read from decorators.
@@ -16,6 +17,7 @@ export class MetadataArgsStorage {
 
     controllers: ControllerMetadataArgs[] = [];
     middlewares: MiddlewareMetadataArgs[] = [];
+    uses: UseMetadataArgs[] = [];
     errorHandlers: ErrorHandlerMetadataArgs[] = [];
     actions: ActionMetadataArgs[] = [];
     params: ParamMetadataArgs[] = [];
@@ -47,9 +49,15 @@ export class MetadataArgsStorage {
         return this.actions.filter(action => action.target === target);
     }
 
+    findUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
+        return this.uses.filter(use => {
+            return use.target === target && use.method === methodName;
+        });
+    }
+
     findParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
         return this.params.filter(param => {
-            return param.object.constructor === target && param.method === methodName;
+            return param.target === target && param.method === methodName;
         });
     }
 

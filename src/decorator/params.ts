@@ -140,6 +140,40 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
 }
 
 /**
+ * This decorator allows to inject http header parameter value to the controller action parameter.
+ * Applied to class method parameters.
+ *
+ * @param name Parameter name
+ * @param options Extra parameter options
+ */
+export function HeaderParam(name: string, options: ParamOptions): Function;
+export function HeaderParam(name: string, required?: boolean, parseJson?: boolean): Function;
+export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
+    let required = false;
+    if (typeof requiredOrOptions === "object") {
+        required = requiredOrOptions.required;
+        parseJson = requiredOrOptions.parseJson;
+    } else {
+        required = <boolean> requiredOrOptions;
+    }
+
+    return function (object: Object, methodName: string, index: number) {
+        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadataArgs = {
+            object: object,
+            method: methodName,
+            index: index,
+            type: ParamTypes.HEADER,
+            name: name,
+            format: format,
+            parseJson: parseJson,
+            isRequired: required
+        };
+        defaultMetadataArgsStorage().params.push(metadata);
+    };
+}
+
+/**
  * This decorator allows to inject a request body's value to the controller action parameter.
  * Applied to class method parameters.
  *

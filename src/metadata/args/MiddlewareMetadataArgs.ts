@@ -7,21 +7,16 @@ export interface MiddlewareMetadataArgs {
      * Object class of the middleware class.
      */
     target: Function;
-    
+
     /**
-     * Middleware name.
+     * Indicates if this middleware is global, thous applied to all routes.
      */
-    name: string;
+    isGlobal: boolean;
 
     /**
      * Execution priority of the middleware.
      */
     priority: number;
-
-    /**
-     * List of routes to which this middleware is applied.
-     */
-    routes: string[];
 
     /**
      * Indicates if middleware must be executed after routing action is executed.

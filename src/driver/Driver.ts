@@ -48,7 +48,7 @@ export interface Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionCallbackOptions) => any): void;
+    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void;
 
     /**
      * Gets param from the request.

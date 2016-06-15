@@ -35,10 +35,11 @@ export class RoutingControllerExecutor {
      * Registers actions in the driver.
      */
     registerActions(classes?: Function[]): this {
+        const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, (options: ActionCallbackOptions) => {
+                this.driver.registerAction(action, middlewares, (options: ActionCallbackOptions) => {
                     this.handleAction(action, options);
                 });
             });
@@ -53,7 +54,7 @@ export class RoutingControllerExecutor {
 
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.name && !!middleware.expressErrorHandlerInstance.error)
+            .filter(middleware => middleware.isGlobal && !!middleware.expressErrorHandlerInstance.error)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .forEach(middleware => this.driver.registerErrorHandler(middleware));
         
@@ -73,7 +74,7 @@ export class RoutingControllerExecutor {
 
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.name && !middleware.afterAction)
+            .filter(middleware => middleware.isGlobal && !middleware.afterAction)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .forEach(middleware => this.driver.registerMiddleware(middleware));
         
@@ -86,7 +87,7 @@ export class RoutingControllerExecutor {
     registerPostExecutionMiddlewares(classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => !middleware.hasRoutes && !middleware.name && middleware.afterAction)
+            .filter(middleware => middleware.isGlobal && middleware.afterAction)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .reverse()
             .forEach(middleware => this.driver.registerMiddleware(middleware));

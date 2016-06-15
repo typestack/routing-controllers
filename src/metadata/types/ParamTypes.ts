@@ -1,7 +1,7 @@
 /**
  * Controller action's parameter type.
  */
-export type ParamType = "body"|"query"|"body_param"|"param"|"cookie"|"request"|"response"|"custom_converter";
+export type ParamType = "body"|"query"|"header"|"body_param"|"param"|"cookie"|"request"|"response"|"custom_converter";
 
 /**
  * Controller action's parameter type.
@@ -9,6 +9,7 @@ export type ParamType = "body"|"query"|"body_param"|"param"|"cookie"|"request"|"
 export class ParamTypes {
     static BODY: ParamType = "body";
     static QUERY: ParamType = "query";
+    static HEADER: ParamType = "header";
     static BODY_PARAM: ParamType = "body_param";
     static PARAM: ParamType = "param";
     static COOKIE: ParamType = "cookie";

@@ -11,16 +11,23 @@ contribute and implement integrations with other frameworks.
 
     `npm install routing-controllers --save`
 
-2. Use [typings](https://github.com/typings/typings) to install all required definition dependencies.
+2. `reflect-metadata` shim is required, so make sure to import it before you use the library,
+in a global place, like app.ts:
 
-    `typings install`
+    ```typescript
+    import "reflect-metadata";
+    ```
 
-3. ES6 features are used, so you may want to install [es6-shim](https://github.com/paulmillr/es6-shim) too:
+3. ES6 features are used, so you are using old versions of node.js you may need to install a
+ [es6-shim](https://github.com/paulmillr/es6-shim) too:
 
     `npm install es6-shim --save`
 
-    if you are building nodejs app, you may want to `require("es6-shim");` in your app.
-    or if you are building web app, you man want to add `<script src="path-to-shim/es6-shim.js">` on your page.
+    and import it in a global place like app.ts:
+
+    ```typescript
+    import "es6-shim";
+    ```
 
 ## Simple usage
 
@@ -98,6 +105,7 @@ specific directory. To do it you can install [require-all](https://www.npmjs.com
 it like this:
 
 ```typescript
+import "reflect-metadata";
 import * as express from "express";
 import {useExpressServer} from "routing-controllers";
 var controllers = require('require-all')({
@@ -117,6 +125,7 @@ app.listen(3000); // now we can run your express application.
 If you want to prefix all routes in some directory eg. /api 
 
 ```typescript
+import "reflect-metadata";
 import * as express from "express";
 import {useExpressServer} from "routing-controllers";
 
@@ -271,15 +280,16 @@ getAll(@QueryParam("filter", { required: true }) filter: UserFilter) {
 
 #### Method Parameter Decorators
 
-| Signature                                           | Example                                          | Description                                                                                                                                                                                                                                                         | express.js analogue            |
-|-----------------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
-| `Req()`                                             | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                     | `function (request, response)` |
-| `Res()`                                             | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                     | `function (request, response)` |
-| `Body(options: ParamOptions)`                       | `save(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                           | `request.body`                 |
-| `Param(name: string, options?: ParamOptions)`       | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                    | `request.params.id`            |
-| `QueryParam(name: string, options?: ParamOptions)`  | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.query.id`             |
-| `BodyParam(name: string, options?: ParamOptions)`   | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.          | `request.body.name`            |
-| `CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.      | `request.cookie("username")`   |
+| Signature                                           | Example                                          | Description                                                                                                                                                                                                                                                                  | express.js analogue            |
+|-----------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
+| `Req()`                                             | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)` |
+| `Res()`                                             | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)` |
+| `Body(options: ParamOptions)`                       | `save(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                 |
+| `Param(name: string, options?: ParamOptions)`       | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`            |
+| `QueryParam(name: string, options?: ParamOptions)`  | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`             |
+| `HeaderParam(name: string, options?: ParamOptions)` | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`        |
+| `BodyParam(name: string, options?: ParamOptions)`   | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`            |
+| `CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`   |
 
 ## Samples
 

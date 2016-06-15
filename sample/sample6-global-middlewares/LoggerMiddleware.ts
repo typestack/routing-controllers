@@ -2,11 +2,11 @@ import {ServerResponse, ServerRequest} from "http";
 import {Middleware} from "../../src/decorator/decorators";
 import {ExpressMiddlewareInterface} from "../../src/middleware/ExpressMiddlewareInterface";
 
-@Middleware({ afterAction: true })
-export class EndTimerMiddleware implements ExpressMiddlewareInterface {
+@Middleware({ global: true })
+export class LoggerMiddleware implements ExpressMiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {
-        console.log("timer is ended.");
+        console.log("logging request ...");
         next();
     }
     

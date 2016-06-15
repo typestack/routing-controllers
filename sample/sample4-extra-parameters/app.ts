@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import * as express from "express";
 import {useExpressServer} from "../../src/index";
 

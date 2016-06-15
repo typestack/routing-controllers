@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import {createExpressServer} from "../../src/index";
 
 import "./BlogController";  // same as: require("./BlogController");
