@@ -81,6 +81,10 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 return request.query[param.name];
             case ParamTypes.HEADER:
                 return request.headers[param.name];
+            case ParamTypes.FILE:
+                return request.file[param.name];
+            case ParamTypes.FILES:
+                return request.files[param.name];
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
