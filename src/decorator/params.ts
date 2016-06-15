@@ -9,11 +9,13 @@ import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
  */
 export function Req() {
     return function (object: Object, methodName: string, index: number) {
+        const reflectedType = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.REQUEST,
+            reflectedType: reflectedType,
             parseJson: false,
             isRequired: false
         };
@@ -27,11 +29,13 @@ export function Req() {
  */
 export function Res() {
     return function (object: Object, methodName: string, index: number) {
+        const reflectedType = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
             index: index,
             type: ParamTypes.RESPONSE,
+            reflectedType: reflectedType,
             parseJson: false,
             isRequired: false
         };
@@ -63,6 +67,7 @@ export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolea
             method: methodName,
             index: index,
             type: ParamTypes.BODY,
+            reflectedType: format,
             format: format,
             parseJson: parseJson,
             isRequired: required
@@ -96,6 +101,7 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
             method: methodName,
             index: index,
             type: ParamTypes.PARAM,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -130,6 +136,7 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
             method: methodName,
             index: index,
             type: ParamTypes.QUERY,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -164,6 +171,7 @@ export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolea
             method: methodName,
             index: index,
             type: ParamTypes.HEADER,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -176,9 +184,9 @@ export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolea
 /**
  * This decorator allows to inject "file" from a request to a given parameter of the controller action.
  */
-export function FileParam(name: string, options: { required?: boolean }): Function;
-export function FileParam(options: { required?: boolean }): Function;
-export function FileParam(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
+export function FileParam(name?: string, options?: { required?: boolean }): Function;
+export function FileParam(options?: { required?: boolean }): Function;
+export function FileParam(nameOrOptions?: string|{required?: boolean}, options?: { required?: boolean }): Function {
     let required = false;
     if (typeof nameOrOptions === "object") {
         required = nameOrOptions.required;
@@ -194,6 +202,7 @@ export function FileParam(nameOrOptions: string|{required?: boolean}, options?: 
             method: methodName,
             index: index,
             type: ParamTypes.FILE,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: false,
@@ -209,8 +218,8 @@ export function FileParam(nameOrOptions: string|{required?: boolean}, options?: 
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function FilesParam(name: string, options: { required?: boolean }): Function;
-export function FilesParam(options: { required?: boolean }): Function;
+export function FilesParam(name?: string, options?: { required?: boolean }): Function;
+export function FilesParam(options?: { required?: boolean }): Function;
 export function FilesParam(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
     let required = false;
     if (typeof nameOrOptions === "object") {
@@ -227,6 +236,7 @@ export function FilesParam(nameOrOptions: string|{required?: boolean}, options?:
             method: methodName,
             index: index,
             type: ParamTypes.FILES,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: false,
@@ -261,6 +271,7 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
             method: methodName,
             index: index,
             type: ParamTypes.BODY_PARAM,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: parseJson,
@@ -295,6 +306,7 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
             method: methodName,
             index: index,
             type: ParamTypes.COOKIE,
+            reflectedType: format,
             name: name,
             format: format,
             parseJson: parseJson,

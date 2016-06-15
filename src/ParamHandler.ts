@@ -63,7 +63,7 @@ export class ParamHandler {
 
             if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {
                 // TODO: handleResultOptions.errorHttpCode = 404; // maybe throw ErrorNotFoundError here?
-                const contentType = param.target && param.target.name ? param.target.name : "content";
+                const contentType = param.reflectedType && param.reflectedType.name ? param.reflectedType.name : "content";
                 const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
                 return Promise.reject(`Requested ${contentType + message} was not found`);
             }

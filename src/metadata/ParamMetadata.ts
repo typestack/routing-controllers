@@ -34,6 +34,11 @@ export class ParamMetadata {
     type: ParamTypes;
 
     /**
+     * Reflected type of the parameter.
+     */
+    reflectedType: any;
+
+    /**
      * Parameter name.
      */
     name: string;
@@ -72,6 +77,7 @@ export class ParamMetadata {
         
         this.target = args.target;
         this.method = args.method;
+        this.reflectedType = args.reflectedType;
         if (args.index !== undefined)
             this.index = args.index;
         if (args.type)

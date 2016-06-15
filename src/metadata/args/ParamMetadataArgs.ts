@@ -26,6 +26,11 @@ export interface ParamMetadataArgs {
     type: ParamTypes;
 
     /**
+     * Reflected type of the parameter.
+     */
+    reflectedType: any;
+
+    /**
      * Parameter name.
      */
     name?: string;
