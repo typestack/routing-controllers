@@ -70,9 +70,11 @@ export class KoaDriver extends BaseDriver implements Driver {
             case ParamTypes.QUERY:
                 return context.query[param.name];
             case ParamTypes.FILE:
-                return request.file[param.name];
+                if (!request.file) return undefined;
+                return param.name ? request.file[param.name] : request.file;
             case ParamTypes.FILES:
-                return request.files[param.name];
+                if (!request.files) return undefined;
+                return param.name ? request.files[param.name] : request.files;
             case ParamTypes.HEADER:
                 return context.headers[param.name];
             case ParamTypes.BODY_PARAM:

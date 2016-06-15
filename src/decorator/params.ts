@@ -175,20 +175,17 @@ export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolea
 
 /**
  * This decorator allows to inject "file" from a request to a given parameter of the controller action.
- *
- * @param name Parameter name
- * @param options Extra parameter options
  */
-export function FileParam(name: string, options: ParamOptions): Function;
-export function FileParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function FileParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
+export function FileParam(name: string, options: { required?: boolean }): Function;
+export function FileParam(options: { required?: boolean }): Function;
+export function FileParam(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
     let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
+    if (typeof nameOrOptions === "object") {
+        required = nameOrOptions.required;
+    } else if (options) {
+        required = options.required;
     }
+    let name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
 
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
@@ -199,7 +196,7 @@ export function FileParam(name: string, requiredOrOptions: ParamOptions|boolean,
             type: ParamTypes.FILE,
             name: name,
             format: format,
-            parseJson: parseJson,
+            parseJson: false,
             isRequired: required
         };
         defaultMetadataArgsStorage().params.push(metadata);
@@ -212,16 +209,16 @@ export function FileParam(name: string, requiredOrOptions: ParamOptions|boolean,
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function FilesParam(name: string, options: ParamOptions): Function;
-export function FilesParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function FilesParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
+export function FilesParam(name: string, options: { required?: boolean }): Function;
+export function FilesParam(options: { required?: boolean }): Function;
+export function FilesParam(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
     let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
+    if (typeof nameOrOptions === "object") {
+        required = nameOrOptions.required;
+    } else if (options) {
+        required = options.required;
     }
+    let name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
 
     return function (object: Object, methodName: string, index: number) {
         const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
@@ -232,7 +229,7 @@ export function FilesParam(name: string, requiredOrOptions: ParamOptions|boolean
             type: ParamTypes.FILES,
             name: name,
             format: format,
-            parseJson: parseJson,
+            parseJson: false,
             isRequired: required
         };
         defaultMetadataArgsStorage().params.push(metadata);
