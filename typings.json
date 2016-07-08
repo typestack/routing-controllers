@@ -12,5 +12,8 @@
     "mime": "registry:dt/mime#0.0.0+20151204023458",
     "node": "registry:dt/node#4.0.0+20160226132328",
     "serve-static": "registry:dt/serve-static#1.7.1+20160104095738"
+  },
+  "globalDevDependencies": {
+    "koa": "registry:dt/koa#2.0.0+20160619030120"
   }
 }

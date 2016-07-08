@@ -2,8 +2,7 @@
 
 Allows to create controller classes with methods as actions that handle requests.
 
-Right now it works only with express.js. If you are interested to make it work with other frameworks, feel free to
-contribute and implement integrations with other frameworks.
+You can use routing-controllers with [express.js][1] or [koa 2][2].
 
 ## Installation
 
@@ -18,7 +17,7 @@ in a global place, like app.ts:
     import "reflect-metadata";
     ```
 
-3. ES6 features are used, so you are using old versions of node.js you may need to install a
+3. ES6 features are used, so you are using old version of node.js you may need to install a
  [es6-shim](https://github.com/paulmillr/es6-shim) too:
 
     `npm install es6-shim --save`
@@ -29,51 +28,57 @@ in a global place, like app.ts:
     import "es6-shim";
     ```
 
-## Simple usage
+4. Install framework:
+
+    a. If you want to use routing-controllers with express.js, then install express:
+
+        `npm install express --save`
+
+    Optionally you can also install its typings:
+
+        `typings install dt~express --save --global`
+
+    b. If you want to use routing-controllers with koa 2, then install it:
+
+        `npm install koa@next --save`
+
+    Optionally you can also install its typings:
+
+        `typings install dt~koa --save --global`
+
+## Usage
 
 1. Create a file `UserController.ts`
 
     ```typescript
-    import {Request, Response} from "express";
-    import {Controller} from "routing-controllers/decorator/Controllers";
-    import {Get, Post, Put, Patch, Delete} from "routing-controllers/decorator/Methods";
-    import {Req, Res} from "routing-controllers/decorator/Params";
+    import {Controller, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
 
     @Controller()
     export class UserController {
 
         @Get("/users")
         getAll() {
-            return "Hello all users";
+           return "This action returns all users";
         }
 
         @Get("/users/:id")
-        getOne(@Req() request: Request, @Res() response: Response) {
-            response.send("Hello user #" + request.param("id"));
+        getOne(@Param("id") id: number) {
+           return "This action returns user #" + id;
         }
 
         @Post("/users")
-        post(@Req() request: Request, @Res() response: Response) {
-            // implement saving here
-            // use request and response like you always do with express.js ...
+        post(@Body() user: any) {
+           return "Saving user...";
         }
 
         @Put("/users/:id")
-        put(@Req() request: Request, @Res() response: Response) {
-            // implement saving here
-            // use request and response like you always do with express.js ...
-        }
-
-        @Patch("/users/:id")
-        patch(@Req() request: Request, @Res() response: Response) {
-            // implement saving here
-            // use request and response like you always do with express.js ...
+        put(@Param("id") id: number, @Body() user: any) {
+           return "Updating a user...";
         }
 
         @Delete("/users/:id")
-        remove(@Req() request: Request, @Res() response: Response) {
-            // implement removing here
-            // use request and response like you always do with express.js ...
+        remove(@Param("id") id: number) {
+           return "Removing user...";
         }
 
     }
@@ -83,20 +88,64 @@ in a global place, like app.ts:
 
 2. Create a file `app.ts`
 
-    ```typescript
-    import * as express from "express";
-    import {useExpressServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller
+    a. If you are using express:
 
-    let app = express(); // create express application
-    useExpressServer(app); // register controllers routes in our express application
-    app.listen(3000); // now we can run your express application.
-    ```
+        ```typescript
+        import {createExpressServer} from "routing-controllers";
+        import "./UserController";  // we need to "load" our controller. this is required
+        createExpressServer().listen(3000); // register controllers routes in our express application
+        ```
 
-3. Open browser on `http://localhost:3000/users`. You should see `Hello all users` in your browser. If you open
- `http://localhost:3000/users/1` you should see `Hello user #1` in your browser.
+    b. If you are using koa v2:
+
+        ```typescript
+        import {createKoaServer} from "routing-controllers";
+        import "./UserController";  // we need to "load" our controller. this is required
+        createKoaServer().listen(3000); // register controllers routes in our express application
+        ```
+
+3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser. If you open
+ `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
 
 ## More usage examples
+
+### Return promises
+
+You can return a promise in the controller, and it will wait until promise resolved and return in a response a promise result.
+
+```typescript
+import {Controller, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
+
+@Controller()
+export class UserController {
+
+    @Get("/users")
+    getAll() {
+       return userRepository.findAll();
+    }
+
+    @Get("/users/:id")
+    getOne(@Param("id") id: number) {
+       return userRepository.findById(id);
+    }
+
+    @Post("/users")
+    post(@Body() user: User) {
+       return userRepository.insert(user);
+    }
+
+    @Put("/users/:id")
+    put(@Param("id") id: number, @Body() user: User) {
+       return userRepository.updateById(id, user);
+    }
+
+    @Delete("/users/:id")
+    remove(@Param("id") id: number) {
+       return userRepository.removeById(id);
+    }
+
+}
+```
 
 #### Load all controllers from the given directory
 
@@ -293,16 +342,10 @@ getAll(@QueryParam("filter", { required: true }) filter: UserFilter) {
 | `BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
-## Samples
+## More samples
 
 Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
 of usage.
-
-## Todos
-
-* cover with tests
-* add reversed error override map
-* integration with other frameworks (other then express.js) can be easily added, so PRs are welcomed
 
 ## Release notes
 
@@ -317,3 +360,6 @@ of usage.
 
 * renamed package from `controllers.ts` to `routing-controllers`
 * added integration with `constructor-utils` for serialization and deserialization
+
+[1]: http://expressjs.com/
+[2]: https://github.com/koajs/koa#koa-v2
