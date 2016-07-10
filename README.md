@@ -73,13 +73,12 @@ in a global place, like app.ts:
 
 2. Create a file `app.ts`
 
-    a. If you are using express:
-
     ```typescript
     import "reflect-metadata"; // this shim is required
     import {createExpressServer} from "routing-controllers";
     import "./UserController";  // we need to "load" our controller. this is required
-    createExpressServer().listen(3000); // register controllers routes in our express application
+    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
+    app.listen(3000); // run express application
     ```
 
 3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser. If you open
@@ -89,7 +88,7 @@ in a global place, like app.ts:
 
 #### Return promises
 
-You can return a promise in the controller, and it will wait until promise resolves and return in a response a promise result.
+You can return a promise in the controller, and it will wait until promise resolved and return in a response a promise result.
 
 ```typescript
 import {Controller, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
@@ -217,23 +216,24 @@ export class UserController {
 }
 ```
 
-#### Per-action json / non-json output
+#### Per-action JSON / non-JSON output
 
 In the case if you want to control if your controller's action will return json or regular plain text,
 you can specify a special option:
 
 ```typescript
-@Get("/users", { responseType: "json" }) // this will ignore @Controller and return a json in a response
+// this will ignore @Controller if it used and return a json in a response
+@Get("/users", { responseType: "json" })
 getUsers() {
 }
-@Get("/posts", { responseType: "text" }) // this will ignore @JsonController and return a regular text in a response
+
+// this will ignore @JsonController if it used and return a regular text in a response
+@Get("/posts", { responseType: "text" })
 getPosts() {
 }
 ```
 
-#### Inject parameters
-
-##### Routing parameters
+#### Inject routing parameters
 
 You can use parameters in your routes, and to inject such parameters in your controller methods you must use `@Param` decorator:
 
@@ -243,7 +243,7 @@ getUsers(@Param("id") id: number) {
 }
 ```
 
-##### Query parameters
+#### Inject query parameters
 
 To inject query parameters, use `@QueryParam` decorator:
 
@@ -253,7 +253,7 @@ getUsers(@QueryParam("limit") limit: number) {
 }
 ```
 
-##### Request body
+#### Inject request body
 
 To inject request body, use `@Body` decorator:
 
@@ -263,7 +263,7 @@ saveUser(@Body() user: User) {
 }
 ```
 
-##### Request body parameters
+#### Inject request body parameters
 
 To inject request body parameter, use `@BodyParam` decorator:
 
@@ -273,7 +273,7 @@ saveUser(@BodyParam("name") userName: string) {
 }
 ```
 
-##### Request header parameters
+#### Inject request header parameters
 
 To inject request header parameter, use `@HeaderParam` decorator:
 
@@ -283,7 +283,7 @@ saveUser(@HeaderParam("authorization") token: string) {
 }
 ```
 
-##### Request file parameters
+#### Inject uploaded file
 
 To inject uploaded file, use `@UploadedFile` decorator:
 
@@ -293,10 +293,10 @@ saveFile(@UploadedFile("fileName") file: any) {
 }
 ```
 
-Routing-controllers uses [multer][2] to handle file uploadings.
+Routing-controllers uses [multer][2] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
 
-##### All request's file parameters
+#### Inject uploaded files
 
 To inject all uploaded files, use `@UploadedFiles` decorator:
 
@@ -306,10 +306,10 @@ saveAll(@UploadedFiles() files: any[]) {
 }
 ```
 
-Routing-controllers uses [multer][2] to handle file uploadings.
+Routing-controllers uses [multer][2] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
 
-##### Cookie parameter
+#### Inject cookie parameter
 
 To cookie parameter, use `@CookieParam` decorator:
 
@@ -319,7 +319,7 @@ getUsers(@CookieParam("username") username: string) {
 }
 ```
 
-##### Make parameter required
+#### Make parameter required
 
 To make any parameter required, simply pass a `required: true` flag in its options:
 
@@ -332,7 +332,7 @@ save(@Body({ required: true }) user: any) {
 
 Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and others.
 
-##### Convert parameters to objects
+#### Convert parameters to objects
 
 You can convert any parameter you receive into object by specifying a `parseJson: true` option:
 
@@ -348,7 +348,6 @@ getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
 
 // you can send a request to http://localhost:3000/users?filter={"showAll": true}
 // and it will show you "all users"
-
 ```
 
 ## Decorators Documentation
