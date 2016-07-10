@@ -526,7 +526,7 @@ with `@Middleware` decorator:
     import {createServer} from "routing-controllers";
     import "reflect-metadata";
     import "./UserController";
-    import "./MyMiddleware"; // don't forget to load it
+    import "./MyMiddleware"; // here we load it
     createServer().listen(3000);
     ```
 
@@ -586,6 +586,36 @@ Also, if you have a problem with running your global middlewares you can set a p
 
 Higher is priority means middleware being executed earlier.
 
+### Error handlers
+
+Error handlers works pretty much the same as middlewares, but `@ErrorHandler` decorator is being used:
+
+1. Create a class that implements a `ErrorHandlerInterface` interface and decorated with `@ErrorHandler` decorator:
+
+    ```typescript
+    import {ErrorHandler, ErrorHandlerInterface} from "routing-controllers";
+
+    @ErrorHandler()
+    export class CustomErrorHandler implements ErrorHandlerInterface {
+
+        error(error: any, request: any, response: any): Promise<void> {
+            console.log("do something...");
+            return Promise.resolve();
+        }
+
+    }
+    ```
+
+2. Load created error handler before app bootstrap:
+
+    ```typescript
+    import {createServer} from "routing-controllers";
+    import "reflect-metadata";
+    import "./UserController";
+    import "./CustomErrorHandler"; // here we load it
+    createServer().listen(3000);
+    ```
+
 ### Don't forget to load your middlewares and error handlers
 
 Middlewares and error handlers should be loaded globally the same way as controllers, before you bootstrap the app:
@@ -594,8 +624,8 @@ Middlewares and error handlers should be loaded globally the same way as control
 import {createServer} from "routing-controllers";
 import "reflect-metadata";
 import "./UserController";
-import "./MyMiddleware"; // don't forget to load it
-import "./CustomErrorHandler"; // don't forget to load it
+import "./MyMiddleware"; // here we load it
+import "./CustomErrorHandler"; // here we load it
 let app = createServer();
 app.listen(3000);
 ```
@@ -649,7 +679,6 @@ export class UserController {
     }
 
 }
-
 ```
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
