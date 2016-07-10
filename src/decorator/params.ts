@@ -150,7 +150,7 @@ export function CookieParam(name: string, options?: ParamOptions) {
  *
  * @param options Extra parameter options
  */
-export function Body(options?: { required?: boolean }) {
+export function Body(options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {

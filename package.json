@@ -26,9 +26,10 @@
     "controllers"
   ],
   "dependencies": {
-    "express": "^4.0.0",
     "constructor-utils": "~0.0.22",
+    "express": "^4.0.0",
     "glob": "^7.0.5",
+    "multer": "^1.1.0",
     "reflect-metadata": "^0.1.3",
     "require-all": "^2.0.0"
   },

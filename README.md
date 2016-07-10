@@ -364,6 +364,85 @@ getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
 // and it will show you "all users"
 ```
 
+#### Set custom ContentType
+
+You can specify a custom ContentType:
+
+```typescript
+@Get("/users")
+@ContentType("text/cvs")
+getUsers() {
+    // ...
+}
+```
+#### Set Location
+
+You can set a location for any action:
+
+```typescript
+@Get("/users")
+@Location("http://github.com")
+getUsers() {
+    // ...
+}
+```
+
+#### Set Redirect
+
+You can set a redirect for any action:
+
+```typescript
+@Get("/users")
+@Redirect("http://github.com")
+getUsers() {
+    // ...
+}
+```
+
+#### Set custom HTTP code
+
+You can explicitly set a returned HTTP code for any action:
+
+```typescript
+@HttpCode(201)
+@Post("/users")
+saveUser(@Body() user: User) {
+    // ...
+}
+```
+
+Also, there are several additional decorators, that sets conditional http code:
+
+```typescript
+@Get("/users/:id")
+@EmptyResultCode(404)
+saveUser(@Param("id") id: number) {
+    return userRepository.findOneById(id);
+}
+```
+
+In this example `findOneById` returns undefined in the case if user with given was not found.
+This action will return 404 in the case if user was not found, and regular 200 in the case if it was found.
+`@EmptyResultCode` allows to set any HTTP code in the case if controller's action returned empty result (null or undefined).
+There are also `@NullResultCode` and `@UndefindeResultCode()` in the case if you want to return specific codes only
+if controller's action returned null or undefined respectively.
+
+#### Set any header
+
+You can set any custom header in a response:
+
+```typescript
+@Get("/users/:id")
+@Header("Cache-Control", "none")
+getOne(@Param("id") id: number) {
+    // ...
+}
+```
+
+## Using middlewares
+
+
+
 ## Decorators Documentation
 
 #### Controller Decorators
@@ -396,10 +475,28 @@ getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
 | `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
 | `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
 | `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
-| `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`            | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
+| `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`         | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
 | `@UploadedFiles(options?: ParamOptions)`                           | `post(@UploadedFiles() files: any[])`            | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
 | `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
+
+#### Other Decorators
+
+| Signature                                                          | Example                                          | Description                                                                                                                                                                                                                                                                  | express.js analogue                       |
+|--------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `@Middleware()`                                                    | `@Middleware() class SomeMiddleware`             | Registers a new middleware.                                                                                                                                                                                                  | `function (request, response)`            |
+| `@ErrorHandler()`                                                  | `@ErrorHandler() class SomeErrorHandler`         | Registers a new error handler.                                                                                                                                                                                                  | `function (request, response)`            |
+| `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`              | Uses given middleware before action is being executed.                                                                                                                                                                                                   | `function (request, response)`            |
+| `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`               | Uses given middleware after action is being executed.                                                                                                                                                                                                  | `function (request, response)`            |
+| `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                          | Allows to explicitly set HTTP code to be returned in the response.                                                                                                                                                                                              | `function (request, response)`            |
+| `@EmptyResultCode(code: number)`                                   | `@EmptyResultCode(201)` post()                   | Sets a given HTTP code when controller action returned empty result (null or undefined).                                                                                                                                                                                         | `function (request, response)`            |
+| `@NullResultCode(code: number)`                                    | `@NullResultCode(201)` post()                    | Sets a given HTTP code when controller action returned null.                                                                                                                                                                                         | `function (request, response)`            |
+| `@UndefinedResultCode(code: number)`                               | `@UndefinedResultCode(201)` post()               | Sets a given HTTP code when controller action returned undefined.                                                                                                                                                                                         | `function (request, response)`            |
+| `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                 | Allows to explicitly set HTTP Content-type returned in the response.                                                                                                                                                                                             | `function (request, response)`            |
+| `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()      | Allows to explicitly set any HTTP Header returned in the response.                                                                                                                                                                                             | `function (request, response)`            |
+| `@Location(url: string)`                                           | `@Location("http://github.com")` get()           | Allows to explicitly set HTTP Location.                                                                                                                                                                                        | `function (request, response)`            |
+| `@Redirect(url: string)`                                           | `@Redirect("http://github.com")` get()           | Allows to explicitly set HTTP Redirect.                                                                                                                                                                                        | `function (request, response)`            |
+| `@Render(template: string)`                                        | `@Render("user-list.html")` get()                | Renders a given html when user accesses route.                                                                                                                                                                                        | `function (request, response)`            |
 
 ## Samples
 

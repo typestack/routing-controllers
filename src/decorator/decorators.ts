@@ -23,16 +23,32 @@ export function Middleware(options?: MiddlewareOptions): Function {
 }
 
 /**
- * Annotation must be set to controller action and given to it code will be used as HTTP Status Code in the case
- * if response result is success.
+ * Specifies a given middleware to be used for controller or controller action BEFORE the action executes.
+ * Must be set to controller action or controller class.
  */
-export function Use(middleware: Function, options?: { afterAction: boolean }): Function {
+export function UseBefore(middleware: Function): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {
         const metadata: UseMetadataArgs = {
             middleware: middleware,
             target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
             method: methodName,
-            afterAction: options && options.afterAction ? true : false
+            afterAction: false
+        };
+        defaultMetadataArgsStorage().uses.push(metadata);
+    };
+}
+
+/**
+ * Specifies a given middleware to be used for controller or controller action AFTER the action executes.
+ * Must be set to controller action or controller class.
+ */
+export function UseAfter(middleware: Function): Function {
+    return function (objectOrFunction: Object|Function, methodName?: string) {
+        const metadata: UseMetadataArgs = {
+            middleware: middleware,
+            target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
+            method: methodName,
+            afterAction: true
         };
         defaultMetadataArgsStorage().uses.push(metadata);
     };
@@ -159,10 +175,10 @@ export function Header(name: string, value: string) {
 /**
  * Sets Location header with given value to the response.
  */
-export function Location(value: string) {
+export function Location(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
-            value: value,
+            value: url,
             object: object,
             target: object.constructor,
             method: methodName,
@@ -175,10 +191,10 @@ export function Location(value: string) {
 /**
  * Sets Redirect header with given value to the response.
  */
-export function Redirect(value: string) {
+export function Redirect(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
-            value: value,
+            value: url,
             object: object,
             target: object.constructor,
             method: methodName,
