@@ -1,7 +1,6 @@
 # routing-controllers
 
 Allows to create controller classes with methods as actions that handle requests.
-
 You can use routing-controllers with [express.js][1] or [koa 2][2].
 
 ## Installation
@@ -32,21 +31,21 @@ in a global place, like app.ts:
 
     a. If you want to use routing-controllers with express.js, then install express:
 
-        `npm install express --save`
+    `npm install express --save`
 
     Optionally you can also install its typings:
 
-        `typings install dt~express --save --global`
+    `typings install dt~express --save --global`
 
     b. If you want to use routing-controllers with koa 2, then install it:
 
-        `npm install koa@next --save`
+    `npm install koa@next --save`
 
     Optionally you can also install its typings:
 
-        `typings install dt~koa --save --global`
+    `typings install dt~koa --save --global`
 
-## Usage
+## Example of usage
 
 1. Create a file `UserController.ts`
 
@@ -90,28 +89,30 @@ in a global place, like app.ts:
 
     a. If you are using express:
 
-        ```typescript
-        import {createExpressServer} from "routing-controllers";
-        import "./UserController";  // we need to "load" our controller. this is required
-        createExpressServer().listen(3000); // register controllers routes in our express application
-        ```
+    ```typescript
+    import "reflect-metadata"; // this shim is required
+    import {createExpressServer} from "routing-controllers";
+    import "./UserController";  // we need to "load" our controller. this is required
+    createExpressServer().listen(3000); // register controllers routes in our express application
+    ```
 
     b. If you are using koa v2:
 
-        ```typescript
-        import {createKoaServer} from "routing-controllers";
-        import "./UserController";  // we need to "load" our controller. this is required
-        createKoaServer().listen(3000); // register controllers routes in our express application
-        ```
+    ```typescript
+    import "reflect-metadata"; // this shim is required
+    import {createKoaServer} from "routing-controllers";
+    import "./UserController";  // we need to "load" our controller. this is required
+    createKoaServer().listen(3000); // register controllers routes in our express application
+    ```
 
 3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser. If you open
  `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
 
 ## More usage examples
 
-### Return promises
+#### Return promises
 
-You can return a promise in the controller, and it will wait until promise resolved and return in a response a promise result.
+You can return a promise in the controller, and it will wait until promise resolves and return in a response a promise result.
 
 ```typescript
 import {Controller, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
@@ -147,26 +148,68 @@ export class UserController {
 }
 ```
 
-#### Load all controllers from the given directory
+#### Using Request and Response objects
 
-You probably don't want to *require* every controller in your app, and instead want to load all controllers from
-specific directory. To do it you can install [require-all](https://www.npmjs.com/package/require-all) package and use
-it like this:
+You can use express's (or koa's) request and response objects this way:
 
 ```typescript
-import "reflect-metadata";
-import * as express from "express";
-import {useExpressServer} from "routing-controllers";
-var controllers = require('require-all')({
-    dirname     :  __dirname + '/controllers',
-    filter      :  /(.+Controller)\.js$/,
-    excludeDirs :  /^\.(git|svn)$/,
-    recursive   : true
-});
+import {Controller, Req, Res, Get} from "routing-controllers";
 
-let app = express(); // create express application
-useExpressServer(app); // register controllers routes in our express application
-app.listen(3000); // now we can run your express application.
+@Controller()
+export class UserController {
+
+    @Get("/users")
+    getAll(@Req() request: any, @Res() response: any) {
+        response.send("Hello response!");
+    }
+
+}
+```
+
+`@Req()` decorator inject you a `Request` object, and `@Res()` decorator inject you a `Response` object.
+If you have installed a express (or koa) typings too, you can use their types:
+
+```typescript
+import {Request, Response} from "express";
+import {Controller, Req, Res, Get} from "routing-controllers";
+
+@Controller()
+export class UserController {
+
+    @Get("/users")
+    getAll(@Req() request: Request, @Res() response: Response) {
+        response.send("Hello response!");
+    }
+
+}
+```
+
+#### Using exist express server instead of creating a new one
+
+If you have, or if you want to create and configure express (or koa) app separately,
+you can use `useExpressServer` instead of `createExpressServer` function:
+
+```typescript
+import "reflect-metadata"; // this shim is required
+import {useExpressServer} from "routing-controllers";
+
+let app = express(); // your created express server
+// app.use() // maybe you configure itself the way you want
+useExpressServer(app); // register created express server in routing-controllers
+app.listen(3000); // run your express server
+```
+
+#### Load all controllers from the given directory
+
+You can load all controllers in once from specific directories, by specifying array of directories via options in
+`createExpressServer` or `useExpressServer`:
+
+```typescript
+import "reflect-metadata"; // this shim is required
+import {createExpressServer, loadControllers} from "routing-controllers";
+createExpressServer({
+    controllerDirs: [__dirname + "/controllers"]
+}).listen(3000); // register controllers routes in our express application
 ```
 
 #### Load all controllers from the given directory and prefix routes
@@ -175,64 +218,128 @@ If you want to prefix all routes in some directory eg. /api
 
 ```typescript
 import "reflect-metadata";
-import * as express from "express";
-import {useExpressServer} from "routing-controllers";
+import {createExpressServer} from "routing-controllers";
 
-let app = express(); // create express application
-useExpressServer(app, {
-    routePrefix: '/api',
+createExpressServer({
+    routePrefix: "/api",
     controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
-});
-useExpressServer(app, {
-    routePrefix: '/auth',
-    controllerDirs: [__dirname + "/auth"] // register controllers routes in our express app
-});
-app.listen(3000); // now we can run your express application.
-```
-
-
-#### Set response body value returned by a controller action
-
-To return a response body you usually do `response.send("Hello world!")`. But there is alternative way of doing it.
-You can also return result right from the controller, and this result will be pushed via response.send()
-
-```typescript
-@Get("/users")
-getAll() {
-    return "Hello World!";
-}
-
-// its the same as:
-// request.send("Hello World!");
-```
-
-You can also return a Promise (object that contains .then method), and its result will be pushed to response.send after
-promise is resolved.
-
-```typescript
-@Get("/users")
-getAll() {
-    return Database.loadUsers();
-}
-
-// its the same as Database.loadUsers().then(
-//     result => request.send(result),
-//     error  => { request.status(500); request.send(error) }
-// );
+}).listen(3000);
 ```
 
 #### Output JSON instead of regular text content
 
 If you are designing a REST API where your endpoints always return JSON you can use `@JsonController` decorator instead
 of `@Controller`. This will guarantee you that data returned by your controller actions always be transformed to JSON
-objects and `Content-Type` header will be always set to `application/json`:
+ and `Content-Type` header will be always set to `application/json`:
 
 
 ```typescript
-    @JsonController()
-    export class UserController {
-        // ...
-    }
+@JsonController()
+export class UserController {
+    // ...
+}
+```
+
+#### Per-action json / non-json output
+
+In the case if you want to control if your controller's action will return json or regular plain text,
+you can specify a special option:
+
+```typescript
+@Get("/users", { responseType: "json" }) // this will ignore @Controller and return a json in a response
+getUsers() {
+}
+@Get("/posts", { responseType: "text" }) // this will ignore @JsonController and return a regular text in a response
+getPosts() {
+}
+```
+
+#### Inject parameters
+
+##### Routing parameters
+
+You can use parameters in your routes, and to inject such parameters in your controller methods you must use `@Param` decorator:
+
+```typescript
+@Get("/users/:id")
+getUsers(@Param("id") id: number) {
+}
+```
+
+##### Query parameters
+
+To inject query parameters, use `@QueryParam` decorator:
+
+```typescript
+@Get("/users")
+getUsers(@QueryParam("limit") limit: number) {
+}
+```
+
+##### Request body
+
+To inject request body, use `@Body` decorator:
+
+```typescript
+@Post("/users")
+saveUser(@Body() user: User) {
+}
+```
+
+##### Request body parameters
+
+To inject request body parameter, use `@BodyParam` decorator:
+
+```typescript
+@Post("/users")
+saveUser(@BodyParam("name") userName: string) {
+}
+```
+
+##### Request header parameters
+
+To inject request header parameter, use `@HeaderParam` decorator:
+
+```typescript
+@Post("/users")
+saveUser(@HeaderParam("authorization") token: string) {
+}
+```
+
+##### Request file parameters
+
+To inject uploaded file, use `@FileParam` decorator:
+
+```typescript
+@Post("/files")
+saveFile(@FileParam("fileName") file: any) {
+}
+```
+
+Routing-controllers uses [multer][2] to handle file uploadings.
+You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
+
+##### All request's file parameters
+
+To inject all uploaded files, use `@Files` decorator:
+
+```typescript
+@Post("/files")
+saveAll(@Files() files: any[]) {
+}
+```
+
+Routing-controllers uses [multer][2] to handle file uploadings.
+You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
+
+##### Cookie parameter
+
+To cookie parameter, use `@CookieParam` decorator:
+
+```typescript
+@Post("/files")
+saveAll(@Files() files: any[]) {
+}
 ```
 
 #### Inject parameters
@@ -362,4 +469,4 @@ of usage.
 * added integration with `constructor-utils` for serialization and deserialization
 
 [1]: http://expressjs.com/
-[2]: https://github.com/koajs/koa#koa-v2
+[2]: https://github.com/expressjs/multer

@@ -145,7 +145,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     if (options && options.developmentMode !== undefined) {
         driver.developmentMode = options.developmentMode;
     } else {
-        driver.developmentMode = process.env.NODE_ENV !== 'production';
+        driver.developmentMode = process.env.NODE_ENV !== "production";
     }
 
     if (options.defaultErrorHandler !== undefined) {

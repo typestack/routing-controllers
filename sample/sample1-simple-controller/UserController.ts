@@ -7,7 +7,7 @@ import {Req} from "../../src/decorator/params";
 @Controller()
 export class UserController {
 
-    @Get("/users", { jsonResponse: true })
+    @Get("/users", { responseType: "json" })
     getAll() {
         return [
             { id: 1, name: "First user!" },

@@ -218,9 +218,9 @@ export function FileParam(nameOrOptions?: string|{required?: boolean}, options?:
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function FilesParam(name?: string, options?: { required?: boolean }): Function;
-export function FilesParam(options?: { required?: boolean }): Function;
-export function FilesParam(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
+export function Files(name?: string, options?: { required?: boolean }): Function;
+export function Files(options?: { required?: boolean }): Function;
+export function Files(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
     let required = false;
     if (typeof nameOrOptions === "object") {
         required = nameOrOptions.required;

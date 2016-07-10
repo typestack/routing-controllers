@@ -6,7 +6,7 @@ import {Param} from "../../src/decorator/params";
 @Controller()
 export class BlogController {
 
-    @Get("/blogs", { jsonResponse: true })
+    @Get("/blogs", { responseType: "json" })
     getAll() {
         console.log("hello blog");
         return [
@@ -15,7 +15,7 @@ export class BlogController {
         ];
     }
 
-    @Get("/blogs/:id", { jsonResponse: true })
+    @Get("/blogs/:id", { responseType: "json" })
     getOne(@Param("id") id: number) {
         if (!id)
             throw new ForbiddenError();

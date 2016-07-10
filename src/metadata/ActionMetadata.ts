@@ -86,10 +86,10 @@ export class ActionMetadata {
             this.method = args.method;
         if (args.type)
             this.type = args.type;
-        if (args.options && args.options.jsonResponse)
-            this.jsonResponse = args.options.jsonResponse;
-        if (args.options && args.options.textResponse)
-            this.textResponse = args.options.textResponse;
+        if (args.options && args.options.responseType)
+            this.jsonResponse = args.options.responseType === "json"; // todo: write responseType to this
+        if (args.options && args.options.responseType)
+            this.textResponse = args.options.responseType === "text";
     }
 
     // -------------------------------------------------------------------------
