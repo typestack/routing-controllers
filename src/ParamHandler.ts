@@ -1,5 +1,5 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {Driver} from "./driver/Driver";
+import {Driver} from "./Driver";
 import {Utils} from "./util/Utils";
 import {plainToConstructor} from "constructor-utils";
 import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";

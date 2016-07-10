@@ -1,33 +1,62 @@
-import {Driver} from "./Driver";
+import {HttpError} from "./error/http/HttpError";
+import {Utils} from "./util/Utils";
+import {UseMetadata} from "./metadata/UseMetadata";
+import {MiddlewareMetadata} from "./metadata/MiddlewareMetadata";
+import {IncomingMessage, ServerResponse} from "http";
 import {BadHttpActionError} from "./error/BadHttpActionError";
-import {ParamTypes} from "../metadata/types/ParamTypes";
-import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ServerResponse, IncomingMessage} from "http";
-import {HttpError} from "../error/http/HttpError";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
-import {BaseDriver} from "./BaseDriver";
-import {constructorToPlain} from "constructor-utils/index";
-import {UseMetadata} from "../metadata/UseMetadata";
+import {ParamTypes} from "./metadata/types/ParamTypes";
+import {ActionMetadata} from "./metadata/ActionMetadata";
+import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {constructorToPlain} from "constructor-utils";
 
 /**
- * Integration with Express.js framework.
+ * Base driver functionality for all other drivers.
  */
-export class ExpressDriver extends BaseDriver implements Driver {
+export class Driver {
+
+    // -------------------------------------------------------------------------
+    // Public Properties
+    // -------------------------------------------------------------------------
+
+    /**
+     * Indicates if constructor-utils should be used to perform serialization / deserialization.
+     */
+    useConstructorUtils: boolean;
+
+    /**
+     * Indicates if default routing-controller's error handling is enabled or not.
+     */
+    isDefaultErrorHandlingEnabled: boolean;
+
+    /**
+     * Indicates if debug mode is enabled or not. In debug mode additional information may be exposed.
+     */
+    developmentMode: boolean;
+
+    /**
+     * Map of error overrides.
+     */
+    errorOverridingMap: { [key: string]: any };
+
+    /**
+     * Route prefix. eg '/api'
+     */
+    routePrefix: string = '';
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
     constructor(private express: any) {
-        super();
     }
 
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
+    /**
+     * Registers given error handler in the driver.
+     */
     registerErrorHandler(middleware: MiddlewareMetadata): void {
         if (!middleware.expressErrorHandlerInstance.error)
             return;
@@ -37,15 +66,21 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
     }
 
+    /**
+     * Registers middleware that run before controller actions.
+     */
     registerMiddleware(middleware: MiddlewareMetadata): void {
         if (!middleware.expressInstance.use)
             return;
-        
+
         this.express.use(function (request: any, response: any, next: Function) {
             middleware.expressInstance.use(request, response, next);
         });
     }
-    
+
+    /**
+     * Registers action in the driver.
+     */
     registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
@@ -59,7 +94,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
             };
             executeCallback(options);
         };
-        
+
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const fullRoute = `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
@@ -70,6 +105,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
         this.express[expressAction](...expressParams);
     }
 
+    /**
+     * Gets param from the request.
+     */
     getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
         const request: any = actionOptions.request;
         switch (param.type) {
@@ -94,17 +132,20 @@ export class ExpressDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * Defines an algorithm of how to handle success result of executing controller action.
+     */
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        
+
         if (this.useConstructorUtils && result && result instanceof Object) {
             result = constructorToPlain(result); // todo: specify option to disable it?
         }
-        
+
         const response: any = options.response;
         const isResultUndefined = result === undefined;
         const isResultNull = result === null;
         const isResultEmpty = isResultUndefined || isResultNull || result === false || result === "";
-        
+
         // set http status
         if (action.undefinedResultCode && isResultUndefined) {
             response.status(action.undefinedResultCode);
@@ -114,7 +155,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         } else if (action.emptyResultCode && isResultEmpty) {
             response.status(action.emptyResultCode);
-            
+
         } else if (action.successHttpCode) {
             response.status(action.successHttpCode);
         }
@@ -163,6 +204,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     */
     handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
         const response: any = options.response;
 
@@ -208,5 +252,48 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
         return middlewareFunctions;
     }
-    
+
+    private processJsonError(error: any) {
+        if (!this.isDefaultErrorHandlingEnabled)
+            return error;
+
+        let processedError: any = {};
+        if (error instanceof Error) {
+            if (error.name && (this.developmentMode || error.message)) // show name only if in debug mode and if error message exist too
+                processedError.name = error.name;
+            if (error.message)
+                processedError.message = error.message;
+            if (error.stack && this.developmentMode)
+                processedError.stack = error.stack;
+
+            Object.keys(error)
+                .filter(key => key !== "stack" && key !== "name" && key !== "message" && (!(error instanceof HttpError) || key !== "httpCode"))
+                .forEach(key => processedError[key] = error[key]);
+
+            if (this.errorOverridingMap)
+                Object.keys(this.errorOverridingMap)
+                    .filter(key => error.name === key)
+                    .forEach(key => processedError = Utils.merge(processedError, this.errorOverridingMap[key]));
+
+            return Object.keys(processedError).length > 0 ? processedError : undefined;
+        }
+
+        return error;
+    }
+
+    private processTextError(error: any) {
+        if (!this.isDefaultErrorHandlingEnabled)
+            return error;
+
+        if (error instanceof Error) {
+            if (this.developmentMode && error.stack) {
+                return error.stack;
+
+            } else if (error.message) {
+                return error.message;
+            }
+        }
+        return error;
+    }
+
 }

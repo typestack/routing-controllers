@@ -1,8 +1,7 @@
 import {getContainer} from "../index";
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {ExpressMiddlewareInterface} from "../middleware/ExpressMiddlewareInterface";
-import {KoaMiddlewareInterface} from "../middleware/KoaMiddlewareInterface";
-import {ExpressErrorHandlerMiddlewareInterface} from "../middleware/ExpressErrorHandlerMiddlewareInterface";
+import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
+import {ErrorHandlerInterface} from "../middleware/ErrorHandlerInterface";
 
 export class MiddlewareMetadata {
 
@@ -45,16 +44,12 @@ export class MiddlewareMetadata {
     // Accessors
     // -------------------------------------------------------------------------
 
-    get expressInstance(): ExpressMiddlewareInterface {
-        return getContainer().get<ExpressMiddlewareInterface>(this.target);
+    get expressInstance(): MiddlewareInterface {
+        return getContainer().get<MiddlewareInterface>(this.target);
     }
 
-    get expressErrorHandlerInstance(): ExpressErrorHandlerMiddlewareInterface {
-        return getContainer().get<ExpressErrorHandlerMiddlewareInterface>(this.target);
-    }
-
-    get koaInstance(): KoaMiddlewareInterface {
-        return getContainer().get<KoaMiddlewareInterface>(this.target);
+    get expressErrorHandlerInstance(): ErrorHandlerInterface {
+        return getContainer().get<ErrorHandlerInterface>(this.target);
     }
     
 }

@@ -1,4 +1,4 @@
-import {Driver} from "./driver/Driver";
+import {Driver} from "./Driver";
 import {Utils} from "./util/Utils";
 import {ParamHandler} from "./ParamHandler";
 import {constructorToPlain} from "constructor-utils";

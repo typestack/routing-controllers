@@ -1,9 +1,7 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
-import {ExpressDriver} from "./driver/ExpressDriver";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
-import {Driver} from "./driver/Driver";
-import {KoaDriver} from "./driver/KoaDriver";
+import {Driver} from "./Driver";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -68,7 +66,7 @@ export interface RoutingControllersOptions {
  * Registers all loaded actions in your express application.
  */
 export function useServer(expressApp: any, options?: RoutingControllersOptions): void {
-    createExecutor(new ExpressDriver(expressApp), options || {});
+    createExecutor(expressApp, options || {});
 }
 
 /**
@@ -94,7 +92,9 @@ export function createServer(options?: RoutingControllersOptions): any {
 /**
  * Registers all loaded actions in your express application.
  */
-function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
+function createExecutor(expressApp: any, options: RoutingControllersOptions): void {
+    
+    const driver = new Driver(expressApp);
     
     // first of all setup a container if its specified
     if (options && options.container)
@@ -193,5 +193,5 @@ export * from "./decorator/controllers";
 export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
-export * from "./middleware/ExpressMiddlewareInterface";
+export * from "./middleware/MiddlewareInterface";
 export * from "./ErrorHandlerInterface";

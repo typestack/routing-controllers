@@ -205,7 +205,7 @@ createServer({
 }).listen(3000);
 ```
 
-#### Prefix controller with base routes
+#### Prefix controller with base route
 
 You can prefix all controller's actions with specific base route:
 
@@ -427,7 +427,7 @@ This action will return 404 in the case if user was not found, and regular 200 i
 There are also `@NullResultCode` and `@UndefindeResultCode()` in the case if you want to return specific codes only
 if controller's action returned null or undefined respectively.
 
-#### Set any header
+#### Set custom headers
 
 You can set any custom header in a response:
 
