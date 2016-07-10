@@ -1,7 +1,7 @@
 # routing-controllers
 
 Allows to create controller classes with methods as actions that handle requests.
-You can use routing-controllers with [express.js][1] or [koa 2][2].
+Routing-controllers is built upon [express.js][1].
 
 ## Installation
 
@@ -27,23 +27,9 @@ in a global place, like app.ts:
     import "es6-shim";
     ```
 
-4. Install framework:
+4. Additionally you can install express [typings](https://github.com/typings/typings):
 
-    a. If you want to use routing-controllers with express.js, then install express:
-
-    `npm install express --save`
-
-    Optionally you can also install its typings:
-
-    `typings install dt~express --save --global`
-
-    b. If you want to use routing-controllers with koa 2, then install it:
-
-    `npm install koa@next --save`
-
-    Optionally you can also install its typings:
-
-    `typings install dt~koa --save --global`
+    `typings install dt~express dt~serve-static --save --global`
 
 ## Example of usage
 
@@ -96,15 +82,6 @@ in a global place, like app.ts:
     createExpressServer().listen(3000); // register controllers routes in our express application
     ```
 
-    b. If you are using koa v2:
-
-    ```typescript
-    import "reflect-metadata"; // this shim is required
-    import {createKoaServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller. this is required
-    createKoaServer().listen(3000); // register controllers routes in our express application
-    ```
-
 3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser. If you open
  `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
 
@@ -150,7 +127,7 @@ export class UserController {
 
 #### Using Request and Response objects
 
-You can use express's (or koa's) request and response objects this way:
+You can use express's request and response objects this way:
 
 ```typescript
 import {Controller, Req, Res, Get} from "routing-controllers";
@@ -167,7 +144,7 @@ export class UserController {
 ```
 
 `@Req()` decorator inject you a `Request` object, and `@Res()` decorator inject you a `Response` object.
-If you have installed a express (or koa) typings too, you can use their types:
+If you have installed a express typings too, you can use their types:
 
 ```typescript
 import {Request, Response} from "express";
@@ -186,7 +163,7 @@ export class UserController {
 
 #### Using exist express server instead of creating a new one
 
-If you have, or if you want to create and configure express (or koa) app separately,
+If you have, or if you want to create and configure express app separately,
 you can use `useExpressServer` instead of `createExpressServer` function:
 
 ```typescript
@@ -308,11 +285,11 @@ saveUser(@HeaderParam("authorization") token: string) {
 
 ##### Request file parameters
 
-To inject uploaded file, use `@FileParam` decorator:
+To inject uploaded file, use `@UploadedFile` decorator:
 
 ```typescript
 @Post("/files")
-saveFile(@FileParam("fileName") file: any) {
+saveFile(@UploadedFile("fileName") file: any) {
 }
 ```
 
@@ -321,11 +298,11 @@ You can install multer's file definitions via typings, and use `files: File[]` t
 
 ##### All request's file parameters
 
-To inject all uploaded files, use `@Files` decorator:
+To inject all uploaded files, use `@UploadedFiles` decorator:
 
 ```typescript
 @Post("/files")
-saveAll(@Files() files: any[]) {
+saveAll(@UploadedFiles() files: any[]) {
 }
 ```
 
@@ -337,52 +314,14 @@ You can install multer's file definitions via typings, and use `files: File[]` t
 To cookie parameter, use `@CookieParam` decorator:
 
 ```typescript
-@Post("/files")
-saveAll(@Files() files: any[]) {
+@Get("/users")
+getUsers(@CookieParam("username") username: string) {
 }
 ```
 
-#### Inject parameters
+##### Make parameter required
 
-You can inject some common params you may need right into the controller action method using proper decorators:
-
-```typescript
-@Get("/users/:id")
-getAll( @Req() request: Request,
-        @Res() response: Response,
-        @Body() requestBody: any,
-        @Param("id") id: number,
-        @QueryParam("name") name: string) {
-    // now you can use your parameters
-}
-
-// its the same as: 
-// let requestBody = response.body;
-// let id = response.params.id;
-// let name = response.query.name; 
-```
-
-#### Inject body and transform it to object
-
-If you want to have response body and wish it to be automatically converted to object you need to use @Body
-parameter decorator and specify extra parameters to it:
-
-```typescript
-@Post("/users")
-save(@Body({ parseJson: true }) user: any) {
-    // now you can use user as object
-}
-
-// its the same as:
-// let user: any = JSON.parse(response.body);
-```
-
-There is also simplified way of doing it: `save(@Body(true) user: any)`
-
-#### Make body required
-
-If you want to have response body and wish it to be automatically converted to object you need to use @Body
-parameter decorator and specify extra parameters to it:
+To make any parameter required, simply pass a `required: true` flag in its options:
 
 ```typescript
 @Post("/users")
@@ -391,15 +330,15 @@ save(@Body({ required: true }) user: any) {
 }
 ```
 
-Same you can do with all other parameter inectors: @Param, @QueryParam, @BodyParam and others.
+Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and others.
 
-#### Inject parameters and transform them to objects
+##### Convert parameters to objects
 
-You can inject some common params you may need right into the controller action method using proper decorators:
+You can convert any parameter you receive into object by specifying a `parseJson: true` option:
 
 ```typescript
 @Get("/users")
-getAll(@QueryParam("filter", { required: true }) filter: UserFilter) {
+getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
     // now you can use your filter, for example
     if (filter.showAll === true)
         return "all users";
@@ -440,16 +379,16 @@ getAll(@QueryParam("filter", { required: true }) filter: UserFilter) {
 |-------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | `Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
 | `Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
-| `Body(options: ParamOptions)`                                     | `save(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
+| `Body(options?: { required?: boolean })`                          | `post(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
 | `Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
 | `QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
 | `HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
-| `FileParam(name: string, options?: { required?: boolean })`       | `get(@FileParam("files") file: any)`             | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
-| `FilesParam(options?: ParamOptions)`                              | `get(@FilesParam() files: any[])`                | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
+| `UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`            | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
+| `UploadedFiles(options?: ParamOptions)`                           | `post(@UploadedFiles() files: any[])`            | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
 | `BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
-## More samples
+## Samples
 
 Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
 of usage.
@@ -459,9 +398,8 @@ of usage.
 **0.6.0**
 
 * middleware and error handlers support
-* added beta support of koa v2 framework
 * refactored core
-* everything important is packed into "routing-controllers" main entrypoint now
+* everything packed into "routing-controllers" main entrypoint now
 
 **0.5.0**
 

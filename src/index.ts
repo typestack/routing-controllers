@@ -92,40 +92,6 @@ export function createExpressServer(options?: RoutingControllersOptions): any {
 }
 
 /**
- * Registers all loaded actions in your koa application.
- */
-export function useKoaServer(koaApp: any, koaRouter: any, options?: RoutingControllersOptions): void {
-    createExecutor(new KoaDriver(koaApp, koaRouter), options || {});
-}
-
-/**
- * Registers all loaded actions in your koa application.
- */
-export function createKoaServer(options?: RoutingControllersOptions): [any, any] {
-
-    let koaApp: any, koaRouter: any;
-    if (require) {
-        try {
-            koaApp = new (require("koa"))();
-        } catch (e) {
-            throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
-        }
-        try {
-            koaRouter = new (require("koa-router"))();
-        } catch (e) {
-            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
-        }
-    } else {
-        throw new Error("Cannot load koa. Try to install all required dependencies.");
-    }
-
-    useKoaServer(koaApp, koaRouter, options);
-    koaApp.use(koaRouter.routes());
-    koaApp.use(koaRouter.allowedMethods());
-    return [koaApp, koaRouter];
-}
-
-/**
  * Registers all loaded actions in your express application.
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
@@ -170,7 +136,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     new RoutingControllerExecutor(driver)
         .registerPreExecutionMiddlewares()
         .registerActions()
-        .registerPostExecutionMiddlewares() // todo: check it with koa
+        .registerPostExecutionMiddlewares()
         .registerErrorHandlers(); // todo: register only for loaded controllers?
 }
 

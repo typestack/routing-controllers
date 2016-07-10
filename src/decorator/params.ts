@@ -9,7 +9,7 @@ import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
  */
 export function Req() {
     return function (object: Object, methodName: string, index: number) {
-        const reflectedType = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const reflectedType = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -29,7 +29,7 @@ export function Req() {
  */
 export function Res() {
     return function (object: Object, methodName: string, index: number) {
-        const reflectedType = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const reflectedType = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -44,58 +44,15 @@ export function Res() {
 }
 
 /**
- * This decorator allows to inject a request body value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param options Extra parameter options
- */
-export function Body(options: ParamOptions): Function;
-export function Body(required?: boolean, parseJson?: boolean): Function;
-export function Body(requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
-    return function (object: Object, methodName: string, index: number) {
-        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
-            method: methodName,
-            index: index,
-            type: ParamTypes.BODY,
-            reflectedType: format,
-            format: format,
-            parseJson: parseJson,
-            isRequired: required
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
-    };
-}
-
-/**
  * This decorator allows to inject a route parameter value to the controller action parameter.
  * Applied to class method parameters.
  *
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function Param(name: string, options: ParamOptions): Function;
-export function Param(name: string, required?: boolean, parseJson?: boolean): Function;
-export function Param(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
+export function Param(name: string, options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
-        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -104,8 +61,8 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: parseJson,
-            isRequired: required
+            parseJson: options ? options.parseJson : false,
+            isRequired: options ? options.required : false
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -118,19 +75,9 @@ export function Param(name: string, requiredOrOptions: ParamOptions|boolean, par
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function QueryParam(name: string, options: ParamOptions): Function;
-export function QueryParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
+export function QueryParam(name: string, options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
-        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -139,8 +86,8 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: parseJson,
-            isRequired: required
+            parseJson: options ? options.parseJson : false,
+            isRequired: options ? options.required : false
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -153,19 +100,9 @@ export function QueryParam(name: string, requiredOrOptions: ParamOptions|boolean
  * @param name Parameter name
  * @param options Extra parameter options
  */
-export function HeaderParam(name: string, options: ParamOptions): Function;
-export function HeaderParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
+export function HeaderParam(name: string, options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
-        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -174,108 +111,8 @@ export function HeaderParam(name: string, requiredOrOptions: ParamOptions|boolea
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: parseJson,
-            isRequired: required
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
-    };
-}
-
-/**
- * This decorator allows to inject "file" from a request to a given parameter of the controller action.
- */
-export function FileParam(name?: string, options?: { required?: boolean }): Function;
-export function FileParam(options?: { required?: boolean }): Function;
-export function FileParam(nameOrOptions?: string|{required?: boolean}, options?: { required?: boolean }): Function {
-    let required = false;
-    if (typeof nameOrOptions === "object") {
-        required = nameOrOptions.required;
-    } else if (options) {
-        required = options.required;
-    }
-    let name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
-
-    return function (object: Object, methodName: string, index: number) {
-        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
-            method: methodName,
-            index: index,
-            type: ParamTypes.FILE,
-            reflectedType: format,
-            name: name,
-            format: format,
-            parseJson: false,
-            isRequired: required
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
-    };
-}
-
-/**
- * This decorator allows to inject "files" from a request to a given parameter of the controller action.
- *
- * @param name Parameter name
- * @param options Extra parameter options
- */
-export function Files(name?: string, options?: { required?: boolean }): Function;
-export function Files(options?: { required?: boolean }): Function;
-export function Files(nameOrOptions: string|{required?: boolean}, options?: { required?: boolean }): Function {
-    let required = false;
-    if (typeof nameOrOptions === "object") {
-        required = nameOrOptions.required;
-    } else if (options) {
-        required = options.required;
-    }
-    let name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
-
-    return function (object: Object, methodName: string, index: number) {
-        const format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
-            method: methodName,
-            index: index,
-            type: ParamTypes.FILES,
-            reflectedType: format,
-            name: name,
-            format: format,
-            parseJson: false,
-            isRequired: required
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
-    };
-}
-
-/**
- * This decorator allows to inject a request body's value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param name Body's parameter name
- * @param options Extra parameter options
- */
-export function BodyParam(name: string, options: ParamOptions): Function;
-export function BodyParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
-    return function (object: Object, methodName: string, index: number) {
-        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
-            method: methodName,
-            index: index,
-            type: ParamTypes.BODY_PARAM,
-            reflectedType: format,
-            name: name,
-            format: format,
-            parseJson: parseJson,
-            isRequired: required
+            parseJson: options ? options.parseJson : false,
+            isRequired: options ? options.required : false
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -288,19 +125,9 @@ export function BodyParam(name: string, requiredOrOptions: ParamOptions|boolean,
  * @param name Cookie parameter name
  * @param options Extra parameter options
  */
-export function CookieParam(name: string, options: ParamOptions): Function;
-export function CookieParam(name: string, required?: boolean, parseJson?: boolean): Function;
-export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolean, parseJson?: boolean) {
-    let required = false;
-    if (typeof requiredOrOptions === "object") {
-        required = requiredOrOptions.required;
-        parseJson = requiredOrOptions.parseJson;
-    } else {
-        required = <boolean> requiredOrOptions;
-    }
-
+export function CookieParam(name: string, options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
-        let format = (<any> Reflect).getMetadata("design:paramtypes", object, methodName)[index];
+        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
@@ -309,8 +136,101 @@ export function CookieParam(name: string, requiredOrOptions: ParamOptions|boolea
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: parseJson,
-            isRequired: required
+            parseJson: options ? options.parseJson : false,
+            isRequired: options ? options.required : false
+        };
+        defaultMetadataArgsStorage().params.push(metadata);
+    };
+}
+
+
+/**
+ * This decorator allows to inject a request body value to the controller action parameter.
+ * Applied to class method parameters.
+ *
+ * @param options Extra parameter options
+ */
+export function Body(options?: { required?: boolean }) {
+    return function (object: Object, methodName: string, index: number) {
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            index: index,
+            type: ParamTypes.BODY,
+            reflectedType: format,
+            format: format,
+            parseJson: false,
+            isRequired: options ? options.required : false
+        };
+        defaultMetadataArgsStorage().params.push(metadata);
+    };
+}
+
+/**
+ * This decorator allows to inject a request body's value to the controller action parameter.
+ * Applied to class method parameters.
+ *
+ * @param name Body's parameter name
+ * @param options Extra parameter options
+ */
+export function BodyParam(name: string, options?: ParamOptions) {
+    return function (object: Object, methodName: string, index: number) {
+        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            index: index,
+            type: ParamTypes.BODY_PARAM,
+            reflectedType: format,
+            name: name,
+            format: format,
+            parseJson: options ? options.parseJson : false,
+            isRequired: options ? options.required : false
+        };
+        defaultMetadataArgsStorage().params.push(metadata);
+    };
+}
+
+/**
+ * This decorator allows to inject "file" from a request to a given parameter of the controller action.
+ */
+export function UploadedFile(name?: string, options?: { required?: boolean }): Function {
+    return function (object: Object, methodName: string, index: number) {
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            index: index,
+            type: ParamTypes.UPLOADED_FILE,
+            reflectedType: format,
+            name: name,
+            format: format,
+            parseJson: false,
+            isRequired: options ? options.required : false
+        };
+        defaultMetadataArgsStorage().params.push(metadata);
+    };
+}
+
+/**
+ * This decorator allows to inject "files" from a request to a given parameter of the controller action.
+ *
+ * @param options Extra parameter options
+ */
+export function UploadedFiles(options?: { required?: boolean }): Function {
+    return function (object: Object, methodName: string, index: number) {
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const metadata: ParamMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            index: index,
+            type: ParamTypes.UPLOADED_FILES,
+            reflectedType: format,
+            name: name,
+            format: format,
+            parseJson: false,
+            isRequired: options ? options.required : false
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
