@@ -441,7 +441,7 @@ getOne(@Param("id") id: number) {
 
 ## Using middlewares
 
-You can use any exist express middleware, or create your middlewares.
+You can use any exist express middleware, or create your own.
 To create your middlewares there is a `@Middleware` decorator,
 and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
@@ -451,7 +451,7 @@ There are multiple ways to use middlewares.
 For example, lets try to use [compression](https://github.com/expressjs/compression) middleware:
 
 1. Install compression middleware: `npm install compression`
-2. If you want to use middleware on per-action basis:
+2. If you want to use middleware per-action:
 
     ```typescript
     import {Controller, Get, UseBefore} from "routing-controllers";
@@ -467,9 +467,9 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
     ```
 
     This way compression middleware will be applied only for `getOne` controller action,
-    and will be used *before* action is being executed.
+    and will be executed *before* action execution.
 
-3. If you want to use middleware on per-controller basis:
+3. If you want to use middleware per-controller:
 
     ```typescript
     import {Controller, UseBefore} from "routing-controllers";
@@ -483,7 +483,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
     ```
 
     This way compression middleware will be applied for all actions of the `UserController` controller,
-    and will be used *before* action execution.
+    and will be executed *before* action execution.
 
 4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
 
@@ -520,7 +520,7 @@ with `@Middleware` decorator:
 
     Here, we created our own middleware that prints `do something...` in the console.
 
-2. Second we need to load our middleware in `app.ts` before you bootstrap app:
+2. Second we need to load our middleware in `app.ts` before app bootstrap:
 
     ```typescript
     import {createServer} from "routing-controllers";
@@ -576,14 +576,9 @@ export class CompressionMiddleware implements MiddlewareInterface {
 
 Global middleware runs before each request, always.
 
-You can make global middleware to run after controller action by specifying extra `afterAction: true` option:
-
-`@GlobalMiddleware({ afterAction: true })`
-
-Also, if you have a problem with running your global middlewares you can set a priority to run this way:
-
-`@GlobalMiddleware({ priority: 1 })`
-
+You can make global middleware to run after controller action by specifying extra `afterAction: true`
+option: `@GlobalMiddleware({ afterAction: true })`. If you have issues with global middlewares run order
+you can set a priority: `@GlobalMiddleware({ priority: 1 })`.
 Higher is priority means middleware being executed earlier.
 
 ### Error handlers
@@ -618,7 +613,7 @@ Error handlers works pretty much the same as middlewares, but `@ErrorHandler` de
 
 ### Don't forget to load your middlewares and error handlers
 
-Middlewares and error handlers should be loaded globally the same way as controllers, before you bootstrap the app:
+Middlewares and error handlers should be loaded globally the same way as controllers, before app bootstrap:
 
 ```typescript
 import {createServer} from "routing-controllers";
