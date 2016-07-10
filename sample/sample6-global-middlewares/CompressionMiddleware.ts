@@ -1,8 +1,8 @@
 import {ServerResponse, ServerRequest} from "http";
-import {Middleware} from "../../src/decorator/decorators";
+import {GlobalMiddleware} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
-@Middleware({ global: true })
+@GlobalMiddleware()
 export class CompressionMiddleware implements MiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {

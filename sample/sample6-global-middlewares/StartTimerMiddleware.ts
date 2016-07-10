@@ -1,8 +1,8 @@
 import {ServerResponse, ServerRequest} from "http";
-import {Middleware} from "../../src/decorator/decorators";
+import {Middleware, GlobalMiddleware} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
-@Middleware({ global: true })
+@GlobalMiddleware()
 export class StartTimerMiddleware implements MiddlewareInterface {
 
     use(request: ServerRequest, response: ServerResponse, next: Function): void {

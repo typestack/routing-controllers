@@ -6,15 +6,31 @@ import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
 import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
+import {GlobalMiddlewareOptions} from "./options/GlobalMiddlewareOptions";
 
 /**
  * Registers a new middleware.
  */
-export function Middleware(options?: MiddlewareOptions): Function {
+export function Middleware(): Function {
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
-            isGlobal: options && options.global ? true : false,
+            isGlobal: false,
+            priority: undefined,
+            afterAction: false
+        };
+        defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Registers a global middleware.
+ */
+export function GlobalMiddleware(options?: GlobalMiddlewareOptions): Function {
+    return function (target: Function) {
+        const metadata: MiddlewareMetadataArgs = {
+            target: target,
+            isGlobal: true,
             priority: options && options.priority ? options.priority : undefined,
             afterAction: options && options.afterAction ? options.afterAction : false
         };

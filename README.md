@@ -77,8 +77,8 @@ Routing-controllers is built upon [express.js][1].
 2. Create a file `app.ts`
 
     ```typescript
-    import "reflect-metadata"; // this shim is required
     import {createServer} from "routing-controllers";
+    import "reflect-metadata"; // this shim is required
     import "./UserController";  // we need to "load" our controller before call createServer. this is required
     let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
     app.listen(3000); // run express application
@@ -169,8 +169,8 @@ If you have, or if you want to create and configure express app separately,
 you can use `useServer` instead of `createServer` function:
 
 ```typescript
-import "reflect-metadata"; // this shim is required
 import {useServer} from "routing-controllers";
+import "reflect-metadata"; // this shim is required
 
 let app = express(); // your created express server
 // app.use() // maybe you configure itself the way you want
@@ -184,8 +184,8 @@ You can load all controllers in once from specific directories, by specifying ar
 `createServer` or `useServer`:
 
 ```typescript
-import "reflect-metadata"; // this shim is required
 import {createServer, loadControllers} from "routing-controllers";
+import "reflect-metadata"; // this shim is required
 createServer({
     controllerDirs: [__dirname + "/controllers"]
 }).listen(3000); // register controllers routes in our express application
@@ -196,8 +196,8 @@ createServer({
 If you want to prefix all routes in some directory eg. /api 
 
 ```typescript
-import "reflect-metadata";
 import {createServer} from "routing-controllers";
+import "reflect-metadata";
 
 createServer({
     routePrefix: "/api",
@@ -445,7 +445,7 @@ You can use any exist express middleware, or create your middlewares.
 To create your middlewares there is a `@Middleware` decorator,
 and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
-#### Use exist express middleware
+### Use exist express middleware
 
 There are multiple ways to use middlewares.
 For example, lets try to use [compression](https://github.com/expressjs/compression) middleware:
@@ -488,15 +488,205 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
 
     ```typescript
-    import "reflect-metadata"; // this shim is required
     import {createServer} from "routing-controllers";
+    import "reflect-metadata"; // this shim is required
     import "./UserController";  // we need to "load" our controller before call createServer. this is required
     let compression = require("compression");
     let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
     app.use(compression());
     app.listen(3000); // run express application
     ```
-    Alternatively, you can create a custom global middleware and simply delegate its execution to the compression module.
+
+    Alternatively, you can create a custom [global middleware](#global-middlewares) and simply delegate its execution to the compression module.
+
+### Creating your own middleware
+
+1. To create your own middleware you need to create a class that implements a `MiddlewareInterface` interface and decorated
+with `@Middleware` decorator:
+
+    ```typescript
+    import {Middleware, MiddlewareInterface} from "routing-controllers";
+
+    @Middleware()
+    export class MyMiddleware implements MiddlewareInterface {
+
+        use(request: any, response: any): Promise<void> {
+            console.log("do something...");
+            return Promise.resolve();
+        }
+
+    }
+    ```
+
+    Here, we created our own middleware that prints `do something...` in the console.
+
+2. Second we need to load our middleware in `app.ts` before you bootstrap app:
+
+    ```typescript
+    import {createServer} from "routing-controllers";
+    import "reflect-metadata";
+    import "./UserController";
+    import "./MyMiddleware"; // don't forget to load it
+    createServer().listen(3000);
+    ```
+
+3. Now we can use our middleware:
+
+    ```typescript
+    import {Controller, UseBefore} from "routing-controllers";
+    import {MyMiddleware} from "./MyMiddleware";
+
+    @Controller()
+    @UseBefore(MyMiddleware)
+    export class UserController {
+
+    }
+    ```
+
+    or per-action:
+
+    ```typescript
+    @Get("/users/:id")
+    @UseBefore(MyMiddleware)
+    getOne(@Param("id") id: number) {
+        // ...
+    }
+    ```
+
+    This way your middleware will be executed each time before controller action.
+    You can use `@UseAfter(MyMiddleware)` to make it execute after each controller action.
+
+### Global middlewares
+
+Same way you created a middleware, you can create a global middleware:
+
+```typescript
+import {GlobalMiddleware, MiddlewareInterface} from "routing-controllers";
+let compression = require("compression");
+
+@GlobalMiddleware()
+export class CompressionMiddleware implements MiddlewareInterface {
+
+    use(request: any, response: any): void {
+        return compression();
+    }
+
+}
+```
+
+Global middleware runs before each request, always.
+
+You can make global middleware to run after controller action by specifying extra `afterAction: true` option:
+
+`@GlobalMiddleware({ afterAction: true })`
+
+Also, if you have a problem with running your global middlewares you can set a priority to run this way:
+
+`@GlobalMiddleware({ priority: 1 })`
+
+Higher is priority means middleware being executed earlier.
+
+### Don't forget to load your middlewares and error handlers
+
+Middlewares and error handlers should be loaded globally the same way as controllers, before you bootstrap the app:
+
+```typescript
+import {createServer} from "routing-controllers";
+import "reflect-metadata";
+import "./UserController";
+import "./MyMiddleware"; // don't forget to load it
+import "./CustomErrorHandler"; // don't forget to load it
+let app = createServer();
+app.listen(3000);
+```
+
+Also you can load middlewares and error handlers from directories:
+
+```typescript
+import {createServer, loadControllers} from "routing-controllers";
+import "reflect-metadata"; // this shim is required
+createServer({
+    controllerDirs: [__dirname + "/controllers"],
+    middlewareDirs: [__dirname + "/middlewares"],
+    errorHandlerDirs: [__dirname + "/error-handlers"],
+}).listen(3000);
+```
+
+## Creating instances of classes from action params
+
+When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class,
+instead of parsing it into simple literal object.
+You have ability to do this using [constructor-utils](https://github.com/pleerock/constructor-utils).
+To use it simply specify a `useConstructorUtils: true` option on application bootstrap:
+
+```typescript
+import {createServer, useContainer, loadControllers} from "routing-controllers";
+import "reflect-metadata"; // this shim is required
+
+createServer({
+    useConstructorUtils: true
+}).listen(3000);
+```
+
+Now, when you parse your action params, if you have specified a class, routing-controllers will create you a class
+of that instance with the data sent by a user:
+
+```typescript
+export class User {
+    firstName: string;
+    lastName: string;
+
+    getName(): string {
+        return this.lastName + " " + this.firstName;
+    }
+}
+
+@Controller()
+export class UserController {
+
+    post(@Body({ parseJson: true }) user: User) {
+        console.log("saving user " + user.getName());
+    }
+
+}
+
+```
+
+This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
+Learn more about constructor-utils and how to handle more complex object constructions [here](https://github.com/pleerock/constructor-utils).
+
+## Using DI container
+
+`routing-controllers` supports a DI container out of the box. You can inject your services into your controllers,
+middlewares and error handlers. Container must be setup during application bootstrap.
+Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi)
+
+```typescript
+import {createServer, useContainer, loadControllers} from "routing-controllers";
+import "reflect-metadata"; // this shim is required
+import {Container} from "typedi";
+
+createServer({
+    controllerDirs: [__dirname + "/controllers"],
+    middlewareDirs: [__dirname + "/middlewares"],
+    errorHandlerDirs: [__dirname + "/error-handlers"],
+    container: Container
+}).listen(3000);
+```
+
+That's it, now you can inject your services into your controllers:
+
+```typescript
+@Controller()
+export class UsersController {
+
+    constructor(private userRepository: UserRepository) {
+    }
+
+    // ... controller actions
+
+}
+```
 
 ## Decorators Reference
 

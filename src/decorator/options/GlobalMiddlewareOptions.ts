@@ -1,12 +1,7 @@
 /**
- * Middleware decorator options.
+ * Global middleware decorator options.
  */
-export interface MiddlewareOptions {
-
-    /**
-     * Indicates if this is a global middleware. Global middleware applies to all routes of the project.
-     */
-    global?: boolean;
+export interface GlobalMiddlewareOptions {
 
     /**
      * Special priority to be used to define order of middlewares to be executed.

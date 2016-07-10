@@ -1,8 +1,8 @@
 import {ServerResponse, ServerRequest} from "http";
-import {Middleware} from "../../src/decorator/decorators";
+import {Middleware, GlobalMiddleware} from "../../src/decorator/decorators";
 import {ErrorHandlerInterface} from "../../src/middleware/ErrorHandlerInterface";
 
-@Middleware({ global: true })
+@GlobalMiddleware()
 export class AllErrorsHandler implements ErrorHandlerInterface {
 
     error(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
