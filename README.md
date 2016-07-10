@@ -9,8 +9,11 @@ Routing-controllers is built upon [express.js][1].
 
     `npm install routing-controllers --save`
 
-2. `reflect-metadata` shim is required, so make sure to import it before you use the library,
-in a global place, like app.ts:
+2. `reflect-metadata` shim is required:
+
+    `npm install reflect-metadata --save`
+
+    and make sure to import it in a global place, like app.ts:
 
     ```typescript
     import "reflect-metadata";
@@ -75,9 +78,9 @@ in a global place, like app.ts:
 
     ```typescript
     import "reflect-metadata"; // this shim is required
-    import {createExpressServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller. this is required
-    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
+    import {createServer} from "routing-controllers";
+    import "./UserController";  // we need to "load" our controller before call createServer. this is required
+    let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
     app.listen(3000); // run express application
     ```
 
@@ -163,27 +166,27 @@ export class UserController {
 #### Using exist express server instead of creating a new one
 
 If you have, or if you want to create and configure express app separately,
-you can use `useExpressServer` instead of `createExpressServer` function:
+you can use `useServer` instead of `createServer` function:
 
 ```typescript
 import "reflect-metadata"; // this shim is required
-import {useExpressServer} from "routing-controllers";
+import {useServer} from "routing-controllers";
 
 let app = express(); // your created express server
 // app.use() // maybe you configure itself the way you want
-useExpressServer(app); // register created express server in routing-controllers
+useServer(app); // register created express server in routing-controllers
 app.listen(3000); // run your express server
 ```
 
 #### Load all controllers from the given directory
 
 You can load all controllers in once from specific directories, by specifying array of directories via options in
-`createExpressServer` or `useExpressServer`:
+`createServer` or `useServer`:
 
 ```typescript
 import "reflect-metadata"; // this shim is required
-import {createExpressServer, loadControllers} from "routing-controllers";
-createExpressServer({
+import {createServer, loadControllers} from "routing-controllers";
+createServer({
     controllerDirs: [__dirname + "/controllers"]
 }).listen(3000); // register controllers routes in our express application
 ```
@@ -194,12 +197,23 @@ If you want to prefix all routes in some directory eg. /api
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer} from "routing-controllers";
+import {createServer} from "routing-controllers";
 
-createExpressServer({
+createServer({
     routePrefix: "/api",
     controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
 }).listen(3000);
+```
+
+#### Prefix controller with base routes
+
+You can prefix all controller's actions with specific base route:
+
+```typescript
+@Controller("/users")
+export class UserController {
+    // ...
+}
 ```
 
 #### Output JSON instead of regular text content
@@ -354,38 +368,38 @@ getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
 
 #### Controller Decorators
 
-| Signature                           | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|-------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Controller(baseRoute: string)`     | `@Controller("/users") class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
-| `JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
+| Signature                            | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|--------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `@Controller(baseRoute: string)`     | `@Controller("/users") class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
+| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
 
 #### Controller Method Decorators
 
-| Signature                                                                   | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
-|-----------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `Get(route: string|RegExp, options?: ActionOptions)`                        | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.get("/users", all)`             |
-| `Post(route: string|RegExp, options?: ActionOptions)`                       | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.post("/users", save)`           |
-| `Put(route: string|RegExp, options?: ActionOptions)`                        | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.put("/users", update)`          |
-| `Patch(route: string|RegExp, options?: ActionOptions)`                      | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.patch("/users/:id", patch)`     |
-| `Delete(route: string|RegExp, options?: ActionOptions)`                     | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.delete("/users/:id", delete)`   |
-| `Head(route: string|RegExp, options?: ActionOptions)`                       | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.head("/users/:id", head)`       |
-| `Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options("/users/:id") head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.            | `app.options("/users/:id", options)` |
-| `Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response. | `app.move("/users/:id", move)`       |
+| Signature                                                                    | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
+|------------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| `@Get(route: string|RegExp, options?: ActionOptions)`                        | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.get("/users", all)`             |
+| `@Post(route: string|RegExp, options?: ActionOptions)`                       | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.post("/users", save)`           |
+| `@Put(route: string|RegExp, options?: ActionOptions)`                        | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.put("/users", update)`          |
+| `@Patch(route: string|RegExp, options?: ActionOptions)`                      | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.patch("/users/:id", patch)`     |
+| `@Delete(route: string|RegExp, options?: ActionOptions)`                     | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.delete("/users/:id", delete)`   |
+| `@Head(route: string|RegExp, options?: ActionOptions)`                       | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.head("/users/:id", head)`       |
+| `@Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options("/users/:id") head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.            | `app.options("/users/:id", options)` |
+| `@Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response. | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
-| Signature                                                         | Example                                          | Description                                                                                                                                                                                                                                                                  | express.js analogue                       |
-|-------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
-| `Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
-| `Body(options?: { required?: boolean })`                          | `post(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
-| `Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
-| `QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
-| `HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
-| `UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`            | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
-| `UploadedFiles(options?: ParamOptions)`                           | `post(@UploadedFiles() files: any[])`            | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
-| `BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
-| `CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
+| Signature                                                          | Example                                          | Description                                                                                                                                                                                                                                                                  | express.js analogue                       |
+|--------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `@Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
+| `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
+| `@Body(options?: { required?: boolean })`                          | `post(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
+| `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
+| `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
+| `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
+| `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`            | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
+| `@UploadedFiles(options?: ParamOptions)`                           | `post(@UploadedFiles() files: any[])`            | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
+| `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
+| `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
 ## Samples
 
@@ -394,16 +408,7 @@ of usage.
 
 ## Release notes
 
-**0.6.0**
-
-* middleware and error handlers support
-* refactored core
-* everything packed into "routing-controllers" main entrypoint now
-
-**0.5.0**
-
-* renamed package from `controllers.ts` to `routing-controllers`
-* added integration with `constructor-utils` for serialization and deserialization
+See information about breaking changes and release notes [here](https://github.com/pleerock/routing-controllers/tree/master/doc/release-notes.md).
 
 [1]: http://expressjs.com/
 [2]: https://github.com/expressjs/multer

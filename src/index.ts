@@ -67,14 +67,14 @@ export interface RoutingControllersOptions {
 /**
  * Registers all loaded actions in your express application.
  */
-export function useExpressServer(expressApp: any, options?: RoutingControllersOptions): void {
+export function useServer(expressApp: any, options?: RoutingControllersOptions): void {
     createExecutor(new ExpressDriver(expressApp), options || {});
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
-export function createExpressServer(options?: RoutingControllersOptions): any {
+export function createServer(options?: RoutingControllersOptions): any {
 
     let expressApp: any;
     if (require) {
@@ -87,7 +87,7 @@ export function createExpressServer(options?: RoutingControllersOptions): any {
         throw new Error("Cannot load express. Try to install all required dependencies.");
     }
 
-    useExpressServer(expressApp, options);
+    useServer(expressApp, options);
     return expressApp;
 }
 

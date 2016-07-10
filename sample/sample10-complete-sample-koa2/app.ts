@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createKoaServer, createExpressServer} from "../../src/index";
+import {createKoaServer, createServer} from "../../src/index";
 
 // base directory. we use it because file in "required" in another module
 const baseDir = __dirname;
