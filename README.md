@@ -441,9 +441,64 @@ getOne(@Param("id") id: number) {
 
 ## Using middlewares
 
+You can use any exist express middleware, or create your middlewares.
+To create your middlewares there is a `@Middleware` decorator,
+and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
+#### Use exist express middleware
 
-## Decorators Documentation
+There are multiple ways to use middlewares.
+For example, lets try to use [compression](https://github.com/expressjs/compression) middleware:
+
+1. Install compression middleware: `npm install compression`
+2. If you want to use middleware on per-action basis:
+
+    ```typescript
+    import {Controller, Get, UseBefore} from "routing-controllers";
+    let compression = require("compression");
+
+    // ...
+
+    @Get("/users/:id")
+    @UseBefore(compression())
+    getOne(@Param("id") id: number) {
+        // ...
+    }
+    ```
+
+    This way compression middleware will be applied only for `getOne` controller action,
+    and will be used *before* action is being executed.
+
+3. If you want to use middleware on per-controller basis:
+
+    ```typescript
+    import {Controller, UseBefore} from "routing-controllers";
+    let compression = require("compression");
+
+    @Controller()
+    @UseBefore(compression())
+    export class UserController {
+
+    }
+    ```
+
+    This way compression middleware will be applied for all actions of the `UserController` controller,
+    and will be used *before* action execution.
+
+4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
+
+    ```typescript
+    import "reflect-metadata"; // this shim is required
+    import {createServer} from "routing-controllers";
+    import "./UserController";  // we need to "load" our controller before call createServer. this is required
+    let compression = require("compression");
+    let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
+    app.use(compression());
+    app.listen(3000); // run express application
+    ```
+    Alternatively, you can create a custom global middleware and simply delegate its execution to the compression module.
+
+## Decorators Reference
 
 #### Controller Decorators
 
