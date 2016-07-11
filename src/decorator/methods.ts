@@ -142,29 +142,6 @@ export function Head(route?: string|RegExp, options?: ActionOptions): Function {
 }
 
 /**
- * Registers an action to be executed when OPTIONS request comes on a given route.
- * Applied to controller class methods.
- *
- * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
- */
-export function Options(route?: RegExp, options?: ActionOptions): Function;
-export function Options(route?: string, options?: ActionOptions): Function;
-export function Options(route?: string|RegExp, options?: ActionOptions): Function {
-    return function (object: Object, methodName: string) {
-        const metadata: ActionMetadataArgs = {
-            route: route,
-            object: object,
-            target: object.constructor,
-            method: methodName,
-            type: ActionTypes.OPTIONS,
-            options: options
-        };
-        defaultMetadataArgsStorage().actions.push(metadata);
-    };
-}
-
-/**
  * Registers an action to be executed when request with specified method comes on a given route.
  * Applied to controller class methods.
  *

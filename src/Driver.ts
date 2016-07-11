@@ -96,7 +96,7 @@ export class Driver {
         };
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const fullRoute = `${this.routePrefix}${action.fullRoute}`;
+        const fullRoute = action.fullRoute instanceof RegExp ? action.fullRoute : `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
         const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
         const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
@@ -194,7 +194,7 @@ export class Driver {
                 if (action.isJsonTyped) {
                     response.json(result);
                 } else {
-                    response.send(result);
+                    response.send(String(result));
                 }
                 options.next();
             }

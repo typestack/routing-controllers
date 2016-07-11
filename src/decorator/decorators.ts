@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {MiddlewareOptions} from "./options/MiddlewareOptions";
 import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";

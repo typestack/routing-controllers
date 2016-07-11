@@ -140,11 +140,23 @@ export class Gulpfile {
     }
 
     /**
+     * Runs functional-tests.
+     */
+    @Task()
+    functional() {
+        chai.should();
+        chai.use(require("sinon-chai"));
+        chai.use(require("chai-as-promised"));
+        return gulp.src("./build/es5/test/functional/**/*.js")
+            .pipe(mocha());
+    }
+
+    /**
      * Compiles the code and runs tests.
      */
     @SequenceTask()
     tests() {
-        return ["compile", "tslint", "unit"];
+        return ["compile", "tslint", "unit", "functional"];
     }
 
 }

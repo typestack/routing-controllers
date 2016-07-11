@@ -97,8 +97,14 @@ export class ActionMetadata {
     // -------------------------------------------------------------------------
 
     get fullRoute(): string|RegExp {
-        if (this.route instanceof RegExp)
+        if (this.route instanceof RegExp) {
+            if (this.controllerMetadata.route) {
+                const route: RegExp = this.route as RegExp;
+                const fullPath = this.controllerMetadata.route.replace("\/", "\\/") + route.toString().substr(1);
+                return new RegExp(fullPath, route.flags);
+            }
             return this.route;
+        }
 
         let path: string = "";
         if (this.controllerMetadata.route) path += this.controllerMetadata.route;

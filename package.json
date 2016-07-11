@@ -37,6 +37,7 @@
     "body-parser": "^1.15.2",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.3.0",
+    "chakram": "^1.4.0",
     "del": "^2.2.1",
     "express": "^4.14.0",
     "gulp": "^3.9.1",

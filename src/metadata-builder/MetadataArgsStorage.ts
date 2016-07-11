@@ -67,4 +67,17 @@ export class MetadataArgsStorage {
         });
     }
 
+    /**
+     * Removes all saved metadata.
+     */
+    reset() {
+        this.controllers = [];
+        this.middlewares = [];
+        this.uses = [];
+        this.errorHandlers = [];
+        this.actions = [];
+        this.params = [];
+        this.responseHandlers = [];
+    }
+
 }
