@@ -100,9 +100,7 @@ export class ActionMetadata {
     get fullRoute(): string|RegExp {
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
-                const route: RegExp = this.route as RegExp;
-                const fullPath = this.controllerMetadata.route.replace("\/", "\\/") + route.toString().substr(1);
-                return new RegExp(fullPath, route.flags);
+                return ActionMetadata.appendBaseRouteToRegexpRoute(this.route as RegExp, this.controllerMetadata.route);
             }
             return this.route;
         }
@@ -243,6 +241,16 @@ export class ActionMetadata {
 
     executeAction(params: any[]) {
         return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
+    }
+
+    // -------------------------------------------------------------------------
+    // Static Methods
+    // -------------------------------------------------------------------------
+    
+    static appendBaseRouteToRegexpRoute(route: RegExp, baseRoute: string) {
+        if (!baseRoute || baseRoute === "") return route;
+        const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
+        return new RegExp(fullPath, route.flags);
     }
     
 }
