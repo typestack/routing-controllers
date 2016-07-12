@@ -68,6 +68,11 @@ export class ParamMetadata {
      */
     transform: (value?: any, request?: any, response?: any) => Promise<any>|any;
 
+    /**
+     * Additional parameter options. For example it can be uploading options.
+     */
+    extraOptions: any;
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -92,6 +97,8 @@ export class ParamMetadata {
             this.isRequired = args.isRequired;
         if (args.transform)
             this.transform = args.transform;
+        
+        this.extraOptions = args.extraOptions;
     }
 
     // -------------------------------------------------------------------------

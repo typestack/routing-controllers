@@ -54,4 +54,9 @@ export interface ParamMetadataArgs {
      * Transforms the value.
      */
     transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
+    
+    /**
+     * Extra parameter options.
+     */
+    extraOptions?: any;
 }

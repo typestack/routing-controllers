@@ -230,7 +230,11 @@ export class ActionMetadata {
     }
     
     get isFilesUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE ||  param.type === ParamTypes.UPLOADED_FILES);
+        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILES);
+    }
+    
+    get isFileUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE);
     }
     
     // -------------------------------------------------------------------------

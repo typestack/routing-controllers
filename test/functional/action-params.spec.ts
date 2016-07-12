@@ -2,7 +2,10 @@ import "reflect-metadata";
 import {Controller} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
 import {createServer, defaultMetadataArgsStorage} from "../../src/index";
-import {Param, QueryParam, HeaderParam, CookieParam, Body} from "../../src/decorator/params";
+import {
+    Param, QueryParam, HeaderParam, CookieParam, Body, BodyParam, UploadedFile,
+    UploadedFiles
+} from "../../src/decorator/params";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -13,6 +16,11 @@ describe("Action Parameters > basic functionality", () => {
     let headerParamToken: string, headerParamCount: number, headerParamShowAll: boolean;
     let cookieParamToken: string, cookieParamCount: number, cookieParamShowAll: boolean;
     let body: string;
+    let bodyParamName: string, bodyParamAge: number, bodyParamIsActive: boolean;
+    let uploadedFileName: string;
+    let uploadedFilesFirstName: string;
+    let uploadedFilesSecondName: string;
+    
     beforeEach(() => {
         paramUserId = undefined;
         paramFirstId = undefined;
@@ -28,6 +36,12 @@ describe("Action Parameters > basic functionality", () => {
         cookieParamCount = undefined;
         cookieParamShowAll = undefined;
         body = undefined;
+        bodyParamName = undefined;
+        bodyParamAge = undefined;
+        bodyParamIsActive = undefined;
+        uploadedFileName = undefined;
+        uploadedFilesFirstName = undefined;
+        uploadedFilesSecondName = undefined;
     });
 
     before(() => {
@@ -94,6 +108,29 @@ describe("Action Parameters > basic functionality", () => {
             postPost(@Body() question: string) {
                 body = question;
                 return body;
+            }
+
+            @Post("/users", { responseType: "json" })
+            postUser(@BodyParam("name") name: string, 
+                     @BodyParam("age") age: number, 
+                     @BodyParam("isActive") isActive: boolean): any {
+                bodyParamName = name;
+                bodyParamAge = age;
+                bodyParamIsActive = isActive;
+                return null;
+            }
+
+            @Post("/files")
+            postFile(@UploadedFile("myfile") file: any): any {
+                uploadedFileName = file.originalname;
+                return uploadedFileName;
+            }
+
+            @Post("/photos")
+            postPhotos(@UploadedFiles("photos") files: any): any {
+                uploadedFilesFirstName = files[0].originalname;
+                uploadedFilesSecondName = files[1].originalname;
+                return uploadedFilesFirstName + " " + uploadedFilesSecondName;
             }
 
         }
@@ -219,6 +256,69 @@ describe("Action Parameters > basic functionality", () => {
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "application/json; charset=utf-8");
                 expect(response.body).to.be.eql(body); // should we allow to return a text body for json controllers?
+            });
+    });
+
+    it("@BodyParam should provide a json object for json-typed controllers and actions", () => {
+        return chakram
+            .post("http://127.0.0.1:3001/users", { name: "johny", age: 27, isActive: true })
+            .then((response: any) => {
+                bodyParamName.should.be.eql("johny");
+                bodyParamAge.should.be.eql(27);
+                bodyParamIsActive.should.be.eql(true);
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "application/json");
+            });
+    });
+
+    it("@UploadedFile should provide uploaded file with the given name", () => {
+        const requestOptions = {
+            formData: {
+                myfile: {
+                    value: "hello world",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                }
+            }
+        };
+        return chakram
+            .post("http://127.0.0.1:3001/files", undefined, requestOptions)
+            .then((response: any) => {
+                uploadedFileName.should.be.eql("hello-world.txt");
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                expect(response.body).to.be.equal("hello-world.txt");
+            });
+    });
+
+    it("@UploadedFiles should provide uploaded files with the given name", () => {
+        const requestOptions = {
+            formData: {
+                photos: [{
+                    value: "0110001",
+                    options: {
+                        filename: "me.jpg",
+                        contentType: "image/jpg"
+                    }
+                }, {
+                    value: "10011010",
+                    options: {
+                        filename: "she.jpg",
+                        contentType: "image/jpg"
+                    }
+                }]
+            }
+        };
+        return chakram
+            .post("http://127.0.0.1:3001/photos", undefined, requestOptions)
+            .then((response: any) => {
+                uploadedFilesFirstName.should.be.eql("me.jpg");
+                uploadedFilesSecondName.should.be.eql("she.jpg");
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                expect(response.body).to.be.equal("me.jpg she.jpg");
             });
     });
 

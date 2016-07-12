@@ -106,8 +106,18 @@ export class Driver {
                 defaultMiddlewares.push(require("body-parser").text());
             }
         }
-        if (action.isFilesUsed) {
-            // defaultMiddlewares.push(require("multer")());
+        if (action.isFileUsed || action.isFilesUsed) {
+            const multer = require("multer");
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILE)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILES)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
         }
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
@@ -125,7 +135,6 @@ export class Driver {
      */
     getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
         const request: any = actionOptions.request;
-        console.log(request.body);
         switch (param.type) {
             case ParamTypes.BODY:
                 return request.body;
@@ -136,11 +145,9 @@ export class Driver {
             case ParamTypes.HEADER:
                 return request.headers[param.name.toLowerCase()];
             case ParamTypes.UPLOADED_FILE:
-                if (!request.file) return undefined;
-                return param.name ? request.file[param.name] : request.file;
+                return request.file;
             case ParamTypes.UPLOADED_FILES:
-                if (!request.files) return undefined;
-                return param.name ? request.files[param.name] : request.files;
+                return request.files;
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
@@ -205,7 +212,11 @@ export class Driver {
 
         } else if (result !== undefined) { // send regular result
             if (result === null) {
-                response.send();
+                if (action.isJsonTyped) {
+                    response.json();
+                } else {
+                    response.send();
+                }
             } else {
                 if (action.isJsonTyped) {
                     response.json(result);
