@@ -48,6 +48,7 @@
     "gulp-tslint": "^5.0.0",
     "gulpclass": "^0.1.1",
     "mocha": "^2.5.3",
+    "mustache-express": "^1.2.2",
     "sinon": "^1.17.4",
     "sinon-chai": "^2.8.0",
     "tslint": "^3.13.0",

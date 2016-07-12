@@ -210,8 +210,8 @@ export class Driver {
                 options.next();
             });
 
-        } else if (result !== undefined) { // send regular result
-            if (result === null) {
+        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
+            if (result === null || (result === undefined && action.undefinedResultCode)) {
                 if (action.isJsonTyped) {
                     response.json();
                 } else {

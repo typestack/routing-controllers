@@ -5,7 +5,7 @@ import {createServer, defaultMetadataArgsStorage} from "../../src/index";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Controller > base routes functionality", () => {
+describe("controller > base routes functionality", () => {
     before(() => {
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();

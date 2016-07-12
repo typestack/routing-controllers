@@ -111,8 +111,8 @@ export class RoutingControllerExecutor {
 
             // execute action and handle result
             const result = action.executeAction(params);
-            if (result !== undefined)
-                this.handleResult(result, action, options);
+            // if (result !== undefined)
+            this.handleResult(result, action, options);
 
         }).catch(error => {
             this.driver.handleError(error, action, options);

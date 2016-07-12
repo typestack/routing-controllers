@@ -9,7 +9,7 @@ import {
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Action Parameters", () => {
+describe("action parameters", () => {
 
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;

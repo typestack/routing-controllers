@@ -5,7 +5,7 @@ import {createServer, defaultMetadataArgsStorage} from "../../src/index";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Controller Methods", () => {
+describe("controller methods", () => {
 
     before(() => {
 

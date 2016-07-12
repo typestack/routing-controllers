@@ -5,7 +5,7 @@ import {createServer, defaultMetadataArgsStorage} from "../../src/index";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("JsonController Methods", () => {
+describe("json-controller methods", () => {
     describe("check @Get, @Post, @Put, @Patch, @Delete, @Head, custom response type, parameters in routes", () => {
 
         before(() => {
