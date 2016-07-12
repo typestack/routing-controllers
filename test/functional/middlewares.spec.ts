@@ -72,6 +72,12 @@ describe("middlewares", () => {
                 return "1234";
             }
 
+            @Get("/questions")
+            @UseBefore(TestLoggerMiddleware)
+            questions() {
+                return "1234";
+            }
+
             @Get("/users")
             @UseBefore(function (request: any, response: any, next: Function) {
                 useBefore = true;
@@ -124,6 +130,15 @@ describe("middlewares", () => {
                 expect(useGlobalBefore).to.be.equal(true);
                 expect(useGlobalAfter).to.be.equal(true);
                 expect(useGlobalCallOrder).to.be.equal("setFromGlobalAfter");
+                expect(response).to.have.status(200);
+            });
+    });
+
+    it("should use a custom middleware when @UseBefore or @UseAfter is used", () => {
+        return chakram
+            .get("http://127.0.0.1:3001/questions")
+            .then((response: any) => {
+                expect(useCustom).to.be.equal(true);
                 expect(response).to.have.status(200);
             });
     });
