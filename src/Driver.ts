@@ -86,7 +86,7 @@ export class Driver {
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
 
-        const routeHandler = function(request: IncomingMessage, response: ServerResponse, next: Function) {
+        const routeHandler = function RouteHandler(request: IncomingMessage, response: ServerResponse, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,

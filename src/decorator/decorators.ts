@@ -41,7 +41,9 @@ export function GlobalMiddleware(options?: GlobalMiddlewareOptions): Function {
  * Specifies a given middleware to be used for controller or controller action BEFORE the action executes.
  * Must be set to controller action or controller class.
  */
-export function UseBefore(middleware: Function): Function {
+export function UseBefore(middleware: Function): Function;
+export function UseBefore(middleware: (request: any, response: any, next: Function) => any): Function;
+export function UseBefore(middleware: Function|((request: any, response: any, next: Function) => any)): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {
         const metadata: UseMetadataArgs = {
             middleware: middleware,
@@ -57,7 +59,9 @@ export function UseBefore(middleware: Function): Function {
  * Specifies a given middleware to be used for controller or controller action AFTER the action executes.
  * Must be set to controller action or controller class.
  */
-export function UseAfter(middleware: Function): Function {
+export function UseAfter(middleware: Function): Function;
+export function UseAfter(middleware: (request: any, response: any, next: Function) => any): Function;
+export function UseAfter(middleware: Function|((request: any, response: any, next: Function) => any)): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {
         const metadata: UseMetadataArgs = {
             middleware: middleware,
