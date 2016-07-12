@@ -95,11 +95,26 @@ export class Driver {
             executeCallback(options);
         };
 
+        const defaultMiddlewares: any[] = [];
+        if (action.isCookiesUsed) {
+            defaultMiddlewares.push(require("cookie-parser")());
+        }
+        if (action.isBodyUsed) {
+            if (action.isJsonTyped) {
+                defaultMiddlewares.push(require("body-parser").json());
+            } else {
+                defaultMiddlewares.push(require("body-parser").text());
+            }
+        }
+        if (action.isFilesUsed) {
+            // defaultMiddlewares.push(require("multer")());
+        }
+
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const fullRoute = action.fullRoute instanceof RegExp ? action.fullRoute : `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
         const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
-        const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
+        const expressParams: any[] = [fullRoute, ...defaultMiddlewares, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
         this.express[expressAction](...expressParams);
@@ -110,6 +125,7 @@ export class Driver {
      */
     getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
         const request: any = actionOptions.request;
+        console.log(request.body);
         switch (param.type) {
             case ParamTypes.BODY:
                 return request.body;
@@ -118,7 +134,7 @@ export class Driver {
             case ParamTypes.QUERY:
                 return request.query[param.name];
             case ParamTypes.HEADER:
-                return request.headers[param.name];
+                return request.headers[param.name.toLowerCase()];
             case ParamTypes.UPLOADED_FILE:
                 if (!request.file) return undefined;
                 return param.name ? request.file[param.name] : request.file;

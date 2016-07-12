@@ -55,7 +55,8 @@ export interface RoutingControllersOptions {
     /**
      * Route prefix. eg '/api'
      */
-    routePrefix?: string; 
+    routePrefix?: string;
+    
 }
 
 // -------------------------------------------------------------------------
@@ -93,7 +94,7 @@ export function createServer(options?: RoutingControllersOptions): any {
  * Registers all loaded actions in your express application.
  */
 function createExecutor(expressApp: any, options: RoutingControllersOptions): void {
-    
+
     const driver = new Driver(expressApp);
     
     // first of all setup a container if its specified

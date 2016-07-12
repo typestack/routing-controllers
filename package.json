@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "constructor-utils": "~0.0.22",
+    "cookie-parser": "^1.4.3",
     "express": "^4.0.0",
     "glob": "^7.0.5",
     "multer": "^1.1.0",

@@ -5,6 +5,7 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
+import {ParamType, ParamTypes} from "./types/ParamTypes";
 
 export class ActionMetadata {
 
@@ -218,6 +219,18 @@ export class ActionMetadata {
             return this.renderedTemplateHandler.value;
 
         return undefined;
+    }
+    
+    get isCookiesUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.COOKIE);
+    }
+    
+    get isBodyUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.BODY ||  param.type === ParamTypes.BODY_PARAM);
+    }
+    
+    get isFilesUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE ||  param.type === ParamTypes.UPLOADED_FILES);
     }
     
     // -------------------------------------------------------------------------

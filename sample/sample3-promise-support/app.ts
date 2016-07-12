@@ -1,11 +1,9 @@
 import "reflect-metadata";
 import * as express from "express";
-import * as bodyParser from "body-parser";
 import {useServer} from "../../src/index";
 import "./BlogController"; // this can be require("./BlogController") actually
 
 let app = express(); // create express server
-app.use(bodyParser.json()); // setup body parser
 useServer(app); // register controllers routes in our express application
 // controllerRunner.isLogErrorsEnabled = true; // enable error logging of exception error into console
 // controllerRunner.isStackTraceEnabled = true; // enable adding of stack trace to response message

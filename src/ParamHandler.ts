@@ -37,12 +37,13 @@ export class ParamHandler {
         
         let value: any, originalValue: any;
         value = originalValue = this.driver.getParamFromRequest(actionOptions, param);
-        if (value)
-            value = this.handleParamFormat(value, param);
         
         const isValueEmpty = value === null || value === undefined;
         const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
+        if (!isValueEmpty)
+            value = this.handleParamFormat(value, param);
+        
         // check cases when parameter is required but its empty and throw errors in such cases
         if (param.isRequired) {
             // todo: make better error messages here
@@ -87,6 +88,12 @@ export class ParamHandler {
                 return value;
 
             case "boolean":
+                if (value === "true") {
+                    return true;
+                    
+                } else if (value === "false") {
+                    return false;
+                }
                 return !!value;
 
             default:
