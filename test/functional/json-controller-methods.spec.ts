@@ -1,51 +1,71 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
+import {JsonController} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
 import {createServer, defaultMetadataArgsStorage} from "../../src/index";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Controller > basic functionality", () => {
-    describe("check @Get, @Post, @Put, @Patch, @Delete, @Head, custom response type, parameters in routes, promises", () => {
+describe("JsonController Methods", () => {
+    describe("check @Get, @Post, @Put, @Patch, @Delete, @Head, custom response type, parameters in routes", () => {
 
         before(() => {
     
             // reset metadata args storage
             defaultMetadataArgsStorage().reset();
     
-            @Controller()
-            class UserController {
+            @JsonController()
+            class JsonUserController {
                 @Get("/users")
                 getAll() {
-                    return "All users";
+                    return [{
+                        id: 1,
+                        name: "Umed"
+                    }, {
+                        id: 2,
+                        name: "Bakha"
+                    }];
                 }
                 @Post("/users")
                 post() {
-                    return "Posting user";
+                    return {
+                        status: "saved"
+                    };
                 }
                 @Put("/users")
                 put() {
-                    return "Putting user";
+                    return {
+                        status: "updated"
+                    };
                 }
                 @Patch("/users")
                 patch() {
-                    return "Patching user";
+                    return {
+                        status: "patched"
+                    };
                 }
                 @Delete("/users")
                 delete() {
-                    return "Removing user";
+                    return {
+                        status: "removed"
+                    };
                 }
                 @Head("/users")
                 head() {
-                    return "Removing user";
+                    return {
+                        thisWillNot: "beSent"
+                    };
                 }
                 @Method("post", "/categories")
                 postCategories() {
-                    return "Posting categories";
+                    return {
+                        status: "posted"
+                    };
                 }
                 @Method("delete", "/categories")
                 getCategories() {
-                    return "Get categories";
+                    return {
+                        status: "removed"
+                    };
                 }
                 @Get("/categories-text", { responseType: "text" })
                 getWithTextResponseType() {
@@ -60,21 +80,33 @@ describe("Controller > basic functionality", () => {
                 }
                 @Get("/users/:id")
                 getUserById() {
-                    return "One user";
+                    return {
+                        id: 1,
+                        name: "Umed"
+                    };
                 }
                 @Get(/\/categories\/[\d+]/)
                 getCategoryById() {
-                    return "One category";
+                    return {
+                        id: 1,
+                        name: "People"
+                    };
                 }
                 @Get("/posts/:id(\\d+)")
                 getPostById() {
-                    return "One post";
+                    return {
+                        id: 1,
+                        title: "About People"
+                    };
                 }
                 @Get("/posts-from-db")
                 getPostFromDb() {
                     return new Promise((ok, fail) => {
                         setTimeout(() => {
-                            ok("resolved after half second");
+                            ok({
+                                id: 1,
+                                title: "Hello database post"
+                            });
                         }, 500);
                     });
                 }
@@ -82,14 +114,16 @@ describe("Controller > basic functionality", () => {
                 getPostFromFailedDb() {
                     return new Promise((ok, fail) => {
                         setTimeout(() => {
-                            fail("cannot connect to a database");
+                            fail({
+                                code: 10954,
+                                message: "Cannot connect to db"
+                            });
                         }, 500);
                     });
                 }
             }
-    
         });
-    
+        
         let app: any;
         before(done => app = createServer().listen(3001, done));
         after(done => app.close(done));
@@ -99,8 +133,15 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("All users");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.instanceOf(Array);
+                    expect(response.body).to.be.eql([{
+                        id: 1,
+                        name: "Umed"
+                    }, {
+                        id: 2,
+                        name: "Bakha"
+                    }]);
                 });
         });
         
@@ -109,8 +150,10 @@ describe("Controller > basic functionality", () => {
                 .post("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Posting user");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "saved"
+                    });
                 });
         });
         
@@ -119,8 +162,10 @@ describe("Controller > basic functionality", () => {
                 .put("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Putting user");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "updated"
+                    });
                 });
         });
         
@@ -129,8 +174,10 @@ describe("Controller > basic functionality", () => {
                 .patch("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Patching user");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "patched"
+                    });
                 });
         });
         
@@ -139,8 +186,10 @@ describe("Controller > basic functionality", () => {
                 .delete("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Removing user");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "removed"
+                    });
                 });
         });
 
@@ -149,7 +198,7 @@ describe("Controller > basic functionality", () => {
                 .head("http://127.0.0.1:3001/users")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
                     expect(response.body).to.be.undefined;
                 });
         });
@@ -159,8 +208,10 @@ describe("Controller > basic functionality", () => {
                 .post("http://127.0.0.1:3001/categories")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Posting categories");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "posted"
+                    });
                 });
         });
 
@@ -169,8 +220,10 @@ describe("Controller > basic functionality", () => {
                 .delete("http://127.0.0.1:3001/categories")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("Get categories");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        status: "removed"
+                    });
                 });
         });
 
@@ -200,8 +253,11 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/users/umed")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("One user");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        id: 1,
+                        name: "Umed"
+                    });
                 });
         });
 
@@ -210,8 +266,11 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/categories/1")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("One category");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        id: 1,
+                        name: "People"
+                    });
                 });
         });
 
@@ -228,8 +287,11 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/posts/1")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("One post");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        id: 1,
+                        title: "About People"
+                    });
                 });
         });
 
@@ -246,8 +308,11 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/posts-from-db")
                 .then((response: any) => {
                     expect(response).to.have.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("resolved after half second");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        id: 1,
+                        title: "Hello database post"
+                    });
                 });
         });
 
@@ -256,8 +321,11 @@ describe("Controller > basic functionality", () => {
                 .get("http://127.0.0.1:3001/posts-from-failed-db")
                 .then((response: any) => {
                     expect(response).to.have.status(500);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("cannot connect to a database");
+                    expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+                    expect(response.body).to.be.eql({
+                        code: 10954,
+                        message: "Cannot connect to db"
+                    });
                 });
         });
 

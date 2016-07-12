@@ -38,7 +38,7 @@ export class ParamHandler {
         let value: any, originalValue: any;
         value = originalValue = this.driver.getParamFromRequest(actionOptions, param);
         
-        const isValueEmpty = value === null || value === undefined;
+        const isValueEmpty = value === null || value === undefined || value === "";
         const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
         if (!isValueEmpty)

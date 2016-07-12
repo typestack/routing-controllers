@@ -4,22 +4,23 @@ import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/m
 import {createServer, defaultMetadataArgsStorage} from "../../src/index";
 import {
     Param, QueryParam, HeaderParam, CookieParam, Body, BodyParam, UploadedFile,
-    UploadedFiles
+    UploadedFiles, Req, Res
 } from "../../src/decorator/params";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Action Parameters > basic functionality", () => {
+describe("Action Parameters", () => {
 
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
-    let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean;
-    let headerParamToken: string, headerParamCount: number, headerParamShowAll: boolean;
-    let cookieParamToken: string, cookieParamCount: number, cookieParamShowAll: boolean;
+    let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;
+    let headerParamToken: string, headerParamCount: number, headerParamLimit: number, headerParamShowAll: boolean, headerParamFilter: any;
+    let cookieParamToken: string, cookieParamCount: number, cookieParamLimit: number, cookieParamShowAll: boolean, cookieParamFilter: any;
     let body: string;
     let bodyParamName: string, bodyParamAge: number, bodyParamIsActive: boolean;
     let uploadedFileName: string;
     let uploadedFilesFirstName: string;
     let uploadedFilesSecondName: string;
+    let requestReq: any, requestRes: any;
     
     beforeEach(() => {
         paramUserId = undefined;
@@ -29,12 +30,17 @@ describe("Action Parameters > basic functionality", () => {
         queryParamCount = undefined;
         queryParamLimit = undefined;
         queryParamShowAll = undefined;
+        queryParamFilter = undefined;
         headerParamToken = undefined;
         headerParamCount = undefined;
         headerParamShowAll = undefined;
+        headerParamLimit = undefined;
+        headerParamFilter = undefined;
         cookieParamToken = undefined;
         cookieParamCount = undefined;
         cookieParamShowAll = undefined;
+        cookieParamLimit = undefined;
+        cookieParamFilter = undefined;
         body = undefined;
         bodyParamName = undefined;
         bodyParamAge = undefined;
@@ -42,6 +48,8 @@ describe("Action Parameters > basic functionality", () => {
         uploadedFileName = undefined;
         uploadedFilesFirstName = undefined;
         uploadedFilesSecondName = undefined;
+        requestReq = undefined;
+        requestRes = undefined;
     });
 
     before(() => {
@@ -51,6 +59,13 @@ describe("Action Parameters > basic functionality", () => {
 
         @Controller()
         class UserPhotoController {
+
+            @Get("/users")
+            getUsers(@Req() request: any, @Res() response: any): any {
+                requestReq = request;
+                requestRes = response;
+                return "";
+            }
 
             @Get("/users/:userId")
             getUser(@Param("userId") userId: number) {
@@ -78,6 +93,18 @@ describe("Action Parameters > basic functionality", () => {
                 return "";
             }
 
+            @Get("/photos-with-required")
+            getPhotosWithIdRequired(@QueryParam("limit", { required: true }) limit: number) {
+                queryParamLimit = limit;
+                return limit + "!";
+            }
+
+            @Get("/photos-with-json")
+            getPhotosWithJsonParam(@QueryParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+                queryParamFilter = filter;
+                return "";
+            }
+
             @Get("/posts")
             getPosts(@HeaderParam("token") token: string,
                      @HeaderParam("count") count: number,
@@ -85,6 +112,18 @@ describe("Action Parameters > basic functionality", () => {
                 headerParamToken = token;
                 headerParamCount = count;
                 headerParamShowAll = showAll;
+                return "";
+            }
+
+            @Get("/posts-with-required")
+            getPostsWithIdRequired(@HeaderParam("limit", { required: true }) limit: number) {
+                headerParamLimit = limit;
+                return limit + "!";
+            }
+
+            @Get("/posts-with-json")
+            getPostsWithJsonParam(@HeaderParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+                headerParamFilter = filter;
                 return "";
             }
 
@@ -98,8 +137,26 @@ describe("Action Parameters > basic functionality", () => {
                 return "";
             }
 
+            @Get("/questions-with-required")
+            getQuestionsWithIdRequired(@CookieParam("limit", { required: true }) limit: number) {
+                cookieParamLimit = limit;
+                return limit + "!";
+            }
+
+            @Get("/questions-with-json")
+            getQuestionsWithJsonParam(@CookieParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+                cookieParamFilter = filter;
+                return "";
+            }
+
             @Post("/questions")
             postQuestion(@Body() question: string) {
+                body = question;
+                return body;
+            }
+
+            @Post("/questions-with-required")
+            postRequiredQuestion(@Body({ required: true }) question: string) {
                 body = question;
                 return body;
             }
@@ -107,6 +164,12 @@ describe("Action Parameters > basic functionality", () => {
             @Post("/posts", { responseType: "json" })
             postPost(@Body() question: string) {
                 body = question;
+                return body;
+            }
+
+            @Post("/posts-with-required", { responseType: "json" })
+            postRequiredPost(@Body({ required: true }) post: string) {
+                body = post;
                 return body;
             }
 
@@ -120,10 +183,30 @@ describe("Action Parameters > basic functionality", () => {
                 return null;
             }
 
+            @Post("/users-with-required", { responseType: "json" })
+            postUserWithRequired(@BodyParam("name", { required: true }) name: string, 
+                                 @BodyParam("age", { required: true }) age: number, 
+                                 @BodyParam("isActive", { required: true }) isActive: boolean): any {
+                bodyParamName = name;
+                bodyParamAge = age;
+                bodyParamIsActive = isActive;
+                return null;
+            }
+
             @Post("/files")
             postFile(@UploadedFile("myfile") file: any): any {
                 uploadedFileName = file.originalname;
                 return uploadedFileName;
+            }
+
+            @Post("/files-with-limit")
+            postFileWithLimit(@UploadedFile("myfile", { uploadOptions: { limits: { fileSize: 2 } } }) file: any): any {
+                return file.originalname;
+            }
+
+            @Post("/files-with-required")
+            postFileWithRequired(@UploadedFile("myfile", { required: true }) file: any): any {
+                return file.originalname;
             }
 
             @Post("/photos")
@@ -133,6 +216,16 @@ describe("Action Parameters > basic functionality", () => {
                 return uploadedFilesFirstName + " " + uploadedFilesSecondName;
             }
 
+            @Post("/photos-with-limit")
+            postPhotosWithLimit(@UploadedFiles("photos", { uploadOptions: { limits: { files: 1 } } }) files: any): any {
+                return files[0].originalname;
+            }
+
+            @Post("/photos-with-required")
+            postPhotosWithRequired(@UploadedFiles("photos", { required: true }) files: any): any {
+                return files[0].originalname;
+            }
+
         }
 
     });
@@ -140,6 +233,17 @@ describe("Action Parameters > basic functionality", () => {
     let app: any;
     before(done => app = createServer().listen(3001, done));
     after(done => app.close(done));
+
+    it("@Req and @Res should be provided as Request and Response objects", () => {
+        return chakram
+            .get("http://127.0.0.1:3001/users")
+            .then((response: any) => {
+                expect(requestReq).to.be.instanceOf(Object); // apply better check here
+                expect(requestRes).to.be.instanceOf(Object); // apply better check here
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            });
+    });
 
     it("@Param should give a param from route", () => {
         return chakram
@@ -177,14 +281,34 @@ describe("Action Parameters > basic functionality", () => {
             });
     });
 
-    it("@QueryParam should give a proper values from request query parameters", () => {
+    it("for @QueryParam when required is params must be provided and they should not be empty", () => {
+        return Promise.all([
+            chakram
+                .get("http://127.0.0.1:3001/photos-with-required/?limit=0")
+                .then((response: any) => {
+                    queryParamLimit.should.be.equal(0);
+                    expect(response).to.be.status(200);
+                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                    expect(response.body).to.be.equal("0!");
+                }),
+            chakram
+                .get("http://127.0.0.1:3001/photos-with-required/?")
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .get("http://127.0.0.1:3001/photos-with-required/?limit")
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                })
+        ]);
+    });
+
+    it("for @QueryParam when parseJson flag is used query param must be converted to object", () => {
         return chakram
-            .get("http://127.0.0.1:3001/photos?sortBy=name&count=2&limit=10&showAll=true")
+            .get("http://127.0.0.1:3001/photos-with-json/?filter={\"keyword\": \"name\", \"limit\": 5}")
             .then((response: any) => {
-                queryParamSortBy.should.be.equal("name");
-                queryParamCount.should.be.equal("2");
-                queryParamLimit.should.be.equal(10);
-                queryParamShowAll.should.be.equal(true);
+                queryParamFilter.should.be.eql({ keyword: "name", limit: 5 });
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             });
@@ -204,6 +328,53 @@ describe("Action Parameters > basic functionality", () => {
                 headerParamToken.should.be.equal("31ds31das231sad12");
                 headerParamCount.should.be.equal(20);
                 headerParamShowAll.should.be.equal(false);
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            });
+    });
+
+    it("for @HeaderParam when required is params must be provided and they should not be empty", () => {
+        const validRequestOptions = {
+            headers: {
+                limit: 0
+            }
+        };
+        const invalidRequestOptions = {
+            headers: {
+                filter: ""
+            }
+        };
+        return Promise.all([
+            chakram
+                .get("http://127.0.0.1:3001/posts-with-required", validRequestOptions)
+                .then((response: any) => {
+                    headerParamLimit.should.be.equal(0);
+                    expect(response).to.be.status(200);
+                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                }),
+            chakram
+                .get("http://127.0.0.1:3001/posts-with-required", invalidRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .get("http://127.0.0.1:3001/posts-with-required")
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                })
+        ]);
+    });
+
+    it("for @HeaderParam when parseJson flag is used query param must be converted to object", () => {
+        const requestOptions = {
+            headers: {
+                filter: "{\"keyword\": \"name\", \"limit\": 5}"
+            }
+        };
+        return chakram
+            .get("http://127.0.0.1:3001/posts-with-json", requestOptions)
+            .then((response: any) => {
+                headerParamFilter.should.be.eql({ keyword: "name", limit: 5 });
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             });
@@ -231,6 +402,46 @@ describe("Action Parameters > basic functionality", () => {
             });
     });
 
+    it("for @CookieParam when required is params must be provided and they should not be empty", () => {
+        const request = require("request");
+        const jar = request.jar();
+        const url = "http://127.0.0.1:3001/questions-with-required";
+        jar.setCookie(request.cookie("limit=20"), url);
+
+        const validRequestOptions = { jar: jar };
+        const invalidRequestOptions = { jar: request.jar() };
+        return Promise.all([
+            chakram
+                .get(url, validRequestOptions)
+                .then((response: any) => {
+                    cookieParamLimit.should.be.equal(20);
+                    expect(response).to.be.status(200);
+                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                }),
+            chakram
+                .get(url, invalidRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                })
+        ]);
+    });
+
+    it("for @CookieParam when parseJson flag is used query param must be converted to object", () => {
+        const request = require("request");
+        const jar = request.jar();
+        const url = "http://127.0.0.1:3001/questions-with-json";
+        jar.setCookie(request.cookie("filter={\"keyword\": \"name\", \"limit\": 5}"), url);
+        const requestOptions = { jar: jar };
+        
+        return chakram
+            .get(url, requestOptions)
+            .then((response: any) => {
+                cookieParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            });
+    });
+
     it("@Body should provide a request body", () => {
         const requestOptions = {
             headers: {
@@ -248,6 +459,34 @@ describe("Action Parameters > basic functionality", () => {
             });
     });
 
+    it("@Body should fail if required body was not provided", () => {
+        const requestOptions = {
+            headers: {
+                "Content-type": "text/plain"
+            },
+            json: false
+        };
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/questions-with-required", "0", requestOptions)
+                .then((response: any) => {
+                    body.should.be.equal("0");
+                    expect(response).to.be.status(200);
+                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/questions-with-required", "", requestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/questions-with-required", undefined, requestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+        ])
+    });
+
     it("@Body should provide a json object for json-typed controllers and actions", () => {
         return chakram
             .post("http://127.0.0.1:3001/posts", { hello: "world" })
@@ -257,6 +496,21 @@ describe("Action Parameters > basic functionality", () => {
                 expect(response).to.have.header("content-type", "application/json; charset=utf-8");
                 expect(response.body).to.be.eql(body); // should we allow to return a text body for json controllers?
             });
+    });
+
+    it("@Body should fail if required body was not provided for json-typed controllers and actions", () => {
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/posts-with-required", { hello: "" })
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/posts-with-required", undefined)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+        ])
     });
 
     it("@BodyParam should provide a json object for json-typed controllers and actions", () => {
@@ -269,6 +523,51 @@ describe("Action Parameters > basic functionality", () => {
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "application/json");
             });
+    });
+
+    it("@BodyParam should fail if required body was not provided for json-typed controllers and actions", () => {
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required",  { name: "johny", age: 27, isActive: true })
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", undefined)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "", age: 27, isActive: false })
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 0, isActive: false })
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: undefined, isActive: false })
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: undefined })
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: false })
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: true })
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+        ])
     });
 
     it("@UploadedFile should provide uploaded file with the given name", () => {
@@ -291,6 +590,69 @@ describe("Action Parameters > basic functionality", () => {
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
                 expect(response.body).to.be.equal("hello-world.txt");
             });
+    });
+
+    it("@UploadedFile with passed uploading options (limit) should throw an error", () => {
+        const validRequestOptions = {
+            formData: {
+                myfile: {
+                    value: "a",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                }
+            }
+        };
+        const invalidRequestOptions = {
+            formData: {
+                myfile: {
+                    value: "hello world",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                }
+            }
+        };
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/files-with-limit", undefined, validRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/files-with-limit", undefined, invalidRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+        ]);
+    });
+
+    it("for @UploadedFile when required is used files must be provided", () => {
+        const requestOptions = {
+            formData: {
+                myfile: {
+                    value: "hello world",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                }
+            }
+        };
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/files-with-required", undefined, requestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/files-with-required", undefined, {})
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+        ]);
     });
 
     it("@UploadedFiles should provide uploaded files with the given name", () => {
@@ -320,6 +682,82 @@ describe("Action Parameters > basic functionality", () => {
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
                 expect(response.body).to.be.equal("me.jpg she.jpg");
             });
+    });
+
+    it("@UploadedFiles with passed uploading options (limit) should throw an error", () => {
+        const validRequestOptions = {
+            formData: {
+                photos: [{
+                    value: "0110001",
+                    options: {
+                        filename: "me.jpg",
+                        contentType: "image/jpg"
+                    }
+                }]
+            }
+        };
+        const invalidRequestOptions = {
+            formData: {
+                photos: [{
+                    value: "0110001",
+                    options: {
+                        filename: "me.jpg",
+                        contentType: "image/jpg"
+                    }
+                }, {
+                    value: "10011010",
+                    options: {
+                        filename: "she.jpg",
+                        contentType: "image/jpg"
+                    }
+                }]
+            }
+        };
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/photos-with-limit", undefined, validRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/photos-with-limit", undefined, invalidRequestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                })
+        ]);
+    });
+
+    it("for @UploadedFiles when required is used files must be provided", () => {
+        const requestOptions = {
+            formData: {
+                photos: [{
+                    value: "0110001",
+                    options: {
+                        filename: "me.jpg",
+                        contentType: "image/jpg"
+                    }
+                }, {
+                    value: "10011010",
+                    options: {
+                        filename: "she.jpg",
+                        contentType: "image/jpg"
+                    }
+                }]
+            }
+        };
+        return Promise.all([
+            chakram
+                .post("http://127.0.0.1:3001/photos-with-required", undefined, requestOptions)
+                .then((response: any) => {
+                    expect(response).to.be.status(200);
+                }),
+            chakram
+                .post("http://127.0.0.1:3001/photos-with-required", undefined, {})
+                .then((response: any) => {
+                    expect(response).to.be.status(500);
+                }),
+            
+        ]);
     });
 
 });

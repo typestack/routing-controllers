@@ -48,9 +48,8 @@ export function Res() {
  * Applied to class method parameters.
  *
  * @param name Parameter name
- * @param options Extra parameter options
  */
-export function Param(name: string, options?: ParamOptions) {
+export function Param(name: string) {
     return function (object: Object, methodName: string, index: number) {
         let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
@@ -61,8 +60,8 @@ export function Param(name: string, options?: ParamOptions) {
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: options ? options.parseJson : false,
-            isRequired: options ? options.required : false
+            parseJson: false, // it does not make sense for Param to be parsed
+            isRequired: true // params are always required, because if they are missing router will not match the route
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -150,7 +149,7 @@ export function CookieParam(name: string, options?: ParamOptions) {
  *
  * @param options Extra parameter options
  */
-export function Body(options?: ParamOptions) {
+export function Body(options?: { required?: boolean }) {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
@@ -195,7 +194,7 @@ export function BodyParam(name: string, options?: ParamOptions) {
 /**
  * This decorator allows to inject "file" from a request to a given parameter of the controller action.
  */
-export function UploadedFile(name?: string, options?: { uploadOptions: any, required?: boolean }): Function {
+export function UploadedFile(name?: string, options?: { uploadOptions?: any, required?: boolean }): Function {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
@@ -217,7 +216,7 @@ export function UploadedFile(name?: string, options?: { uploadOptions: any, requ
 /**
  * This decorator allows to inject "files" from a request to a given parameter of the controller action.
  */
-export function UploadedFiles(name?: string, options?: { uploadOptions: any, required?: boolean }): Function {
+export function UploadedFiles(name?: string, options?: { uploadOptions?: any, required?: boolean }): Function {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {

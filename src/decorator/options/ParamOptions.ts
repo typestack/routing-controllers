@@ -12,4 +12,5 @@ export interface ParamOptions {
      * If set to true then parameter will be parsed to json.
      */
     parseJson?: boolean;
+    
 }
