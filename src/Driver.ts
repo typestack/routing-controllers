@@ -129,7 +129,6 @@ export class Driver {
         const expressParams: any[] = [fullRoute, ...defaultMiddlewares, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
-        console.log(fullRoute);
         this.express[expressAction](...expressParams);
     }
 
