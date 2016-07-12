@@ -17,7 +17,7 @@ describe("Template rendering", () => {
         class RenderController {
 
             @Get("/index")
-            @Render("index.html")
+            @Render("render-test-spec.html")
             index() {
                 return {
                     name: "Routing-controllers"
