@@ -13,7 +13,7 @@ export class UserController {
     }
 
     @Post("/users")
-    post(@Body({ parseJson: true }) user: User) {
+    post(@Body() user: User) {
         user.password = "1234abcd";
         console.log("Is photo url empty?: ", user.photo.isUrlEmpty());
         return user;

@@ -1,10 +1,11 @@
-import {Driver} from "./Driver";
+import {ExpressDriver} from "./driver/ExpressDriver";
 import {Utils} from "./util/Utils";
 import {ParamHandler} from "./ParamHandler";
 import {constructorToPlain} from "constructor-utils";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {Driver} from "./driver/Driver";
 
 /**
  * Registers controllers and actions in the given server framework.
@@ -31,6 +32,11 @@ export class RoutingControllerExecutor {
     // Public Methods
     // -------------------------------------------------------------------------
 
+    bootstrap() {
+        this.driver.bootstrap();
+        return this;
+    }
+    
     /**
      * Registers actions in the driver.
      */
@@ -44,6 +50,7 @@ export class RoutingControllerExecutor {
                 });
             });
         });
+        this.driver.registerRoutes();
         return this;
     }
 

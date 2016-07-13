@@ -1,7 +1,9 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
-import {Driver} from "./Driver";
+import {ExpressDriver} from "./driver/ExpressDriver";
+import {KoaDriver} from "./driver/KoaDriver";
+import {Driver} from "./driver/Driver";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -66,14 +68,15 @@ export interface RoutingControllersOptions {
 /**
  * Registers all loaded actions in your express application.
  */
-export function useServer(expressApp: any, options?: RoutingControllersOptions): void {
-    createExecutor(expressApp, options || {});
+export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
+    createExecutor(new ExpressDriver(expressApp), options || {});
+    return expressApp;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
-export function createServer(options?: RoutingControllersOptions): any {
+export function createExpressServer(options?: RoutingControllersOptions): any {
 
     let expressApp: any;
     if (require) {
@@ -86,16 +89,33 @@ export function createServer(options?: RoutingControllersOptions): any {
         throw new Error("Cannot load express. Try to install all required dependencies.");
     }
 
-    useServer(expressApp, options);
+    useExpressServer(expressApp, options);
     return expressApp;
+}
+
+/**
+ * Registers all loaded actions in your koa application.
+ */
+export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions): T {
+    createExecutor(new KoaDriver(koaApp), options || {});
+    return koaApp;
+}
+
+/**
+ * Registers all loaded actions in your koa application.
+ */
+export function createKoaServer(options?: RoutingControllersOptions): any {
+    const driver = new KoaDriver();
+    createExecutor(driver, options || {});
+    return driver.koa;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
-function createExecutor(expressApp: any, options: RoutingControllersOptions): void {
+function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
 
-    const driver = new Driver(expressApp);
+    // const driver = new ExpressDriver(expressApp);
     
     // first of all setup a container if its specified
     if (options && options.container)
@@ -135,6 +155,7 @@ function createExecutor(expressApp: any, options: RoutingControllersOptions): vo
 
     // next create a controller executor
     new RoutingControllerExecutor(driver)
+        .bootstrap()
         .registerPreExecutionMiddlewares()
         .registerActions()
         .registerPostExecutionMiddlewares()

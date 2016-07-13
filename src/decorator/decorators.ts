@@ -42,6 +42,7 @@ export function GlobalMiddleware(options?: GlobalMiddlewareOptions): Function {
  * Must be set to controller action or controller class.
  */
 export function UseBefore(middleware: Function): Function;
+export function UseBefore(middleware: (context: any, next: () => Promise<any>) => Promise<any>): Function;
 export function UseBefore(middleware: (request: any, response: any, next: Function) => any): Function;
 export function UseBefore(middleware: Function|((request: any, response: any, next: Function) => any)): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {
@@ -60,6 +61,7 @@ export function UseBefore(middleware: Function|((request: any, response: any, ne
  * Must be set to controller action or controller class.
  */
 export function UseAfter(middleware: Function): Function;
+export function UseAfter(middleware: (context: any, next: () => Promise<any>) => Promise<any>): Function;
 export function UseAfter(middleware: (request: any, response: any, next: Function) => any): Function;
 export function UseAfter(middleware: Function|((request: any, response: any, next: Function) => any)): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {

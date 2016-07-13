@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
-import {createServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {Render} from "../../src/decorator/decorators";
+import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Template rendering", () => {
+describe("template rendering", () => {
 
     before(() => {
 
@@ -27,30 +28,34 @@ describe("Template rendering", () => {
         }
     });
 
-    let app: any;
+    let expressApp: any;
     before(done => {
         const path = __dirname + "/../../../../test/resources";
-        const server = createServer();
+        const server = createExpressServer();
         const mustacheExpress = require("mustache-express");
         server.engine("html", mustacheExpress());
         server.set("view engine", "html");
         server.set("views", path);
         server.use(require("express").static(path));
-        app = server.listen(3001, done)
+        expressApp = server.listen(3001, done)
     });
-    after(done => app.close(done));
+    after(done => expressApp.close(done));
 
-    it("should render a template and use given variables", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/index")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response.body).to.contain("<html>");
-                expect(response.body).to.contain("<body>");
-                expect(response.body).to.contain("Routing-controllers");
-                expect(response.body).to.contain("</body>");
-                expect(response.body).to.contain("</html>");
-            });
+    let koaApp: any;
+    before(done => {
+        koaApp = createKoaServer().listen(3002, done)
+    });
+    after(done => koaApp.close(done));
+
+    describe("should render a template and use given variables", () => {
+        assertRequest([3001/*, 3002*/], "get", "index", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.contain("<html>");
+            expect(response.body).to.contain("<body>");
+            expect(response.body).to.contain("Routing-controllers");
+            expect(response.body).to.contain("</body>");
+            expect(response.body).to.contain("</html>");
+        });
     });
 
 });

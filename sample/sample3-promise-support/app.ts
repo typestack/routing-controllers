@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import * as express from "express";
-import {useServer} from "../../src/index";
+import {useExpressServer} from "../../src/index";
 import "./BlogController"; // this can be require("./BlogController") actually
 
 let app = express(); // create express server
-useServer(app); // register controllers routes in our express application
+useExpressServer(app); // register controllers routes in our express application
 // controllerRunner.isLogErrorsEnabled = true; // enable error logging of exception error into console
 // controllerRunner.isStackTraceEnabled = true; // enable adding of stack trace to response message
 

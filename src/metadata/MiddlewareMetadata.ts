@@ -44,7 +44,7 @@ export class MiddlewareMetadata {
     // Accessors
     // -------------------------------------------------------------------------
 
-    get expressInstance(): MiddlewareInterface {
+    get instance(): MiddlewareInterface {
         return getContainer().get<MiddlewareInterface>(this.target);
     }
 

@@ -1,11 +1,20 @@
 import "reflect-metadata";
 import {Controller} from "../../src/decorator/controllers";
-import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
-import {createServer, defaultMetadataArgsStorage} from "../../src/index";
+import {Get, Post} from "../../src/decorator/methods";
+import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {
-    Param, QueryParam, HeaderParam, CookieParam, Body, BodyParam, UploadedFile,
-    UploadedFiles, Req, Res
+    Param,
+    QueryParam,
+    HeaderParam,
+    CookieParam,
+    Body,
+    BodyParam,
+    UploadedFile,
+    UploadedFiles,
+    Req,
+    Res
 } from "../../src/decorator/params";
+import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -64,13 +73,13 @@ describe("action parameters", () => {
             getUsers(@Req() request: any, @Res() response: any): any {
                 requestReq = request;
                 requestRes = response;
-                return "";
+                return "<html><body>hello</body></html>";
             }
 
             @Get("/users/:userId")
             getUser(@Param("userId") userId: number) {
                 paramUserId = userId;
-                return userId + "!";
+                return `<html><body>${userId}</body></html>`;
             }
 
             @Get("/users/:firstId/photos/:secondId")
@@ -78,7 +87,7 @@ describe("action parameters", () => {
                          @Param("secondId") secondId: number) {
                 paramFirstId = firstId;
                 paramSecondId = secondId;
-                return firstId + "," + secondId;
+                return `<html><body>${firstId},${secondId}</body></html>`;
             }
 
             @Get("/photos")
@@ -90,19 +99,19 @@ describe("action parameters", () => {
                 queryParamCount = count;
                 queryParamLimit = limit;
                 queryParamShowAll = showAll;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/photos-with-required")
             getPhotosWithIdRequired(@QueryParam("limit", { required: true }) limit: number) {
                 queryParamLimit = limit;
-                return limit + "!";
+                return `<html><body>${limit}</body></html>`;
             }
 
             @Get("/photos-with-json")
             getPhotosWithJsonParam(@QueryParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
                 queryParamFilter = filter;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/posts")
@@ -112,19 +121,19 @@ describe("action parameters", () => {
                 headerParamToken = token;
                 headerParamCount = count;
                 headerParamShowAll = showAll;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/posts-with-required")
             getPostsWithIdRequired(@HeaderParam("limit", { required: true }) limit: number) {
                 headerParamLimit = limit;
-                return limit + "!";
+                return `<html><body>${limit}</body></html>`;
             }
 
             @Get("/posts-with-json")
             getPostsWithJsonParam(@HeaderParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
                 headerParamFilter = filter;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/questions")
@@ -134,31 +143,31 @@ describe("action parameters", () => {
                 cookieParamToken = token;
                 cookieParamCount = count;
                 cookieParamShowAll = showAll;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/questions-with-required")
             getQuestionsWithIdRequired(@CookieParam("limit", { required: true }) limit: number) {
                 cookieParamLimit = limit;
-                return limit + "!";
+                return `<html><body>hello</body></html>`;
             }
 
             @Get("/questions-with-json")
             getQuestionsWithJsonParam(@CookieParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
                 cookieParamFilter = filter;
-                return "";
+                return `<html><body>hello</body></html>`;
             }
 
             @Post("/questions")
             postQuestion(@Body() question: string) {
                 body = question;
-                return body;
+                return `<html><body>hello</body></html>`;
             }
 
             @Post("/questions-with-required")
             postRequiredQuestion(@Body({ required: true }) question: string) {
                 body = question;
-                return body;
+                return `<html><body>hello</body></html>`;
             }
 
             @Post("/posts", { responseType: "json" })
@@ -196,125 +205,109 @@ describe("action parameters", () => {
             @Post("/files")
             postFile(@UploadedFile("myfile") file: any): any {
                 uploadedFileName = file.originalname;
-                return uploadedFileName;
+                return `<html><body>${uploadedFileName}</body></html>`;
             }
 
             @Post("/files-with-limit")
             postFileWithLimit(@UploadedFile("myfile", { uploadOptions: { limits: { fileSize: 2 } } }) file: any): any {
-                return file.originalname;
+                return `<html><body>${file.originalname}</body></html>`;
             }
 
             @Post("/files-with-required")
             postFileWithRequired(@UploadedFile("myfile", { required: true }) file: any): any {
-                return file.originalname;
+                return `<html><body>${file.originalname}</body></html>`;
             }
 
             @Post("/photos")
             postPhotos(@UploadedFiles("photos") files: any): any {
                 uploadedFilesFirstName = files[0].originalname;
                 uploadedFilesSecondName = files[1].originalname;
-                return uploadedFilesFirstName + " " + uploadedFilesSecondName;
+                return `<html><body>${uploadedFilesFirstName} ${uploadedFilesSecondName}</body></html>`;
             }
 
             @Post("/photos-with-limit")
             postPhotosWithLimit(@UploadedFiles("photos", { uploadOptions: { limits: { files: 1 } } }) files: any): any {
-                return files[0].originalname;
+                return `<html><body>${files[0].originalname}</body></html>`;
             }
 
             @Post("/photos-with-required")
             postPhotosWithRequired(@UploadedFiles("photos", { required: true }) files: any): any {
-                return files[0].originalname;
+                return `<html><body>${files[0].originalname}</body></html>`;
             }
 
         }
 
     });
 
-    let app: any;
-    before(done => app = createServer().listen(3001, done));
-    after(done => app.close(done));
+    let expressApp: any, koaApp: any;
+    before(done => expressApp = createExpressServer().listen(3001, done));
+    after(done => expressApp.close(done));
+    before(done => koaApp = createKoaServer().listen(3002, done));
+    after(done => koaApp.close(done));
 
-    it("@Req and @Res should be provided as Request and Response objects", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(requestReq).to.be.instanceOf(Object); // apply better check here
-                expect(requestRes).to.be.instanceOf(Object); // apply better check here
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+    describe("@Req and @Res should be provided as Request and Response objects", () => {
+        assertRequest([3001, 3002], "get", "users", response => {
+            expect(requestReq).to.be.instanceOf(Object); // apply better check here
+            expect(requestRes).to.be.instanceOf(Object); // apply better check here
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("@Param should give a param from route", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users/1")
-            .then((response: any) => {
-                paramUserId.should.be.equal(1);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal("1!");
-            });
+    describe("@Param should give a param from route", () => {
+        assertRequest([3001, 3002], "get", "users/1", response => {
+            paramUserId.should.be.equal(1);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>1</body></html>");
+        });
     });
 
-    it("multiple @Param should give a proper values from route", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users/23/photos/32")
-            .then((response: any) => {
-                paramFirstId.should.be.equal(23);
-                paramSecondId.should.be.equal(32);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal("23,32");
-            });
+    describe("multiple @Param should give a proper values from route", () => {
+        assertRequest([3001, 3002], "get", "users/23/photos/32", response => {
+            paramFirstId.should.be.equal(23);
+            paramSecondId.should.be.equal(32);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>23,32</body></html>");
+        });
     });
 
-    it("@QueryParam should give a proper values from request query parameters", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/photos?sortBy=name&count=2&limit=10&showAll=true")
-            .then((response: any) => {
-                queryParamSortBy.should.be.equal("name");
-                queryParamCount.should.be.equal("2");
-                queryParamLimit.should.be.equal(10);
-                queryParamShowAll.should.be.equal(true);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+    describe("@QueryParam should give a proper values from request query parameters", () => {
+        assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {
+            queryParamSortBy.should.be.equal("name");
+            queryParamCount.should.be.equal("2");
+            queryParamLimit.should.be.equal(10);
+            queryParamShowAll.should.be.equal(true);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("for @QueryParam when required is params must be provided and they should not be empty", () => {
-        return Promise.all([
-            chakram
-                .get("http://127.0.0.1:3001/photos-with-required/?limit=0")
-                .then((response: any) => {
-                    queryParamLimit.should.be.equal(0);
-                    expect(response).to.be.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                    expect(response.body).to.be.equal("0!");
-                }),
-            chakram
-                .get("http://127.0.0.1:3001/photos-with-required/?")
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .get("http://127.0.0.1:3001/photos-with-required/?limit")
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                })
-        ]);
+    describe("for @QueryParam when required is params must be provided and they should not be empty", () => {
+        assertRequest([3001, 3002], "get", "photos-with-required/?limit=0", response => {
+            queryParamLimit.should.be.equal(0);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>0</body></html>");
+        });
+        assertRequest([3001, 3002], "get", "photos-with-required/?", response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "get", "photos-with-required/?limit", response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("for @QueryParam when parseJson flag is used query param must be converted to object", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/photos-with-json/?filter={\"keyword\": \"name\", \"limit\": 5}")
-            .then((response: any) => {
-                queryParamFilter.should.be.eql({ keyword: "name", limit: 5 });
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+    describe("for @QueryParam when parseJson flag is used query param must be converted to object", () => {
+        assertRequest([3001, 3002], "get", "photos-with-json/?filter={\"keyword\": \"name\", \"limit\": 5}", response => {
+            queryParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("@HeaderParam should give a proper values from request headers", () => {
+    describe("@HeaderParam should give a proper values from request headers", () => {
         const requestOptions = {
             headers: {
                 token: "31ds31das231sad12",
@@ -322,18 +315,16 @@ describe("action parameters", () => {
                 showAll: false
             }
         };
-        return chakram
-            .get("http://127.0.0.1:3001/posts", requestOptions)
-            .then((response: any) => {
-                headerParamToken.should.be.equal("31ds31das231sad12");
-                headerParamCount.should.be.equal(20);
-                headerParamShowAll.should.be.equal(false);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+        assertRequest([3001, 3002], "get", "posts", requestOptions, response => {
+            headerParamToken.should.be.equal("31ds31das231sad12");
+            headerParamCount.should.be.equal(20);
+            headerParamShowAll.should.be.equal(false);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("for @HeaderParam when required is params must be provided and they should not be empty", () => {
+    describe("for @HeaderParam when required is params must be provided and they should not be empty", () => {
         const validRequestOptions = {
             headers: {
                 limit: 0
@@ -344,65 +335,53 @@ describe("action parameters", () => {
                 filter: ""
             }
         };
-        return Promise.all([
-            chakram
-                .get("http://127.0.0.1:3001/posts-with-required", validRequestOptions)
-                .then((response: any) => {
-                    headerParamLimit.should.be.equal(0);
-                    expect(response).to.be.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                }),
-            chakram
-                .get("http://127.0.0.1:3001/posts-with-required", invalidRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .get("http://127.0.0.1:3001/posts-with-required")
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                })
-        ]);
+        assertRequest([3001, 3002], "get", "posts-with-required", validRequestOptions, response => {
+            headerParamLimit.should.be.equal(0);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+        assertRequest([3001, 3002], "get", "posts-with-required", invalidRequestOptions, response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "get", "posts-with-required", response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("for @HeaderParam when parseJson flag is used query param must be converted to object", () => {
+    describe("for @HeaderParam when parseJson flag is used query param must be converted to object", () => {
         const requestOptions = {
             headers: {
                 filter: "{\"keyword\": \"name\", \"limit\": 5}"
             }
         };
-        return chakram
-            .get("http://127.0.0.1:3001/posts-with-json", requestOptions)
-            .then((response: any) => {
-                headerParamFilter.should.be.eql({ keyword: "name", limit: 5 });
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+        assertRequest([3001, 3002], "get", "posts-with-json", requestOptions, response => {
+            headerParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("@CookieParam should give a proper values from request headers", () => {
+    describe("@CookieParam should give a proper values from request headers", () => {
         const request = require("request");
         const jar = request.jar();
-        const url = "http://127.0.0.1:3001/questions";
-        jar.setCookie(request.cookie("token=31ds31das231sad12"), url);
-        jar.setCookie(request.cookie("count=20"), url);
-        jar.setCookie(request.cookie("showAll=false"), url);
+        const url2 = "http://127.0.0.1:3002/questions";
+        jar.setCookie(request.cookie("token=31ds31das231sad12"), url2);
+        jar.setCookie(request.cookie("count=20"), url2);
+        jar.setCookie(request.cookie("showAll=false"), url2);
 
         const requestOptions = {
             jar: jar
         };
-        return chakram
-            .get(url, requestOptions)
-            .then((response: any) => {
-                cookieParamToken.should.be.equal("31ds31das231sad12");
-                cookieParamCount.should.be.equal(20);
-                cookieParamShowAll.should.be.equal(false);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+        assertRequest([3001, 3002], "get", "questions", requestOptions, response => {
+            cookieParamToken.should.be.equal("31ds31das231sad12");
+            cookieParamCount.should.be.equal(20);
+            cookieParamShowAll.should.be.equal(false);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("for @CookieParam when required is params must be provided and they should not be empty", () => {
+    describe("for @CookieParam when required is params must be provided and they should not be empty", () => {
         const request = require("request");
         const jar = request.jar();
         const url = "http://127.0.0.1:3001/questions-with-required";
@@ -410,167 +389,126 @@ describe("action parameters", () => {
 
         const validRequestOptions = { jar: jar };
         const invalidRequestOptions = { jar: request.jar() };
-        return Promise.all([
-            chakram
-                .get(url, validRequestOptions)
-                .then((response: any) => {
-                    cookieParamLimit.should.be.equal(20);
-                    expect(response).to.be.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                }),
-            chakram
-                .get(url, invalidRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                })
-        ]);
+
+        assertRequest([3001, 3002], "get", "questions-with-required", validRequestOptions, response => {
+            cookieParamLimit.should.be.equal(20);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+
+        assertRequest([3001, 3002], "get", "questions-with-required", invalidRequestOptions, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("for @CookieParam when parseJson flag is used query param must be converted to object", () => {
+    describe("for @CookieParam when parseJson flag is used query param must be converted to object", () => {
         const request = require("request");
         const jar = request.jar();
         const url = "http://127.0.0.1:3001/questions-with-json";
         jar.setCookie(request.cookie("filter={\"keyword\": \"name\", \"limit\": 5}"), url);
         const requestOptions = { jar: jar };
-        
-        return chakram
-            .get(url, requestOptions)
-            .then((response: any) => {
-                cookieParamFilter.should.be.eql({ keyword: "name", limit: 5 });
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            });
+
+        assertRequest([3001, 3002], "get", "questions-with-json", requestOptions, response => {
+            cookieParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("@Body should provide a request body", () => {
+    describe("@Body should provide a request body", () => {
         const requestOptions = {
             headers: {
                 "Content-type": "text/plain"
             },
             json: false
         };
-        return chakram
-            .post("http://127.0.0.1:3001/questions", "hello", requestOptions)
-            .then((response: any) => {
-                body.should.be.equal("hello");
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal(body);
-            });
+
+        assertRequest([3001, 3002], "post", "questions", "hello", requestOptions, response => {
+            body.should.be.equal("hello");
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
     });
 
-    it("@Body should fail if required body was not provided", () => {
+    describe("@Body should fail if required body was not provided", () => {
         const requestOptions = {
             headers: {
                 "Content-type": "text/plain"
             },
             json: false
         };
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/questions-with-required", "0", requestOptions)
-                .then((response: any) => {
-                    body.should.be.equal("0");
-                    expect(response).to.be.status(200);
-                    expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/questions-with-required", "", requestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/questions-with-required", undefined, requestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-        ])
+
+        assertRequest([3001, 3002], "post", "questions-with-required", "0", requestOptions, response => {
+            body.should.be.equal("0");
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+
+        assertRequest([3001, 3002], "post", "questions-with-required", "", requestOptions, response => {
+            expect(response).to.be.status(500);
+        });
+
+        assertRequest([3001, 3002], "post", "questions-with-required", undefined, requestOptions, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("@Body should provide a json object for json-typed controllers and actions", () => {
-        return chakram
-            .post("http://127.0.0.1:3001/posts", { hello: "world" })
-            .then((response: any) => {
-                body.should.be.eql({ hello: "world" });
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql(body); // should we allow to return a text body for json controllers?
-            });
+    describe("@Body should provide a json object for json-typed controllers and actions", () => {
+        assertRequest([3001, 3002], "post", "posts", { hello: "world" }, response => {
+            body.should.be.eql({ hello: "world" });
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql(body); // should we allow to return a text body for json controllers?
+        });
     });
 
-    it("@Body should fail if required body was not provided for json-typed controllers and actions", () => {
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/posts-with-required", { hello: "" })
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/posts-with-required", undefined)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-        ])
+    describe("@Body should fail if required body was not provided for json-typed controllers and actions", () => {
+        assertRequest([3001, 3002], "post", "posts-with-required", { hello: "" }, response => {
+            expect(response).to.be.status(200);
+        });
+        assertRequest([3001, 3002], "post", "posts-with-required", undefined, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("@BodyParam should provide a json object for json-typed controllers and actions", () => {
-        return chakram
-            .post("http://127.0.0.1:3001/users", { name: "johny", age: 27, isActive: true })
-            .then((response: any) => {
-                bodyParamName.should.be.eql("johny");
-                bodyParamAge.should.be.eql(27);
-                bodyParamIsActive.should.be.eql(true);
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "application/json");
-            });
+    describe("@BodyParam should provide a json object for json-typed controllers and actions", () => {
+        assertRequest([3001, 3002], "post", "users", { name: "johny", age: 27, isActive: true }, response => {
+            bodyParamName.should.be.eql("johny");
+            bodyParamAge.should.be.eql(27);
+            bodyParamIsActive.should.be.eql(true);
+            expect(response).to.be.status(204);
+        });
     });
 
-    it("@BodyParam should fail if required body was not provided for json-typed controllers and actions", () => {
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required",  { name: "johny", age: 27, isActive: true })
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", undefined)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "", age: 27, isActive: false })
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 0, isActive: false })
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: undefined, isActive: false })
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: undefined })
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: false })
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/users-with-required", { name: "Johny", age: 27, isActive: true })
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-        ])
+    describe("@BodyParam should fail if required body was not provided for json-typed controllers and actions", () => {
+
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "johny", age: 27, isActive: true }, response => {
+            expect(response).to.be.status(204);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", undefined, response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "", age: 27, isActive: false }, response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 0, isActive: false }, response => {
+            expect(response).to.be.status(204);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: undefined, isActive: false }, response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 27, isActive: undefined }, response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 27, isActive: false }, response => {
+            expect(response).to.be.status(204);
+        });
+        assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 27, isActive: true }, response => {
+            expect(response).to.be.status(204);
+        });
     });
 
-    it("@UploadedFile should provide uploaded file with the given name", () => {
+    describe("@UploadedFile should provide uploaded file with the given name", () => {
         const requestOptions = {
             formData: {
                 myfile: {
@@ -582,17 +520,16 @@ describe("action parameters", () => {
                 }
             }
         };
-        return chakram
-            .post("http://127.0.0.1:3001/files", undefined, requestOptions)
-            .then((response: any) => {
-                uploadedFileName.should.be.eql("hello-world.txt");
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal("hello-world.txt");
-            });
+
+        assertRequest([3001/*, 3002*/], "post", "files", undefined, requestOptions, response => {
+            uploadedFileName.should.be.eql("hello-world.txt");
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>hello-world.txt</body></html>");
+        });
     });
 
-    it("@UploadedFile with passed uploading options (limit) should throw an error", () => {
+    describe("@UploadedFile with passed uploading options (limit) should throw an error", () => {
         const validRequestOptions = {
             formData: {
                 myfile: {
@@ -615,21 +552,17 @@ describe("action parameters", () => {
                 }
             }
         };
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/files-with-limit", undefined, validRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/files-with-limit", undefined, invalidRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-        ]);
+
+        assertRequest([3001/*, 3002*/], "post", "files-with-limit", undefined, validRequestOptions, response => {
+            expect(response).to.be.status(200);
+        });
+
+        assertRequest([3001/*, 3002*/], "post", "files-with-limit", undefined, invalidRequestOptions, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("for @UploadedFile when required is used files must be provided", () => {
+    describe("for @UploadedFile when required is used files must be provided", () => {
         const requestOptions = {
             formData: {
                 myfile: {
@@ -641,21 +574,17 @@ describe("action parameters", () => {
                 }
             }
         };
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/files-with-required", undefined, requestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/files-with-required", undefined, {})
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-        ]);
+
+        assertRequest([3001/*, 3002*/], "post", "files-with-required", undefined, requestOptions, response => {
+            expect(response).to.be.status(200);
+        });
+
+        assertRequest([3001/*, 3002*/], "post", "files-with-required", undefined, {}, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("@UploadedFiles should provide uploaded files with the given name", () => {
+    describe("@UploadedFiles should provide uploaded files with the given name", () => {
         const requestOptions = {
             formData: {
                 photos: [{
@@ -673,18 +602,17 @@ describe("action parameters", () => {
                 }]
             }
         };
-        return chakram
-            .post("http://127.0.0.1:3001/photos", undefined, requestOptions)
-            .then((response: any) => {
-                uploadedFilesFirstName.should.be.eql("me.jpg");
-                uploadedFilesSecondName.should.be.eql("she.jpg");
-                expect(response).to.be.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal("me.jpg she.jpg");
-            });
+
+        assertRequest([3001/*, 3002*/], "post", "photos", undefined, requestOptions, response => {
+            uploadedFilesFirstName.should.be.eql("me.jpg");
+            uploadedFilesSecondName.should.be.eql("she.jpg");
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>me.jpg she.jpg</body></html>");
+        });
     });
 
-    it("@UploadedFiles with passed uploading options (limit) should throw an error", () => {
+    describe("@UploadedFiles with passed uploading options (limit) should throw an error", () => {
         const validRequestOptions = {
             formData: {
                 photos: [{
@@ -713,21 +641,16 @@ describe("action parameters", () => {
                 }]
             }
         };
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/photos-with-limit", undefined, validRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/photos-with-limit", undefined, invalidRequestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                })
-        ]);
+
+        assertRequest([3001/*, 3002*/], "post", "photos-with-limit", undefined, validRequestOptions, response => {
+            expect(response).to.be.status(200);
+        });
+        assertRequest([3001/*, 3002*/], "post", "photos-with-limit", undefined, invalidRequestOptions, response => {
+            expect(response).to.be.status(500);
+        });
     });
 
-    it("for @UploadedFiles when required is used files must be provided", () => {
+    describe("for @UploadedFiles when required is used files must be provided", () => {
         const requestOptions = {
             formData: {
                 photos: [{
@@ -745,19 +668,14 @@ describe("action parameters", () => {
                 }]
             }
         };
-        return Promise.all([
-            chakram
-                .post("http://127.0.0.1:3001/photos-with-required", undefined, requestOptions)
-                .then((response: any) => {
-                    expect(response).to.be.status(200);
-                }),
-            chakram
-                .post("http://127.0.0.1:3001/photos-with-required", undefined, {})
-                .then((response: any) => {
-                    expect(response).to.be.status(500);
-                }),
-            
-        ]);
+
+        assertRequest([3001/*, 3002*/], "post", "photos-with-required", undefined, requestOptions, response => {
+            expect(response).to.be.status(200);
+        });
+        assertRequest([3001/*, 3002*/], "post", "photos-with-required", undefined, {}, response => {
+            expect(response).to.be.status(500);
+        });
+        
     });
 
 });

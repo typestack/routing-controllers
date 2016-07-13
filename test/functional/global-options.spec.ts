@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/controllers";
 import {Post} from "../../src/decorator/methods";
-import {createServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {Body} from "../../src/decorator/params";
+import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -39,50 +40,58 @@ describe("routing-controllers global options", () => {
         }
     });
 
+    describe("useConstructorUtils by default must be set to true", () => {
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer().listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer().listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+            expect(initializedUser).to.be.instanceOf(User);
+            expect(response).to.have.status(200);
+        });
+    });
+
     describe("when useConstructorUtils is set to true", () => {
-    
-        let app: any;
-        before(done => app = createServer({ useConstructorUtils: true }).listen(3001, done));
-        after(done => app.close(done));
-    
-        it("request should succeed", () => {
-            return chakram
-                .post("http://127.0.0.1:3001/users", { firstName: "Umed", lastName: "Khudoiberdiev" })
-                .then((response: any) => {
-                    expect(initializedUser).to.be.instanceOf(User);
-                    expect(response).to.have.status(200);
-                });
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer({ useConstructorUtils: true }).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer({ useConstructorUtils: true }).listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+            expect(initializedUser).to.be.instanceOf(User);
+            expect(response).to.have.status(200);
         });
     });
 
     describe("when useConstructorUtils is not set", () => {
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer({ useConstructorUtils: false }).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer({ useConstructorUtils: false }).listen(3002, done));
+        after(done => koaApp.close(done));
     
-        let app: any;
-        before(done => app = createServer({ useConstructorUtils: false }).listen(3001, done));
-        after(done => app.close(done));
-    
-        it("request should succeed", () => {
-            return chakram
-                .post("http://127.0.0.1:3001/users", { firstName: "Umed", lastName: "Khudoiberdiev" })
-                .then((response: any) => {
-                    expect(initializedUser).not.to.be.instanceOf(User);
-                    expect(response).to.have.status(200);
-                });
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+            expect(initializedUser).not.to.be.instanceOf(User);
+            expect(response).to.have.status(200);
         });
     });
 
     describe("when routePrefix is used all controller routes should be appended by it", () => {
     
-        let app: any;
-        before(done => app = createServer({ routePrefix: "/api" }).listen(3001, done));
-        after(done => app.close(done));
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer({ routePrefix: "/api" }).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer({ routePrefix: "/api" }).listen(3002, done));
+        after(done => koaApp.close(done));
     
-        it("request should succeed", () => {
-            return chakram
-                .post("http://127.0.0.1:3001/api/users", { firstName: "Umed", lastName: "Khudoiberdiev" })
-                .then((response: any) => {
-                    expect(response).to.have.status(200);
-                });
+        assertRequest([3001, 3002], "post", "api/users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+            expect(response).to.have.status(200);
         });
     });
     

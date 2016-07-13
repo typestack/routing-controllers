@@ -5,7 +5,7 @@ import {ErrorHandler} from "../../../../../src/decorator/decorators";
 @ErrorHandler()
 export class PostErrorHandler implements ErrorHandlerInterface {
 
-    handle(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
+    handle(error: any, request: any, response: any, next?: Function): void {
         console.log("Error handled on post handler: ", error);
         next(error);
     }

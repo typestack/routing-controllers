@@ -5,7 +5,7 @@ import {ErrorHandlerInterface} from "../../src/middleware/ErrorHandlerInterface"
 @GlobalMiddleware()
 export class AllErrorsHandler implements ErrorHandlerInterface {
 
-    error(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
+    error(error: any, request: any, response: any, next?: Function): void {
         console.log("Error handled: ", error);
         next(error);
     }

@@ -1,18 +1,19 @@
-import {HttpError} from "./error/http/HttpError";
-import {Utils} from "./util/Utils";
-import {UseMetadata} from "./metadata/UseMetadata";
-import {MiddlewareMetadata} from "./metadata/MiddlewareMetadata";
+import {HttpError} from "../error/http/HttpError";
+import {Utils} from "../util/Utils";
+import {UseMetadata} from "../metadata/UseMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {IncomingMessage, ServerResponse} from "http";
-import {BadHttpActionError} from "./error/BadHttpActionError";
-import {ParamTypes} from "./metadata/types/ParamTypes";
-import {ActionMetadata} from "./metadata/ActionMetadata";
-import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {BadHttpActionError} from "../error/BadHttpActionError";
+import {ParamTypes} from "../metadata/types/ParamTypes";
+import {ActionMetadata} from "../metadata/ActionMetadata";
+import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {constructorToPlain} from "constructor-utils";
+import {Driver} from "./Driver";
 
 /**
  * Base driver functionality for all other drivers.
  */
-export class Driver {
+export class ExpressDriver implements Driver {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -54,6 +55,9 @@ export class Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
+    bootstrap() {
+    }
+    
     /**
      * Registers given error handler in the driver.
      */
@@ -70,11 +74,11 @@ export class Driver {
      * Registers middleware that run before controller actions.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.expressInstance.use)
+        if (!middleware.instance.use)
             return;
 
         this.express.use(function (request: any, response: any, next: Function) {
-            middleware.expressInstance.use(request, response, next);
+            middleware.instance.use(request, response, next);
         });
     }
 
@@ -126,12 +130,15 @@ export class Driver {
             : `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
         const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
-        const expressParams: any[] = [fullRoute, ...defaultMiddlewares, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
+        const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
         this.express[expressAction](...expressParams);
     }
 
+    registerRoutes() {
+    }
+    
     /**
      * Gets param from the request.
      */
@@ -163,7 +170,7 @@ export class Driver {
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
         if (this.useConstructorUtils && result && result instanceof Object) {
-            result = constructorToPlain(result); // todo: specify option to disable it?
+            result = constructorToPlain(result);
         }
 
         const response: any = options.response;
@@ -214,11 +221,16 @@ export class Driver {
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
+                if (result === null && !action.nullResultCode && !action.emptyResultCode) {
+                    response.status(204);
+                }
+                
                 if (action.isJsonTyped) {
                     response.json();
                 } else {
                     response.send();
                 }
+                options.next();
             } else {
                 if (action.isJsonTyped) {
                     response.json(result);
@@ -269,9 +281,9 @@ export class Driver {
         uses.forEach(use => {
             if (use.middleware.prototype.use) { // if this is function instance of ExpressMiddlewareInterface
                 middlewares.forEach(middleware => {
-                    if (middleware.expressInstance instanceof use.middleware) {
+                    if (middleware.instance instanceof use.middleware) {
                         middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: Function) {
-                            middleware.expressInstance.use(request, response, next);
+                            return middleware.instance.use(request, response, next);
                         });
                     }
                 });

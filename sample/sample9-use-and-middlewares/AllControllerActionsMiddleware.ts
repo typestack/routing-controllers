@@ -5,7 +5,7 @@ import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 @Middleware()
 export class AllControllerActionsMiddleware implements MiddlewareInterface {
 
-    use(request: ServerRequest, response: ServerResponse, next: Function): void {
+    use(request: any, response: any, next?: Function): any {
         console.log("controller action run");
         next();
     }

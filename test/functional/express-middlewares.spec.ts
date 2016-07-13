@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
-import {createServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
 import {UseBefore, UseAfter, Middleware, GlobalMiddleware} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("middlewares", () => {
+describe("express middlewares", () => {
 
     let useBefore: boolean,
         useAfter: boolean,
@@ -34,7 +34,7 @@ describe("middlewares", () => {
         @GlobalMiddleware()
         class TestGlobalBeforeMidleware implements MiddlewareInterface {
 
-            use(request: any, response: any, next: Function): void {
+            use(request: any, response: any, next?: Function): any {
                 useGlobalBefore = true;
                 useGlobalCallOrder = "setFromGlobalBefore";
                 next();
@@ -45,7 +45,7 @@ describe("middlewares", () => {
         @GlobalMiddleware({ afterAction: true })
         class TestGlobalAfterMidleware implements MiddlewareInterface {
 
-            use(request: any, response: any, next: Function): void {
+            use(request: any, response: any, next?: Function): any {
                 useGlobalAfter = true;
                 useGlobalCallOrder = "setFromGlobalAfter";
                 next();
@@ -56,7 +56,7 @@ describe("middlewares", () => {
         @Middleware()
         class TestLoggerMiddleware implements MiddlewareInterface {
 
-            use(request: any, response: any, next: Function): void {
+            use(request: any, response: any, next?: Function): any {
                 useCustom = true;
                 next();
             }
@@ -64,7 +64,7 @@ describe("middlewares", () => {
         }
 
         @Controller()
-        class UseController {
+        class ExpressMiddlewareController {
 
             @Get("/blogs")
             blogs() {
@@ -120,7 +120,7 @@ describe("middlewares", () => {
     });
 
     let app: any;
-    before(done => app = createServer().listen(3001, done));
+    before(done => app = createExpressServer().listen(3001, done));
     after(done => app.close(done));
 
     it("should call a global middlewares", () => {

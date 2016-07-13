@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import * as express from "express";
-import {useServer} from "../../src/index";
+import {useExpressServer} from "../../src/index";
 
 let app = express(); // create express server
-useServer(app, {
+useExpressServer(app, {
     controllerDirs: [__dirname + "/controllers"] // register controllers routes in our express app
 });
 app.listen(3001); // run express app

@@ -1,7 +1,8 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
-import {createServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -68,7 +69,7 @@ describe("json-controller methods", () => {
             }
             @Get("/categories-text", { responseType: "text" })
             getWithTextResponseType() {
-                return "All categories";
+                return "<html><body>All categories</body></html>";
             }
             @Get("/categories-json", { responseType: "json" })
             getWithTextResponseJson() {
@@ -122,210 +123,178 @@ describe("json-controller methods", () => {
             }
         }
     });
-    
-    let app: any;
-    before(done => app = createServer().listen(3001, done));
-    after(done => app.close(done));
 
-    it("get should respond with proper status code, headers and body content", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.instanceOf(Array);
-                expect(response.body).to.be.eql([{
-                    id: 1,
-                    name: "Umed"
-                }, {
-                    id: 2,
-                    name: "Bakha"
-                }]);
-            });
-    });
-    
-    it("post respond with proper status code, headers and body content", () => {
-        return chakram
-            .post("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "saved"
-                });
-            });
+    let expressApp: any, koaApp: any;
+    before(done => expressApp = createExpressServer().listen(3001, done));
+    after(done => expressApp.close(done));
+    before(done => koaApp = createKoaServer().listen(3002, done));
+    after(done => koaApp.close(done));
+
+    describe("get should respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "get", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.instanceOf(Array);
+            expect(response.body).to.be.eql([{
+                id: 1,
+                name: "Umed"
+            }, {
+                id: 2,
+                name: "Bakha"
+            }]);
+        });
     });
     
-    it("put respond with proper status code, headers and body content", () => {
-        return chakram
-            .put("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "updated"
-                });
+    describe("post respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "post", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "saved"
             });
+        });
     });
     
-    it("patch respond with proper status code, headers and body content", () => {
-        return chakram
-            .patch("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "patched"
-                });
+    describe("put respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "put", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "updated"
             });
+        });
     });
     
-    it("delete respond with proper status code, headers and body content", () => {
-        return chakram
-            .delete("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "removed"
-                });
+    describe("patch respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "patch", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "patched"
             });
+        });
+    });
+    
+    describe("delete respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "delete", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "removed"
+            });
+        });
     });
 
-    it("head respond with proper status code, headers and body content", () => {
-        return chakram
-            .head("http://127.0.0.1:3001/users")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.undefined;
-            });
+    describe("head respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "head", "users", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.undefined;
+        });
     });
 
-    it("custom method (post) respond with proper status code, headers and body content", () => {
-        return chakram
-            .post("http://127.0.0.1:3001/categories")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "posted"
-                });
+    describe("custom method (post) respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "post", "categories", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "posted"
             });
+        });
     });
 
-    it("custom method (delete) respond with proper status code, headers and body content", () => {
-        return chakram
-            .delete("http://127.0.0.1:3001/categories")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    status: "removed"
-                });
+    describe("custom method (delete) respond with proper status code, headers and body content", () => {
+        assertRequest([3001, 3002], "delete", "categories", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                status: "removed"
             });
+        });
     });
 
-    it("custom response type (text)", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/categories-text")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-                expect(response.body).to.be.equal("All categories");
-            });
+    describe("custom response type (text)", () => {
+        assertRequest([3001, 3002], "get", "categories-text", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>All categories</body></html>");
+        });
     });
 
-    it("custom response type (json)", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/categories-json")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body.id).to.be.equal(1);
-                expect(response.body.name).to.be.equal("People");
-            });
+    describe("custom response type (json)", () => {
+        assertRequest([3001, 3002], "get", "categories-json", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body.id).to.be.equal(1);
+            expect(response.body.name).to.be.equal("People");
+        });
     });
 
-    it("route should work with parameter", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users/umed")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    id: 1,
-                    name: "Umed"
-                });
+    describe("route should work with parameter", () => {
+        assertRequest([3001, 3002], "get", "users/umed", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                id: 1,
+                name: "Umed"
             });
+        });
     });
 
-    it("route should work with regexp parameter", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/categories/1")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    id: 1,
-                    name: "People"
-                });
+    describe("route should work with regexp parameter", () => {
+        assertRequest([3001, 3002], "get", "categories/1", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                id: 1,
+                name: "People"
             });
+        });
     });
 
-    it("should respond with 404 when regexp does not match", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/categories/umed")
-            .then((response: any) => {
-                expect(response).to.have.status(404);
-            });
+    describe("should respond with 404 when regexp does not match", () => {
+        assertRequest([3001, 3002], "get", "categories/umed", response => {
+            expect(response).to.have.status(404);
+        });
     });
 
-    it("route should work with string regexp parameter", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts/1")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    id: 1,
-                    title: "About People"
-                });
+    describe("route should work with string regexp parameter", () => {
+        assertRequest([3001, 3002], "get", "posts/1", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                id: 1,
+                title: "About People"
             });
+        });
     });
 
-    it("should respond with 404 when regexp does not match", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts/U")
-            .then((response: any) => {
-                expect(response).to.have.status(404);
-            });
+    describe("should respond with 404 when regexp does not match", () => {
+        assertRequest([3001, 3002], "get", "posts/U", response => {
+            expect(response).to.have.status(404);
+        });
     });
 
-    it("should return result from a promise", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts-from-db")
-            .then((response: any) => {
-                expect(response).to.have.status(200);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    id: 1,
-                    title: "Hello database post"
-                });
+    describe("should return result from a promise", () => {
+        assertRequest([3001, 3002], "get", "posts-from-db", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                id: 1,
+                title: "Hello database post"
             });
+        });
     });
 
-    it("should respond with 500 if promise failed", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts-from-failed-db")
-            .then((response: any) => {
-                expect(response).to.have.status(500);
-                expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-                expect(response.body).to.be.eql({
-                    code: 10954,
-                    message: "Cannot connect to db"
-                });
+    describe("should respond with 500 if promise failed", () => {
+        assertRequest([3001, 3002], "get", "posts-from-failed-db", response => {
+            expect(response).to.have.status(500);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body).to.be.eql({
+                code: 10954,
+                message: "Cannot connect to db"
             });
+        });
     });
 
 });
