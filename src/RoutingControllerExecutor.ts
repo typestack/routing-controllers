@@ -1,7 +1,5 @@
-import {ExpressDriver} from "./driver/ExpressDriver";
 import {Utils} from "./util/Utils";
 import {ParamHandler} from "./ParamHandler";
-import {constructorToPlain} from "constructor-utils";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
@@ -107,7 +105,7 @@ export class RoutingControllerExecutor {
     // -------------------------------------------------------------------------
 
     private handleAction(action: ActionMetadata, options: ActionCallbackOptions) {
-
+        
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)

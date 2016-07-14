@@ -27,13 +27,4 @@ export function assertRequest(ports: number[],
         
     });
     
-    /*return Promise.all(ports.map(port => {
-        if (args === 4) {
-            return chakram[method](`http://127.0.0.1:${port}/${route}`).then(dataOrCallback as Function);
-        } else if (args === 5) {
-            return chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any).then(dataOrRequestOptionsOrCallback as Function);
-        } else if (args === 6) {
-            return chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any, dataOrRequestOptionsOrCallback as any).then(maybeCallback);
-        }
-    }));*/
 }

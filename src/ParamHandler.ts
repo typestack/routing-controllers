@@ -1,10 +1,8 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {ExpressDriver} from "./driver/ExpressDriver";
 import {Utils} from "./util/Utils";
 import {plainToConstructor} from "constructor-utils";
 import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
-import {IncomingMessage, ServerResponse} from "http";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {Driver} from "./driver/Driver";

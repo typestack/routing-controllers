@@ -1,4 +1,3 @@
-import {ExpressDriver} from "./ExpressDriver";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {HttpError} from "../error/http/HttpError";
@@ -83,19 +82,19 @@ export class KoaDriver extends BaseDriver implements Driver {
             }
         }
         // file uploading is not working yet. need to implement it
-        /*if (action.isFileUsed || action.isFilesUsed) {
-            const multer = require("koa-multer");
+        if (action.isFileUsed || action.isFilesUsed) {
+            const multer = require("koa-router-multer");
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                    defaultMiddlewares.push(multer({dest: 'uploads/'}).single(param.name));
                 });
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILES)
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
-        }*/
+        }
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
@@ -143,9 +142,9 @@ export class KoaDriver extends BaseDriver implements Driver {
             case ParamTypes.QUERY:
                 return context.query[param.name];
             case ParamTypes.UPLOADED_FILE:
-                return request.file;
+                return actionOptions.context.req.file;
             case ParamTypes.UPLOADED_FILES:
-                return request.files;
+                return actionOptions.context.req.files;
             case ParamTypes.HEADER:
                 return context.headers[param.name.toLowerCase()];
             case ParamTypes.BODY_PARAM:

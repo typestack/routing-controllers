@@ -20,16 +20,10 @@ app1.get("/", function(req: any, res: any, next: any) {
 
 const koa = require("koa");
 const app2 = new koa();
-// app2.use(require("koa-body-parser")());
-
-/*app2.use(function(context: any, next: Function) {
-    console.log("koa request");
-    return next().then(() => {
-        
-    });
-});*/
-
-/*router.get("/users", function (context: any, next: Function) {
+const multer = require("koa-router-multer");
+const router = new (require("koa-router"))();
+const upload = multer({ dest: 'uploads/' });
+router.post("/users", upload.single('file'), function (context: any, next: Function) {
     console.log("koa controller");
     context.body = "Hello Koa";
     return next();
@@ -37,35 +31,4 @@ const app2 = new koa();
 
 app2.use(router.routes());
 app2.use(router.allowedMethods());
-app2.listen(3002);*/
-
-@Controller()
-class TestController {
-
-    /*@UseBefore((request: any, response: any, next: Function) => {
-        console.log("executing before controller");
-        return next();
-    })
-    @UseAfter((request: any, response: any, next: Function) => {
-        console.log("executing after controller");
-        return next();
-    })*/
-    @UseBefore((context: any, next: Function) => {
-        console.log("executing before controller");
-        return next();
-    })
-    @UseAfter((context: any, next: Function) => {
-        console.log("executing after controller");
-        return next();
-    })
-    @Get("/users")
-    getUsers() {
-        console.log("executing controller");
-        return "hello app";
-    }
-
-}
-
-useExpressServer(app1).listen(3001);
-
-useKoaServer(app2).listen(3002);
+app2.listen(3002);

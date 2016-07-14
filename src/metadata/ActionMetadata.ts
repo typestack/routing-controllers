@@ -5,7 +5,7 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
-import {ParamType, ParamTypes} from "./types/ParamTypes";
+import {ParamTypes} from "./types/ParamTypes";
 
 export class ActionMetadata {
 

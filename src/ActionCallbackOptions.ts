@@ -1,10 +1,8 @@
-import {ServerResponse, IncomingMessage} from "http";
-
 export interface ActionCallbackOptions {
 
     context?: any;
-    request: IncomingMessage;
-    response: ServerResponse;
+    request: any;
+    response: any;
     next: Function;
     
 }

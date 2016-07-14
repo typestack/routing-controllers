@@ -1,4 +1,5 @@
 import {Gulpclass, Task, SequenceTask} from "gulpclass/Decorators";
+import {MergedTask} from "gulpclass/index";
 
 const gulp = require("gulp");
 const del = require("del");
@@ -8,6 +9,8 @@ const mocha = require("gulp-mocha");
 const chai = require("chai");
 const tslint = require("gulp-tslint");
 const stylish = require("tslint-stylish");
+const ts = require("gulp-typescript");
+const sourcemaps = require("gulp-sourcemaps");
 
 @Gulpclass()
 export class Gulpfile {
@@ -51,12 +54,40 @@ export class Gulpfile {
     }
 
     /**
-     * Copies all files that will be in a package.
+     * Copies all sources to the package directory.
+     */
+    @MergedTask()
+    packageCompile() {
+        const tsProject = ts.createProject("tsconfig.json");
+        const tsResult = gulp.src(["src/**/*.ts", "typings/**/*.ts"])
+            .pipe(sourcemaps.init())
+            .pipe(ts(tsProject));
+
+        return [
+            tsResult.dts.pipe(gulp.dest("build/package")),
+            tsResult.js
+                .pipe(sourcemaps.write(".", { sourceRoot: "", includeContent: true }))
+                .pipe(gulp.dest('build/package'))
+        ];
+    }
+
+    /**
+     * Moves all compiled files to the final package directory.
      */
     @Task()
-    packageFiles() {
-        return gulp.src("./build/es5/src/**/*")
+    packageMoveCompiledFiles() {
+        return gulp.src("./build/package/src/**/*")
             .pipe(gulp.dest("./build/package"));
+    }
+
+    /**
+     * Moves all compiled files to the final package directory.
+     */
+    @Task()
+    packageClearCompileDirectory(cb: Function) {
+        return del([
+            "build/package/src/**"
+        ], cb);
     }
 
     /**
@@ -96,8 +127,10 @@ export class Gulpfile {
     package() {
         return [
             "clean",
-            "compile",
-            ["packageFiles", "packagePreparePackageFile", "packageReadmeFile", "copyTypingsFile"]
+            "packageCompile",
+            "packageMoveCompiledFiles",
+            "packageClearCompileDirectory",
+            ["packagePreparePackageFile", "packageReadmeFile", "copyTypingsFile"]
         ];
     }
 

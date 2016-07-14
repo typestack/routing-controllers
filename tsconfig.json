@@ -13,8 +13,6 @@
     },
     "exclude": [
         "build",
-        "node_modules",
-        "typings/browser.d.ts",
-        "typings/browser"
+        "node_modules"
     ]
 }
