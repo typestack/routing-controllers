@@ -1,4 +1,3 @@
-import {ActionOptions} from "../../decorator/options/ActionOptions";
 import {ActionType} from "../types/ActionTypes";
 
 /**
@@ -10,12 +9,6 @@ export interface ActionMetadataArgs {
      * Route to be registered for the action.
      */
     route: string|RegExp;
-
-    /**
-     * Object on which's method this action is attached.
-     * @deprecated
-     */
-    object: any;
 
     /**
      * Class on which's method this action is attached.
@@ -32,10 +25,5 @@ export interface ActionMetadataArgs {
      * class.
      */
     type: ActionType;
-
-    /**
-     * Additional action options.
-     */
-    options: ActionOptions;
     
 }
