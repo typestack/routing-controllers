@@ -1,5 +1,4 @@
 import {HttpError} from "../error/http/HttpError";
-import {Utils} from "../util/Utils";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {IncomingMessage, ServerResponse} from "http";
@@ -92,7 +91,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         if (!middleware.instance.use)
             return;
 
-        this.express.use(function (request: any, response: any, next: Function) {
+        this.express.use(function (request: any, response: any, next: (err: any) => any) {
             middleware.instance.use(request, response, next);
         });
     }
@@ -296,7 +295,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
             if (use.middleware.prototype.use) { // if this is function instance of ExpressMiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: Function) {
+                        middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: (err: any) => any) {
                             return middleware.instance.use(request, response, next);
                         });
                     }

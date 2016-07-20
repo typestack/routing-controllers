@@ -1,5 +1,4 @@
-import {ServerResponse, ServerRequest} from "http";
-import {Middleware, MiddlewareGlobalBefore} from "../../src/decorator/decorators";
+import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
 @MiddlewareGlobalBefore()

@@ -1,9 +1,8 @@
-import {ServerResponse, ServerRequest} from "http";
-import {Middleware, MiddlewareGlobalBefore} from "../../src/decorator/decorators";
-import {ErrorHandlerInterface} from "../../src/middleware/ErrorHandlerInterface";
+import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
+import {ErrorHandlerMiddlewareInterface} from "../../src/middleware/ErrorHandlerMiddlewareInterface";
 
 @MiddlewareGlobalBefore()
-export class AllErrorsHandler implements ErrorHandlerInterface {
+export class AllErrorsHandler implements ErrorHandlerMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: Function): void {
         console.log("Error handled: ", error);

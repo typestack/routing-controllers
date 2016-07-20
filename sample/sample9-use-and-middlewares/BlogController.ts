@@ -1,5 +1,5 @@
 import {JsonController} from "../../src/decorator/controllers";
-import {Get, Delete} from "../../src/decorator/methods";
+import {Get} from "../../src/decorator/methods";
 import {Param} from "../../src/decorator/params";
 import {UseBefore} from "../../src/decorator/decorators";
 import {CompressionMiddleware} from "./CompressionMiddleware";

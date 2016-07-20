@@ -506,7 +506,7 @@ This feature is not supported by koa driver yet.
 
 You can use any exist express / koa middleware, or create your own.
 To create your middlewares there is a `@Middleware` decorator,
-and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
+and to use already exist middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
 ### Use exist middleware
 
@@ -563,7 +563,9 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 
     Alternatively, you can create a custom [global middleware](#global-middlewares) and simply delegate its execution to the compression module.
 
-### Creating your own middleware
+### Creating your own express middleware
+
+Here is example of creating middleware for express.js:
 
 1. To create your own middleware you need to create a class that implements a `MiddlewareInterface` interface and decorated
 with `@Middleware` decorator:
@@ -574,9 +576,9 @@ with `@Middleware` decorator:
     @Middleware()
     export class MyMiddleware implements MiddlewareInterface {
 
-        use(request: any, response: any, next: Function): Promise<void> {
+        use(request: any, response: any, next: (err: any) => any) {
             console.log("do something...");
-            return Promise.resolve();
+            next();
         }
 
     }
@@ -620,24 +622,87 @@ with `@Middleware` decorator:
     This way your middleware will be executed each time before controller action.
     You can use `@UseAfter(MyMiddleware)` to make it execute after each controller action.
 
+### Creating your own koa middleware
+
+Here is example of creating middleware for koa.js:
+
+1. To create your own middleware you need to create a class that implements a `MiddlewareInterface` interface and decorated
+with `@Middleware` decorator:
+
+    ```typescript
+    import {Middleware, MiddlewareInterface} from "routing-controllers";
+
+    @Middleware()
+    export class MyMiddleware implements MiddlewareInterface {
+
+        use(context: any, next: (err: any) => Promise<any>): Promise<any> {
+            console.log("do something before execution...");
+            return next().then(() => {
+                console.log("do something after execution");
+            }).catch(error => {
+                console.log("error handling is also here");
+            });
+        }
+
+    }
+    ```
+
+    Here, we created our own middleware that prints `do something...` in the console.
+
+2. Second we need to load our middleware in `app.ts` before app bootstrap:
+
+    ```typescript
+    import "reflect-metadata";
+    import {createKoaServer} from "routing-controllers";
+    import "./UserController";
+    import "./MyMiddleware"; // here we load it
+    createKoaServer().listen(3000);
+    ```
+
+3. Now we can use our middleware:
+
+    ```typescript
+    import {Controller, UseBefore} from "routing-controllers";
+    import {MyMiddleware} from "./MyMiddleware";
+
+    @Controller()
+    @UseBefore(MyMiddleware)
+    export class UserController {
+
+    }
+    ```
+
+    or per-action:
+
+    ```typescript
+    @Get("/users/:id")
+    @UseBefore(MyMiddleware)
+    getOne(@Param("id") id: number) {
+        // ...
+    }
+    ```
+
+    This way your middleware will be executed each time before controller action.
+    You can use `@UseAfter(MyMiddleware)` to make it execute after each controller action.
+
 ### Global middlewares
 
 Same way you created a middleware, you can create a global middleware:
 
 ```typescript
 import {MiddlewareGlobalBefore, MiddlewareInterface} from "routing-controllers";
-let compression = require("compression");
 
 @MiddlewareGlobalBefore()
 export class CompressionMiddleware implements MiddlewareInterface {
 
-    use(request: any, response: any): void {
-        return compression();
+    use(request: any, response: any, next: (err: any) => any): void {
+        let compression = require("compression");
+        return compression()(request, response, next);
     }
 
 }
 ```
-
+In this example we simply delegate middleware to compression to use it globally.
 Global middleware runs before each request, always.
 
 You can make global middleware to run after controller action by using `@MiddlewareGlobalAfter` instead of `@MiddlewareGlobalBefore`.
@@ -646,7 +711,8 @@ You can make global middleware to run after controller action by using `@Middlew
 
 ### Error handlers
 
-Error handlers works pretty much the same as middlewares, but `@ErrorHandler` decorator is being used:
+Error handlers are specific only to express.
+Error handlers works pretty much the same as middlewares, but instead of `@Middleware` decorator `@ErrorHandler` is being used:
 
 1. Create a class that implements a `ErrorHandlerInterface` interface and decorated with `@ErrorHandler` decorator:
 
@@ -656,9 +722,9 @@ Error handlers works pretty much the same as middlewares, but `@ErrorHandler` de
     @ErrorHandler()
     export class CustomErrorHandler implements ErrorHandlerInterface {
 
-        error(error: any, request: any, response: any): Promise<void> {
+        error(error: any, request: any, response: any, next: (err: any) => any) {
             console.log("do something...");
-            return Promise.resolve();
+            next();
         }
 
     }

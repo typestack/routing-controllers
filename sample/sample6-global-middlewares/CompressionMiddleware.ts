@@ -1,4 +1,3 @@
-import {ServerResponse, ServerRequest} from "http";
 import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 

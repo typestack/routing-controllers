@@ -3,7 +3,7 @@ import {ServerResponse, IncomingMessage} from "http";
 /**
  * Classes that intercepts response result must implement this interface.
  */
-export interface ErrorHandlerInterface {
+export interface ErrorHandlerMiddlewareInterface {
 
     /**
      * Called before controller action is being executed.

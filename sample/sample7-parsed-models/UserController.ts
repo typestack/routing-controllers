@@ -1,4 +1,4 @@
-import {JsonController, Controller} from "../../src/decorator/controllers";
+import {JsonController} from "../../src/decorator/controllers";
 import {Get, Post} from "../../src/decorator/methods";
 import {QueryParam, Body} from "../../src/decorator/params";
 import {UserFilter} from "./UserFilter";

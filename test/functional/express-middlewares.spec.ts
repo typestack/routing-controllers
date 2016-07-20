@@ -3,7 +3,10 @@ import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
 import {
-    UseBefore, UseAfter, Middleware, MiddlewareGlobalBefore,
+    UseBefore,
+    UseAfter,
+    Middleware,
+    MiddlewareGlobalBefore,
     MiddlewareGlobalAfter
 } from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";

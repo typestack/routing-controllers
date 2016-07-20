@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import {createExpressServer} from "../../src/index";
-
 import "./BlogController";  // same as: require("./BlogController");
 
 const app = createExpressServer(); // register controller actions in express app

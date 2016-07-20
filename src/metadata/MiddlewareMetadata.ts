@@ -1,6 +1,6 @@
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
 import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
-import {ErrorHandlerInterface} from "../middleware/ErrorHandlerInterface";
+import {ErrorHandlerMiddlewareInterface} from "../middleware/ErrorHandlerMiddlewareInterface";
 import {getFromContainer} from "../container";
 
 export class MiddlewareMetadata {
@@ -48,8 +48,8 @@ export class MiddlewareMetadata {
         return getFromContainer<MiddlewareInterface>(this.target);
     }
 
-    get expressErrorHandlerInstance(): ErrorHandlerInterface {
-        return getFromContainer<ErrorHandlerInterface>(this.target);
+    get expressErrorHandlerInstance(): ErrorHandlerMiddlewareInterface {
+        return getFromContainer<ErrorHandlerMiddlewareInterface>(this.target);
     }
     
 }
