@@ -103,7 +103,6 @@ export function HttpCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.SUCCESS_CODE
@@ -119,7 +118,6 @@ export function EmptyResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.EMPTY_RESULT_CODE
@@ -135,7 +133,6 @@ export function NullResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.NULL_RESULT_CODE
@@ -151,7 +148,6 @@ export function UndefinedResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.UNDEFINED_RESULT_CODE
@@ -167,7 +163,6 @@ export function ContentType(type: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: type,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.CONTENT_TYPE
@@ -184,7 +179,6 @@ export function Header(name: string, value: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: name,
             secondaryValue: value,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.HEADER
@@ -200,7 +194,6 @@ export function Location(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: url,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.LOCATION
@@ -216,7 +209,6 @@ export function Redirect(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: url,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.REDIRECT
@@ -232,10 +224,42 @@ export function Render(template: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: template,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.RENDERED_TEMPLATE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+/**
+ * Forces controller action to return a text response.
+ * For example, if @JsonController is used then this decorator ignores it and returns a regular text/html response
+ * instead of json.
+ */
+export function TextResponse() {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.TEXT_RESPONSE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+
+/**
+ * Forces controller action to return a text response.
+ * For example, if @Controller is used then this decorator ignores it and returns a json response
+ * instead of regular text/html response.
+ */
+export function JsonResponse() {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.JSON_RESPONSE
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

@@ -267,12 +267,14 @@ you can specify a special option:
 
 ```typescript
 // this will ignore @Controller if it used and return a json in a response
-@Get("/users", { responseType: "json" })
+@Get("/users")
+@JsonResponse()
 getUsers() {
 }
 
 // this will ignore @JsonController if it used and return a regular text in a response
-@Get("/posts", { responseType: "text" })
+@Get("/posts")
+@TextResponse()
 getPosts() {
 }
 ```

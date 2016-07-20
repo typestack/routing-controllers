@@ -3,11 +3,13 @@ import {Request} from "express";
 import {Controller} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";
 import {Req} from "../../src/decorator/params";
+import {JsonResponse} from "../../src/decorator/decorators";
 
 @Controller()
 export class UserController {
 
-    @Get("/users", { responseType: "json" })
+    @Get("/users")
+    @JsonResponse()
     getAll() {
         return [
             { id: 1, name: "First user!" },

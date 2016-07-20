@@ -15,6 +15,7 @@ import {
     Res
 } from "../../src/decorator/params";
 import {assertRequest} from "./test-utils";
+import {JsonResponse} from "../../src/decorator/decorators";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -170,19 +171,22 @@ describe("action parameters", () => {
                 return `<html><body>hello</body></html>`;
             }
 
-            @Post("/posts", { responseType: "json" })
+            @Post("/posts")
+            @JsonResponse()
             postPost(@Body() question: string) {
                 body = question;
                 return body;
             }
 
-            @Post("/posts-with-required", { responseType: "json" })
+            @Post("/posts-with-required")
+            @JsonResponse()
             postRequiredPost(@Body({ required: true }) post: string) {
                 body = post;
                 return body;
             }
 
-            @Post("/users", { responseType: "json" })
+            @Post("/users")
+            @JsonResponse()
             postUser(@BodyParam("name") name: string, 
                      @BodyParam("age") age: number, 
                      @BodyParam("isActive") isActive: boolean): any {
@@ -192,7 +196,8 @@ describe("action parameters", () => {
                 return null;
             }
 
-            @Post("/users-with-required", { responseType: "json" })
+            @Post("/users-with-required")
+            @JsonResponse()
             postUserWithRequired(@BodyParam("name", { required: true }) name: string, 
                                  @BodyParam("age", { required: true }) age: number, 
                                  @BodyParam("isActive", { required: true }) isActive: boolean): any {

@@ -39,12 +39,6 @@ export class ActionMetadata {
     route: string|RegExp;
 
     /**
-     * Object on which's method this action is attached.
-     * @deprecated
-     */
-    object: any;
-
-    /**
      * Class on which's method this action is attached.
      */
     target: Function;
@@ -60,16 +54,6 @@ export class ActionMetadata {
      */
     type: ActionType;
 
-    /**
-     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
-     */
-    jsonResponse: boolean;
-
-    /**
-     * If set to true then response will be forced to simple string text response.
-     */
-    textResponse: boolean;
-
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -79,18 +63,12 @@ export class ActionMetadata {
         
         if (args.route)
             this.route = args.route;
-        if (args.object)
-            this.object = args.object;
         if (args.target)
             this.target = args.target;
         if (args.method)
             this.method = args.method;
         if (args.type)
             this.type = args.type;
-        if (args.options && args.options.responseType)
-            this.jsonResponse = args.options.responseType === "json"; // todo: write responseType to this
-        if (args.options && args.options.responseType)
-            this.textResponse = args.options.responseType === "text";
     }
 
     // -------------------------------------------------------------------------
@@ -233,6 +211,20 @@ export class ActionMetadata {
     
     get isFileUsed() {
         return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE);
+    }
+
+    /**
+     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
+     */
+    get jsonResponse(): boolean {
+        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.JSON_RESPONSE);
+    }
+
+    /**
+     * If set to true then response will be forced to simple string text response.
+     */
+    get textResponse(): boolean {
+        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.TEXT_RESPONSE);
     }
     
     // -------------------------------------------------------------------------

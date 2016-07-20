@@ -3,6 +3,7 @@ import {JsonController} from "../../src/decorator/controllers";
 import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
+import {TextResponse, JsonResponse} from "../../src/decorator/decorators";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -67,11 +68,13 @@ describe("json-controller methods", () => {
                     status: "removed"
                 };
             }
-            @Get("/categories-text", { responseType: "text" })
+            @Get("/categories-text")
+            @TextResponse()
             getWithTextResponseType() {
                 return "<html><body>All categories</body></html>";
             }
-            @Get("/categories-json", { responseType: "json" })
+            @Get("/categories-json")
+            @JsonResponse()
             getWithTextResponseJson() {
                 return {
                     id: 1,
