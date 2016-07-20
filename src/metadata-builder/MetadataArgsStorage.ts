@@ -18,7 +18,6 @@ export class MetadataArgsStorage {
     controllers: ControllerMetadataArgs[] = [];
     middlewares: MiddlewareMetadataArgs[] = [];
     uses: UseMetadataArgs[] = [];
-    errorHandlers: ErrorHandlerMetadataArgs[] = [];
     actions: ActionMetadataArgs[] = [];
     params: ParamMetadataArgs[] = [];
     responseHandlers: ResponseHandlerMetadataArgs[] = [];
@@ -26,12 +25,6 @@ export class MetadataArgsStorage {
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
-
-    findErrorHandlerMetadatasForClasses(classes: Function[]): ErrorHandlerMetadataArgs[] {
-        return this.errorHandlers.filter(ctrl => {
-            return classes.filter(cls => ctrl.target === cls).length > 0;
-        });
-    }
 
     findMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
         return this.middlewares.filter(ctrl => {
@@ -74,7 +67,6 @@ export class MetadataArgsStorage {
         this.controllers = [];
         this.middlewares = [];
         this.uses = [];
-        this.errorHandlers = [];
         this.actions = [];
         this.params = [];
         this.responseHandlers = [];

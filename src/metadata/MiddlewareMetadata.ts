@@ -1,6 +1,6 @@
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
 import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
-import {ErrorHandlerMiddlewareInterface} from "../middleware/ErrorHandlerMiddlewareInterface";
+import {ErrorMiddlewareInterface} from "../middleware/ErrorMiddlewareInterface";
 import {getFromContainer} from "../container";
 
 export class MiddlewareMetadata {
@@ -44,12 +44,20 @@ export class MiddlewareMetadata {
     // Accessors
     // -------------------------------------------------------------------------
 
+    get isErrorHandler(): boolean {
+        return !!(this.errorHandlerInstance && this.errorHandlerInstance.error);
+    }
+
+    get isUseMiddleware(): boolean {
+        return !!(this.instance && this.instance.use);
+    }
+
     get instance(): MiddlewareInterface {
         return getFromContainer<MiddlewareInterface>(this.target);
     }
 
-    get expressErrorHandlerInstance(): ErrorHandlerMiddlewareInterface {
-        return getFromContainer<ErrorHandlerMiddlewareInterface>(this.target);
+    get errorHandlerInstance(): ErrorMiddlewareInterface {
+        return getFromContainer<ErrorMiddlewareInterface>(this.target);
     }
     
 }

@@ -53,49 +53,22 @@ export class RoutingControllerExecutor {
     }
 
     /**
-     * Registers error handler middlewares in the driver.
-     */
-    registerErrorHandlers(classes?: Function[]): this {
-
-        this.metadataBuilder
-            .buildMiddlewareMetadata(classes)
-            .filter(middleware => middleware.isGlobal && !!middleware.expressErrorHandlerInstance.error)
-            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .forEach(middleware => this.driver.registerErrorHandler(middleware));
-        
-       /* this.metadataBuilder
-            .buildErrorHandlerMetadata(classes)
-            .filter(errorHandler => !errorHandler.hasRoutes && !errorHandler.name)
-            .sort((errorHandler1, errorHandler2) => errorHandler1.priority - errorHandler2.priority)
-            .forEach(errorHandler => this.driver.registerErrorHandler(errorHandler));*/
-        
-        return this;
-    }
-
-    /**
-     * Registers pre-execution middlewares in the driver.
-     */
-    registerPreExecutionMiddlewares(classes?: Function[]): this {
-
-        this.metadataBuilder
-            .buildMiddlewareMetadata(classes)
-            .filter(middleware => middleware.isGlobal && !middleware.afterAction)
-            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .forEach(middleware => this.driver.registerMiddleware(middleware));
-        
-        return this;
-    }
-
-    /**
      * Registers post-execution middlewares in the driver.
      */
-    registerPostExecutionMiddlewares(classes?: Function[]): this {
+    registerMiddlewares(afterAction: boolean, classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => middleware.isGlobal && middleware.afterAction)
+            .filter(middleware => middleware.isGlobal && middleware.afterAction === afterAction)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .reverse()
-            .forEach(middleware => this.driver.registerMiddleware(middleware));
+            .forEach(middleware => {
+                if (middleware.isErrorHandler) {
+                    this.driver.registerErrorHandler(middleware);
+
+                } else if (middleware.isUseMiddleware) {
+                    this.driver.registerMiddleware(middleware);
+                }
+            });
         
         return this;
     }

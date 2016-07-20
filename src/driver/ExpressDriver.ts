@@ -76,11 +76,11 @@ export class ExpressDriver extends BaseDriver implements Driver {
      * Registers given error handler in the driver.
      */
     registerErrorHandler(middleware: MiddlewareMetadata): void {
-        if (!middleware.expressErrorHandlerInstance.error)
+        if (!middleware.errorHandlerInstance.error)
             return;
 
         this.express.use(function (error: any, request: any, response: any, next: Function) {
-            middleware.expressErrorHandlerInstance.error(error, request, response, next);
+            middleware.errorHandlerInstance.error(error, request, response, next);
         });
     }
 
@@ -292,14 +292,24 @@ export class ExpressDriver extends BaseDriver implements Driver {
     private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
-            if (use.middleware.prototype.use) { // if this is function instance of ExpressMiddlewareInterface
+            if (use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: (err: any) => any) {
+                        middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
                             return middleware.instance.use(request, response, next);
                         });
                     }
                 });
+            } else if (use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
+                middlewares.forEach(middleware => {
+                    if (middleware.errorHandlerInstance instanceof use.middleware) {
+                        middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                            console.log("executing error handling...");
+                            return middleware.errorHandlerInstance.error(error, request, response, next);
+                        });
+                    }
+                });
+
             } else {
                 middlewareFunctions.push(use.middleware);
             }

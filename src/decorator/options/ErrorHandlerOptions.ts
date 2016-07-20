@@ -8,9 +8,4 @@ export interface ErrorHandlerOptions {
      */
     priority?: number;
 
-    /**
-     * Defines on which routes this middleware is applied.
-     */
-    routes?: string[];
-
 }

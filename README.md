@@ -810,6 +810,10 @@ Learn more about constructor-utils and how to handle more complex object constru
 This behaviour is enabled by default.
 If you want to disable it simply pass `useConstructorUtils: true` to createExpressServer method.
 
+## Default error handling
+
+Routing-controller comes with default error handling mechanism.
+
 ## Using DI container
 
 `routing-controllers` supports a DI container out of the box. You can inject your services into your controllers,

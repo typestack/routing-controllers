@@ -26,11 +26,6 @@ export interface RoutingControllersOptions {
     middlewareDirs?: string[];
 
     /**
-     * List of directories from where to "require" all your error handlers.
-     */
-    errorHandlerDirs?: string[];
-
-    /**
      * IOC Container to be used to initialize your controllers, middlewares and error handlers.
      */
     container?: { get: (cls: any) => any };
@@ -119,8 +114,6 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)
         importClassesFromDirectories(options.middlewareDirs);
-    if (options && options.errorHandlerDirs && options.errorHandlerDirs.length)
-        importClassesFromDirectories(options.errorHandlerDirs);
 
     if (options && options.developmentMode !== undefined) {
         driver.developmentMode = options.developmentMode;
@@ -149,10 +142,9 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     // next create a controller executor
     new RoutingControllerExecutor(driver)
         .bootstrap()
-        .registerPreExecutionMiddlewares()
+        .registerMiddlewares(false)
         .registerActions()
-        .registerPostExecutionMiddlewares()
-        .registerErrorHandlers(); // todo: register only for loaded controllers?
+        .registerMiddlewares(true); // todo: register only for loaded controllers?
 }
 
 // -------------------------------------------------------------------------
@@ -176,4 +168,3 @@ export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
 export * from "./middleware/MiddlewareInterface";
-export * from "./ErrorHandlerInterface";

@@ -95,26 +95,6 @@ export function UseAfter(...middlewares: Array<Function|((request: any, response
 }
 
 /**
- * Registers a new error handler middleware.
- */
-export function ErrorHandler(options?: ErrorHandlerOptions): Function;
-export function ErrorHandler(name?: string, options?: ErrorHandlerOptions): Function;
-export function ErrorHandler(nameOrOptions?: string|ErrorHandlerOptions, maybeOptions?: ErrorHandlerOptions): Function {
-    const name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
-    const options = nameOrOptions instanceof Object ? <ErrorHandlerOptions> nameOrOptions : maybeOptions;
-    
-    return function (target: Function) {
-        const metadata: ErrorHandlerMetadataArgs = {
-            target: target,
-            name: name,
-            priority: options && options.priority ? options.priority : undefined,
-            routes: options && options.routes ? options.routes : undefined
-        };
-        defaultMetadataArgsStorage().errorHandlers.push(metadata);
-    };
-}
-
-/**
  * Annotation must be set to controller action and given to it code will be used as HTTP Status Code in the case
  * if response result is success.
  */

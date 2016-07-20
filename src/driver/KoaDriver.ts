@@ -293,6 +293,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                         });
                     }
                 });
+
             } else {
                 middlewareFunctions.push(use.middleware);
             }

@@ -8,8 +8,7 @@ const baseDir = __dirname;
 // to do it simply use createExpressServer instead of createKoaServer
 const app = createExpressServer({
     controllerDirs: [baseDir + "/modules/**/controllers"],
-    middlewareDirs: [baseDir + "/modules/**/middlewares"],
-    errorHandlerDirs: [baseDir + "/modules/**/error-handlers"],
+    middlewareDirs: [baseDir + "/modules/**/middlewares"]
 });
 app.listen(3001);
 
