@@ -82,10 +82,9 @@ export class KoaDriver extends BaseDriver implements Driver {
             }
         }
         // file uploading is not working yet. need to implement it
-        if (action.isFileUsed || action.isFilesUsed) {
-            throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+        /*if (action.isFileUsed || action.isFilesUsed) {
             // todo: not implemented yet
-            /*const multer = require("koa-router-multer");
+            const multer = require("koa-router-multer");
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
@@ -95,8 +94,8 @@ export class KoaDriver extends BaseDriver implements Driver {
                 .filter(param => param.type === ParamTypes.UPLOADED_FILES)
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });*/
-        }
+                });
+        }*/
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
@@ -144,9 +143,11 @@ export class KoaDriver extends BaseDriver implements Driver {
             case ParamTypes.QUERY:
                 return context.query[param.name];
             case ParamTypes.UPLOADED_FILE:
-                return actionOptions.context.req.file;
+                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+                // return actionOptions.context.req.file;
             case ParamTypes.UPLOADED_FILES:
-                return actionOptions.context.req.files;
+                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+                // return actionOptions.context.req.files;
             case ParamTypes.HEADER:
                 return context.headers[param.name.toLowerCase()];
             case ParamTypes.BODY_PARAM:

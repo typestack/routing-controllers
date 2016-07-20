@@ -1,5 +1,11 @@
 # routing-controllers
 
+[![Build Status](https://travis-ci.org/pleerock/routing-controllers.svg?branch=master)](https://travis-ci.org/pleerock/routing-controllers)
+[![codecov](https://codecov.io/gh/pleerock/routing-controllers/branch/master/graph/badge.svg)](https://codecov.io/gh/pleerock/routing-controllers)
+[![npm version](https://badge.fury.io/js/routing-controllers.svg)](https://badge.fury.io/js/routing-controllers)
+[![Dependency Status](https://david-dm.org/pleerock/routing-controllers.svg)](https://david-dm.org/pleerock/routing-controllers)
+[![devDependency Status](https://david-dm.org/pleerock/routing-controllers/dev-status.svg)](https://david-dm.org/pleerock/routing-controllers#info=devDependencies)
+
 Allows to create controller classes with methods as actions that handle requests.
 You can use routing-controllers with [express.js][1] or [koa.js][2].
 

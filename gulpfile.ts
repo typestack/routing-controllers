@@ -10,6 +10,8 @@ const tslint = require("gulp-tslint");
 const stylish = require("tslint-stylish");
 const ts = require("gulp-typescript");
 const sourcemaps = require("gulp-sourcemaps");
+const istanbul = require("gulp-istanbul");
+const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 
 @Gulpclass()
 export class Gulpfile {
@@ -160,27 +162,34 @@ export class Gulpfile {
     }
 
     /**
-     * Runs unit-tests.
+     * Runs before test coverage, required step to perform a test coverage.
      */
     @Task()
-    unit() {
-        chai.should();
-        chai.use(require("sinon-chai"));
-        chai.use(require("chai-as-promised"));
-        return gulp.src("./build/es5/test/unit/**/*.js")
-            .pipe(mocha());
+    coveragePre() {
+        return gulp.src(["./build/es5/src/**/*.js"])
+            .pipe(istanbul())
+            .pipe(istanbul.hookRequire());
     }
 
     /**
-     * Runs functional-tests.
+     * Runs post coverage operations.
      */
-    @Task()
-    functional() {
+    @Task("coveragePost", ["coveragePre"])
+    coveragePost() {
         chai.should();
         chai.use(require("sinon-chai"));
         chai.use(require("chai-as-promised"));
-        return gulp.src("./build/es5/test/functional/**/*.js")
-            .pipe(mocha());
+
+        return gulp.src(["./build/es5/test/**/*.js"])
+            .pipe(mocha())
+            .pipe(istanbul.writeReports());
+    }
+
+    @Task()
+    coverageRemap() {
+        return gulp.src("./coverage/coverage-final.json")
+            .pipe(remapIstanbul())
+            .pipe(gulp.dest("./coverage"));
     }
 
     /**
@@ -188,7 +197,6 @@ export class Gulpfile {
      */
     @SequenceTask()
     tests() {
-        return ["compile", "tslint", "unit", "functional"];
+        return ["compile", "tslint", "coveragePost", "coverageRemap"];
     }
-
 }
