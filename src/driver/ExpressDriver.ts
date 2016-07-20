@@ -42,7 +42,7 @@ export class ExpressDriver implements Driver {
     /**
      * Route prefix. eg '/api'
      */
-    routePrefix: string = '';
+    routePrefix: string = "";
 
     // -------------------------------------------------------------------------
     // Constructor

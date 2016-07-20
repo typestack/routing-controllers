@@ -129,7 +129,7 @@ export class RoutingControllerExecutor {
         if (Utils.isPromise(result)) {
             result
                 .then((data: any) => {
-                    return this.handleResult(data, action, options)
+                    return this.handleResult(data, action, options);
                 })
                 .catch((error: any) => {
                     this.driver.handleError(error, action, options);

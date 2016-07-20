@@ -37,13 +37,13 @@ describe("template rendering", () => {
         server.set("view engine", "html");
         server.set("views", path);
         server.use(require("express").static(path));
-        expressApp = server.listen(3001, done)
+        expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
 
     let koaApp: any;
     before(done => {
-        koaApp = createKoaServer().listen(3002, done)
+        koaApp = createKoaServer().listen(3002, done);
     });
     after(done => koaApp.close(done));
 

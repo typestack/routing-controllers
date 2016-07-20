@@ -87,7 +87,7 @@ export class KoaDriver extends BaseDriver implements Driver {
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
-                    defaultMiddlewares.push(multer({dest: 'uploads/'}).single(param.name));
+                    defaultMiddlewares.push(multer({ dest: "uploads/" }).single(param.name));
                 });
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILES)
