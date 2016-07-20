@@ -720,7 +720,7 @@ Error handlers works pretty much the same as middlewares, but instead of `@Middl
     import {ErrorHandler, ErrorHandlerInterface} from "routing-controllers";
 
     @ErrorHandler()
-    export class CustomErrorHandler implements ErrorHandlerInterface {
+    export class CustomErrorHandler implements ErrorHandlerMiddlewareInterface {
 
         error(error: any, request: any, response: any, next: (err: any) => any) {
             console.log("do something...");
