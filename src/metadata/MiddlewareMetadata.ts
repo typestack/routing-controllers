@@ -1,7 +1,7 @@
-import {getContainer} from "../index";
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
 import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
 import {ErrorHandlerInterface} from "../middleware/ErrorHandlerInterface";
+import {getFromContainer} from "../container";
 
 export class MiddlewareMetadata {
 
@@ -45,11 +45,11 @@ export class MiddlewareMetadata {
     // -------------------------------------------------------------------------
 
     get instance(): MiddlewareInterface {
-        return getContainer().get<MiddlewareInterface>(this.target);
+        return getFromContainer<MiddlewareInterface>(this.target);
     }
 
     get expressErrorHandlerInstance(): ErrorHandlerInterface {
-        return getContainer().get<ErrorHandlerInterface>(this.target);
+        return getFromContainer<ErrorHandlerInterface>(this.target);
     }
     
 }

@@ -1,7 +1,7 @@
 import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
-import {getContainer} from "../index";
 import {UseMetadata} from "./UseMetadata";
+import {getFromContainer} from "../container";
 
 export class ControllerMetadata {
 
@@ -56,7 +56,7 @@ export class ControllerMetadata {
     }
 
     get instance(): any {
-        return getContainer().get(this.target);
+        return getFromContainer(this.target);
     }
     
 }

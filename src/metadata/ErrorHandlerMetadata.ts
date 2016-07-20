@@ -1,6 +1,6 @@
-import {getContainer} from "../index";
 import {ErrorHandlerInterface} from "../ErrorHandlerInterface";
 import {ErrorHandlerMetadataArgs} from "./args/ErrorHandlerMetadataArgs";
+import {getFromContainer} from "../container";
 
 export class ErrorHandlerMetadata {
 
@@ -48,7 +48,7 @@ export class ErrorHandlerMetadata {
     // -------------------------------------------------------------------------
 
     get instance(): ErrorHandlerInterface {
-        return getContainer().get<ErrorHandlerInterface>(this.target);
+        return getFromContainer<ErrorHandlerInterface>(this.target);
     }
 
     get hasRoutes() {

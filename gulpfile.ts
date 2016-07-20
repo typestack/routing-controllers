@@ -1,5 +1,4 @@
-import {Gulpclass, Task, SequenceTask} from "gulpclass/Decorators";
-import {MergedTask} from "gulpclass/index";
+import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
 
 const gulp = require("gulp");
 const del = require("del");
@@ -59,15 +58,15 @@ export class Gulpfile {
     @MergedTask()
     packageCompile() {
         const tsProject = ts.createProject("tsconfig.json");
-        const tsResult = gulp.src(["src/**/*.ts", "typings/**/*.ts"])
+        const tsResult = gulp.src(["./src/**/*.ts", "./typings/**/*.ts"])
             .pipe(sourcemaps.init())
             .pipe(ts(tsProject));
 
         return [
-            tsResult.dts.pipe(gulp.dest("build/package")),
+            tsResult.dts.pipe(gulp.dest("./build/package")),
             tsResult.js
                 .pipe(sourcemaps.write(".", { sourceRoot: "", includeContent: true }))
-                .pipe(gulp.dest('build/package'))
+                .pipe(gulp.dest("./build/package"))
         ];
     }
 
@@ -86,7 +85,7 @@ export class Gulpfile {
     @Task()
     packageClearCompileDirectory(cb: Function) {
         return del([
-            "build/package/src/**"
+            "./build/package/src/**"
         ], cb);
     }
 

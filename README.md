@@ -1,7 +1,7 @@
 # routing-controllers
 
 Allows to create controller classes with methods as actions that handle requests.
-Routing-controllers is built upon [express.js][1].
+You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 ## Installation
 
@@ -19,7 +19,7 @@ Routing-controllers is built upon [express.js][1].
     import "reflect-metadata";
     ```
 
-3. ES6 features are used, so you are using old version of node.js you may need to install a
+3. ES6 features are used, if you are using old version of node.js you may need to install a
  [es6-shim](https://github.com/paulmillr/es6-shim) too:
 
     `npm install es6-shim --save`
@@ -30,9 +30,24 @@ Routing-controllers is built upon [express.js][1].
     import "es6-shim";
     ```
 
-4. Additionally you can install express [typings](https://github.com/typings/typings):
+4. Install framework:
+
+    a. If you want to use routing-controllers with **express.js**, then install it:
+
+    `npm install express --save`
+
+    Optionally you can also install its [typings](https://github.com/typings/typings):
 
     `typings install dt~express dt~serve-static --save --global`
+
+    b. If you want to use routing-controllers with **koa 2**, then install it:
+
+    `npm install koa@next --save`
+
+    Optionally you can also install its [typings](https://github.com/typings/typings):
+
+    `typings install dt~koa --save --global`
+
 
 ## Example of usage
 
@@ -77,15 +92,18 @@ Routing-controllers is built upon [express.js][1].
 2. Create a file `app.ts`
 
     ```typescript
-    import {createServer} from "routing-controllers";
+    import "es6-shim"; // this shim is optional if you are using old version of node
     import "reflect-metadata"; // this shim is required
+    import {createExpressServer} from "routing-controllers";
     import "./UserController";  // we need to "load" our controller before call createServer. this is required
-    let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
+    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
     app.listen(3000); // run express application
     ```
 
-3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser. If you open
- `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
+    > koa users just need to call `createKoaServer` instead of `createExpressServer`
+
+3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser.
+If you open `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
 
 ## More usage examples
 
@@ -129,7 +147,7 @@ export class UserController {
 
 #### Using Request and Response objects
 
-You can use express's request and response objects this way:
+You can use framework's request and response objects this way:
 
 ```typescript
 import {Controller, Req, Res, Get} from "routing-controllers";
@@ -163,20 +181,22 @@ export class UserController {
 }
 ```
 
-#### Using exist express server instead of creating a new one
+#### Using exist server instead of creating a new one
 
 If you have, or if you want to create and configure express app separately,
 you can use `useServer` instead of `createServer` function:
 
 ```typescript
-import {useServer} from "routing-controllers";
 import "reflect-metadata"; // this shim is required
+import {useExpressServer} from "routing-controllers";
 
 let app = express(); // your created express server
 // app.use() // maybe you configure itself the way you want
-useServer(app); // register created express server in routing-controllers
+useExpressServer(app); // register created express server in routing-controllers
 app.listen(3000); // run your express server
 ```
+
+> koa users must use `useKoaServer` instead of `useExpressServer`
 
 #### Load all controllers from the given directory
 
@@ -184,9 +204,10 @@ You can load all controllers in once from specific directories, by specifying ar
 `createServer` or `useServer`:
 
 ```typescript
-import {createServer, loadControllers} from "routing-controllers";
 import "reflect-metadata"; // this shim is required
-createServer({
+import {createExpressServer, loadControllers} from "routing-controllers";
+
+createExpressServer({
     controllerDirs: [__dirname + "/controllers"]
 }).listen(3000); // register controllers routes in our express application
 ```
@@ -196,10 +217,10 @@ createServer({
 If you want to prefix all routes in some directory eg. /api 
 
 ```typescript
-import {createServer} from "routing-controllers";
-import "reflect-metadata";
+import "reflect-metadata"; // this shim is required
+import {createExpressServer} from "routing-controllers";
 
-createServer({
+createExpressServer({
     routePrefix: "/api",
     controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
 }).listen(3000);
@@ -221,7 +242,6 @@ export class UserController {
 If you are designing a REST API where your endpoints always return JSON you can use `@JsonController` decorator instead
 of `@Controller`. This will guarantee you that data returned by your controller actions always be transformed to JSON
  and `Content-Type` header will be always set to `application/json`:
-
 
 ```typescript
 @JsonController()
@@ -249,7 +269,7 @@ getPosts() {
 
 #### Inject routing parameters
 
-You can use parameters in your routes, and to inject such parameters in your controller methods you must use `@Param` decorator:
+You can use parameters in your routes, and to inject such parameters in your controller methods use `@Param` decorator:
 
 ```typescript
 @Get("/users/:id")
@@ -307,7 +327,7 @@ saveFile(@UploadedFile("fileName") file: any) {
 }
 ```
 
-Routing-controllers uses [multer][2] to handle file uploads.
+Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
 
 #### Inject uploaded files
@@ -316,11 +336,11 @@ To inject all uploaded files, use `@UploadedFiles` decorator:
 
 ```typescript
 @Post("/files")
-saveAll(@UploadedFiles() files: any[]) {
+saveAll(@UploadedFiles("files") files: any[]) {
 }
 ```
 
-Routing-controllers uses [multer][2] to handle file uploads.
+Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
 
 #### Inject cookie parameter
@@ -686,8 +706,8 @@ middlewares and error handlers. Container must be setup during application boots
 Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi)
 
 ```typescript
-import {createServer, useContainer, loadControllers} from "routing-controllers";
 import "reflect-metadata"; // this shim is required
+import {createServer, useContainer, loadControllers} from "routing-controllers";
 import {Container} from "typedi";
 
 createServer({
@@ -772,9 +792,12 @@ export class UsersController {
 Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
 of usage.
 
+Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using this library.
+
 ## Release notes
 
 See information about breaking changes and release notes [here](https://github.com/pleerock/routing-controllers/tree/master/doc/release-notes.md).
 
 [1]: http://expressjs.com/
-[2]: https://github.com/expressjs/multer
+[2]: http://koajs.com/
+[3]: https://github.com/expressjs/multer

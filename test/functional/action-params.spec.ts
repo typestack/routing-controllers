@@ -508,7 +508,7 @@ describe("action parameters", () => {
         });
     });
 
-    describe.only("@UploadedFile should provide uploaded file with the given name", () => {
+    describe("@UploadedFile should provide uploaded file with the given name", () => {
         const requestOptions = {
             formData: {
                 myfile: {
@@ -521,7 +521,7 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([/*3001, */3002], "post", "files", undefined, requestOptions, response => {
+        assertRequest([3001/*, 3002*/], "post", "files", undefined, requestOptions, response => {
             // uploadedFileName.should.be.eql("hello-world.txt");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
