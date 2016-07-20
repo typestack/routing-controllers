@@ -83,20 +83,9 @@ export function useExpressServer<T>(expressApp: T, options?: RoutingControllersO
  * Registers all loaded actions in your express application.
  */
 export function createExpressServer(options?: RoutingControllersOptions): any {
-
-    let expressApp: any;
-    if (require) {
-        try {
-            expressApp = require("express")();
-        } catch (e) {
-            throw new Error("express package was not found installed. Try to install it: npm install express --save");
-        }
-    } else {
-        throw new Error("Cannot load express. Try to install all required dependencies.");
-    }
-
-    useExpressServer(expressApp, options);
-    return expressApp;
+    const driver = new ExpressDriver();
+    createExecutor(driver, options || {});
+    return driver.express;
 }
 
 /**

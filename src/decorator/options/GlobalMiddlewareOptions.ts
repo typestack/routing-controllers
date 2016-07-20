@@ -8,9 +8,4 @@ export interface GlobalMiddlewareOptions {
      */
     priority?: number;
 
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    afterAction?: boolean;
-
 }

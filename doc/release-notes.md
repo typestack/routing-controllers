@@ -3,8 +3,14 @@
 **0.6.0** *[BREAKING CHANGES]*
 
 * middleware and error handlers support
+* everything packed into "routing-controllers" main export
+* removed parseJson from @Body decorator
+* removed ActionOptions
+* removed responseType from action options and added @JsonResponse and @TextResponse decorators
+* added few more new decorators
+* fixed multiple issues with param decorators
+* fixed multiple bugs
 * refactored core
-* everything packed into "routing-controllers" main entrypoint now
 
 **0.5.0**
 

@@ -23,15 +23,30 @@ export function Middleware(): Function {
 }
 
 /**
- * Registers a global middleware.
+ * Registers a global middleware that runs before the route actions.
  */
-export function GlobalMiddleware(options?: GlobalMiddlewareOptions): Function {
+export function MiddlewareGlobalBefore(options?: GlobalMiddlewareOptions): Function {
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
             isGlobal: true,
             priority: options && options.priority ? options.priority : undefined,
-            afterAction: options && options.afterAction ? options.afterAction : false
+            afterAction: false
+        };
+        defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Registers a global middleware that runs after the route actions.
+ */
+export function MiddlewareGlobalAfter(options?: GlobalMiddlewareOptions): Function {
+    return function (target: Function) {
+        const metadata: MiddlewareMetadataArgs = {
+            target: target,
+            isGlobal: true,
+            priority: options && options.priority ? options.priority : undefined,
+            afterAction: true
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
     };

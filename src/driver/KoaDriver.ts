@@ -8,6 +8,7 @@ import {constructorToPlain} from "constructor-utils/index";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {Driver} from "./Driver";
 import {UseMetadata} from "../metadata/UseMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
 const cookie = require("cookie");
 
 /**
@@ -16,7 +17,7 @@ const cookie = require("cookie");
 export class KoaDriver extends BaseDriver implements Driver {
 
     // -------------------------------------------------------------------------
-    // Properties
+    // Private Properties
     // -------------------------------------------------------------------------
 
     private router: any;
@@ -132,7 +133,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         this.koa.use(this.router.allowedMethods());
     }
 
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {

@@ -2,7 +2,10 @@ import "reflect-metadata";
 import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {UseBefore, UseAfter, Middleware, GlobalMiddleware} from "../../src/decorator/decorators";
+import {
+    UseBefore, UseAfter, Middleware, MiddlewareGlobalBefore,
+    MiddlewareGlobalAfter
+} from "../../src/decorator/decorators";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -31,7 +34,7 @@ describe("express middlewares", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();
 
-        @GlobalMiddleware()
+        @MiddlewareGlobalBefore()
         class TestGlobalBeforeMidleware implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
@@ -42,7 +45,7 @@ describe("express middlewares", () => {
 
         }
 
-        @GlobalMiddleware({ afterAction: true })
+        @MiddlewareGlobalAfter()
         class TestGlobalAfterMidleware implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {

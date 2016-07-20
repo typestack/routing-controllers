@@ -9,12 +9,14 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {constructorToPlain} from "constructor-utils";
 import {Driver} from "./Driver";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+import {BaseDriver} from "./BaseDriver";
 const cookie = require("cookie");
 
 /**
  * Base driver functionality for all other drivers.
  */
-export class ExpressDriver implements Driver {
+export class ExpressDriver extends BaseDriver implements Driver {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -49,7 +51,19 @@ export class ExpressDriver implements Driver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private express: any) {
+    constructor(public express?: any) {
+        super();
+        if (require) {
+            if (!express) {
+                try {
+                    this.express = require("express")();
+                } catch (e) {
+                    throw new Error("express package was not found installed. Try to install it: npm install express --save");
+                }
+            }
+        } else {
+            throw new Error("Cannot load express. Try to install all required dependencies.");
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -103,13 +117,13 @@ export class ExpressDriver implements Driver {
         const defaultMiddlewares: any[] = [];
         if (action.isBodyUsed) {
             if (action.isJsonTyped) {
-                defaultMiddlewares.push(require("body-parser").json());
+                defaultMiddlewares.push(this.loadBodyParser().json());
             } else {
-                defaultMiddlewares.push(require("body-parser").text());
+                defaultMiddlewares.push(this.loadBodyParser().text());
             }
         }
         if (action.isFileUsed || action.isFilesUsed) {
-            const multer = require("multer");
+            const multer = this.loadMulter();
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
@@ -140,7 +154,7 @@ export class ExpressDriver implements Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
         const request: any = actionOptions.request;
         switch (param.type) {
             case ParamTypes.BODY:
@@ -294,47 +308,20 @@ export class ExpressDriver implements Driver {
         return middlewareFunctions;
     }
 
-    private processJsonError(error: any) {
-        if (!this.isDefaultErrorHandlingEnabled)
-            return error;
-
-        let processedError: any = {};
-        if (error instanceof Error) {
-            if (error.name && (this.developmentMode || error.message)) // show name only if in debug mode and if error message exist too
-                processedError.name = error.name;
-            if (error.message)
-                processedError.message = error.message;
-            if (error.stack && this.developmentMode)
-                processedError.stack = error.stack;
-
-            Object.keys(error)
-                .filter(key => key !== "stack" && key !== "name" && key !== "message" && (!(error instanceof HttpError) || key !== "httpCode"))
-                .forEach(key => processedError[key] = error[key]);
-
-            if (this.errorOverridingMap)
-                Object.keys(this.errorOverridingMap)
-                    .filter(key => error.name === key)
-                    .forEach(key => processedError = Utils.merge(processedError, this.errorOverridingMap[key]));
-
-            return Object.keys(processedError).length > 0 ? processedError : undefined;
+    private loadBodyParser() {
+        try {
+            return require("body-parser");
+        } catch (e) {
+            throw new Error("body-parser package was not found installed. Try to install it: npm install body-parser --save");
         }
-
-        return error;
     }
 
-    private processTextError(error: any) {
-        if (!this.isDefaultErrorHandlingEnabled)
-            return error;
-
-        if (error instanceof Error) {
-            if (this.developmentMode && error.stack) {
-                return error.stack;
-
-            } else if (error.message) {
-                return error.message;
-            }
+    private loadMulter() {
+        try {
+            return require("multer");
+        } catch (e) {
+            throw new Error("multer package was not found installed. Try to install it: npm install multer --save");
         }
-        return error;
     }
 
 }

@@ -309,6 +309,11 @@ saveUser(@Body() user: User) {
 }
 ```
 
+If you specify a class type to parameter that is decorated with `@Body()`,
+routing-controllers will use [constructor-utils][4] to create instance of the given class type with the data received in request body.
+To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
+
+
 #### Inject request body parameters
 
 To inject request body parameter, use `@BodyParam` decorator:
@@ -382,11 +387,13 @@ Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and o
 
 #### Convert parameters to objects
 
-You can convert any parameter you receive into object by specifying a `parseJson: true` option:
+If you specify a class type to parameter that is decorated with parameter decorator,
+routing-controllers will use [constructor-utils][4] to create instance of that class type.
+To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
 
 ```typescript
 @Get("/users")
-getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
+getUsers(@QueryParam("filter") filter: UserFilter) {
     // now you can use your filter, for example
     if (filter.showAll === true)
         return "all users";
@@ -397,6 +404,9 @@ getUsers(@QueryParam("filter", { parseJson: true }) filter: UserFilter) {
 // you can send a request to http://localhost:3000/users?filter={"showAll": true}
 // and it will show you "all users"
 ```
+
+If `UserFilter` is an interface - then simple literal object will be created.
+If its a class - then instance of this will be created.
 
 #### Set custom ContentType
 
@@ -494,7 +504,7 @@ This feature is not supported by koa driver yet.
 
 ## Using middlewares
 
-You can use any exist express middleware, or create your own.
+You can use any exist express / koa middleware, or create your own.
 To create your middlewares there is a `@Middleware` decorator,
 and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
@@ -615,10 +625,10 @@ with `@Middleware` decorator:
 Same way you created a middleware, you can create a global middleware:
 
 ```typescript
-import {GlobalMiddleware, MiddlewareInterface} from "routing-controllers";
+import {MiddlewareGlobalBefore, MiddlewareInterface} from "routing-controllers";
 let compression = require("compression");
 
-@GlobalMiddleware()
+@MiddlewareGlobalBefore()
 export class CompressionMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any): void {
@@ -630,10 +640,9 @@ export class CompressionMiddleware implements MiddlewareInterface {
 
 Global middleware runs before each request, always.
 
-You can make global middleware to run after controller action by specifying extra `afterAction: true`
-option: `@GlobalMiddleware({ afterAction: true })`. If you have issues with global middlewares run order
-you can set a priority: `@GlobalMiddleware({ priority: 1 })`.
-Higher is priority means middleware being executed earlier.
+You can make global middleware to run after controller action by using `@MiddlewareGlobalAfter` instead of `@MiddlewareGlobalBefore`.
+ If you have issues with global middlewares run execution order you can set a priority: `@MiddlewareGlobalBefore({ priority: 1 })`.
+ Higher priority means middleware being executed earlier.
 
 ### Error handlers
 
@@ -731,13 +740,15 @@ export class UserController {
 ```
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
-Learn more about constructor-utils and how to handle more complex object constructions [here](https://github.com/pleerock/constructor-utils).
+Learn more about constructor-utils and how to handle more complex object constructions [here][4].
+This behaviour is enabled by default.
+If you want to disable it simply pass `useConstructorUtils: true` to createExpressServer method.
 
 ## Using DI container
 
 `routing-controllers` supports a DI container out of the box. You can inject your services into your controllers,
 middlewares and error handlers. Container must be setup during application bootstrap.
-Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi)
+Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi):
 
 ```typescript
 import "reflect-metadata";
@@ -779,14 +790,14 @@ export class UsersController {
 
 | Signature                                                                    | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
 |------------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `@Get(route: string|RegExp, options?: ActionOptions)`                        | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.get("/users", all)`             |
-| `@Post(route: string|RegExp, options?: ActionOptions)`                       | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.post("/users", save)`           |
-| `@Put(route: string|RegExp, options?: ActionOptions)`                        | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.put("/users", update)`          |
-| `@Patch(route: string|RegExp, options?: ActionOptions)`                      | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
-| `@Delete(route: string|RegExp, options?: ActionOptions)`                     | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
-| `@Head(route: string|RegExp, options?: ActionOptions)`                       | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Options(route: string|RegExp, options?: ActionOptions)`                    | `@Options("/users/:id") head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.options("/users/:id", options)` |
-| `@Method(methodName: string, route: string|RegExp, options?: ActionOptions)` | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@Get(route: string|RegExp)`                                                 | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.get("/users", all)`             |
+| `@Post(route: string|RegExp)`                                                | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.post("/users", save)`           |
+| `@Put(route: string|RegExp)`                                                 | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.put("/users", update)`          |
+| `@Patch(route: string|RegExp)`                                               | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
+| `@Delete(route: string|RegExp)`                                              | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
+| `@Head(route: string|RegExp)`                                                | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
+| `@Options(route: string|RegExp)`                                             | `@Options("/users/:id") head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.options("/users/:id", options)` |
+| `@Method(methodName: string, route: string|RegExp)`                          | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
@@ -803,14 +814,21 @@ export class UsersController {
 | `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
-#### Other Decorators
+#### Middleware Decorators
 
 | Signature                                                          | Example                                          | Description                                                                                                     |
 |--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `@Middleware()`                                                    | `@Middleware() class SomeMiddleware`             | Registers a new middleware.                                                                                     |
+| `@MiddlewareGlobalBefore()`                                        | `@MiddlewareGlobalBefore() class SomeMiddleware` | Registers a middleware that runs globally before action execution.                                              |
+| `@MiddlewareGlobalAfter()`                                         | `@MiddlewareGlobalAfter() class SomeMiddleware`  | Registers a middleware that runs globally after action execution.                                               |
 | `@ErrorHandler()`                                                  | `@ErrorHandler() class SomeErrorHandler`         | Registers a new error handler.                                                                                  |
 | `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`              | Uses given middleware before action is being executed.                                                          |
 | `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`               | Uses given middleware after action is being executed.                                                           |
+
+#### Other Decorators
+
+| Signature                                                          | Example                                          | Description                                                                                                     |
+|--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `@JsonResponse()`                                                  | `@JsonResponse()` get()                          | Controller actions marked with this decorator will return a json response instead of default text/html.         |
 | `@TextResponse()`                                                  | `@TextResponse()` get()                          | Controller actions marked with this decorator will return a text/html response instead of default json.         |
 | `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                          | Allows to explicitly set HTTP code to be returned in the response.                                              |
@@ -827,7 +845,9 @@ export class UsersController {
 
 * Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
 of usage.
-* Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using this library.
+* Take a look on [routing-controllers with express](https://github.com/pleerock/routing-controllers-express-demo) which is using routing-controllers.
+* Take a look on [routing-controllers with koa](https://github.com/pleerock/routing-controllers-koa-demo) which is using routing-controllers.
+* Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using routing-controllers.
 
 ## Release notes
 
@@ -836,3 +856,4 @@ See information about breaking changes and release notes [here](https://github.c
 [1]: http://expressjs.com/
 [2]: http://koajs.com/
 [3]: https://github.com/expressjs/multer
+[4]: https://github.com/pleerock/constructor-utils
