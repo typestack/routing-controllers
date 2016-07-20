@@ -83,7 +83,9 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
         // file uploading is not working yet. need to implement it
         if (action.isFileUsed || action.isFilesUsed) {
-            const multer = require("koa-router-multer");
+            throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+            // todo: not implemented yet
+            /*const multer = require("koa-router-multer");
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
@@ -93,7 +95,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                 .filter(param => param.type === ParamTypes.UPLOADED_FILES)
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });
+                });*/
         }
 
         const uses = action.controllerMetadata.uses.concat(action.uses);

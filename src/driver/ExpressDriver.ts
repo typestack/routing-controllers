@@ -9,6 +9,7 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {constructorToPlain} from "constructor-utils";
 import {Driver} from "./Driver";
+const cookie = require("cookie");
 
 /**
  * Base driver functionality for all other drivers.
@@ -100,9 +101,6 @@ export class ExpressDriver implements Driver {
         };
 
         const defaultMiddlewares: any[] = [];
-        if (action.isCookiesUsed) {
-            defaultMiddlewares.push(require("cookie-parser")());
-        }
         if (action.isBodyUsed) {
             if (action.isJsonTyped) {
                 defaultMiddlewares.push(require("body-parser").json());
@@ -160,7 +158,9 @@ export class ExpressDriver implements Driver {
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
-                return request.cookies[param.name];
+                if (!request.headers.cookie) return;
+                const cookies = cookie.parse(request.headers.cookie);
+                return cookies[param.name];
         }
     }
 

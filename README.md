@@ -19,8 +19,8 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     import "reflect-metadata";
     ```
 
-3. ES6 features are used, if you are using old version of node.js you may need to install a
- [es6-shim](https://github.com/paulmillr/es6-shim) too:
+3. ES6 features are used, if you are using old version of node.js you may need to install
+ [es6-shim](https://github.com/paulmillr/es6-shim):
 
     `npm install es6-shim --save`
 
@@ -32,17 +32,17 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 4. Install framework:
 
-    a. If you want to use routing-controllers with **express.js**, then install it:
+    **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
 
-    `npm install express --save`
+    `npm install express body-parser multer --save`
 
     Optionally you can also install its [typings](https://github.com/typings/typings):
 
     `typings install dt~express dt~serve-static --save --global`
 
-    b. If you want to use routing-controllers with **koa 2**, then install it:
+    **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa@next --save`
+    `npm install koa@next koa-router@next koa-body-parser@next --save`
 
     Optionally you can also install its [typings](https://github.com/typings/typings):
 
@@ -87,7 +87,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     }
     ```
 
-    This class will register routes specified in method decorators in your server framework (express.js).
+    This class will register routes specified in method decorators in your server framework (express.js or koa).
 
 2. Create a file `app.ts`
 
@@ -184,7 +184,7 @@ export class UserController {
 #### Using exist server instead of creating a new one
 
 If you have, or if you want to create and configure express app separately,
-you can use `useServer` instead of `createServer` function:
+you can use `useExpressServer` instead of `createExpressServer` function:
 
 ```typescript
 import "reflect-metadata"; // this shim is required
@@ -201,7 +201,7 @@ app.listen(3000); // run your express server
 #### Load all controllers from the given directory
 
 You can load all controllers in once from specific directories, by specifying array of directories via options in
-`createServer` or `useServer`:
+`createExpressServer` or `useExpressServer`:
 
 ```typescript
 import "reflect-metadata"; // this shim is required
@@ -211,6 +211,8 @@ createExpressServer({
     controllerDirs: [__dirname + "/controllers"]
 }).listen(3000); // register controllers routes in our express application
 ```
+
+> koa users must use `createKoaServer` instead of `createExpressServer`
 
 #### Load all controllers from the given directory and prefix routes
 
@@ -225,6 +227,8 @@ createExpressServer({
     controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
 }).listen(3000);
 ```
+
+> koa users must use `createKoaServer` instead of `createExpressServer`
 
 #### Prefix controller with base route
 
@@ -329,6 +333,7 @@ saveFile(@UploadedFile("fileName") file: any) {
 
 Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
+This feature is not supported by koa driver yet.
 
 #### Inject uploaded files
 
@@ -342,6 +347,7 @@ saveAll(@UploadedFiles("files") files: any[]) {
 
 Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
+This feature is not supported by koa driver yet.
 
 #### Inject cookie parameter
 
@@ -458,6 +464,25 @@ getOne(@Param("id") id: number) {
     // ...
 }
 ```
+#### Render templates
+
+You can set any custom header in a response:
+
+```typescript
+@Get("/users/:id")
+@Render("index.html")
+getOne() {
+    return {
+        param1: "these params are used",
+        param2: "in templating engine"
+    };
+}
+```
+
+To use rendering ability make sure to configure express properly.
+[Here](https://github.com/pleerock/routing-controllers/blob/0.6.0-release/test/functional/render-decorator.spec.ts)
+is a test where you can take a look how to do it.
+This feature is not supported by koa driver yet.
 
 ## Using middlewares
 
@@ -465,13 +490,13 @@ You can use any exist express middleware, or create your own.
 To create your middlewares there is a `@Middleware` decorator,
 and to use middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
-### Use exist express middleware
+### Use exist middleware
 
 There are multiple ways to use middlewares.
 For example, lets try to use [compression](https://github.com/expressjs/compression) middleware:
 
 1. Install compression middleware: `npm install compression`
-2. If you want to use middleware per-action:
+2. To use middleware per-action:
 
     ```typescript
     import {Controller, Get, UseBefore} from "routing-controllers";
@@ -488,8 +513,9 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 
     This way compression middleware will be applied only for `getOne` controller action,
     and will be executed *before* action execution.
+    To execute middleware *after* action use `@UseAfter` decorator instead.
 
-3. If you want to use middleware per-controller:
+3. To use middleware per-controller:
 
     ```typescript
     import {Controller, UseBefore} from "routing-controllers";
@@ -503,16 +529,16 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
     ```
 
     This way compression middleware will be applied for all actions of the `UserController` controller,
-    and will be executed *before* action execution.
+    and will be executed *before* its action execution. Same way you can use `@UseAfter` decorator here.
 
 4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
 
     ```typescript
-    import {createServer} from "routing-controllers";
-    import "reflect-metadata"; // this shim is required
-    import "./UserController";  // we need to "load" our controller before call createServer. this is required
+    import "reflect-metadata";
+    import {createExpressServer} from "routing-controllers";
+    import "./UserController";  // we need to "load" our controller before call createExpressServer. this is required
     let compression = require("compression");
-    let app = createServer(); // creates express app, registers all controller routes and returns you express app instance
+    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
     app.use(compression());
     app.listen(3000); // run express application
     ```
@@ -530,7 +556,7 @@ with `@Middleware` decorator:
     @Middleware()
     export class MyMiddleware implements MiddlewareInterface {
 
-        use(request: any, response: any): Promise<void> {
+        use(request: any, response: any, next: Function): Promise<void> {
             console.log("do something...");
             return Promise.resolve();
         }
@@ -543,11 +569,11 @@ with `@Middleware` decorator:
 2. Second we need to load our middleware in `app.ts` before app bootstrap:
 
     ```typescript
-    import {createServer} from "routing-controllers";
     import "reflect-metadata";
+    import {createExpressServer} from "routing-controllers";
     import "./UserController";
     import "./MyMiddleware"; // here we load it
-    createServer().listen(3000);
+    createExpressServer().listen(3000);
     ```
 
 3. Now we can use our middleware:
@@ -624,11 +650,11 @@ Error handlers works pretty much the same as middlewares, but `@ErrorHandler` de
 2. Load created error handler before app bootstrap:
 
     ```typescript
-    import {createServer} from "routing-controllers";
     import "reflect-metadata";
+    import {createExpressServer} from "routing-controllers";
     import "./UserController";
     import "./CustomErrorHandler"; // here we load it
-    createServer().listen(3000);
+    createExpressServer().listen(3000);
     ```
 
 ### Don't forget to load your middlewares and error handlers
@@ -636,21 +662,21 @@ Error handlers works pretty much the same as middlewares, but `@ErrorHandler` de
 Middlewares and error handlers should be loaded globally the same way as controllers, before app bootstrap:
 
 ```typescript
-import {createServer} from "routing-controllers";
 import "reflect-metadata";
+import {createExpressServer} from "routing-controllers";
 import "./UserController";
 import "./MyMiddleware"; // here we load it
 import "./CustomErrorHandler"; // here we load it
-let app = createServer();
+let app = createExpressServer();
 app.listen(3000);
 ```
 
 Also you can load middlewares and error handlers from directories:
 
 ```typescript
-import {createServer, loadControllers} from "routing-controllers";
-import "reflect-metadata"; // this shim is required
-createServer({
+import "reflect-metadata";
+import {createExpressServer, loadControllers} from "routing-controllers";
+createExpressServer({
     controllerDirs: [__dirname + "/controllers"],
     middlewareDirs: [__dirname + "/middlewares"],
     errorHandlerDirs: [__dirname + "/error-handlers"],
@@ -665,10 +691,10 @@ You have ability to do this using [constructor-utils](https://github.com/pleeroc
 To use it simply specify a `useConstructorUtils: true` option on application bootstrap:
 
 ```typescript
-import {createServer, useContainer, loadControllers} from "routing-controllers";
-import "reflect-metadata"; // this shim is required
+import "reflect-metadata";
+import {createExpressServer, useContainer, loadControllers} from "routing-controllers";
 
-createServer({
+createExpressServer({
     useConstructorUtils: true
 }).listen(3000);
 ```
@@ -689,7 +715,7 @@ export class User {
 @Controller()
 export class UserController {
 
-    post(@Body({ parseJson: true }) user: User) {
+    post(@Body() user: User) {
         console.log("saving user " + user.getName());
     }
 
@@ -706,11 +732,11 @@ middlewares and error handlers. Container must be setup during application boots
 Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi)
 
 ```typescript
-import "reflect-metadata"; // this shim is required
-import {createServer, useContainer, loadControllers} from "routing-controllers";
+import "reflect-metadata";
+import {createExpressServer, useContainer, loadControllers} from "routing-controllers";
 import {Container} from "typedi";
 
-createServer({
+createExpressServer({
     controllerDirs: [__dirname + "/controllers"],
     middlewareDirs: [__dirname + "/middlewares"],
     errorHandlerDirs: [__dirname + "/error-handlers"],
