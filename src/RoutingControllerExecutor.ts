@@ -1,4 +1,3 @@
-import {Utils} from "./util/Utils";
 import {ParamHandler} from "./ParamHandler";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
@@ -99,7 +98,7 @@ export class RoutingControllerExecutor {
     }
 
     private handleResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
-        if (Utils.isPromise(result)) {
+        if (result instanceof Promise) {
             result
                 .then((data: any) => {
                     return this.handleResult(data, action, options);

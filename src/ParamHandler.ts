@@ -1,5 +1,4 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {Utils} from "./util/Utils";
 import {plainToConstructor} from "constructor-utils";
 import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
@@ -58,7 +57,7 @@ export class ParamHandler {
         if (param.transform)
             value = param.transform(value, request, response);
         
-        const promiseValue = Utils.isPromise(value) ? value : Promise.resolve(value);
+        const promiseValue = value instanceof Promise ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {
 
             if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {

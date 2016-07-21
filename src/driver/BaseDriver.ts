@@ -1,5 +1,4 @@
 import {HttpError} from "../error/http/HttpError";
-import {Utils} from "../util/Utils";
 
 /**
  * Base driver functionality for all other drivers.
@@ -40,7 +39,7 @@ export class BaseDriver {
             if (this.errorOverridingMap)
                 Object.keys(this.errorOverridingMap)
                     .filter(key => error.name === key)
-                    .forEach(key => processedError = Utils.merge(processedError, this.errorOverridingMap[key]));
+                    .forEach(key => processedError = this.merge(processedError, this.errorOverridingMap[key]));
 
             return Object.keys(processedError).length > 0 ? processedError : undefined;
         }
@@ -61,6 +60,21 @@ export class BaseDriver {
             }
         }
         return error;
+    }
+
+    private merge(obj1: any, obj2: any): any {
+        const result: any = {};
+        for (let i in obj1) {
+            if ((i in obj2) && (typeof obj1[i] === "object") && (i !== null)) {
+                result[i] = this.merge(obj1[i], obj2[i]);
+            } else {
+                result[i] = obj1[i];
+            }
+        }
+        for (let i in obj2) {
+            result[i] = obj2[i];
+        }
+        return result;
     }
 
 }
