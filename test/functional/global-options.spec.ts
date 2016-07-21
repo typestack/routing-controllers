@@ -94,5 +94,5 @@ describe("routing-controllers global options", () => {
             expect(response).to.have.status(200);
         });
     });
-    
+
 });

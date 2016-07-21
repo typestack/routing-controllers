@@ -79,7 +79,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         if (!middleware.errorHandlerInstance.error)
             return;
 
-        this.express.use(function (error: any, request: any, response: any, next: Function) {
+        this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
             middleware.errorHandlerInstance.error(error, request, response, next);
         });
     }

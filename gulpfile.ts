@@ -180,7 +180,7 @@ export class Gulpfile {
         chai.use(require("sinon-chai"));
         chai.use(require("chai-as-promised"));
 
-        return gulp.src(["./build/es5/test/**/*.js"])
+        return gulp.src(["./build/es5/test/functional/**/*.js"])
             .pipe(mocha())
             .pipe(istanbul.writeReports());
     }
@@ -197,6 +197,6 @@ export class Gulpfile {
      */
     @SequenceTask()
     tests() {
-        return ["compile", "tslint", "coveragePost", "coverageRemap"];
+        return ["compile", "coveragePost", "coverageRemap", "tslint"];
     }
 }
