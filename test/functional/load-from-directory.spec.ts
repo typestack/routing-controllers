@@ -154,17 +154,5 @@ describe("controllers and middlewares bulk loading from directories", () => {
 
 
 /*
-
-const fakeContainer = {
-    services: [] as any[],
-
-    get(service: any) {
-        if (!this.services[service.name]) {
-            this.services[service.name] = new service();
-        }
-
-        return this.services[service.name];
-    }
-};
 fakeContainer.services[(FakeService as any).name] = sinon.stub(new FakeService());
 // container: fakeContainer*/

@@ -26,16 +26,6 @@ export interface RoutingControllersOptions {
     middlewareDirs?: string[];
 
     /**
-     * IOC Container to be used to initialize your controllers, middlewares and error handlers.
-     */
-    container?: { get: (cls: any) => any };
-
-    /**
-     * Used container options.
-     */
-    containerOptions?: UseContainerOptions;
-
-    /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
     useConstructorUtils?: boolean;
@@ -104,10 +94,6 @@ export function createKoaServer(options?: RoutingControllersOptions): any {
  * Registers all loaded actions in your express application.
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
-
-    // first of all setup a container if its specified
-    if (options && options.container)
-        useContainer(options.container, options.containerOptions);
 
     // second import all controllers and middlewares and error handlers
     if (options && options.controllerDirs && options.controllerDirs.length)
