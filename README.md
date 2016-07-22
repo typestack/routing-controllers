@@ -1,5 +1,7 @@
 # routing-controllers
 
+[![Join the chat at https://gitter.im/pleerock/routing-controllers](https://badges.gitter.im/pleerock/routing-controllers.svg)](https://gitter.im/pleerock/routing-controllers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Allows to create controller classes with methods as actions that handle requests.
 
 Right now it works only with express.js. If you are interested to make it work with other frameworks, feel free to
