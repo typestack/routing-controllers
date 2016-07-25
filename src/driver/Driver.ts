@@ -11,7 +11,7 @@ export interface Driver {
     /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
-    useConstructorUtils: boolean;
+    useClassTransformer: boolean;
 
     /**
      * Indicates if default routing-controller's error handling is enabled or not.

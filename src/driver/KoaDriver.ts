@@ -4,7 +4,7 @@ import {HttpError} from "../error/http/HttpError";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {BaseDriver} from "./BaseDriver";
-import {constructorToPlain} from "constructor-utils/index";
+import {classToPlain} from "class-transformer";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {Driver} from "./Driver";
 import {UseMetadata} from "../metadata/UseMetadata";
@@ -162,8 +162,8 @@ export class KoaDriver extends BaseDriver implements Driver {
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
-        if (this.useConstructorUtils && result && result instanceof Object) {
-            result = constructorToPlain(result);
+        if (this.useClassTransformer && result && result instanceof Object) {
+            result = classToPlain(result);
         }
 
         const response: any = options.response;

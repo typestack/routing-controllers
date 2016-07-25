@@ -57,9 +57,9 @@ describe("routing-controllers global options", () => {
     describe("when useConstructorUtils is set to true", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ useConstructorUtils: true }).listen(3001, done));
+        before(done => expressApp = createExpressServer({ useClassTransformer: true }).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ useConstructorUtils: true }).listen(3002, done));
+        before(done => koaApp = createKoaServer({ useClassTransformer: true }).listen(3002, done));
         after(done => koaApp.close(done));
 
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
@@ -71,9 +71,9 @@ describe("routing-controllers global options", () => {
     describe("when useConstructorUtils is not set", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ useConstructorUtils: false }).listen(3001, done));
+        before(done => expressApp = createExpressServer({ useClassTransformer: false }).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ useConstructorUtils: false }).listen(3002, done));
+        before(done => koaApp = createKoaServer({ useClassTransformer: false }).listen(3002, done));
         after(done => koaApp.close(done));
     
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {

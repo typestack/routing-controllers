@@ -4,7 +4,7 @@ import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
 import {ExpressDriver} from "./driver/ExpressDriver";
 import {KoaDriver} from "./driver/KoaDriver";
 import {Driver} from "./driver/Driver";
-import {getFromContainer, useContainer, UseContainerOptions} from "./container";
+import {getFromContainer} from "./container";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -28,7 +28,7 @@ export interface RoutingControllersOptions {
     /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
-    useConstructorUtils?: boolean;
+    useClassTransformer?: boolean;
 
     /**
      * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
@@ -113,10 +113,10 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.isDefaultErrorHandlingEnabled = true;
     }
 
-    if (options.useConstructorUtils !== undefined) {
-        driver.useConstructorUtils = options.useConstructorUtils;
+    if (options.useClassTransformer !== undefined) {
+        driver.useClassTransformer = options.useClassTransformer;
     } else {
-        driver.useConstructorUtils = true;
+        driver.useClassTransformer = true;
     }
 
     if (options.errorOverridingMap !== undefined)

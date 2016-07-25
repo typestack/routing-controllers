@@ -310,7 +310,7 @@ saveUser(@Body() user: User) {
 ```
 
 If you specify a class type to parameter that is decorated with `@Body()`,
-routing-controllers will use [constructor-utils][4] to create instance of the given class type with the data received in request body.
+routing-controllers will use [class-transformer][4] to create instance of the given class type with the data received in request body.
 To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
 
 
@@ -388,7 +388,7 @@ Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and o
 #### Convert parameters to objects
 
 If you specify a class type to parameter that is decorated with parameter decorator,
-routing-controllers will use [constructor-utils][4] to create instance of that class type.
+routing-controllers will use [class-transformer][4] to create instance of that class type.
 To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
 
 ```typescript
@@ -754,15 +754,14 @@ let app = createExpressServer();
 app.listen(3000);
 ```
 
-Also you can load middlewares and error handlers from directories:
+Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
 import "reflect-metadata";
 import {createExpressServer, loadControllers} from "routing-controllers";
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers"],
-    middlewareDirs: [__dirname + "/middlewares"],
-    errorHandlerDirs: [__dirname + "/error-handlers"],
+    controllerDirs: [__dirname + "/controllers/**/*"],
+    middlewareDirs: [__dirname + "/middlewares"]
 }).listen(3000);
 ```
 
@@ -770,7 +769,7 @@ createExpressServer({
 
 When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class,
 instead of parsing it into simple literal object.
-You have ability to do this using [constructor-utils](https://github.com/pleerock/constructor-utils).
+You have ability to do this using [class-transformer][4].
 To use it simply specify a `useConstructorUtils: true` option on application bootstrap:
 
 ```typescript
@@ -778,7 +777,7 @@ import "reflect-metadata";
 import {createExpressServer, useContainer, loadControllers} from "routing-controllers";
 
 createExpressServer({
-    useConstructorUtils: true
+    useClassTransformer: true
 }).listen(3000);
 ```
 
@@ -806,7 +805,7 @@ export class UserController {
 ```
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
-Learn more about constructor-utils and how to handle more complex object constructions [here][4].
+Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
 If you want to disable it simply pass `useConstructorUtils: true` to createExpressServer method.
 
@@ -822,14 +821,17 @@ Here is example how to integrate routing-controllers with [typedi](https://githu
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer, useContainer, loadControllers} from "routing-controllers";
+import {createExpressServer, useContainer} from "routing-controllers";
 import {Container} from "typedi";
 
+// its important to set container before any operation you do with routing-controllers,
+// including importing controllers
+useContainer(Container);
+
+// create and run server
 createExpressServer({
     controllerDirs: [__dirname + "/controllers"],
-    middlewareDirs: [__dirname + "/middlewares"],
-    errorHandlerDirs: [__dirname + "/error-handlers"],
-    container: Container
+    middlewareDirs: [__dirname + "/middlewares"]
 }).listen(3000);
 ```
 
@@ -926,4 +928,4 @@ See information about breaking changes and release notes [here](https://github.c
 [1]: http://expressjs.com/
 [2]: http://koajs.com/
 [3]: https://github.com/expressjs/multer
-[4]: https://github.com/pleerock/constructor-utils
+[4]: https://github.com/pleerock/class-transformer

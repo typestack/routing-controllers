@@ -6,7 +6,7 @@ import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {constructorToPlain} from "constructor-utils";
+import {classToPlain} from "class-transformer";
 import {Driver} from "./Driver";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {BaseDriver} from "./BaseDriver";
@@ -24,7 +24,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
-    useConstructorUtils: boolean;
+    useClassTransformer: boolean;
 
     /**
      * Indicates if default routing-controller's error handling is enabled or not.
@@ -182,8 +182,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
-        if (this.useConstructorUtils && result && result instanceof Object) {
-            result = constructorToPlain(result);
+        if (this.useClassTransformer && result && result instanceof Object) {
+            result = classToPlain(result);
         }
 
         const response: any = options.response;

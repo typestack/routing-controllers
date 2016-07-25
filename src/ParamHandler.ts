@@ -1,5 +1,5 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {plainToConstructor} from "constructor-utils";
+import {plainToClass} from "class-transformer";
 import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParamMetadata} from "./metadata/ParamMetadata";
@@ -105,12 +105,13 @@ export class ParamHandler {
     private parseValue(value: any, paramMetadata: ParamMetadataArgs) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format && this.driver.useConstructorUtils) {
-                return plainToConstructor(paramMetadata.format, parseValue);
+            if (paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
+                return plainToClass(paramMetadata.format, parseValue);
             } else {
                 return parseValue;
             }
         } catch (er) {
+            console.log(er);
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }
