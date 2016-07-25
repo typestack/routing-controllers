@@ -1,4 +1,5 @@
 import {HttpError} from "../error/http/HttpError";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Base driver functionality for all other drivers.
@@ -10,6 +11,19 @@ export class BaseDriver {
     // -------------------------------------------------------------------------
 
     useClassTransformer: boolean;
+
+    /**
+     * Global class transformer options passed to class-transformer during classToPlain operation.
+     * This operation is being executed when server returns response to user.
+     */
+    classToPlainTransformOptions: ClassTransformOptions;
+
+    /**
+     * Global class transformer options passed to class-transformer during plainToClass operation.
+     * This operation is being executed when parsing user parameters.
+     */
+    plainToClassTransformOptions: ClassTransformOptions;
+
     isDefaultErrorHandlingEnabled: boolean;
     developmentMode: boolean;
     errorOverridingMap: { [key: string]: any };

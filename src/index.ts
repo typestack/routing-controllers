@@ -5,6 +5,7 @@ import {ExpressDriver} from "./driver/ExpressDriver";
 import {KoaDriver} from "./driver/KoaDriver";
 import {Driver} from "./driver/Driver";
 import {getFromContainer} from "./container";
+import {ClassTransformOptions} from "class-transformer";
 
 // -------------------------------------------------------------------------
 // Interfaces
@@ -29,6 +30,18 @@ export interface RoutingControllersOptions {
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
     useClassTransformer?: boolean;
+
+    /**
+     * Global class transformer options passed to class-transformer during classToPlain operation.
+     * This operation is being executed when server returns response to user.
+     */
+    classToPlainTransformOptions?: ClassTransformOptions;
+
+    /**
+     * Global class transformer options passed to class-transformer during plainToClass operation.
+     * This operation is being executed when parsing user parameters.
+     */
+    plainToClassTransformOptions?: ClassTransformOptions;
 
     /**
      * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
@@ -118,6 +131,9 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     } else {
         driver.useClassTransformer = true;
     }
+
+    driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
+    driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
 
     if (options.errorOverridingMap !== undefined)
         driver.errorOverridingMap = options.errorOverridingMap;

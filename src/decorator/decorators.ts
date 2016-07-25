@@ -6,6 +6,7 @@ import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
 import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
 import {GlobalMiddlewareOptions} from "./options/GlobalMiddlewareOptions";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Registers a new middleware.
@@ -150,6 +151,21 @@ export function UndefinedResultCode(code: number) {
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.UNDEFINED_RESULT_CODE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+/**
+ * Options to be set to class-transformer for the result of the response.
+ */
+export function ResponseClassTransformOptions(options: ClassTransformOptions) {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: options,
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

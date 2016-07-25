@@ -6,7 +6,7 @@ import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {classToPlain} from "class-transformer";
+import {classToPlain, ClassTransformOptions} from "class-transformer";
 import {Driver} from "./Driver";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {BaseDriver} from "./BaseDriver";
@@ -16,35 +16,6 @@ const cookie = require("cookie");
  * Base driver functionality for all other drivers.
  */
 export class ExpressDriver extends BaseDriver implements Driver {
-
-    // -------------------------------------------------------------------------
-    // Public Properties
-    // -------------------------------------------------------------------------
-
-    /**
-     * Indicates if constructor-utils should be used to perform serialization / deserialization.
-     */
-    useClassTransformer: boolean;
-
-    /**
-     * Indicates if default routing-controller's error handling is enabled or not.
-     */
-    isDefaultErrorHandlingEnabled: boolean;
-
-    /**
-     * Indicates if debug mode is enabled or not. In debug mode additional information may be exposed.
-     */
-    developmentMode: boolean;
-
-    /**
-     * Map of error overrides.
-     */
-    errorOverridingMap: { [key: string]: any };
-
-    /**
-     * Route prefix. eg '/api'
-     */
-    routePrefix: string = "";
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -183,7 +154,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
         if (this.useClassTransformer && result && result instanceof Object) {
-            result = classToPlain(result);
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
         }
 
         const response: any = options.response;
@@ -304,7 +276,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 middlewares.forEach(middleware => {
                     if (middleware.errorHandlerInstance instanceof use.middleware) {
                         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-                            console.log("executing error handling...");
                             return middleware.errorHandlerInstance.error(error, request, response, next);
                         });
                     }

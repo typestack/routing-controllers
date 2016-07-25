@@ -163,7 +163,8 @@ export class KoaDriver extends BaseDriver implements Driver {
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
         if (this.useClassTransformer && result && result instanceof Object) {
-            result = classToPlain(result);
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
         }
 
         const response: any = options.response;

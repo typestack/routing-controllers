@@ -1,6 +1,5 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {plainToClass} from "class-transformer";
-import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
@@ -102,16 +101,17 @@ export class ParamHandler {
         return value;
     }
 
-    private parseValue(value: any, paramMetadata: ParamMetadataArgs) {
+    private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
             if (paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
-                return plainToClass(paramMetadata.format, parseValue);
+                const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
+                return plainToClass(paramMetadata.format, parseValue, options);
             } else {
                 return parseValue;
             }
         } catch (er) {
-            console.log(er);
+            // console.log(er);
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }

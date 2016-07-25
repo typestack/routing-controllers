@@ -2,6 +2,7 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
@@ -12,6 +13,18 @@ export interface Driver {
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
     useClassTransformer: boolean;
+
+    /**
+     * Global class transformer options passed to class-transformer during classToPlain operation.
+     * This operation is being executed when server returns response to user.
+     */
+    classToPlainTransformOptions: ClassTransformOptions;
+
+    /**
+     * Global class transformer options passed to class-transformer during plainToClass operation.
+     * This operation is being executed when parsing user parameters.
+     */
+    plainToClassTransformOptions: ClassTransformOptions;
 
     /**
      * Indicates if default routing-controller's error handling is enabled or not.

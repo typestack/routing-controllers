@@ -61,7 +61,8 @@ export function Param(name: string) {
             name: name,
             format: format,
             parseJson: false, // it does not make sense for Param to be parsed
-            isRequired: true // params are always required, because if they are missing router will not match the route
+            isRequired: true, // params are always required, because if they are missing router will not match the route
+            classTransformOptions: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -86,7 +87,8 @@ export function QueryParam(name: string, options?: ParamOptions) {
             name: name,
             format: format,
             parseJson: options ? options.parseJson : false,
-            isRequired: options ? options.required : false
+            isRequired: options ? options.required : false,
+            classTransformOptions: options ? options.classTransformOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -111,7 +113,8 @@ export function HeaderParam(name: string, options?: ParamOptions) {
             name: name,
             format: format,
             parseJson: options ? options.parseJson : false,
-            isRequired: options ? options.required : false
+            isRequired: options ? options.required : false,
+            classTransformOptions: options ? options.classTransformOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -136,7 +139,8 @@ export function CookieParam(name: string, options?: ParamOptions) {
             name: name,
             format: format,
             parseJson: options ? options.parseJson : false,
-            isRequired: options ? options.required : false
+            isRequired: options ? options.required : false,
+            classTransformOptions: options ? options.classTransformOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -149,7 +153,7 @@ export function CookieParam(name: string, options?: ParamOptions) {
  *
  * @param options Extra parameter options
  */
-export function Body(options?: { required?: boolean }) {
+export function Body(options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
@@ -160,7 +164,8 @@ export function Body(options?: { required?: boolean }) {
             reflectedType: format,
             format: format,
             parseJson: false,
-            isRequired: options ? options.required : false
+            isRequired: options ? options.required : false,
+            classTransformOptions: options ? options.classTransformOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -185,7 +190,8 @@ export function BodyParam(name: string, options?: ParamOptions) {
             name: name,
             format: format,
             parseJson: options ? options.parseJson : false,
-            isRequired: options ? options.required : false
+            isRequired: options ? options.required : false,
+            classTransformOptions: options ? options.classTransformOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

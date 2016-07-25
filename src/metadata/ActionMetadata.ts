@@ -6,6 +6,7 @@ import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
 import {ParamTypes} from "./types/ParamTypes";
+import {ClassTransformOptions} from "class-transformer";
 
 export class ActionMetadata {
 
@@ -141,10 +142,18 @@ export class ActionMetadata {
         return this.responseHandlers.filter(handler => handler.type === ResponseHandlerTypes.HEADER);
     }
 
+    get responseClassTransformOptions(): ClassTransformOptions {
+        const responseHandler = this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS);
+        if (responseHandler)
+            return responseHandler.value;
+
+        return undefined;
+    }
+
     get undefinedResultCode(): number {
         if (this.undefinedResultHandler)
             return this.undefinedResultHandler.value;
-        
+
         return undefined;
     }
 
