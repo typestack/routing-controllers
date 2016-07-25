@@ -35,7 +35,7 @@
     "chai": "^3.4.1",
     "chai-as-promised": "^5.3.0",
     "chakram": "^1.4.0",
-    "class-transformer": "0.1.0-beta.2",
+    "class-transformer": "0.1.0-beta.3",
     "del": "^2.2.1",
     "es6-shim": "^0.35.1",
     "express": "^4.0.0",

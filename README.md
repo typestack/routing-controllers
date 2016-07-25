@@ -899,19 +899,20 @@ export class UsersController {
 
 #### Other Decorators
 
-| Signature                                                          | Example                                          | Description                                                                                                     |
-|--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `@JsonResponse()`                                                  | `@JsonResponse()` get()                          | Controller actions marked with this decorator will return a json response instead of default text/html.         |
-| `@TextResponse()`                                                  | `@TextResponse()` get()                          | Controller actions marked with this decorator will return a text/html response instead of default json.         |
-| `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                          | Allows to explicitly set HTTP code to be returned in the response.                                              |
-| `@EmptyResultCode(code: number)`                                   | `@EmptyResultCode(201)` post()                   | Sets a given HTTP code when controller action returned empty result (null or undefined).                        |
-| `@NullResultCode(code: number)`                                    | `@NullResultCode(201)` post()                    | Sets a given HTTP code when controller action returned null.                                                    |
-| `@UndefinedResultCode(code: number)`                               | `@UndefinedResultCode(201)` post()               | Sets a given HTTP code when controller action returned undefined.                                               |
-| `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                 | Allows to explicitly set HTTP Content-type returned in the response.                                            |
-| `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()      | Allows to explicitly set any HTTP Header returned in the response.                                              |
-| `@Location(url: string)`                                           | `@Location("http://github.com")` get()           | Allows to explicitly set HTTP Location.                                                                         |
-| `@Redirect(url: string)`                                           | `@Redirect("http://github.com")` get()           | Allows to explicitly set HTTP Redirect.                                                                         |
-| `@Render(template: string)`                                        | `@Render("user-list.html")` get()                | Renders a given html when user accesses route.                                                                  |
+| Signature                                                          | Example                                           | Description                                                                                                     |
+|--------------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `@JsonResponse()`                                                  | `@JsonResponse()` get()                           | Controller actions marked with this decorator will return a json response instead of default text/html.         |
+| `@TextResponse()`                                                  | `@TextResponse()` get()                           | Controller actions marked with this decorator will return a text/html response instead of default json.         |
+| `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                           | Allows to explicitly set HTTP code to be returned in the response.                                              |
+| `@EmptyResultCode(code: number)`                                   | `@EmptyResultCode(201)` post()                    | Sets a given HTTP code when controller action returned empty result (null or undefined).                        |
+| `@NullResultCode(code: number)`                                    | `@NullResultCode(201)` post()                     | Sets a given HTTP code when controller action returned null.                                                    |
+| `@UndefinedResultCode(code: number)`                               | `@UndefinedResultCode(201)` post()                | Sets a given HTTP code when controller action returned undefined.                                               |
+| `@ResponseClassTransformOptions(options: ClassTransformOptions)`   | `@ResponseClassTransformOptions({/*...*/})` get() | Sets options to be passed to class-transformer when it used for classToPlain a response result.                 |
+| `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-type returned in the response.                                            |
+| `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP Header returned in the response.                                              |
+| `@Location(url: string)`                                           | `@Location("http://github.com")` get()            | Allows to explicitly set HTTP Location.                                                                         |
+| `@Redirect(url: string)`                                           | `@Redirect("http://github.com")` get()            | Allows to explicitly set HTTP Redirect.                                                                         |
+| `@Render(template: string)`                                        | `@Render("user-list.html")` get()                 | Renders a given html when user accesses route.                                                                  |
 
 ## Samples
 
