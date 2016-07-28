@@ -7,7 +7,7 @@ const baseDir = __dirname;
 // koa is used just as an example here. you can also use express
 // to do it simply use createExpressServer instead of createKoaServer
 const app = createExpressServer({
-    controllerDirs: [baseDir + "/modules/**/controllers"],
+    controllerDirs: [baseDir + "/modules/**/controllers/*.js"],
     middlewareDirs: [baseDir + "/modules/**/middlewares"]
 });
 app.listen(3001);
