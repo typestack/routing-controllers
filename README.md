@@ -917,11 +917,12 @@ export class UsersController {
 
 ## Samples
 
-* Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
-of usage.
 * Take a look on [routing-controllers with express](https://github.com/pleerock/routing-controllers-express-demo) which is using routing-controllers.
 * Take a look on [routing-controllers with koa](https://github.com/pleerock/routing-controllers-koa-demo) which is using routing-controllers.
+* Take a look on [routing-controllers with angular 2](https://github.com/pleerock/routing-controllers-angular2-demo) which is using routing-controllers.
 * Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using routing-controllers.
+* Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
+of usage.
 
 ## Release notes
 
