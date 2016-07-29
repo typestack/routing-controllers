@@ -53,7 +53,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     // -------------------------------------------------------------------------
 
     bootstrap() {
-        const bodyParser = require("koa-body-parser");
+        const bodyParser = require("koa-bodyparser");
         this.koa.use(bodyParser());
     }
     
