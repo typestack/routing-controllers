@@ -49,7 +49,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa@next koa-router@next koa-body-parser@next --save`
+    `npm install koa@next koa-router@next koa-bodyparser@next --save`
 
     Optionally you can also install its [typings](https://github.com/typings/typings):
 
