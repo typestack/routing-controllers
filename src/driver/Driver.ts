@@ -1,9 +1,8 @@
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {IncomingMessage} from "http";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
@@ -13,7 +12,19 @@ export interface Driver {
     /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
-    useConstructorUtils: boolean;
+    useClassTransformer: boolean;
+
+    /**
+     * Global class transformer options passed to class-transformer during classToPlain operation.
+     * This operation is being executed when server returns response to user.
+     */
+    classToPlainTransformOptions: ClassTransformOptions;
+
+    /**
+     * Global class transformer options passed to class-transformer during plainToClass operation.
+     * This operation is being executed when parsing user parameters.
+     */
+    plainToClassTransformOptions: ClassTransformOptions;
 
     /**
      * Indicates if default routing-controller's error handling is enabled or not.
@@ -29,11 +40,13 @@ export interface Driver {
      * Map of error overrides.
      */
     errorOverridingMap: { [key: string]: any };
-    
+
     /**
      * Route prefix. eg '/api'
      */
-    routePrefix: string; 
+    routePrefix: string;
+
+    bootstrap(): void;
 
     /**
      * Registers given error handler in the driver.
@@ -49,6 +62,11 @@ export interface Driver {
      * Registers action in the driver.
      */
     registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void;
+
+    /**
+     * Registers all routes in the framework.
+     */
+    registerRoutes(): void;
 
     /**
      * Gets param from the request.

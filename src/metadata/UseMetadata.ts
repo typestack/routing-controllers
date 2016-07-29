@@ -1,8 +1,3 @@
-import {getContainer} from "../index";
-import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {ExpressMiddlewareInterface} from "../middleware/ExpressMiddlewareInterface";
-import {KoaMiddlewareInterface} from "../middleware/KoaMiddlewareInterface";
-import {ExpressErrorHandlerMiddlewareInterface} from "../middleware/ExpressErrorHandlerMiddlewareInterface";
 import {UseMetadataArgs} from "./args/UseMetadataArgs";
 
 export class UseMetadata {

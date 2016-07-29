@@ -1,4 +1,5 @@
-import {Gulpclass, Task, SequenceTask} from "gulpclass/Decorators";
+import "es6-shim";
+import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
 
 const gulp = require("gulp");
 const del = require("del");
@@ -8,6 +9,10 @@ const mocha = require("gulp-mocha");
 const chai = require("chai");
 const tslint = require("gulp-tslint");
 const stylish = require("tslint-stylish");
+const ts = require("gulp-typescript");
+const sourcemaps = require("gulp-sourcemaps");
+const istanbul = require("gulp-istanbul");
+const remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 
 @Gulpclass()
 export class Gulpfile {
@@ -51,12 +56,40 @@ export class Gulpfile {
     }
 
     /**
-     * Copies all files that will be in a package.
+     * Copies all sources to the package directory.
+     */
+    @MergedTask()
+    packageCompile() {
+        const tsProject = ts.createProject("tsconfig.json");
+        const tsResult = gulp.src(["./src/**/*.ts", "./typings/**/*.ts"])
+            .pipe(sourcemaps.init())
+            .pipe(ts(tsProject));
+
+        return [
+            tsResult.dts.pipe(gulp.dest("./build/package")),
+            tsResult.js
+                .pipe(sourcemaps.write(".", { sourceRoot: "", includeContent: true }))
+                .pipe(gulp.dest("./build/package"))
+        ];
+    }
+
+    /**
+     * Moves all compiled files to the final package directory.
      */
     @Task()
-    packageFiles() {
-        return gulp.src("./build/es5/src/**/*")
+    packageMoveCompiledFiles() {
+        return gulp.src("./build/package/src/**/*")
             .pipe(gulp.dest("./build/package"));
+    }
+
+    /**
+     * Moves all compiled files to the final package directory.
+     */
+    @Task()
+    packageClearCompileDirectory(cb: Function) {
+        return del([
+            "./build/package/src/**"
+        ], cb);
     }
 
     /**
@@ -96,8 +129,10 @@ export class Gulpfile {
     package() {
         return [
             "clean",
-            "compile",
-            ["packageFiles", "packagePreparePackageFile", "packageReadmeFile", "copyTypingsFile"]
+            "packageCompile",
+            "packageMoveCompiledFiles",
+            "packageClearCompileDirectory",
+            ["packagePreparePackageFile", "packageReadmeFile", "copyTypingsFile"]
         ];
     }
 
@@ -128,15 +163,34 @@ export class Gulpfile {
     }
 
     /**
-     * Runs unit-tests.
+     * Runs before test coverage, required step to perform a test coverage.
      */
     @Task()
-    unit() {
+    coveragePre() {
+        return gulp.src(["./build/es5/src/**/*.js"])
+            .pipe(istanbul())
+            .pipe(istanbul.hookRequire());
+    }
+
+    /**
+     * Runs post coverage operations.
+     */
+    @Task("coveragePost", ["coveragePre"])
+    coveragePost() {
         chai.should();
         chai.use(require("sinon-chai"));
         chai.use(require("chai-as-promised"));
-        return gulp.src("./build/es5/test/unit/**/*.js")
-            .pipe(mocha());
+
+        return gulp.src(["./build/es5/test/functional/**/*.js"])
+            .pipe(mocha())
+            .pipe(istanbul.writeReports());
+    }
+
+    @Task()
+    coverageRemap() {
+        return gulp.src("./coverage/coverage-final.json")
+            .pipe(remapIstanbul())
+            .pipe(gulp.dest("./coverage"));
     }
 
     /**
@@ -144,7 +198,6 @@ export class Gulpfile {
      */
     @SequenceTask()
     tests() {
-        return ["compile", "tslint", "unit"];
+        return ["compile", "coveragePost", "coverageRemap", "tslint"];
     }
-
 }

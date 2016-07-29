@@ -1,4 +1,4 @@
-import {JsonController, Controller} from "../../src/decorator/controllers";
+import {JsonController} from "../../src/decorator/controllers";
 import {Get, Post} from "../../src/decorator/methods";
 import {QueryParam, Body} from "../../src/decorator/params";
 import {UserFilter} from "./UserFilter";
@@ -13,7 +13,7 @@ export class UserController {
     }
 
     @Post("/users")
-    post(@Body({ parseJson: true }) user: User) {
+    post(@Body() user: User) {
         user.password = "1234abcd";
         console.log("Is photo url empty?: ", user.photo.isUrlEmpty());
         return user;

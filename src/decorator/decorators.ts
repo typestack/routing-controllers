@@ -1,60 +1,97 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {MiddlewareOptions} from "./options/MiddlewareOptions";
 import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
 import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
+import {GlobalMiddlewareOptions} from "./options/GlobalMiddlewareOptions";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Registers a new middleware.
  */
-export function Middleware(options?: MiddlewareOptions): Function {
+export function Middleware(): Function {
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
-            isGlobal: options && options.global ? true : false,
-            priority: options && options.priority ? options.priority : undefined,
-            afterAction: options && options.afterAction ? options.afterAction : false
+            isGlobal: false,
+            priority: undefined,
+            afterAction: false
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
     };
 }
 
 /**
- * Annotation must be set to controller action and given to it code will be used as HTTP Status Code in the case
- * if response result is success.
+ * Registers a global middleware that runs before the route actions.
  */
-export function Use(middleware: Function, options?: { afterAction: boolean }): Function {
-    return function (objectOrFunction: Object|Function, methodName?: string) {
-        const metadata: UseMetadataArgs = {
-            middleware: middleware,
-            target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
-            method: methodName,
-            afterAction: options && options.afterAction ? true : false
+export function MiddlewareGlobalBefore(options?: GlobalMiddlewareOptions): Function {
+    return function (target: Function) {
+        const metadata: MiddlewareMetadataArgs = {
+            target: target,
+            isGlobal: true,
+            priority: options && options.priority ? options.priority : undefined,
+            afterAction: false
         };
-        defaultMetadataArgsStorage().uses.push(metadata);
+        defaultMetadataArgsStorage().middlewares.push(metadata);
     };
 }
 
 /**
- * Registers a new error handler middleware.
+ * Registers a global middleware that runs after the route actions.
  */
-export function ErrorHandler(options?: ErrorHandlerOptions): Function;
-export function ErrorHandler(name?: string, options?: ErrorHandlerOptions): Function;
-export function ErrorHandler(nameOrOptions?: string|ErrorHandlerOptions, maybeOptions?: ErrorHandlerOptions): Function {
-    const name = typeof nameOrOptions === "string" ? nameOrOptions : undefined;
-    const options = nameOrOptions instanceof Object ? <ErrorHandlerOptions> nameOrOptions : maybeOptions;
-    
+export function MiddlewareGlobalAfter(options?: GlobalMiddlewareOptions): Function {
     return function (target: Function) {
-        const metadata: ErrorHandlerMetadataArgs = {
+        const metadata: MiddlewareMetadataArgs = {
             target: target,
-            name: name,
+            isGlobal: true,
             priority: options && options.priority ? options.priority : undefined,
-            routes: options && options.routes ? options.routes : undefined
+            afterAction: true
         };
-        defaultMetadataArgsStorage().errorHandlers.push(metadata);
+        defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Specifies a given middleware to be used for controller or controller action BEFORE the action executes.
+ * Must be set to controller action or controller class.
+ */
+export function UseBefore(...middlewares: Array<Function>): Function;
+export function UseBefore(...middlewares: Array<(context: any, next: () => Promise<any>) => Promise<any>>): Function;
+export function UseBefore(...middlewares: Array<(request: any, response: any, next: Function) => any>): Function;
+export function UseBefore(...middlewares: Array<Function|((request: any, response: any, next: Function) => any)>): Function {
+    return function (objectOrFunction: Object|Function, methodName?: string) {
+        middlewares.forEach(middleware => {
+            const metadata: UseMetadataArgs = {
+                middleware: middleware,
+                target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
+                method: methodName,
+                afterAction: false
+            };
+            defaultMetadataArgsStorage().uses.push(metadata);
+        });
+    };
+}
+
+/**
+ * Specifies a given middleware to be used for controller or controller action AFTER the action executes.
+ * Must be set to controller action or controller class.
+ */
+export function UseAfter(...middlewares: Array<Function>): Function;
+export function UseAfter(...middlewares: Array<(context: any, next: () => Promise<any>) => Promise<any>>): Function;
+export function UseAfter(...middlewares: Array<(request: any, response: any, next: Function) => any>): Function;
+export function UseAfter(...middlewares: Array<Function|((request: any, response: any, next: Function) => any)>): Function {
+    return function (objectOrFunction: Object|Function, methodName?: string) {
+        middlewares.forEach(middleware => {
+            const metadata: UseMetadataArgs = {
+                middleware: middleware,
+                target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
+                method: methodName,
+                afterAction: true
+            };
+            defaultMetadataArgsStorage().uses.push(metadata);
+        });
     };
 }
 
@@ -66,7 +103,6 @@ export function HttpCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.SUCCESS_CODE
@@ -82,7 +118,6 @@ export function EmptyResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.EMPTY_RESULT_CODE
@@ -98,7 +133,6 @@ export function NullResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.NULL_RESULT_CODE
@@ -114,10 +148,24 @@ export function UndefinedResultCode(code: number) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.UNDEFINED_RESULT_CODE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+/**
+ * Options to be set to class-transformer for the result of the response.
+ */
+export function ResponseClassTransformOptions(options: ClassTransformOptions) {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            value: options,
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };
@@ -130,7 +178,6 @@ export function ContentType(type: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: type,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.CONTENT_TYPE
@@ -147,7 +194,6 @@ export function Header(name: string, value: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: name,
             secondaryValue: value,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.HEADER
@@ -159,11 +205,10 @@ export function Header(name: string, value: string) {
 /**
  * Sets Location header with given value to the response.
  */
-export function Location(value: string) {
+export function Location(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
-            value: value,
-            object: object,
+            value: url,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.LOCATION
@@ -175,11 +220,10 @@ export function Location(value: string) {
 /**
  * Sets Redirect header with given value to the response.
  */
-export function Redirect(value: string) {
+export function Redirect(url: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
-            value: value,
-            object: object,
+            value: url,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.REDIRECT
@@ -195,10 +239,42 @@ export function Render(template: string) {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: template,
-            object: object,
             target: object.constructor,
             method: methodName,
             type: ResponseHandlerTypes.RENDERED_TEMPLATE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+/**
+ * Forces controller action to return a text response.
+ * For example, if @JsonController is used then this decorator ignores it and returns a regular text/html response
+ * instead of json.
+ */
+export function TextResponse() {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.TEXT_RESPONSE
+        };
+        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+    };
+}
+
+
+/**
+ * Forces controller action to return a text response.
+ * For example, if @Controller is used then this decorator ignores it and returns a json response
+ * instead of regular text/html response.
+ */
+export function JsonResponse() {
+    return function (object: Object, methodName: string) {
+        const metadata: ResponseHandlerMetadataArgs = {
+            target: object.constructor,
+            method: methodName,
+            type: ResponseHandlerTypes.JSON_RESPONSE
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

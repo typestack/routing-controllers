@@ -1,4 +1,5 @@
 import {ParamTypes} from "../types/ParamTypes";
+import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Controller metadata used to storage information about registered parameters.
@@ -54,4 +55,15 @@ export interface ParamMetadataArgs {
      * Transforms the value.
      */
     transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
+    
+    /**
+     * Extra parameter options.
+     */
+    extraOptions?: any;
+
+    /**
+     * Class transform options used to perform plainToClass operation.
+     */
+    classTransformOptions?: ClassTransformOptions;
+
 }

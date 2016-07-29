@@ -1,64 +1,11 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
-import {ExpressDriver} from "./driver/ExpressDriver";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
-import {Driver} from "./driver/Driver";
+import {ExpressDriver} from "./driver/ExpressDriver";
 import {KoaDriver} from "./driver/KoaDriver";
-
-// -------------------------------------------------------------------------
-// Interfaces
-// -------------------------------------------------------------------------
-
-/**
- * Routing controller initialization options.
- */
-export interface RoutingControllersOptions {
-
-    /**
-     * List of directories from where to "require" all your controllers.
-     */
-    controllerDirs?: string[];
-
-    /**
-     * List of directories from where to "require" all your middlewares.
-     */
-    middlewareDirs?: string[];
-
-    /**
-     * List of directories from where to "require" all your error handlers.
-     */
-    errorHandlerDirs?: string[];
-
-    /**
-     * IOC Container to be used to initialize your controllers, middlewares and error handlers.
-     */
-    container?: { get: (cls: any) => any };
-
-    /**
-     * Indicates if constructor-utils should be used to perform serialization / deserialization.
-     */
-    useConstructorUtils?: boolean;
-
-    /**
-     * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
-     */
-    developmentMode?: boolean;
-
-    /**
-     * Indicates if default routing-controller's error handler is enabled or not. By default its enabled.
-     */
-    defaultErrorHandler?: boolean;
-
-    /**
-     * Map of error overrides.
-     */
-    errorOverridingMap?: Object;
-    
-    /**
-     * Route prefix. eg '/api'
-     */
-    routePrefix?: string; 
-}
+import {Driver} from "./driver/Driver";
+import {getFromContainer} from "./container";
+import {RoutingControllersOptions} from "./RoutingControllersOptions";
 
 // -------------------------------------------------------------------------
 // Main Functions
@@ -67,85 +14,52 @@ export interface RoutingControllersOptions {
 /**
  * Registers all loaded actions in your express application.
  */
-export function useExpressServer(expressApp: any, options?: RoutingControllersOptions): void {
+export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
     createExecutor(new ExpressDriver(expressApp), options || {});
+    return expressApp;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
 export function createExpressServer(options?: RoutingControllersOptions): any {
-
-    let expressApp: any;
-    if (require) {
-        try {
-            expressApp = require("express")();
-        } catch (e) {
-            throw new Error("express package was not found installed. Try to install it: npm install express --save");
-        }
-    } else {
-        throw new Error("Cannot load express. Try to install all required dependencies.");
-    }
-
-    useExpressServer(expressApp, options);
-    return expressApp;
+    const driver = new ExpressDriver();
+    createExecutor(driver, options || {});
+    return driver.express;
 }
 
 /**
  * Registers all loaded actions in your koa application.
  */
-export function useKoaServer(koaApp: any, koaRouter: any, options?: RoutingControllersOptions): void {
-    createExecutor(new KoaDriver(koaApp, koaRouter), options || {});
+export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions): T {
+    createExecutor(new KoaDriver(koaApp), options || {});
+    return koaApp;
 }
 
 /**
  * Registers all loaded actions in your koa application.
  */
-export function createKoaServer(options?: RoutingControllersOptions): [any, any] {
-
-    let koaApp: any, koaRouter: any;
-    if (require) {
-        try {
-            koaApp = new (require("koa"))();
-        } catch (e) {
-            throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
-        }
-        try {
-            koaRouter = new (require("koa-router"))();
-        } catch (e) {
-            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
-        }
-    } else {
-        throw new Error("Cannot load koa. Try to install all required dependencies.");
-    }
-
-    useKoaServer(koaApp, koaRouter, options);
-    koaApp.use(koaRouter.routes());
-    koaApp.use(koaRouter.allowedMethods());
-    return [koaApp, koaRouter];
+export function createKoaServer(options?: RoutingControllersOptions): any {
+    const driver = new KoaDriver();
+    createExecutor(driver, options || {});
+    return driver.koa;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
-    
-    // first of all setup a container if its specified
-    if (options && options.container)
-        useContainer(options.container);
 
     // second import all controllers and middlewares and error handlers
     if (options && options.controllerDirs && options.controllerDirs.length)
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)
         importClassesFromDirectories(options.middlewareDirs);
-    if (options && options.errorHandlerDirs && options.errorHandlerDirs.length)
-        importClassesFromDirectories(options.errorHandlerDirs);
 
     if (options && options.developmentMode !== undefined) {
         driver.developmentMode = options.developmentMode;
     } else {
-        driver.developmentMode = process.env.NODE_ENV !== 'production';
+        driver.developmentMode = process.env.NODE_ENV !== "production";
     }
 
     if (options.defaultErrorHandler !== undefined) {
@@ -154,11 +68,14 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.isDefaultErrorHandlingEnabled = true;
     }
 
-    if (options.useConstructorUtils !== undefined) {
-        driver.useConstructorUtils = options.useConstructorUtils;
+    if (options.useClassTransformer !== undefined) {
+        driver.useClassTransformer = options.useClassTransformer;
     } else {
-        driver.useConstructorUtils = true;
+        driver.useClassTransformer = true;
     }
+
+    driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
+    driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
 
     if (options.errorOverridingMap !== undefined)
         driver.errorOverridingMap = options.errorOverridingMap;
@@ -168,44 +85,10 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     // next create a controller executor
     new RoutingControllerExecutor(driver)
-        .registerPreExecutionMiddlewares()
+        .bootstrap()
+        .registerMiddlewares(false)
         .registerActions()
-        .registerPostExecutionMiddlewares() // todo: check it with koa
-        .registerErrorHandlers(); // todo: register only for loaded controllers?
-}
-
-// -------------------------------------------------------------------------
-// Global Container
-// -------------------------------------------------------------------------
-
-/**
- * Container to be used by this library for inversion control. If container was not implicitly set then by default
- * container simply creates a new instance of the given class.
- */
-let container: { get<T>(someClass: { new (...args: any[]): T }|Function): T } = new (class {
-    private instances: any[] = [];
-    get<T>(someClass: { new (...args: any[]): T }): T {
-        if (!this.instances[<any>someClass])
-            this.instances[<any>someClass] = new someClass();
-
-        return this.instances[<any>someClass];
-    }
-})();
-
-/**
- * Sets container to be used by this library.
- *
- * @param iocContainer
- */
-export function useContainer(iocContainer: { get(someClass: any): any }) {
-    container = iocContainer;
-}
-
-/**
- * Gets the IOC container used by this library.
- */
-export function getContainer() {
-    return container;
+        .registerMiddlewares(true); // todo: register only for loaded controllers?
 }
 
 // -------------------------------------------------------------------------
@@ -216,16 +99,17 @@ export function getContainer() {
  * Gets the metadata arguments storage.
  */
 export function defaultMetadataArgsStorage(): MetadataArgsStorage {
-    return container.get(MetadataArgsStorage);
+    return getFromContainer(MetadataArgsStorage);
 }
 
 // -------------------------------------------------------------------------
 // Commonly Used exports
 // -------------------------------------------------------------------------
 
+export * from "./container";
 export * from "./decorator/controllers";
 export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
-export * from "./middleware/ExpressMiddlewareInterface";
-export * from "./ErrorHandlerInterface";
+export * from "./middleware/MiddlewareInterface";
+export * from "./RoutingControllersOptions";

@@ -1,12 +1,9 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {Driver} from "./driver/Driver";
-import {Utils} from "./util/Utils";
-import {plainToConstructor} from "constructor-utils";
-import {ParamMetadataArgs} from "./metadata/args/ParamMetadataArgs";
+import {plainToClass} from "class-transformer";
 import {ParamTypes} from "./metadata/types/ParamTypes";
-import {IncomingMessage, ServerResponse} from "http";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {Driver} from "./driver/Driver";
 
 /**
  * Helps to handle parameters.
@@ -37,12 +34,13 @@ export class ParamHandler {
         
         let value: any, originalValue: any;
         value = originalValue = this.driver.getParamFromRequest(actionOptions, param);
-        if (value)
-            value = this.handleParamFormat(value, param);
         
-        const isValueEmpty = value === null || value === undefined;
+        const isValueEmpty = value === null || value === undefined || value === "";
         const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
+        if (!isValueEmpty)
+            value = this.handleParamFormat(value, param);
+        
         // check cases when parameter is required but its empty and throw errors in such cases
         if (param.isRequired) {
             // todo: make better error messages here
@@ -58,7 +56,7 @@ export class ParamHandler {
         if (param.transform)
             value = param.transform(value, request, response);
         
-        const promiseValue = Utils.isPromise(value) ? value : Promise.resolve(value);
+        const promiseValue = value instanceof Promise ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {
 
             if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {
@@ -87,6 +85,12 @@ export class ParamHandler {
                 return value;
 
             case "boolean":
+                if (value === "true") {
+                    return true;
+                    
+                } else if (value === "false") {
+                    return false;
+                }
                 return !!value;
 
             default:
@@ -97,15 +101,17 @@ export class ParamHandler {
         return value;
     }
 
-    private parseValue(value: any, paramMetadata: ParamMetadataArgs) {
+    private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format && this.driver.useConstructorUtils) {
-                return plainToConstructor(paramMetadata.format, parseValue);
+            if (paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
+                const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
+                return plainToClass(paramMetadata.format, parseValue, options);
             } else {
                 return parseValue;
             }
         } catch (er) {
+            // console.log(er);
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }

@@ -1,11 +1,10 @@
-import {ServerResponse, ServerRequest} from "http";
-import {Middleware} from "../../src/decorator/decorators";
-import {ExpressErrorHandlerMiddlewareInterface} from "../../src/middleware/ExpressErrorHandlerMiddlewareInterface";
+import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
+import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
 
-@Middleware({ global: true })
-export class AllErrorsHandler implements ExpressErrorHandlerMiddlewareInterface {
+@MiddlewareGlobalBefore()
+export class AllErrorsHandler implements ErrorMiddlewareInterface {
 
-    error(error: any, request: ServerRequest, response: ServerResponse, next: Function): void {
+    error(error: any, request: any, response: any, next?: Function): void {
         console.log("Error handled: ", error);
         next(error);
     }

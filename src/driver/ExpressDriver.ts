@@ -1,18 +1,19 @@
-import {Driver} from "./Driver";
-import {BadHttpActionError} from "./error/BadHttpActionError";
+import {HttpError} from "../error/http/HttpError";
+import {UseMetadata} from "../metadata/UseMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {IncomingMessage, ServerResponse} from "http";
+import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ServerResponse, IncomingMessage} from "http";
-import {HttpError} from "../error/http/HttpError";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
+import {classToPlain, ClassTransformOptions} from "class-transformer";
+import {Driver} from "./Driver";
+import {ParamMetadata} from "../metadata/ParamMetadata";
 import {BaseDriver} from "./BaseDriver";
-import {constructorToPlain} from "constructor-utils/index";
-import {UseMetadata} from "../metadata/UseMetadata";
+const cookie = require("cookie");
 
 /**
- * Integration with Express.js framework.
+ * Base driver functionality for all other drivers.
  */
 export class ExpressDriver extends BaseDriver implements Driver {
 
@@ -20,38 +21,61 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private express: any) {
+    constructor(public express?: any) {
         super();
+        if (require) {
+            if (!express) {
+                try {
+                    this.express = require("express")();
+                } catch (e) {
+                    throw new Error("express package was not found installed. Try to install it: npm install express --save");
+                }
+            }
+        } else {
+            throw new Error("Cannot load express. Try to install all required dependencies.");
+        }
     }
 
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
-    registerErrorHandler(middleware: MiddlewareMetadata): void {
-        if (!middleware.expressErrorHandlerInstance.error)
-            return;
-
-        this.express.use(function (error: any, request: any, response: any, next: Function) {
-            middleware.expressErrorHandlerInstance.error(error, request, response, next);
-        });
-    }
-
-    registerMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.expressInstance.use)
-            return;
-        
-        this.express.use(function (request: any, response: any, next: Function) {
-            middleware.expressInstance.use(request, response, next);
-        });
+    bootstrap() {
     }
     
+    /**
+     * Registers given error handler in the driver.
+     */
+    registerErrorHandler(middleware: MiddlewareMetadata): void {
+        if (!middleware.errorHandlerInstance.error)
+            return;
+
+        this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
+            middleware.errorHandlerInstance.error(error, request, response, next);
+        });
+    }
+
+    /**
+     * Registers middleware that run before controller actions.
+     */
+    registerMiddleware(middleware: MiddlewareMetadata): void {
+        if (!middleware.instance.use)
+            return;
+
+        this.express.use(function (request: any, response: any, next: (err: any) => any) {
+            middleware.instance.use(request, response, next);
+        });
+    }
+
+    /**
+     * Registers action in the driver.
+     */
     registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
 
-        const routeHandler = function(request: IncomingMessage, response: ServerResponse, next: Function) {
+        const routeHandler = function RouteHandler(request: IncomingMessage, response: ServerResponse, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,
@@ -59,18 +83,48 @@ export class ExpressDriver extends BaseDriver implements Driver {
             };
             executeCallback(options);
         };
-        
+
+        const defaultMiddlewares: any[] = [];
+        if (action.isBodyUsed) {
+            if (action.isJsonTyped) {
+                defaultMiddlewares.push(this.loadBodyParser().json());
+            } else {
+                defaultMiddlewares.push(this.loadBodyParser().text());
+            }
+        }
+        if (action.isFileUsed || action.isFilesUsed) {
+            const multer = this.loadMulter();
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILE)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILES)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
+        }
+
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const fullRoute = `${this.routePrefix}${action.fullRoute}`;
+        const fullRoute = action.fullRoute instanceof RegExp
+            ? ActionMetadata.appendBaseRouteToRegexpRoute(action.fullRoute as RegExp, this.routePrefix) 
+            : `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
         const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
-        const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, routeHandler, ...postMiddlewareFunctions];
+        const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
         this.express[expressAction](...expressParams);
     }
 
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+    registerRoutes() {
+    }
+    
+    /**
+     * Gets param from the request.
+     */
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
         const request: any = actionOptions.request;
         switch (param.type) {
             case ParamTypes.BODY:
@@ -80,31 +134,35 @@ export class ExpressDriver extends BaseDriver implements Driver {
             case ParamTypes.QUERY:
                 return request.query[param.name];
             case ParamTypes.HEADER:
-                return request.headers[param.name];
-            case ParamTypes.FILE:
-                if (!request.file) return undefined;
-                return param.name ? request.file[param.name] : request.file;
-            case ParamTypes.FILES:
-                if (!request.files) return undefined;
-                return param.name ? request.files[param.name] : request.files;
+                return request.headers[param.name.toLowerCase()];
+            case ParamTypes.UPLOADED_FILE:
+                return request.file;
+            case ParamTypes.UPLOADED_FILES:
+                return request.files;
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
-                return request.cookies[param.name];
+                if (!request.headers.cookie) return;
+                const cookies = cookie.parse(request.headers.cookie);
+                return cookies[param.name];
         }
     }
 
+    /**
+     * Defines an algorithm of how to handle success result of executing controller action.
+     */
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        
-        if (this.useConstructorUtils && result && result instanceof Object) {
-            result = constructorToPlain(result); // todo: specify option to disable it?
+
+        if (this.useClassTransformer && result && result instanceof Object) {
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
         }
-        
+
         const response: any = options.response;
         const isResultUndefined = result === undefined;
         const isResultNull = result === null;
         const isResultEmpty = isResultUndefined || isResultNull || result === false || result === "";
-        
+
         // set http status
         if (action.undefinedResultCode && isResultUndefined) {
             response.status(action.undefinedResultCode);
@@ -114,7 +172,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         } else if (action.emptyResultCode && isResultEmpty) {
             response.status(action.emptyResultCode);
-            
+
         } else if (action.successHttpCode) {
             response.status(action.successHttpCode);
         }
@@ -146,14 +204,23 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.next();
             });
 
-        } else if (result !== undefined) { // send regular result
-            if (result === null) {
-                response.send();
+        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
+            if (result === null || (result === undefined && action.undefinedResultCode)) {
+                if (result === null && !action.nullResultCode && !action.emptyResultCode) {
+                    response.status(204);
+                }
+                
+                if (action.isJsonTyped) {
+                    response.json();
+                } else {
+                    response.send();
+                }
+                options.next();
             } else {
                 if (action.isJsonTyped) {
                     response.json(result);
                 } else {
-                    response.send(result);
+                    response.send(String(result));
                 }
                 options.next();
             }
@@ -163,6 +230,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     */
     handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
         const response: any = options.response;
 
@@ -194,19 +264,44 @@ export class ExpressDriver extends BaseDriver implements Driver {
     private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
-            if (use.middleware.prototype.use) { // if this is function instance of ExpressMiddlewareInterface
+            if (use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
-                    if (middleware.expressInstance instanceof use.middleware) {
-                        middlewareFunctions.push(function(request: IncomingMessage, response: ServerResponse, next: Function) {
-                            middleware.expressInstance.use(request, response, next);
+                    if (middleware.instance instanceof use.middleware) {
+                        middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
+                            return middleware.instance.use(request, response, next);
                         });
                     }
                 });
+            } else if (use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
+                middlewares.forEach(middleware => {
+                    if (middleware.errorHandlerInstance instanceof use.middleware) {
+                        middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                            return middleware.errorHandlerInstance.error(error, request, response, next);
+                        });
+                    }
+                });
+
             } else {
                 middlewareFunctions.push(use.middleware);
             }
         });
         return middlewareFunctions;
     }
-    
+
+    private loadBodyParser() {
+        try {
+            return require("body-parser");
+        } catch (e) {
+            throw new Error("body-parser package was not found installed. Try to install it: npm install body-parser --save");
+        }
+    }
+
+    private loadMulter() {
+        try {
+            return require("multer");
+        } catch (e) {
+            throw new Error("multer package was not found installed. Try to install it: npm install multer --save");
+        }
+    }
+
 }

@@ -1,12 +1,15 @@
-import {Driver} from "./Driver";
-import {BadHttpActionError} from "./error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {HttpError} from "../error/http/HttpError";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {BaseDriver} from "./BaseDriver";
-import {constructorToPlain} from "constructor-utils/index";
+import {classToPlain} from "class-transformer";
+import {BadHttpActionError} from "../error/BadHttpActionError";
+import {Driver} from "./Driver";
+import {UseMetadata} from "../metadata/UseMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+const cookie = require("cookie");
 
 /**
  * Integration with koa framework.
@@ -14,32 +17,92 @@ import {constructorToPlain} from "constructor-utils/index";
 export class KoaDriver extends BaseDriver implements Driver {
 
     // -------------------------------------------------------------------------
+    // Private Properties
+    // -------------------------------------------------------------------------
+
+    private router: any;
+    
+    // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private koa: any, private router: any) {
+    constructor(public koa?: any) {
         super();
+        
+        if (require) {
+            if (!koa) {
+                try {
+                    this.koa = new (require("koa"))();
+                } catch (e) {
+                    throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
+                }
+            }
+            try {
+                this.router = new (require("koa-router"))();
+            } catch (e) {
+                throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
+            }
+        } else {
+            throw new Error("Cannot load koa. Try to install all required dependencies.");
+        }
+
     }
 
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
+    bootstrap() {
+        const bodyParser = require("koa-body-parser");
+        this.koa.use(bodyParser());
+    }
+    
     registerErrorHandler(middleware: MiddlewareMetadata): void {
     }
 
     registerMiddleware(middleware: MiddlewareMetadata): void {
+        if (!middleware.instance.use)
+            return;
+        
         this.koa.use(function (ctx: any, next: any) {
-            return middleware.koaInstance.use(ctx, next);
+            return middleware.instance.use(ctx, next);
         });
     }
-    
+
     registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
         const koaAction = action.type.toLowerCase();
         if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
 
-        this.router[koaAction](`${this.routePrefix}${action.fullRoute}`, (ctx: any, next: () => Promise<any>) => {
+        const defaultMiddlewares: any[] = [];
+        if (action.isBodyUsed) {
+            if (action.isJsonTyped) {
+                // defaultMiddlewares.push(require("koa-body-parser")());
+            } else {
+                // defaultMiddlewares.push(require("koa-body-parser")());
+            }
+        }
+        // file uploading is not working yet. need to implement it
+        /*if (action.isFileUsed || action.isFilesUsed) {
+            // todo: not implemented yet
+            const multer = require("koa-router-multer");
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILE)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer({ dest: "uploads/" }).single(param.name));
+                });
+            action.params
+                .filter(param => param.type === ParamTypes.UPLOADED_FILES)
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
+        }*/
+
+        const uses = action.controllerMetadata.uses.concat(action.uses);
+        const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
+        const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
+
+        const routeHandler = (ctx: any, next: () => Promise<any>) => {
             return new Promise((resolve, reject) => {
                 const options: ActionCallbackOptions = {
                     request: ctx.request,
@@ -49,17 +112,28 @@ export class KoaDriver extends BaseDriver implements Driver {
                             if (err && !this.isDefaultErrorHandlingEnabled) {
                                 return reject(err);
                             }
-                           resolve(r); 
+                            resolve(r);
                         }).catch(reject);
                     },
                     context: ctx
                 };
                 executeCallback(options);
             });
-        });
+        };
+
+        const fullRoute = action.fullRoute instanceof RegExp
+            ? ActionMetadata.appendBaseRouteToRegexpRoute(action.fullRoute as RegExp, this.routePrefix)
+            : `${this.routePrefix}${action.fullRoute}`;
+        const routerParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
+        this.router[koaAction](...routerParams);
+    }
+    
+    registerRoutes() {
+        this.koa.use(this.router.routes());
+        this.koa.use(this.router.allowedMethods());
     }
 
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: any): void {
+    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {
@@ -69,32 +143,35 @@ export class KoaDriver extends BaseDriver implements Driver {
                 return context.params[param.name];
             case ParamTypes.QUERY:
                 return context.query[param.name];
-            case ParamTypes.FILE:
-                if (!request.file) return undefined;
-                return param.name ? request.file[param.name] : request.file;
-            case ParamTypes.FILES:
-                if (!request.files) return undefined;
-                return param.name ? request.files[param.name] : request.files;
+            case ParamTypes.UPLOADED_FILE:
+                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+                // return actionOptions.context.req.file;
+            case ParamTypes.UPLOADED_FILES:
+                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
+                // return actionOptions.context.req.files;
             case ParamTypes.HEADER:
-                return context.headers[param.name];
+                return context.headers[param.name.toLowerCase()];
             case ParamTypes.BODY_PARAM:
                 return request.body[param.name];
             case ParamTypes.COOKIE:
-                return context.cookies[param.name];
+                if (!context.headers.cookie) return;
+                const cookies = cookie.parse(context.headers.cookie);
+                return cookies[param.name];
         }
     }
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
-        if (this.useConstructorUtils && result && result instanceof Object) {
-            result = constructorToPlain(result); // todo: specify option to disable it?
+        if (this.useClassTransformer && result && result instanceof Object) {
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
         }
-        
+
         const response: any = options.response;
         const isResultUndefined = result === undefined;
         const isResultNull = result === null;
         const isResultEmpty = isResultUndefined || isResultNull || result === false || result === "";
-        
+
         // set http status
         if (action.undefinedResultCode && isResultUndefined) {
             response.status = action.undefinedResultCode;
@@ -104,7 +181,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         } else if (action.emptyResultCode && isResultEmpty) {
             response.status = action.emptyResultCode;
-            
+
         } else if (action.successHttpCode) {
             response.status = action.successHttpCode;
         }
@@ -138,15 +215,32 @@ export class KoaDriver extends BaseDriver implements Driver {
                 // options.resolver();
             });
 
-        } else if (result !== undefined) { // send regular result
-            if (result === null) {
-                response.send();
+        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
+            if (result === null || (result === undefined && action.undefinedResultCode)) {
                 
+                if (action.isJsonTyped) {
+                    response.body = null;
+                } else {
+                    response.body = null;
+                }
+                
+                // todo: duplication. we make it here because after we set null to body koa seems overrides status
+                if (action.nullResultCode) {
+                    response.status = action.nullResultCode;
+                    
+                } else if (action.emptyResultCode) {
+                    response.status = action.emptyResultCode;
+                    
+                } else if (result === undefined && action.undefinedResultCode) {
+                    response.status = action.undefinedResultCode;
+                }
+                
+                options.next();
             } else {
                 if (action.isJsonTyped) {
-                    response.json(result);
+                    response.body = result;
                 } else {
-                    response.send(result);
+                    response.body = String(result);
                 }
                 options.next();
             }
@@ -174,7 +268,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         Object.keys(action.headers).forEach(name => {
             response.set(name, action.headers[name]);
         });
-        
+
         // send error content
         if (action.isJsonTyped) {
             response.body = this.processJsonError(error);
@@ -183,6 +277,29 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
         options.next(error);
         // throw error;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
+        const middlewareFunctions: Function[] = [];
+        uses.forEach(use => {
+            if (use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
+                middlewares.forEach(middleware => {
+                    if (middleware.instance instanceof use.middleware) {
+                        middlewareFunctions.push(function(context: any, next: Function) {
+                            return middleware.instance.use(context, next);
+                        });
+                    }
+                });
+
+            } else {
+                middlewareFunctions.push(use.middleware);
+            }
+        });
+        return middlewareFunctions;
     }
 
 }

@@ -6,12 +6,6 @@ import {ResponseHandlerType} from "../types/ResponsePropertyTypes";
 export interface ResponseHandlerMetadataArgs {
 
     /**
-     * Object on which's method decorator is set.
-     * @deprecated
-     */
-    object: any;
-
-    /**
      * Class on which's method decorator is set.
      */
     target: Function;
@@ -29,7 +23,7 @@ export interface ResponseHandlerMetadataArgs {
     /**
      * Property value. Can be status code, content-type, header name, template name, etc.
      */
-    value: any;
+    value?: any;
 
     /**
      * Secondary property value. Can be header value for example.

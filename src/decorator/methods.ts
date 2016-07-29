@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ActionOptions} from "./options/ActionOptions";
 import {ActionTypes, ActionType} from "../metadata/types/ActionTypes";
 import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
@@ -8,19 +7,16 @@ import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
  * Applied to controller class methods.
  * 
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Get(route?: RegExp, options?: ActionOptions): Function;
-export function Get(route?: string, options?: ActionOptions): Function;
-export function Get(route?: string|RegExp, options?: ActionOptions): Function {
+export function Get(route?: RegExp): Function;
+export function Get(route?: string): Function;
+export function Get(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.GET,
-            options: options
+            type: ActionTypes.GET
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -31,19 +27,16 @@ export function Get(route?: string|RegExp, options?: ActionOptions): Function {
  * Applied to controller class methods.
  *
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Post(route?: RegExp, options?: ActionOptions): Function;
-export function Post(route?: string, options?: ActionOptions): Function;
-export function Post(route?: string|RegExp, options?: ActionOptions): Function {
+export function Post(route?: RegExp): Function;
+export function Post(route?: string): Function;
+export function Post(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.POST,
-            options: options
+            type: ActionTypes.POST
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -54,19 +47,16 @@ export function Post(route?: string|RegExp, options?: ActionOptions): Function {
  * Applied to controller class methods.
  *
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Put(route?: RegExp, options?: ActionOptions): Function;
-export function Put(route?: string, options?: ActionOptions): Function;
-export function Put(route?: string|RegExp, options?: ActionOptions): Function {
+export function Put(route?: RegExp): Function;
+export function Put(route?: string): Function;
+export function Put(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.PUT,
-            options: options
+            type: ActionTypes.PUT
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -77,19 +67,16 @@ export function Put(route?: string|RegExp, options?: ActionOptions): Function {
  * Applied to controller class methods.
  *
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Patch(route?: RegExp, options?: ActionOptions): Function;
-export function Patch(route?: string, options?: ActionOptions): Function;
-export function Patch(route?: string|RegExp, options?: ActionOptions): Function {
+export function Patch(route?: RegExp): Function;
+export function Patch(route?: string): Function;
+export function Patch(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.PATCH,
-            options: options
+            type: ActionTypes.PATCH
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -100,19 +87,16 @@ export function Patch(route?: string|RegExp, options?: ActionOptions): Function 
  * Applied to controller class methods.
  *
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Delete(route?: RegExp, options?: ActionOptions): Function;
-export function Delete(route?: string, options?: ActionOptions): Function;
-export function Delete(route?: string|RegExp, options?: ActionOptions): Function {
+export function Delete(route?: RegExp): Function;
+export function Delete(route?: string): Function;
+export function Delete(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.DELETE,
-            options: options
+            type: ActionTypes.DELETE
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -123,42 +107,16 @@ export function Delete(route?: string|RegExp, options?: ActionOptions): Function
  * Applied to controller class methods.
  *
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Head(route?: RegExp, options?: ActionOptions): Function;
-export function Head(route?: string, options?: ActionOptions): Function;
-export function Head(route?: string|RegExp, options?: ActionOptions): Function {
+export function Head(route?: RegExp): Function;
+export function Head(route?: string): Function;
+export function Head(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.HEAD,
-            options: options
-        };
-        defaultMetadataArgsStorage().actions.push(metadata);
-    };
-}
-
-/**
- * Registers an action to be executed when OPTIONS request comes on a given route.
- * Applied to controller class methods.
- *
- * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
- */
-export function Options(route?: RegExp, options?: ActionOptions): Function;
-export function Options(route?: string, options?: ActionOptions): Function;
-export function Options(route?: string|RegExp, options?: ActionOptions): Function {
-    return function (object: Object, methodName: string) {
-        const metadata: ActionMetadataArgs = {
-            route: route,
-            object: object,
-            target: object.constructor,
-            method: methodName,
-            type: ActionTypes.OPTIONS,
-            options: options
+            type: ActionTypes.HEAD
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };
@@ -170,19 +128,16 @@ export function Options(route?: string|RegExp, options?: ActionOptions): Functio
  *
  * @param method Http method to be registered. All avalible http methods are listed in ActionType class
  * @param route When request comes to this route this action will be executed
- * @param options Extra action options to be applied
  */
-export function Method(method: ActionType, route?: RegExp, options?: ActionOptions): Function;
-export function Method(method: ActionType, route?: string, options?: ActionOptions): Function;
-export function Method(method: ActionType, route?: string|RegExp, options?: ActionOptions): Function {
+export function Method(method: ActionType, route?: RegExp): Function;
+export function Method(method: ActionType, route?: string): Function;
+export function Method(method: ActionType, route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {
             route: route,
-            object: object,
             target: object.constructor,
             method: methodName,
-            type: method,
-            options: options
+            type: method
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };

@@ -1,11 +1,12 @@
 {
-  "ambientDevDependencies": {
+  "globalDevDependencies": {
+    "koa": "registry:dt/koa#2.0.0+20160619030120",
     "assertion-error": "registry:dt/assertion-error#1.0.0+20141105053942",
     "chai": "registry:dt/chai#3.4.0+20160216071402",
     "mocha": "registry:dt/mocha#2.2.5+20151023103246",
     "sinon": "registry:dt/sinon#1.16.0+20151027143416"
   },
-  "ambientDependencies": {
+  "globalDependencies": {
     "body-parser": "registry:dt/body-parser#0.0.0+20160112113357",
     "es6-shim": "registry:dt/es6-shim#0.31.2+20160215162030",
     "express": "registry:dt/express#4.0.0+20160208031452",

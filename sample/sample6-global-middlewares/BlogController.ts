@@ -2,11 +2,13 @@ import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
 import {ForbiddenError} from "../../src/error/http/ForbiddenError";
 import {Param} from "../../src/decorator/params";
+import {JsonResponse} from "../../src/decorator/decorators";
 
 @Controller()
 export class BlogController {
 
-    @Get("/blogs", { jsonResponse: true })
+    @Get("/blogs")
+    @JsonResponse()
     getAll() {
         console.log("hello blog");
         return [
@@ -15,7 +17,8 @@ export class BlogController {
         ];
     }
 
-    @Get("/blogs/:id", { jsonResponse: true })
+    @Get("/blogs/:id")
+    @JsonResponse()
     getOne(@Param("id") id: number) {
         if (!id)
             throw new ForbiddenError();

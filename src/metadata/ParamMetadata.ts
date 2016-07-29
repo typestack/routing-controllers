@@ -1,6 +1,7 @@
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
 import {ParamTypes} from "./types/ParamTypes";
+import {ClassTransformOptions} from "class-transformer";
 
 export class ParamMetadata {
 
@@ -68,6 +69,16 @@ export class ParamMetadata {
      */
     transform: (value?: any, request?: any, response?: any) => Promise<any>|any;
 
+    /**
+     * Additional parameter options. For example it can be uploading options.
+     */
+    extraOptions: any;
+
+    /**
+     * Class transform options used to perform plainToClass operation.
+     */
+    classTransformOptions: ClassTransformOptions;
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -92,6 +103,10 @@ export class ParamMetadata {
             this.isRequired = args.isRequired;
         if (args.transform)
             this.transform = args.transform;
+        if (args.classTransformOptions)
+            this.classTransformOptions = args.classTransformOptions;
+        
+        this.extraOptions = args.extraOptions;
     }
 
     // -------------------------------------------------------------------------

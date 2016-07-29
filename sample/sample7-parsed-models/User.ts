@@ -1,5 +1,5 @@
 import {Photo} from "./Photo";
-import {Type, Skip} from "constructor-utils";
+import {Type, Exclude} from "class-transformer";
 
 export class User {
     
@@ -7,7 +7,7 @@ export class User {
     
     name: string;
 
-    @Skip()
+    @Exclude()
     password: string;
     
     @Type(() => Photo)

@@ -4,7 +4,6 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ErrorHandlerMetadata} from "../metadata/ErrorHandlerMetadata";
 import {UseMetadata} from "../metadata/UseMetadata";
 
 /**
@@ -24,20 +23,10 @@ export class MetadataBuilder {
         return this.createMiddlewares(classes);
     }
 
-    buildErrorHandlerMetadata(classes?: Function[]) {
-        return this.createErrorHandlers(classes);
-    }
-
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
-    
-    private createErrorHandlers(classes?: Function[]): ErrorHandlerMetadata[] {
-        const storage = defaultMetadataArgsStorage();
-        const errorHandlers = !classes ? storage.errorHandlers : storage.findErrorHandlerMetadatasForClasses(classes);
-        return errorHandlers.map(errorHandlerArgs => new ErrorHandlerMetadata(errorHandlerArgs));
-    }
-    
+
     private createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const middlewares = !classes ? storage.middlewares : storage.findMiddlewareMetadatasForClasses(classes);

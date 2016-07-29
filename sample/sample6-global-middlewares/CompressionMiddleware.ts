@@ -1,11 +1,10 @@
-import {ServerResponse, ServerRequest} from "http";
-import {Middleware} from "../../src/decorator/decorators";
-import {ExpressMiddlewareInterface} from "../../src/middleware/ExpressMiddlewareInterface";
+import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
+import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
-@Middleware({ global: true })
-export class CompressionMiddleware implements ExpressMiddlewareInterface {
+@MiddlewareGlobalBefore()
+export class CompressionMiddleware implements MiddlewareInterface {
 
-    use(request: ServerRequest, response: ServerResponse, next: Function): void {
+    use(request: any, response: any, next?: Function): any {
         console.log("hello compression ...");
         next();
     }

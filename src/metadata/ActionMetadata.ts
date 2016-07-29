@@ -5,6 +5,8 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
+import {ParamTypes} from "./types/ParamTypes";
+import {ClassTransformOptions} from "class-transformer";
 
 export class ActionMetadata {
 
@@ -38,12 +40,6 @@ export class ActionMetadata {
     route: string|RegExp;
 
     /**
-     * Object on which's method this action is attached.
-     * @deprecated
-     */
-    object: any;
-
-    /**
      * Class on which's method this action is attached.
      */
     target: Function;
@@ -59,16 +55,6 @@ export class ActionMetadata {
      */
     type: ActionType;
 
-    /**
-     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
-     */
-    jsonResponse: boolean;
-
-    /**
-     * If set to true then response will be forced to simple string text response.
-     */
-    textResponse: boolean;
-
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -78,18 +64,12 @@ export class ActionMetadata {
         
         if (args.route)
             this.route = args.route;
-        if (args.object)
-            this.object = args.object;
         if (args.target)
             this.target = args.target;
         if (args.method)
             this.method = args.method;
         if (args.type)
             this.type = args.type;
-        if (args.options && args.options.jsonResponse)
-            this.jsonResponse = args.options.jsonResponse;
-        if (args.options && args.options.textResponse)
-            this.textResponse = args.options.textResponse;
     }
 
     // -------------------------------------------------------------------------
@@ -97,8 +77,12 @@ export class ActionMetadata {
     // -------------------------------------------------------------------------
 
     get fullRoute(): string|RegExp {
-        if (this.route instanceof RegExp)
+        if (this.route instanceof RegExp) {
+            if (this.controllerMetadata.route) {
+                return ActionMetadata.appendBaseRouteToRegexpRoute(this.route as RegExp, this.controllerMetadata.route);
+            }
             return this.route;
+        }
 
         let path: string = "";
         if (this.controllerMetadata.route) path += this.controllerMetadata.route;
@@ -158,10 +142,18 @@ export class ActionMetadata {
         return this.responseHandlers.filter(handler => handler.type === ResponseHandlerTypes.HEADER);
     }
 
+    get responseClassTransformOptions(): ClassTransformOptions {
+        const responseHandler = this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS);
+        if (responseHandler)
+            return responseHandler.value;
+
+        return undefined;
+    }
+
     get undefinedResultCode(): number {
         if (this.undefinedResultHandler)
             return this.undefinedResultHandler.value;
-        
+
         return undefined;
     }
 
@@ -214,12 +206,52 @@ export class ActionMetadata {
         return undefined;
     }
     
+    get isCookiesUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.COOKIE);
+    }
+    
+    get isBodyUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.BODY ||  param.type === ParamTypes.BODY_PARAM);
+    }
+    
+    get isFilesUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILES);
+    }
+    
+    get isFileUsed() {
+        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE);
+    }
+
+    /**
+     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
+     */
+    get jsonResponse(): boolean {
+        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.JSON_RESPONSE);
+    }
+
+    /**
+     * If set to true then response will be forced to simple string text response.
+     */
+    get textResponse(): boolean {
+        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.TEXT_RESPONSE);
+    }
+    
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
     executeAction(params: any[]) {
         return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
+    }
+
+    // -------------------------------------------------------------------------
+    // Static Methods
+    // -------------------------------------------------------------------------
+    
+    static appendBaseRouteToRegexpRoute(route: RegExp, baseRoute: string) {
+        if (!baseRoute || baseRoute === "") return route;
+        const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
+        return new RegExp(fullPath, route.flags);
     }
     
 }

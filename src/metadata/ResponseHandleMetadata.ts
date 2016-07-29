@@ -14,12 +14,6 @@ export class ResponseHandlerMetadata {
     actionMetadata: ActionMetadata;
 
     /**
-     * Object on which's method decorator is set.
-     * @deprecated
-     */
-    object: any;
-
-    /**
      * Class on which's method decorator is set.
      */
     target: Function;
@@ -51,8 +45,6 @@ export class ResponseHandlerMetadata {
     constructor(actionMetadata: ActionMetadata, args: ResponseHandlerMetadataArgs) {
         this.actionMetadata = actionMetadata;
 
-        if (args.object)
-            this.object = args.object;
         if (args.target)
             this.target = args.target;
         if (args.method)
