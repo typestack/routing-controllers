@@ -119,9 +119,9 @@ If you open `http://localhost:3000/users/1` you should see `This action returns 
 You can return a promise in the controller, and it will wait until promise resolved and return in a response a promise result.
 
 ```typescript
-import {Controller, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
+import {JsonController, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
 
-@Controller()
+@JsonController()
 export class UserController {
 
     @Get("/users")
@@ -197,8 +197,9 @@ you can use `useExpressServer` instead of `createExpressServer` function:
 import "reflect-metadata"; // this shim is required
 import {useExpressServer} from "routing-controllers";
 
+let express = require("express"); // or you can import it if you have installed typings
 let app = express(); // your created express server
-// app.use() // maybe you configure itself the way you want
+// app.use() // maybe you configure it the way you want
 useExpressServer(app); // register created express server in routing-controllers
 app.listen(3000); // run your express server
 ```
@@ -215,7 +216,7 @@ import "reflect-metadata"; // this shim is required
 import {createExpressServer, loadControllers} from "routing-controllers";
 
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers"]
+    controllerDirs: [__dirname + "/controllers/*.js"]
 }).listen(3000); // register controllers routes in our express application
 ```
 
@@ -231,7 +232,7 @@ import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
     routePrefix: "/api",
-    controllerDirs: [__dirname + "/api"] // register controllers routes in our express app
+    controllerDirs: [__dirname + "/api/controllers/*.js"] // register controllers routes in our express app
 }).listen(3000);
 ```
 
@@ -577,7 +578,7 @@ with `@Middleware` decorator:
     @Middleware()
     export class MyMiddleware implements MiddlewareInterface {
 
-        use(request: any, response: any, next: (err: any) => any) {
+        use(request: any, response: any, next?: (err?: any) => any): any {
             console.log("do something...");
             next();
         }
@@ -761,8 +762,8 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 import "reflect-metadata";
 import {createExpressServer, loadControllers} from "routing-controllers";
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers/**/*"],
-    middlewareDirs: [__dirname + "/middlewares"]
+    controllerDirs: [__dirname + "/controllers/**/*.js"],
+    middlewareDirs: [__dirname + "/middlewares/**/*.js"]
 }).listen(3000);
 ```
 
@@ -808,7 +809,7 @@ export class UserController {
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `useConstructorUtils: true` to createExpressServer method.
+If you want to disable it simply pass `useConstructorUtils: false` to createExpressServer method.
 
 ## Default error handling
 
@@ -831,8 +832,8 @@ useContainer(Container);
 
 // create and run server
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers"],
-    middlewareDirs: [__dirname + "/middlewares"]
+    controllerDirs: [__dirname + "/controllers/*.js"],
+    middlewareDirs: [__dirname + "/middlewares/*.js"]
 }).listen(3000);
 ```
 

@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
   "private": true,
-  "version": "0.6.0-beta.5",
+  "version": "0.6.0-beta.6",
   "description": "Allows to use class-based controllers with express.js or koa in Typescript",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -16,6 +16,7 @@
   "bugs": {
     "url": "https://github.com/pleerock/routing-controllers/issues"
   },
+  "main": "index.js",
   "tags": [
     "express",
     "express.js",
