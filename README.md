@@ -742,7 +742,86 @@ Error handlers works pretty much the same as middlewares, but instead of `@Middl
     createExpressServer().listen(3000);
     ```
 
-### Don't forget to load your middlewares and error handlers
+## Using interceptors
+
+Interceptors are used to change or replace the data returned to the client.
+You can create your own interceptor class or function and use to all or specific controller or controller action.
+It works pretty much the same as middlewares.
+
+### Interceptor function
+
+The easiest way is to use functions directly passed to `@UseInterceptor` of the action. 
+
+```typescript
+import {Get, Param, UseInterceptor} from "routing-controllers";
+
+// ...
+
+@Get("/users")
+@UseInterceptor(function(request: any, response: any, content: any) {
+    // here you have content returned by this action. you can replace something 
+    // in it and return a replaced result. replaced result will be returned to the user
+    return content.replace(/Mike/gi, "Michael");
+})
+getOne(@Param("id") id: number) {
+    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
+}
+```
+
+You can use `@UseInterceptor` per-action, on per-controller. 
+If its used per-controller then interceptor will apply to all controller actions.
+
+### Interceptor classes
+
+You can also create a class and use it with `@UseInterceptor` decorator:
+
+```typescript
+import {Interceptor, InterceptorInterface} from "routing-controllers";
+
+@Interceptor()
+export class NameCorrectionInterceptor implements InterceptorInterface {
+    
+    intercept(request: any, response: any, content: any) {
+        return content.replace(/Mike/gi, "Michael");
+    }
+    
+}
+```
+
+And use it in your controllers this way:
+
+```typescript
+import {Get, Param, UseInterceptor} from "routing-controllers";
+import {NameCorrectionInterceptor} from "./NameCorrectionInterceptor";
+
+// ...
+
+@Get("/users")
+@UseInterceptor(NameCorrectionInterceptor)
+getOne(@Param("id") id: number) {
+    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
+}
+```
+
+### Global interceptors
+
+You can create interceptors that will affect all controllers in your project by creating interceptor class
+and mark it with `@InterceptorGlobal` decorator:
+
+```typescript
+import {InterceptorGlobal, InterceptorInterface} from "routing-controllers";
+
+@InterceptorGlobal()
+export class NameCorrectionInterceptor implements InterceptorInterface {
+    
+    intercept(request: any, response: any, content: any) {
+        return content.replace(/Mike/gi, "Michael");
+    }
+    
+}
+```
+
+### Don't forget to load your middlewares, error handlers and interceptors
 
 Middlewares and error handlers should be loaded globally the same way as controllers, before app bootstrap:
 
@@ -752,6 +831,7 @@ import {createExpressServer} from "routing-controllers";
 import "./UserController";
 import "./MyMiddleware"; // here we load it
 import "./CustomErrorHandler"; // here we load it
+import "./BadWordInterceptor"; // here we load it
 let app = createExpressServer();
 app.listen(3000);
 ```
@@ -833,7 +913,8 @@ useContainer(Container);
 // create and run server
 createExpressServer({
     controllerDirs: [__dirname + "/controllers/*.js"],
-    middlewareDirs: [__dirname + "/middlewares/*.js"]
+    middlewareDirs: [__dirname + "/middlewares/*.js"],
+    interceptorDirs: [__dirname + "/interceptor/*.js"],
 }).listen(3000);
 ```
 
@@ -888,7 +969,7 @@ export class UsersController {
 | `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
-#### Middleware Decorators
+#### Middleware and Interceptor Decorators
 
 | Signature                                                          | Example                                          | Description                                                                                                     |
 |--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
@@ -898,6 +979,9 @@ export class UsersController {
 | `@ErrorHandler()`                                                  | `@ErrorHandler() class SomeErrorHandler`         | Registers a new error handler.                                                                                  |
 | `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`              | Uses given middleware before action is being executed.                                                          |
 | `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`               | Uses given middleware after action is being executed.                                                           |
+| `@Interceptor()`                                                   | `@Interceptor(InterceptorMiddleware)`            | Registers a given class as an interceptor                                                                       |
+| `@InterceptorGlobal()`                                             | `@InterceptorGlobal(InterceptorMiddleware)`      | Registers a global interceptor.                                                                                 |
+| `@UseInterceptor()`                                                | `@UseInterceptor(InterceptorMiddleware)`         | Uses given interceptor for the given action or controller.                                                      |
 
 #### Other Decorators
 

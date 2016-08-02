@@ -1,5 +1,5 @@
 /**
- * Classes that intercepts response result must implement this interface.
+ * Used to register middlewares.
  */
 export interface MiddlewareInterface {
 

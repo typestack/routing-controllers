@@ -2,6 +2,7 @@ import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
+import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
 
 export class ControllerMetadata {
 
@@ -33,6 +34,11 @@ export class ControllerMetadata {
      * Middleware "use"-s applied to a whole controller.
      */
     uses: UseMetadata[];
+
+    /**
+     * Intercepts applied to a whole controller.
+     */
+    useInterceptors: UseInterceptorMetadata[];
 
     // -------------------------------------------------------------------------
     // Constructor

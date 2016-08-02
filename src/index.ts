@@ -55,6 +55,8 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)
         importClassesFromDirectories(options.middlewareDirs);
+    if (options && options.interceptorDirs && options.interceptorDirs.length)
+        importClassesFromDirectories(options.interceptorDirs);
 
     if (options && options.developmentMode !== undefined) {
         driver.developmentMode = options.developmentMode;
@@ -112,4 +114,6 @@ export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
 export * from "./middleware/MiddlewareInterface";
+export * from "./middleware/InterceptorInterface";
+export * from "./middleware/ErrorMiddlewareInterface";
 export * from "./RoutingControllersOptions";

@@ -9,6 +9,8 @@ import {BadHttpActionError} from "../error/BadHttpActionError";
 import {Driver} from "./Driver";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
+import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
+import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
 const cookie = require("cookie");
 
 /**
@@ -69,10 +71,25 @@ export class KoaDriver extends BaseDriver implements Driver {
         });
     }
 
-    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
+    registerAction(action: ActionMetadata,
+                   middlewares: MiddlewareMetadata[],
+                   interceptors: InterceptorMetadata[],
+                   executeCallback: (options: ActionCallbackOptions) => any): void {
         const koaAction = action.type.toLowerCase();
         if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
+
+        const useInterceptors = action.controllerMetadata.useInterceptors.concat(action.useInterceptors);
+        const useInterceptorFunctions = this.registerIntercepts(useInterceptors, interceptors);
+        const globalUseInterceptors: Function[] = interceptors
+            .filter(interceptor => interceptor.isGlobal)
+            .sort((interceptor1, interceptor2) => interceptor1.priority - interceptor2.priority)
+            .reverse()
+            .map(interceptor => {
+                return function (request: any, response: any, result: any) {
+                    return interceptor.instance.intercept(request, response, result);
+                };
+            });
 
         const defaultMiddlewares: any[] = [];
         if (action.isBodyUsed) {
@@ -115,7 +132,8 @@ export class KoaDriver extends BaseDriver implements Driver {
                             resolve(r);
                         }).catch(reject);
                     },
-                    context: ctx
+                    context: ctx,
+                    useInterceptorFunctions: globalUseInterceptors.concat(useInterceptorFunctions)
                 };
                 executeCallback(options);
             });
@@ -161,6 +179,12 @@ export class KoaDriver extends BaseDriver implements Driver {
     }
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+
+        if (options.useInterceptorFunctions) {
+            options.useInterceptorFunctions.forEach(interceptorFn => {
+                result = interceptorFn(options.request, options.response, result);
+            });
+        }
 
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -283,10 +307,29 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Private Methods
     // -------------------------------------------------------------------------
 
+    private registerIntercepts(useInterceptors: UseInterceptorMetadata[], interceptors: InterceptorMetadata[]) {
+        const interceptFunctions: Function[] = [];
+        useInterceptors.forEach(useInterceptor => {
+            if (useInterceptor.interceptor.prototype && useInterceptor.interceptor.prototype.intercept) { // if this is function instance of MiddlewareInterface
+                interceptors.forEach(interceptor => {
+                    if (interceptor.instance instanceof useInterceptor.interceptor) {
+                        interceptFunctions.push(function (request: any, response: any, result: any) {
+                            return interceptor.instance.intercept(request, response, result);
+                        });
+                    }
+                });
+
+            } else {
+                interceptFunctions.push(useInterceptor.interceptor);
+            }
+        });
+        return interceptFunctions;
+    }
+
     private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
-            if (use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
+            if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
                         middlewareFunctions.push(function(context: any, next: Function) {

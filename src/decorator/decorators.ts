@@ -2,11 +2,11 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
-import {ErrorHandlerOptions} from "./options/ErrorHandlerOptions";
-import {ErrorHandlerMetadataArgs} from "../metadata/args/ErrorHandlerMetadataArgs";
 import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
 import {GlobalMiddlewareOptions} from "./options/GlobalMiddlewareOptions";
 import {ClassTransformOptions} from "class-transformer";
+import {UseInterceptorMetadataArgs} from "../metadata/args/UseInterceptorMetadataArgs";
+import {InterceptorMetadataArgs} from "../metadata/args/InterceptorMetadataArgs";
 
 /**
  * Registers a new middleware.
@@ -20,6 +20,20 @@ export function Middleware(): Function {
             afterAction: false
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Registers a new interceptor.
+ */
+export function Interceptor(): Function {
+    return function (target: Function) {
+        const metadata: InterceptorMetadataArgs = {
+            target: target,
+            isGlobal: false,
+            priority: undefined
+        };
+        defaultMetadataArgsStorage().interceptors.push(metadata);
     };
 }
 
@@ -50,6 +64,20 @@ export function MiddlewareGlobalAfter(options?: GlobalMiddlewareOptions): Functi
             afterAction: true
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
+    };
+}
+
+/**
+ * Registers a global interceptor.
+ */
+export function InterceptorGlobal(options?: { priority?: number }): Function {
+    return function (target: Function) {
+        const metadata: InterceptorMetadataArgs = {
+            target: target,
+            isGlobal: true,
+            priority: options && options.priority ? options.priority : undefined
+        };
+        defaultMetadataArgsStorage().interceptors.push(metadata);
     };
 }
 
@@ -91,6 +119,25 @@ export function UseAfter(...middlewares: Array<Function|((request: any, response
                 afterAction: true
             };
             defaultMetadataArgsStorage().uses.push(metadata);
+        });
+    };
+}
+
+/**
+ * Specifies a given interceptor middleware or interceptor function to be used for controller or controller action.
+ * Must be set to controller action or controller class.
+ */
+export function UseInterceptor(...interceptors: Array<Function>): Function;
+export function UseInterceptor(...interceptors: Array<(request: any, response: any, result: any) => any>): Function;
+export function UseInterceptor(...interceptors: Array<Function|((request: any, response: any, result: any) => any)>): Function {
+    return function (objectOrFunction: Object|Function, methodName?: string) {
+        interceptors.forEach(interceptor => {
+            const metadata: UseInterceptorMetadataArgs = {
+                interceptor: interceptor,
+                target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
+                method: methodName
+            };
+            defaultMetadataArgsStorage().useInterceptors.push(metadata);
         });
     };
 }

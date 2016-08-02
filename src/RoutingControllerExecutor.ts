@@ -39,10 +39,11 @@ export class RoutingControllerExecutor {
      */
     registerActions(classes?: Function[]): this {
         const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
+        const interceptors = this.metadataBuilder.buildInterceptorMetadata(classes);
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, middlewares, (options: ActionCallbackOptions) => {
+                this.driver.registerAction(action, middlewares, interceptors, (options: ActionCallbackOptions) => {
                     this.handleAction(action, options);
                 });
             });

@@ -10,6 +10,8 @@ import {classToPlain, ClassTransformOptions} from "class-transformer";
 import {Driver} from "./Driver";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {BaseDriver} from "./BaseDriver";
+import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
+import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
 const cookie = require("cookie");
 
 /**
@@ -70,16 +72,32 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void {
+    registerAction(action: ActionMetadata,
+                   middlewares: MiddlewareMetadata[],
+                   interceptors: InterceptorMetadata[],
+                   executeCallback: (options: ActionCallbackOptions) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
+
+        const useInterceptors = action.controllerMetadata.useInterceptors.concat(action.useInterceptors);
+        const useInterceptorFunctions = this.registerIntercepts(useInterceptors, interceptors);
+        const globalUseInterceptors: Function[] = interceptors
+            .filter(interceptor => interceptor.isGlobal)
+            .sort((interceptor1, interceptor2) => interceptor1.priority - interceptor2.priority)
+            .reverse()
+            .map(interceptor => {
+                return function (request: any, response: any, result: any) {
+                    return interceptor.instance.intercept(request, response, result);
+                };
+            });
 
         const routeHandler = function RouteHandler(request: IncomingMessage, response: ServerResponse, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,
-                next: next
+                next: next,
+                useInterceptorFunctions: globalUseInterceptors.concat(useInterceptorFunctions)
             };
             executeCallback(options);
         };
@@ -152,6 +170,12 @@ export class ExpressDriver extends BaseDriver implements Driver {
      * Defines an algorithm of how to handle success result of executing controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+
+        if (options.useInterceptorFunctions) {
+            options.useInterceptorFunctions.forEach(interceptorFn => {
+                result = interceptorFn(options.request, options.response, result);
+            });
+        }
 
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -261,10 +285,29 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // Private Methods
     // -------------------------------------------------------------------------
 
+    private registerIntercepts(useInterceptors: UseInterceptorMetadata[], interceptors: InterceptorMetadata[]) {
+        const interceptFunctions: Function[] = [];
+        useInterceptors.forEach(useInterceptor => {
+            if (useInterceptor.interceptor.prototype && useInterceptor.interceptor.prototype.intercept) { // if this is function instance of MiddlewareInterface
+                interceptors.forEach(interceptor => {
+                    if (interceptor.instance instanceof useInterceptor.interceptor) {
+                        interceptFunctions.push(function (request: any, response: any, result: any) {
+                            return interceptor.instance.intercept(request, response, result);
+                        });
+                    }
+                });
+
+            } else {
+                interceptFunctions.push(useInterceptor.interceptor);
+            }
+        });
+        return interceptFunctions;
+    }
+
     private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
-            if (use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
+            if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
                         middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
@@ -272,7 +315,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                         });
                     }
                 });
-            } else if (use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
+            } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.errorHandlerInstance instanceof use.middleware) {
                         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {

@@ -7,6 +7,7 @@ import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
 import {ParamTypes} from "./types/ParamTypes";
 import {ClassTransformOptions} from "class-transformer";
+import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
 
 export class ActionMetadata {
 
@@ -28,6 +29,11 @@ export class ActionMetadata {
      * Action's use metadatas.
      */
     uses: UseMetadata[];
+
+    /**
+     * Action's intercepts.
+     */
+    useInterceptors: UseInterceptorMetadata[];
 
     /**
      * Action's response handlers.

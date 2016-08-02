@@ -16,6 +16,11 @@ export interface RoutingControllersOptions {
     middlewareDirs?: string[];
 
     /**
+     * List of directories from where to "require" all your interceptors.
+     */
+    interceptorDirs?: string[];
+
+    /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
     useClassTransformer?: boolean;

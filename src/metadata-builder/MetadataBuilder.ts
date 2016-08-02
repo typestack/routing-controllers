@@ -5,6 +5,8 @@ import {ParamMetadata} from "../metadata/ParamMetadata";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {UseMetadata} from "../metadata/UseMetadata";
+import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
+import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -23,9 +25,19 @@ export class MetadataBuilder {
         return this.createMiddlewares(classes);
     }
 
+    buildInterceptorMetadata(classes?: Function[]) {
+        return this.createInterceptors(classes);
+    }
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
+
+    private createInterceptors(classes?: Function[]): InterceptorMetadata[] {
+        const storage = defaultMetadataArgsStorage();
+        const interceptors = !classes ? storage.interceptors : storage.findInterceptorMetadatasForClasses(classes);
+        return interceptors.map(interceptorArgs => new InterceptorMetadata(interceptorArgs));
+    }
 
     private createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
         const storage = defaultMetadataArgsStorage();
@@ -40,6 +52,7 @@ export class MetadataBuilder {
             const controller = new ControllerMetadata(controllerArgs);
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
+            controller.useInterceptors = this.createControllerIntercepts(controller);
             return controller;
         });
     }
@@ -52,6 +65,7 @@ export class MetadataBuilder {
                 action.params = this.createParams(action);
                 action.responseHandlers = this.createResponseHandlers(action);
                 action.uses = this.createActionUses(action);
+                action.useInterceptors = this.createActionIntercepts(action);
                 return action;
             });
     }
@@ -74,10 +88,22 @@ export class MetadataBuilder {
             .map(useArgs => new UseMetadata(useArgs));
     }
 
+    private createActionIntercepts(action: ActionMetadata): UseInterceptorMetadata[] {
+        return defaultMetadataArgsStorage()
+            .findUseInterceptorWithTargetAndMethod(action.target, action.method)
+            .map(interceptArgs => new UseInterceptorMetadata(interceptArgs));
+    }
+
     private createControllerUses(controller: ControllerMetadata): UseMetadata[] {
         return defaultMetadataArgsStorage()
             .findUsesWithTargetAndMethod(controller.target, undefined)
             .map(useArgs => new UseMetadata(useArgs));
+    }
+
+    private createControllerIntercepts(controller: ControllerMetadata): UseInterceptorMetadata[] {
+        return defaultMetadataArgsStorage()
+            .findUseInterceptorWithTargetAndMethod(controller.target, undefined)
+            .map(interceptArgs => new UseInterceptorMetadata(interceptArgs));
     }
 
 }

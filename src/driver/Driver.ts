@@ -3,6 +3,7 @@ import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {ClassTransformOptions} from "class-transformer";
+import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
@@ -61,7 +62,10 @@ export interface Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, middlewares: MiddlewareMetadata[], executeCallback: (options: ActionCallbackOptions) => any): void;
+    registerAction(action: ActionMetadata,
+                   middlewares: MiddlewareMetadata[],
+                   interceptors: InterceptorMetadata[],
+                   executeCallback: (options: ActionCallbackOptions) => any): void;
 
     /**
      * Registers all routes in the framework.
