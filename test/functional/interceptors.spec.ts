@@ -8,7 +8,7 @@ import {InterceptorInterface} from "../../src/middleware/InterceptorInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe.skip("interceptor", () => {
+describe("interceptor", () => {
 
     before(() => {
 
