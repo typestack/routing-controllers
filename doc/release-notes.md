@@ -1,5 +1,13 @@
 # Release notes
 
+**0.6.2**
+
+* made interceptors to support promises
+
+**0.6.1**
+
+* added interceptors support
+
 **0.6.0** *[BREAKING CHANGES]*
 
 * middleware and error handlers support

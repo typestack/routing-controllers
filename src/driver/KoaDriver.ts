@@ -11,6 +11,7 @@ import {UseMetadata} from "../metadata/UseMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
+import {PromiseUtils} from "../util/PromiseUtils";
 const cookie = require("cookie");
 
 /**
@@ -179,12 +180,56 @@ export class KoaDriver extends BaseDriver implements Driver {
     }
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-
         if (options.useInterceptorFunctions) {
-            options.useInterceptorFunctions.forEach(interceptorFn => {
-                result = interceptorFn(options.request, options.response, result);
+            const awaitPromise = PromiseUtils.runInSequence(options.useInterceptorFunctions, interceptorFn => {
+                const interceptedResult = interceptorFn(options.request, options.response, result);
+                if (interceptedResult instanceof Promise) {
+                    return interceptedResult.then((resultFromPromise: any) => {
+                        result = resultFromPromise;
+                    });
+                } else {
+                    result = interceptedResult;
+                    return Promise.resolve();
+                }
             });
+            awaitPromise.then(() => this.handleSuccessAfterResolve(result, action, options));
+        } else {
+            this.handleSuccessAfterResolve(result, action, options);
         }
+    }
+
+    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+        const response: any = options.response;
+
+        // set http status
+        if (error instanceof HttpError && error.httpCode) {
+            options.context.status = error.httpCode;
+            response.status(error.httpCode);
+        } else {
+            options.context.status = 500;
+            // TODO: FIX response.status(500);
+        }
+
+        // apply http headers
+        Object.keys(action.headers).forEach(name => {
+            response.set(name, action.headers[name]);
+        });
+
+        // send error content
+        if (action.isJsonTyped) {
+            response.body = this.processJsonError(error);
+        } else {
+            response.body = this.processJsonError(error);
+        }
+        options.next(error);
+        // throw error;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    private handleSuccessAfterResolve(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -241,24 +286,24 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
-                
+
                 if (action.isJsonTyped) {
                     response.body = null;
                 } else {
                     response.body = null;
                 }
-                
+
                 // todo: duplication. we make it here because after we set null to body koa seems overrides status
                 if (action.nullResultCode) {
                     response.status = action.nullResultCode;
-                    
+
                 } else if (action.emptyResultCode) {
                     response.status = action.emptyResultCode;
-                    
+
                 } else if (result === undefined && action.undefinedResultCode) {
                     response.status = action.undefinedResultCode;
                 }
-                
+
                 options.next();
             } else {
                 if (action.isJsonTyped) {
@@ -275,37 +320,6 @@ export class KoaDriver extends BaseDriver implements Driver {
             // options.resolver();
         }
     }
-
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        const response: any = options.response;
-
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-            options.context.status = error.httpCode;
-            response.status(error.httpCode);
-        } else {
-            options.context.status = 500;
-            // TODO: FIX response.status(500);
-        }
-
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            response.set(name, action.headers[name]);
-        });
-
-        // send error content
-        if (action.isJsonTyped) {
-            response.body = this.processJsonError(error);
-        } else {
-            response.body = this.processJsonError(error);
-        }
-        options.next(error);
-        // throw error;
-    }
-
-    // -------------------------------------------------------------------------
-    // Private Methods
-    // -------------------------------------------------------------------------
 
     private registerIntercepts(useInterceptors: UseInterceptorMetadata[], interceptors: InterceptorMetadata[]) {
         const interceptFunctions: Function[] = [];

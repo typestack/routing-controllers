@@ -36,6 +36,17 @@ describe("interceptor", () => {
             }
         }
 
+        @Interceptor()
+        class AsyncInterceptor implements InterceptorInterface {
+            intercept(request: any, response: any, result: any): any {
+                return new Promise(ok => {
+                    setTimeout(() => {
+                        ok(result.replace(/hello/gi, "bye"));
+                    }, 1000);
+                });
+            }
+        }
+
         @Controller()
         @UseInterceptor(ByeWordInterceptor)
         class HandledController {
@@ -62,6 +73,12 @@ describe("interceptor", () => {
             @Get("/files")
             files(): any {
                 return "<html><body>hello1234567890 world</body></html>";
+            }
+
+            @Get("/photos")
+            @UseInterceptor(AsyncInterceptor)
+            photos(): any {
+                return "<html><body>hello world</body></html>";
             }
 
         }
@@ -103,6 +120,14 @@ describe("interceptor", () => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>hello world</body></html>");
+        });
+    });
+
+    describe("interceptors should support promises", () => {
+        assertRequest([3001, 3002], "get", "photos", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>bye world</body></html>");
         });
     });
 
