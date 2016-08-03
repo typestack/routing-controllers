@@ -3,6 +3,7 @@ import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {Driver} from "./driver/Driver";
+import {PromiseUtils} from "./util/PromiseUtils";
 
 /**
  * Registers controllers and actions in the given server framework.
@@ -109,7 +110,26 @@ export class RoutingControllerExecutor {
                     throw error;
                 });
         } else {
-            this.driver.handleSuccess(result, action, options);
+            if (options.useInterceptorFunctions) {
+                const awaitPromise = PromiseUtils.runInSequence(options.useInterceptorFunctions, interceptorFn => {
+                    const interceptedResult = interceptorFn(options.request, options.response, result);
+                    if (interceptedResult instanceof Promise) {
+                        return interceptedResult.then((resultFromPromise: any) => {
+                            result = resultFromPromise;
+                        });
+                    } else {
+                        result = interceptedResult;
+                        return Promise.resolve();
+                    }
+                });
+
+                awaitPromise
+                    .then(() => this.driver.handleSuccess(result, action, options))
+                    .catch(error => this.driver.handleError(error, action, options));
+            } else {
+                this.driver.handleSuccess(result, action, options);
+            }
+
         }
     }
 

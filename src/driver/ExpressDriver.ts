@@ -171,57 +171,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
      * Defines an algorithm of how to handle success result of executing controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        if (options.useInterceptorFunctions) {
-            const awaitPromise = PromiseUtils.runInSequence(options.useInterceptorFunctions, interceptorFn => {
-                const interceptedResult = interceptorFn(options.request, options.response, result);
-                if (interceptedResult instanceof Promise) {
-                    return interceptedResult.then((resultFromPromise: any) => {
-                        result = resultFromPromise;
-                    });
-                } else {
-                    result = interceptedResult;
-                    return Promise.resolve();
-                }
-            });
-            awaitPromise.then(() => this.handleSuccessAfterResolve(result, action, options));
-        } else {
-            this.handleSuccessAfterResolve(result, action, options);
-        }
-    }
-
-    /**
-     * Defines an algorithm of how to handle error during executing controller action.
-     */
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        const response: any = options.response;
-
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-            response.status(error.httpCode);
-        } else {
-            response.status(500);
-        }
-
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            response.header(name, action.headers[name]);
-        });
-
-        // send error content
-        if (action.isJsonTyped) {
-            response.json(this.processJsonError(error));
-        } else {
-            response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
-        }
-        options.next(error);
-    }
-
-    // -------------------------------------------------------------------------
-    // Private Methods
-    // -------------------------------------------------------------------------
-
-    private handleSuccessAfterResolve(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
@@ -297,8 +246,38 @@ export class ExpressDriver extends BaseDriver implements Driver {
         } else {
             options.next();
         }
-
     }
+
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     */
+    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+        const response: any = options.response;
+
+        // set http status
+        if (error instanceof HttpError && error.httpCode) {
+            response.status(error.httpCode);
+        } else {
+            response.status(500);
+        }
+
+        // apply http headers
+        Object.keys(action.headers).forEach(name => {
+            response.header(name, action.headers[name]);
+        });
+
+        // send error content
+        if (action.isJsonTyped) {
+            response.json(this.processJsonError(error));
+        } else {
+            response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+        }
+        options.next(error);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
 
     private registerIntercepts(useInterceptors: UseInterceptorMetadata[], interceptors: InterceptorMetadata[]) {
         const interceptFunctions: Function[] = [];

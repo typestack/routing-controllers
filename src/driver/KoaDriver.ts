@@ -180,56 +180,6 @@ export class KoaDriver extends BaseDriver implements Driver {
     }
 
     handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        if (options.useInterceptorFunctions) {
-            const awaitPromise = PromiseUtils.runInSequence(options.useInterceptorFunctions, interceptorFn => {
-                const interceptedResult = interceptorFn(options.request, options.response, result);
-                if (interceptedResult instanceof Promise) {
-                    return interceptedResult.then((resultFromPromise: any) => {
-                        result = resultFromPromise;
-                    });
-                } else {
-                    result = interceptedResult;
-                    return Promise.resolve();
-                }
-            });
-            awaitPromise.then(() => this.handleSuccessAfterResolve(result, action, options));
-        } else {
-            this.handleSuccessAfterResolve(result, action, options);
-        }
-    }
-
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        const response: any = options.response;
-
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-            options.context.status = error.httpCode;
-            response.status(error.httpCode);
-        } else {
-            options.context.status = 500;
-            // TODO: FIX response.status(500);
-        }
-
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            response.set(name, action.headers[name]);
-        });
-
-        // send error content
-        if (action.isJsonTyped) {
-            response.body = this.processJsonError(error);
-        } else {
-            response.body = this.processJsonError(error);
-        }
-        options.next(error);
-        // throw error;
-    }
-
-    // -------------------------------------------------------------------------
-    // Private Methods
-    // -------------------------------------------------------------------------
-
-    private handleSuccessAfterResolve(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
 
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -320,6 +270,37 @@ export class KoaDriver extends BaseDriver implements Driver {
             // options.resolver();
         }
     }
+
+    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+        const response: any = options.response;
+
+        // set http status
+        if (error instanceof HttpError && error.httpCode) {
+            options.context.status = error.httpCode;
+            response.status(error.httpCode);
+        } else {
+            options.context.status = 500;
+            // TODO: FIX response.status(500);
+        }
+
+        // apply http headers
+        Object.keys(action.headers).forEach(name => {
+            response.set(name, action.headers[name]);
+        });
+
+        // send error content
+        if (action.isJsonTyped) {
+            response.body = this.processJsonError(error);
+        } else {
+            response.body = this.processJsonError(error);
+        }
+        options.next(error);
+        // throw error;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
 
     private registerIntercepts(useInterceptors: UseInterceptorMetadata[], interceptors: InterceptorMetadata[]) {
         const interceptFunctions: Function[] = [];
