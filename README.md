@@ -57,12 +57,12 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     
 5. Its important to set these options in `tsconfig.json` file of your project:
 
-```json
-{
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-}
-```
+    ```json
+    {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    }
+    ```
 
 ## Example of usage
 
