@@ -1,7 +1,6 @@
 import {HttpError} from "../error/http/HttpError";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {IncomingMessage, ServerResponse} from "http";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
@@ -93,7 +92,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 };
             });
 
-        const routeHandler = function RouteHandler(request: IncomingMessage, response: ServerResponse, next: Function) {
+        const routeHandler = function RouteHandler(request: any, response: any, next: Function) {
             const options: ActionCallbackOptions = {
                 request: request,
                 response: response,
