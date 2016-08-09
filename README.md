@@ -54,7 +54,15 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     Optionally you can also install its [typings](https://github.com/typings/typings):
 
     `typings install dt~koa --save --global`
+    
+5. Its important to set these options in `tsconfig.json` file of your project:
 
+```json
+{
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+}
+```
 
 ## Example of usage
 
