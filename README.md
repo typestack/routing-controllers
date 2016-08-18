@@ -722,15 +722,15 @@ You can make global middleware to run after controller action by using `@Middlew
 ### Error handlers
 
 Error handlers are specific only to express.
-Error handlers works pretty much the same as middlewares, but instead of `@Middleware` decorator `@ErrorHandler` is being used:
+Error handlers work in pretty much the same way as middlewares, but implement `ErrorMiddlewareInterface` instead of `MiddlewareInterface`:
 
-1. Create a class that implements a `ErrorHandlerInterface` interface and decorated with `@ErrorHandler` decorator:
+1. Create a class that implements the `ErrorMiddlewareInterface` interface and is decorated with the `@MiddlewareGlobalBefore` decorator:
 
     ```typescript
-    import {ErrorHandler, ErrorHandlerInterface} from "routing-controllers";
+    import {ErrorMiddlewareInterface, MiddlewareGlobalBefore} from "routing-controllers";
 
-    @ErrorHandler()
-    export class CustomErrorHandler implements ErrorHandlerMiddlewareInterface {
+    @MiddlewareGlobalBefore()
+    export class CustomErrorHandler implements ErrorMiddlewareInterface {
 
         error(error: any, request: any, response: any, next: (err: any) => any) {
             console.log("do something...");
@@ -738,16 +738,6 @@ Error handlers works pretty much the same as middlewares, but instead of `@Middl
         }
 
     }
-    ```
-
-2. Load created error handler before app bootstrap:
-
-    ```typescript
-    import "reflect-metadata";
-    import {createExpressServer} from "routing-controllers";
-    import "./UserController";
-    import "./CustomErrorHandler"; // here we load it
-    createExpressServer().listen(3000);
     ```
 
 ## Using interceptors
