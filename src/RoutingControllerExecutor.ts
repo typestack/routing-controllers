@@ -34,7 +34,7 @@ export class RoutingControllerExecutor {
         this.driver.bootstrap();
         return this;
     }
-    
+
     /**
      * Registers actions in the driver.
      */
@@ -70,7 +70,7 @@ export class RoutingControllerExecutor {
                     this.driver.registerMiddleware(middleware);
                 }
             });
-        
+
         return this;
     }
 
@@ -79,7 +79,7 @@ export class RoutingControllerExecutor {
     // -------------------------------------------------------------------------
 
     private handleAction(action: ActionMetadata, options: ActionCallbackOptions) {
-        
+
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)
@@ -100,7 +100,7 @@ export class RoutingControllerExecutor {
     }
 
     private handleResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
-        if (result instanceof Promise) {
+        if (PromiseUtils.isPromiseLike(result)) {
             result
                 .then((data: any) => {
                     return this.handleResult(data, action, options);
