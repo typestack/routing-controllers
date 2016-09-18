@@ -102,6 +102,11 @@ describe("action parameters", () => {
             }))
             addToSession(@Session() session: Express.Session) {
                 (session as any).testElement = "@Session test";
+                (session as any).fakeObject = {
+                    name: "fake",
+                    fake: true,
+                    value: 666
+                };
                 return `<html><body>@Session</body></html>`;
             }
 
@@ -307,7 +312,6 @@ describe("action parameters", () => {
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>@Session</body></html>");
             assertRequest([3001], "get", "session", response => {
-                paramUserId.should.be.equal(1);
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
                 expect(response.body).to.be.equal("<html><body>@Session test</body></html>");
