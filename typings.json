@@ -1,8 +1,9 @@
 {
   "globalDevDependencies": {
-    "koa": "registry:dt/koa#2.0.0+20160619030120",
     "assertion-error": "registry:dt/assertion-error#1.0.0+20141105053942",
     "chai": "registry:dt/chai#3.4.0+20160216071402",
+    "express-session": "registry:dt/express-session#0.0.0+20160819134112",
+    "koa": "registry:dt/koa#2.0.0+20160619030120",
     "mocha": "registry:dt/mocha#2.2.5+20151023103246",
     "sinon": "registry:dt/sinon#1.16.0+20151027143416"
   },
