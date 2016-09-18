@@ -350,7 +350,7 @@ To inject a whole session object, use `@Session` decorator:
 
 ```typescript
 @Post("/login/")
-loginUser(@Session() session: express.Session, @Body() user: User) {
+loginUser(@Session() session: Express.Session, @Body() user: User) {
 }
 ```
 
@@ -361,6 +361,9 @@ To inject a single object from session, use `@Session` decorator with parameter:
 savePost(@Session("user") user: User, @Body() post: Post) {
 }
 ```
+
+Routing-controllers uses [express-session][5] to handle session, so firstly you have to install it manually to use `@Session` decorator.
+This feature is not supported by koa driver yet.
 
 #### Inject uploaded file
 
@@ -1035,3 +1038,4 @@ See information about breaking changes and release notes [here](https://github.c
 [2]: http://koajs.com/
 [3]: https://github.com/expressjs/multer
 [4]: https://github.com/pleerock/class-transformer
+[5]: https://www.npmjs.com/package/express-session
