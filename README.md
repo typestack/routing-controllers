@@ -344,6 +344,27 @@ saveUser(@HeaderParam("authorization") token: string) {
 }
 ```
 
+#### Inject session object
+
+To inject a whole session object, use `@Session` decorator:
+
+```typescript
+@Post("/login/")
+loginUser(@Session() session: Express.Session, @Body() user: User) {
+}
+```
+
+To inject a single object from session, use `@Session` decorator with parameter:
+
+```typescript
+@Get("/login/")
+savePost(@Session("user") user: User, @Body() post: Post) {
+}
+```
+
+Routing-controllers uses [express-session][5] to handle session, so firstly you have to install it manually to use `@Session` decorator.
+This feature is not supported by koa driver yet.
+
 #### Inject uploaded file
 
 To inject uploaded file, use `@UploadedFile` decorator:
@@ -960,6 +981,8 @@ export class UsersController {
 | `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
 | `@Body(options?: ParamOptions)`                                    | `post(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
 | `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
+| `@Session(objectName: string, options?: ParamOptions)`             | `get(@Session("user") user: User)`               | Injects an object from session to a controller action parameter value. In options you can specify there if parameter is not required and action can work with empty parameter.                             | `request.session.user`                       |
+| `@Session()`                                                       | `get(@Session() session: express.Session)`       | Injects a whole session object to a controller action parameter value. A session object is required and action cannot work with empty parameter.                             | `request.session`                       |
 | `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
 | `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
 | `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`         | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
@@ -1015,3 +1038,4 @@ See information about breaking changes and release notes [here](https://github.c
 [2]: http://koajs.com/
 [3]: https://github.com/expressjs/multer
 [4]: https://github.com/pleerock/class-transformer
+[5]: https://www.npmjs.com/package/express-session

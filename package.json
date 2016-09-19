@@ -40,6 +40,7 @@
     "del": "^2.2.1",
     "es6-shim": "^0.35.1",
     "express": "^4.14.0",
+    "express-session": "^1.14.1",
     "gulp": "^3.9.1",
     "gulp-istanbul": "^1.0.0",
     "gulp-mocha": "^2.2.0",

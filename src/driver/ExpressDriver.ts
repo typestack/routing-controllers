@@ -149,6 +149,12 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 return request.body;
             case ParamTypes.PARAM:
                 return request.params[param.name];
+            case ParamTypes.SESSION:
+                if (param.name) {
+                    return request.session[param.name]; 
+                } else {
+                    return request.session;
+                }
             case ParamTypes.QUERY:
                 return request.query[param.name];
             case ParamTypes.HEADER:

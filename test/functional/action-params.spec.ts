@@ -1,8 +1,11 @@
 import "reflect-metadata";
+import * as session from "express-session";
 import {Controller} from "../../src/decorator/controllers";
 import {Get, Post} from "../../src/decorator/methods";
+import {UseBefore} from "../../src/decorator/decorators";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {
+    Session,
     Param,
     QueryParam,
     HeaderParam,
@@ -22,6 +25,7 @@ const expect = chakram.expect;
 describe("action parameters", () => {
 
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
+    let sessionTestElement: string;
     let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;
     let headerParamToken: string, headerParamCount: number, headerParamLimit: number, headerParamShowAll: boolean, headerParamFilter: any;
     let cookieParamToken: string, cookieParamCount: number, cookieParamLimit: number, cookieParamShowAll: boolean, cookieParamFilter: any;
@@ -36,6 +40,7 @@ describe("action parameters", () => {
         paramUserId = undefined;
         paramFirstId = undefined;
         paramSecondId = undefined;
+        sessionTestElement = undefined;
         queryParamSortBy = undefined;
         queryParamCount = undefined;
         queryParamLimit = undefined;
@@ -89,6 +94,29 @@ describe("action parameters", () => {
                 paramFirstId = firstId;
                 paramSecondId = secondId;
                 return `<html><body>${firstId},${secondId}</body></html>`;
+            }
+
+            @Post("/session/")
+            @UseBefore(session({
+                secret: "19majkel94_helps_pleerock",
+            }))
+            addToSession(@Session() session: Express.Session) {
+                (session as any).testElement = "@Session test";
+                (session as any).fakeObject = {
+                    name: "fake",
+                    fake: true,
+                    value: 666
+                };
+                return `<html><body>@Session</body></html>`;
+            }
+
+            @Get("/session/")
+            @UseBefore(session({
+                secret: "19majkel94_helps_pleerock",
+            }))
+            loadFromSession(@Session("testElement") testElement: string) {
+                sessionTestElement = testElement;
+                return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/photos")
@@ -275,6 +303,20 @@ describe("action parameters", () => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>23,32</body></html>");
+        });
+    });
+
+    describe("@Session should return a value from session", () => {
+        assertRequest([3001], "post", "session", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>@Session</body></html>");
+            assertRequest([3001], "get", "session", response => {
+                expect(response).to.be.status(200);
+                expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+                expect(response.body).to.be.equal("<html><body>@Session test</body></html>");
+                expect(sessionTestElement).to.be.equal("@Session test");
+            });
         });
     });
 
