@@ -224,7 +224,7 @@ import "reflect-metadata"; // this shim is required
 import {createExpressServer, loadControllers} from "routing-controllers";
 
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers/*.js"]
+    controller: [__dirname + "/controllers/*.js"]
 }).listen(3000); // register controllers routes in our express application
 ```
 
@@ -240,7 +240,7 @@ import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
     routePrefix: "/api",
-    controllerDirs: [__dirname + "/api/controllers/*.js"] // register controllers routes in our express app
+    controllers: [__dirname + "/api/controllers/*.js"] // register controllers routes in our express app
 }).listen(3000);
 ```
 
@@ -861,8 +861,8 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 import "reflect-metadata";
 import {createExpressServer, loadControllers} from "routing-controllers";
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers/**/*.js"],
-    middlewareDirs: [__dirname + "/middlewares/**/*.js"]
+    controllers: [__dirname + "/controllers/**/*.js"],
+    middlewares: [__dirname + "/middlewares/**/*.js"]
 }).listen(3000);
 ```
 
@@ -931,9 +931,9 @@ useContainer(Container);
 
 // create and run server
 createExpressServer({
-    controllerDirs: [__dirname + "/controllers/*.js"],
-    middlewareDirs: [__dirname + "/middlewares/*.js"],
-    interceptorDirs: [__dirname + "/interceptor/*.js"],
+    controllers: [__dirname + "/controllers/*.js"],
+    middlewares: [__dirname + "/middlewares/*.js"],
+    interceptors: [__dirname + "/interceptor/*.js"],
 }).listen(3000);
 ```
 

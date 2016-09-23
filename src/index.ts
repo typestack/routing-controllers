@@ -50,7 +50,15 @@ export function createKoaServer(options?: RoutingControllersOptions): any {
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
 
-    // second import all controllers and middlewares and error handlers
+    // import all controllers and middlewares and error handlers (new way)
+    if (options && options.controllers && options.controllers.length)
+        importClassesFromDirectories(options.controllers);
+    if (options && options.middlewares && options.middlewares.length)
+        importClassesFromDirectories(options.middlewares);
+    if (options && options.interceptors && options.interceptors.length)
+        importClassesFromDirectories(options.interceptors);
+
+    // import all controllers and middlewares and error handlers (deprecated way)
     if (options && options.controllerDirs && options.controllerDirs.length)
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)

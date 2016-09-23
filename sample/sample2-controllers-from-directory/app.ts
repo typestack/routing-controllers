@@ -4,7 +4,7 @@ import {useExpressServer} from "../../src/index";
 
 let app = express(); // create express server
 useExpressServer(app, {
-    controllerDirs: [__dirname + "/controllers"] // register controllers routes in our express app
+    controllers: [__dirname + "/controllers/*{.js,.ts}"] // register controllers routes in our express app
 });
 app.listen(3001); // run express app
 

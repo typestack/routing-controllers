@@ -8,15 +8,36 @@ export interface RoutingControllersOptions {
     /**
      * List of directories from where to "require" all your controllers.
      */
+    controllers?: string[];
+
+    /**
+     * List of directories from where to "require" all your middlewares.
+     */
+    middlewares?: string[];
+
+    /**
+     * List of directories from where to "require" all your interceptors.
+     */
+    interceptors?: string[];
+
+    /**
+     * List of directories from where to "require" all your controllers.
+     *
+     * @deprecated Use controllers instead.
+     */
     controllerDirs?: string[];
 
     /**
      * List of directories from where to "require" all your middlewares.
+     *
+     * @deprecated Use middlewares instead.
      */
     middlewareDirs?: string[];
 
     /**
      * List of directories from where to "require" all your interceptors.
+     *
+     * @deprecated Use interceptors instead.
      */
     interceptorDirs?: string[];
 

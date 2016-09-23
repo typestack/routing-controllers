@@ -14,9 +14,9 @@ describe("controllers and middlewares bulk loading from directories", () => {
         before(() => defaultMetadataArgsStorage().reset());
 
         const serverOptions = {
-            controllerDirs: [
-                __dirname + "/../fakes/global-options/first-controllers/**/*",
-                __dirname + "/../fakes/global-options/second-controllers/*"
+            controllers: [
+                __dirname + "/../fakes/global-options/first-controllers/**/*{.js,.ts}",
+                __dirname + "/../fakes/global-options/second-controllers/*{.js,.ts}"
             ]
         };
         let expressApp: any, koaApp: any;
@@ -68,8 +68,8 @@ describe("controllers and middlewares bulk loading from directories", () => {
         });
 
         const serverOptions = {
-            middlewareDirs: [
-                __dirname + "/../fakes/global-options/express-middlewares/**/*"
+            middlewares: [
+                __dirname + "/../fakes/global-options/express-middlewares/**/*{.js,.ts}"
             ],
         };
         let expressApp: any;
@@ -120,8 +120,8 @@ describe("controllers and middlewares bulk loading from directories", () => {
         });
 
         const serverOptions = {
-            middlewareDirs: [
-                __dirname + "/../fakes/global-options/koa-middlewares/**/*"
+            middlewares: [
+                __dirname + "/../fakes/global-options/koa-middlewares/**/*{.js,.ts}"
             ]
         };
         let koaApp: any;
