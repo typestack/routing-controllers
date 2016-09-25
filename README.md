@@ -257,11 +257,11 @@ export class UserController {
 }
 ```
 
-#### Output JSON instead of regular text content
+#### Using JSON instead of regular text content
 
-If you are designing a REST API where your endpoints always return JSON you can use `@JsonController` decorator instead
+If you are designing a REST API where your endpoints always receive and return JSON you can use `@JsonController` decorator instead
 of `@Controller`. This will guarantee you that data returned by your controller actions always be transformed to JSON
- and `Content-Type` header will be always set to `application/json`:
+ and `Content-Type` header will be always set to `application/json`. It will also guarantee that the `application/json` header is understood from the requests and the body parsed as JSON:
 
 ```typescript
 @JsonController()
