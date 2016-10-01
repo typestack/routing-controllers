@@ -275,27 +275,29 @@ export class KoaDriver extends BaseDriver implements Driver {
     }
 
     handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        const response: any = options.response;
+        if (this.isDefaultErrorHandlingEnabled) {
+            const response: any = options.response;
 
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-            options.context.status = error.httpCode;
-            response.status(error.httpCode);
-        } else {
-            options.context.status = 500;
-            // TODO: FIX response.status(500);
-        }
+            // set http status
+            if (error instanceof HttpError && error.httpCode) {
+                options.context.status = error.httpCode;
+                response.status(error.httpCode);
+            } else {
+                options.context.status = 500;
+                // TODO: FIX response.status(500);
+            }
 
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            response.set(name, action.headers[name]);
-        });
+            // apply http headers
+            Object.keys(action.headers).forEach(name => {
+                response.set(name, action.headers[name]);
+            });
 
-        // send error content
-        if (action.isJsonTyped) {
-            response.body = this.processJsonError(error);
-        } else {
-            response.body = this.processJsonError(error);
+            // send error content
+            if (action.isJsonTyped) {
+                response.body = this.processJsonError(error);
+            } else {
+                response.body = this.processJsonError(error);
+            }
         }
         options.next(error);
         // throw error;

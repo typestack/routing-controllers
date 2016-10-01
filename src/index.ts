@@ -121,6 +121,7 @@ export * from "./decorator/controllers";
 export * from "./decorator/decorators";
 export * from "./decorator/methods";
 export * from "./decorator/params";
+export * from "./error/http/HttpError";
 export * from "./middleware/MiddlewareInterface";
 export * from "./middleware/InterceptorInterface";
 export * from "./middleware/ErrorMiddlewareInterface";
