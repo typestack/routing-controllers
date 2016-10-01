@@ -95,7 +95,6 @@ export class RoutingControllerExecutor {
 
         }).catch(error => {
             this.driver.handleError(error, action, options);
-            throw error;
         });
     }
 
@@ -107,7 +106,6 @@ export class RoutingControllerExecutor {
                 })
                 .catch((error: any) => {
                     this.driver.handleError(error, action, options);
-                    throw error;
                 });
         } else {
             if (options.useInterceptorFunctions) {
