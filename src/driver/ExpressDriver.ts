@@ -257,25 +257,27 @@ export class ExpressDriver extends BaseDriver implements Driver {
      * Defines an algorithm of how to handle error during executing controller action.
      */
     handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
-        const response: any = options.response;
+        if (this.isDefaultErrorHandlingEnabled) {
+            const response: any = options.response;
 
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-            response.status(error.httpCode);
-        } else {
-            response.status(500);
-        }
+            // set http status
+            if (error instanceof HttpError && error.httpCode) {
+                response.status(error.httpCode);
+            } else {
+                response.status(500);
+            }
 
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            response.header(name, action.headers[name]);
-        });
+            // apply http headers
+            Object.keys(action.headers).forEach(name => {
+                response.header(name, action.headers[name]);
+            });
 
-        // send error content
-        if (action.isJsonTyped) {
-            response.json(this.processJsonError(error));
-        } else {
-            response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+            // send error content
+            if (action.isJsonTyped) {
+                response.json(this.processJsonError(error));
+            } else {
+                response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+            }
         }
         options.next(error);
     }

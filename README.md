@@ -745,12 +745,12 @@ You can make global middleware to run after controller action by using `@Middlew
 Error handlers are specific only to express.
 Error handlers work in pretty much the same way as middlewares, but implement `ErrorMiddlewareInterface` instead of `MiddlewareInterface`:
 
-1. Create a class that implements the `ErrorMiddlewareInterface` interface and is decorated with the `@MiddlewareGlobalBefore` decorator:
+1. Create a class that implements the `ErrorMiddlewareInterface` interface and is decorated with the `@MiddlewareGlobalAfter` decorator:
 
     ```typescript
-    import {ErrorMiddlewareInterface, MiddlewareGlobalBefore} from "routing-controllers";
+    import {ErrorMiddlewareInterface, MiddlewareGlobalAfter} from "routing-controllers";
 
-    @MiddlewareGlobalBefore()
+    @MiddlewareGlobalAfter()
     export class CustomErrorHandler implements ErrorMiddlewareInterface {
 
         error(error: any, request: any, response: any, next: (err: any) => any) {
@@ -760,6 +760,14 @@ Error handlers work in pretty much the same way as middlewares, but implement `E
 
     }
     ```
+Custom error handlers are invoked after the default error handler, so you won't be able to change response code or headers.
+To prevent this, you have to disable default error handler by specyfing `defaultErrorHandler` option in createExpressServer or useExpressServer:
+
+```typescript
+createExpressServer({
+    defaultErrorHandler: false // disable default error handler, only if you have your own error handler
+}).listen(3000);
+```
 
 ## Using interceptors
 
