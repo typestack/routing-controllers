@@ -7,7 +7,7 @@ export class BodyRequiredError extends BadRequestError {
     name = "BodyRequiredError";
 
     constructor(url: string, method: string) {
-        super("Request body is required for request on " + method + " " + url);
+        super(`Request body is required for request on ${method} ${url}`);
     }
 
 }
