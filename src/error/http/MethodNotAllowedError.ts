@@ -7,7 +7,7 @@ export class MethodNotAllowedError extends HttpError {
     name = "MethodNotAllowedError";
 
     constructor(message?: string) {
-        super(404); // todo!!!
+        super(405);
         if (message)
             this.message = message;
     }
