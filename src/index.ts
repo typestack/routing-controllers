@@ -62,14 +62,14 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     } = options;
 
     // import all controllers and middlewares and error handlers (new way)
-    for(let element of [controllers, middlewares, interceptors])
+    for (let element of [controllers, middlewares, interceptors])
         if (element && element.length)
-            importClassesFromDirectories(element)
+            importClassesFromDirectories(element);
 
     // import all controllers and middlewares and error handlers (deprecated way)
-    for(let element of [controllerDirs, middlewareDirs, interceptorDirs])
+    for (let element of [controllerDirs, middlewareDirs, interceptorDirs])
         if (element && element.length)
-            importClassesFromDirectories(element)
+            importClassesFromDirectories(element);
 
     driver.developmentMode = developmentMode;
     driver.isDefaultErrorHandlingEnabled = defaultErrorHandler;
