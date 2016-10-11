@@ -277,7 +277,7 @@ import "reflect-metadata"; // this shim is required
 import {createExpressServer, loadControllers} from "routing-controllers";
 
 createExpressServer({
-    controller: [__dirname + "/controllers/*.js"]
+    controllers: [__dirname + "/controllers/*.js"]
 }).listen(3000); // register controllers routes in our express application
 ```
 
