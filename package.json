@@ -68,5 +68,6 @@
   },
   "scripts": {
     "test": "gulp tests"
-  }
+  },
+  "typings": "index.d.ts"
 }
