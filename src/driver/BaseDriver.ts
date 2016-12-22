@@ -39,8 +39,10 @@ export class BaseDriver {
 
         let processedError: any = {};
         if (error instanceof Error) {
-            if (error.name && (this.developmentMode || error.message)) // show name only if in debug mode and if error message exist too
-                processedError.name = error.name;
+            const name = error.name && error.name !== "Error" ? error.name : error.constructor.name;
+
+            if (name && (this.developmentMode || error.message)) // show name only if in debug mode and if error message exist too
+                processedError.name = name;
             if (error.message)
                 processedError.message = error.message;
             if (error.stack && this.developmentMode)
@@ -52,7 +54,7 @@ export class BaseDriver {
 
             if (this.errorOverridingMap)
                 Object.keys(this.errorOverridingMap)
-                    .filter(key => error.name === key)
+                    .filter(key => name === key)
                     .forEach(key => processedError = this.merge(processedError, this.errorOverridingMap[key]));
 
             return Object.keys(processedError).length > 0 ? processedError : undefined;

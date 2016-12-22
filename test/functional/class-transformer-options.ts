@@ -9,7 +9,8 @@ import {
 } from "../../src/index";
 import {QueryParam} from "../../src/decorator/params";
 import {assertRequest} from "./test-utils";
-import {Expose, defaultMetadataStorage} from "class-transformer";
+import {Expose} from "class-transformer";
+import {defaultMetadataStorage} from "class-transformer/storage";
 import {ResponseClassTransformOptions} from "../../src/decorator/decorators";
 const chakram = require("chakram");
 const expect = chakram.expect;
