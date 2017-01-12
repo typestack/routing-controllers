@@ -45,8 +45,8 @@ describe("template rendering", () => {
     before(done => {
         const path = __dirname + "/../../../../test/resources";
         const server = createKoaServer();
-        var koaViews = require('koa-views');
-        server.use(koaViews(path, { map:{html: 'handlebars'} }));
+        let koaViews = require("koa-views");
+        server.use(koaViews(path, { map: { html: "handlebars" } } ));
         koaApp = server.listen(3002, done);
     });
     after(done => koaApp.close(done));

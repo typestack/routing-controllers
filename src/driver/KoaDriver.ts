@@ -223,7 +223,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             this.koa.use(async function (ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
-            })
+            });
 
             options.next();
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
