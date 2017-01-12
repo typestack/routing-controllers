@@ -220,11 +220,8 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
-            // console.log(options.context.render);
-            // options.context.render(action.renderedTemplate, renderOptions);
 
             this.koa.use(async function (ctx: any, next: any) {
-                console.log(renderOptions);
                 await ctx.render(action.renderedTemplate, renderOptions);
             })
 
