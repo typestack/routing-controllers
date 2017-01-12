@@ -43,12 +43,16 @@ describe("template rendering", () => {
 
     let koaApp: any;
     before(done => {
-        koaApp = createKoaServer().listen(3002, done);
+        const path = __dirname + "/../../../../test/resources";
+        const server = createKoaServer();
+        var koaViews = require('koa-views');
+        server.use(koaViews(path, { map:{html: 'handlebars'} }));
+        koaApp = server.listen(3002, done);
     });
     after(done => koaApp.close(done));
 
     describe("should render a template and use given variables", () => {
-        assertRequest([3001/*, 3002*/], "get", "index", response => {
+        assertRequest([3001, 3002], "get", "index", response => {
             expect(response).to.have.status(200);
             expect(response.body).to.contain("<html>");
             expect(response.body).to.contain("<body>");

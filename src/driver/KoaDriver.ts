@@ -220,23 +220,15 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
+            // console.log(options.context.render);
+            // options.context.render(action.renderedTemplate, renderOptions);
 
-            this.koa.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
-                if (err && action.isJsonTyped) {
-                    options.next(err);
-                    // options.rejecter(err);
+            this.koa.use(async function (ctx: any, next: any) {
+                console.log(renderOptions);
+                await ctx.render(action.renderedTemplate, renderOptions);
+            })
 
-                } else if (err && !action.isJsonTyped) {
-                    options.next(err);
-                    // options.rejecter(err);
-
-                } else if (html) {
-                    response.body = html;
-                }
-                options.next();
-                // options.resolver();
-            });
-
+            options.next();
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
 
