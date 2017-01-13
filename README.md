@@ -584,7 +584,9 @@ getOne() {
 To use rendering ability make sure to configure express properly.
 [Here](https://github.com/pleerock/routing-controllers/blob/0.6.0-release/test/functional/render-decorator.spec.ts)
 is a test where you can take a look how to do it.
-This feature is not supported by koa driver yet.
+
+To use rendering ability with Koa you will need to use a rendering 3rd party such as [koa-views](https://github.com/queckezz/koa-views/), 
+koa-views is the only render middleware that has been tested.
 
 ## Using middlewares
 
