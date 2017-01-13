@@ -13,7 +13,7 @@ export class UserController {
             title: "My Blog",
             posts: [
                 {
-                    title: "Welcome to my blow",
+                    title: "Welcome to my blog",
                     content: "This is my new blog built with Koa, routing-controllers and koa-views"
                 },
                 {
