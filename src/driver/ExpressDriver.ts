@@ -174,6 +174,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 } else {
                     return request.session;
                 }
+            case ParamTypes.STATE:
+                throw new Error("@State decorators are not supported by ExpressDriver yet.");
             case ParamTypes.QUERY:
                 return request.query[param.name];
             case ParamTypes.HEADER:

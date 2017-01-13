@@ -106,7 +106,7 @@ export class ParamHandler {
     private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
+            if (!(value instanceof paramMetadata.format) && paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
                 const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
                 return plainToClass(paramMetadata.format, parseValue, options);
             } else {
