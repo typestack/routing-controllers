@@ -50,7 +50,7 @@ export class BaseDriver {
 
             Object.keys(error)
                 .filter(key => key !== "stack" && key !== "name" && key !== "message" && (!(error instanceof HttpError) || key !== "httpCode"))
-                .forEach(key => processedError[key] = error[key]);
+                .forEach(key => processedError[key] = (error as any)[key]);
 
             if (this.errorOverridingMap)
                 Object.keys(this.errorOverridingMap)

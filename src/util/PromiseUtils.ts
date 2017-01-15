@@ -23,7 +23,7 @@ export class PromiseUtils {
     /**
      * Tests that arg is PromiseLike (i.e. is object and has a then method)
      */
-    static isPromiseLike(arg: any): arg is PromiseLike<any> {
+    static isPromiseLike(arg: any): arg is Promise<any> {
         return arg != null && typeof arg === "object" && typeof arg.then === "function";
     }
 

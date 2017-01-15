@@ -268,7 +268,8 @@ export class KoaDriver extends BaseDriver implements Driver {
             const response: any = options.response;
 
             // set http status
-            if (error instanceof HttpError && error.httpCode) {
+            // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
+            if (error.httpCode) {
                 options.context.status = error.httpCode;
                 response.status(error.httpCode);
             } else {
