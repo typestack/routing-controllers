@@ -64,7 +64,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         if (!middleware.instance.use)
             return;
 
-        this.express.use(function (request: any, response: any, next: (err: any) => any) {
+        this.express.use((request: any, response: any, next: (err: any) => any) => {
 
             try {
                 const useResult = middleware.instance.use(request, response, next);
