@@ -374,7 +374,7 @@ saveUser(@Body() user: User) {
 
 If you specify a class type to parameter that is decorated with `@Body()`,
 routing-controllers will use [class-transformer][4] to create instance of the given class type with the data received in request body.
-To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
+To disable this behaviour you need to specify a `{ useClassTransformer: false }` in RoutingControllerOptions when creating a server.
 
 
 #### Inject request body parameters
@@ -473,7 +473,7 @@ Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and o
 
 If you specify a class type to parameter that is decorated with parameter decorator,
 routing-controllers will use [class-transformer][4] to create instance of that class type.
-To disable this behaviour you need to specify a `{ useConstructorUtils: false }` in RoutingControllerOptions when creating a server.
+To disable this behaviour you need to specify a `{ useClassTransformer: false }` in RoutingControllerOptions when creating a server.
 
 ```typescript
 @Get("/users")
@@ -932,7 +932,7 @@ createExpressServer({
 When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class,
 instead of parsing it into simple literal object.
 You have ability to do this using [class-transformer][4].
-To use it simply specify a `useConstructorUtils: true` option on application bootstrap:
+To use it simply specify a `useClassTransformer: true` option on application bootstrap:
 
 ```typescript
 import "reflect-metadata";
@@ -969,7 +969,7 @@ export class UserController {
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `useConstructorUtils: false` to createExpressServer method.
+If you want to disable it simply pass `useClassTransformer: false` to createExpressServer method.
 
 ## Default error handling
 

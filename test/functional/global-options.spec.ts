@@ -40,7 +40,7 @@ describe("routing-controllers global options", () => {
         }
     });
 
-    describe("useConstructorUtils by default must be set to true", () => {
+    describe("useClassTransformer by default must be set to true", () => {
 
         let expressApp: any, koaApp: any;
         before(done => expressApp = createExpressServer().listen(3001, done));
@@ -54,7 +54,7 @@ describe("routing-controllers global options", () => {
         });
     });
 
-    describe("when useConstructorUtils is set to true", () => {
+    describe("when useClassTransformer is set to true", () => {
 
         let expressApp: any, koaApp: any;
         before(done => expressApp = createExpressServer({ useClassTransformer: true }).listen(3001, done));
@@ -68,7 +68,7 @@ describe("routing-controllers global options", () => {
         });
     });
 
-    describe("when useConstructorUtils is not set", () => {
+    describe("when useClassTransformer is not set", () => {
 
         let expressApp: any, koaApp: any;
         before(done => expressApp = createExpressServer({ useClassTransformer: false }).listen(3001, done));
