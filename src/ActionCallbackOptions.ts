@@ -8,6 +8,6 @@ export interface ActionCallbackOptions {
     /**
      * Interceptor functions to be applied for response result.
      */
-    useInterceptorFunctions: Function[];
-    
+    useInterceptorFunctions?: Function[];
+
 }
