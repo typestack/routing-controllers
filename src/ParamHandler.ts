@@ -1,4 +1,6 @@
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
+import {ParameterRequiredError} from "./error/ParameterRequiredError";
+import {BodyRequiredError} from "./error/BodyRequiredError";
 import {plainToClass} from "class-transformer";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParamMetadata} from "./metadata/ParamMetadata";
@@ -45,10 +47,10 @@ export class ParamHandler {
         if (param.isRequired) {
             // todo: make better error messages here
             if (param.name && isValueEmpty) {
-                return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
+                return Promise.reject(new ParameterRequiredError(request.url, request.method, param.name));
 
             } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                return Promise.reject("Request body is required for request on " + request.method + " " + request.url);
+                return Promise.reject(new BodyRequiredError(request.url, request.method));
             }
         }
 
