@@ -1,17 +1,17 @@
-import {ParamTypes} from "../metadata/types/ParamTypes";
-import {ActionMetadata} from "../metadata/ActionMetadata";
-import {HttpError} from "../error/http/HttpError";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {BaseDriver} from "./BaseDriver";
-import {classToPlain} from "class-transformer";
+import {ActionMetadata} from "../metadata/ActionMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
+import {BaseDriver} from "./BaseDriver";
 import {Driver} from "./Driver";
-import {UseMetadata} from "../metadata/UseMetadata";
-import {ParamMetadata} from "../metadata/ParamMetadata";
+import {HttpError} from "../error/http/HttpError";
 import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
-import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+import {ParamTypes} from "../metadata/types/ParamTypes";
 import {PromiseUtils} from "../util/PromiseUtils";
+import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
+import {UseMetadata} from "../metadata/UseMetadata";
+import {classToPlain} from "class-transformer";
 const cookie = require("cookie");
 
 /**
@@ -271,7 +271,7 @@ export class KoaDriver extends BaseDriver implements Driver {
             // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
             if (error.httpCode) {
                 options.context.status = error.httpCode;
-                response.status(error.httpCode);
+                // response.status(error.httpCode);
             } else {
                 options.context.status = 500;
                 // TODO: FIX response.status(500);

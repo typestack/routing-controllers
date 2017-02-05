@@ -47,10 +47,10 @@ export class ParamHandler {
         if (param.isRequired) {
             // todo: make better error messages here
             if (param.name && isValueEmpty) {
-                throw new ParameterRequiredError(request.url, request.method, param.name);
+                return Promise.reject(new ParameterRequiredError(request.url, request.method, param.name));
 
             } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                throw new BodyRequiredError(request.url, request.method);
+                return Promise.reject(new BodyRequiredError(request.url, request.method));
             }
         }
 
