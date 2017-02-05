@@ -1,11 +1,11 @@
+import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {BodyRequiredError} from "./error/BodyRequiredError";
+import {Driver} from "./driver/Driver";
+import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParameterRequiredError} from "./error/ParameterRequiredError";
-import {BodyRequiredError} from "./error/BodyRequiredError";
 import {plainToClass} from "class-transformer";
-import {ParamTypes} from "./metadata/types/ParamTypes";
-import {ParamMetadata} from "./metadata/ParamMetadata";
-import {ActionCallbackOptions} from "./ActionCallbackOptions";
-import {Driver} from "./driver/Driver";
 
 /**
  * Helps to handle parameters.
@@ -47,10 +47,10 @@ export class ParamHandler {
         if (param.isRequired) {
             // todo: make better error messages here
             if (param.name && isValueEmpty) {
-                return Promise.reject(new ParameterRequiredError(request.url, request.method, param.name));
+                throw new ParameterRequiredError(request.url, request.method, param.name);
 
             } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                return Promise.reject(new BodyRequiredError(request.url, request.method));
+                throw new BodyRequiredError(request.url, request.method);
             }
         }
 
