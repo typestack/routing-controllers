@@ -156,9 +156,22 @@ describe("action parameters", () => {
                 return `<html><body>${testElement}</body></html>`;
             }
 
+            @Get("/not-use-session/")
+            notUseSession(@Session("testElement") testElement: string) {
+                sessionTestElement = testElement;
+                return `<html><body>${testElement}</body></html>`;
+            }
+
             @Get("/state")
             @UseBefore(SetStateMiddleware)
-            getState(@State("username") username: string) {
+            @JsonResponse()
+            getState(@State() state: string) {
+                return state;
+            }
+
+            @Get("/state/username")
+            @UseBefore(SetStateMiddleware)
+            getUsernameFromState(@State("username") username: string) {
                 return `<html><body>${username}</body></html>`;
             }
 
@@ -355,6 +368,12 @@ describe("action parameters", () => {
         });
     });
 
+    describe("@Session middleware not use", () => {
+        assertRequest([3001, 3002], "get", "not-use-session", response => {
+            expect(response).to.be.status(500);
+        });
+    });
+
     describe("@Session should return a value from session", () => {
         assertRequest([3001, 3002], "post", "session", response => {
             expect(response).to.be.status(200);
@@ -370,7 +389,18 @@ describe("action parameters", () => {
     });
 
     describe("@State should return a value from state", () => {
+        assertRequest([3001], "get", "state", response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001], "get", "state/username", response => {
+            expect(response).to.be.status(500);
+        });
         assertRequest([3002], "get", "state", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body.username).to.be.equal("pleerock");
+        });
+        assertRequest([3002], "get", "state/username", response => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>pleerock</body></html>");
