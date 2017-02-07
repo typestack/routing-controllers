@@ -13,6 +13,7 @@ import {
     Req,
     Res,
     Session,
+    State,
     UploadedFile,
     UploadedFiles,
 } from "../../src/decorator/params";
@@ -30,7 +31,7 @@ import * as session from "express-session";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
 
-describe.only("action parameters", () => {
+describe("action parameters", () => {
 
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let sessionTestElement: string;
@@ -101,6 +102,16 @@ describe.only("action parameters", () => {
             private koaSession: any;
         }
 
+        @Middleware()
+        class SetStateMiddleware implements MiddlewareInterface {
+            public use (context: any, next: (err?: any) => Promise<any>): Promise<any> {
+                context.state = {
+                    username: "pleerock"
+                };
+                return next().then(() => { console.log("here3", context.state); });
+            }
+        }
+
 
         @Controller()
         class UserActionParamsController {
@@ -143,6 +154,12 @@ describe.only("action parameters", () => {
             loadFromSession(@Session("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
+            }
+
+            @Get("/state")
+            @UseBefore(SetStateMiddleware)
+            getState(@State("username") username: string) {
+                return `<html><body>${username}</body></html>`;
             }
 
             @Get("/photos")
@@ -340,7 +357,6 @@ describe.only("action parameters", () => {
 
     describe("@Session should return a value from session", () => {
         assertRequest([3001, 3002], "post", "session", response => {
-            console.log(response.response.statusCode, response.body);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>@Session</body></html>");
@@ -352,6 +368,15 @@ describe.only("action parameters", () => {
             });
         });
     });
+
+    describe("@State should return a value from state", () => {
+        assertRequest([3002], "get", "state", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>pleerock</body></html>");
+        });
+    });
+
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {
