@@ -174,4 +174,51 @@ describe("class transformer validator options", () => {
         });
     });
 
+    describe("should pass the valid param after validation", () => {
+
+        let requestFilter: any;
+        beforeEach(() => {
+            requestFilter = undefined;
+        });
+
+        before(() => {
+            defaultMetadataArgsStorage().reset();
+
+            @JsonController()
+            class UserController {
+
+                @Get("/user")
+                getUsers(@QueryParam("filter") filter: UserFilter): any {
+                    requestFilter = filter;
+                    const user = new UserModel();
+                    user.id = 1;
+                    user._firstName = "Umed";
+                    user._lastName = "Khudoiberdiev";
+                    return user;
+                }
+
+            }
+        });
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer().listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer().listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Umedi\", \"__somethingPrivate\": \"blablabla\"}", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.be.eql({
+                id: 1,
+                _firstName: "Umed",
+                _lastName: "Khudoiberdiev"
+            });
+            requestFilter.should.be.instanceOf(UserFilter);
+            requestFilter.should.be.eql({
+                keyword: "Umedi",
+                __somethingPrivate: "blablabla",
+            });
+        });
+    });
+
 });
