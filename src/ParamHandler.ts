@@ -1,5 +1,7 @@
+import {BadRequestError} from "./error/http/BadRequestError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {plainToClass} from "class-transformer";
+import {transformAndValidate} from "class-transformer-validator";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
@@ -104,9 +106,19 @@ export class ParamHandler {
     private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
-                const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
-                return plainToClass(paramMetadata.format, parseValue, options);
+            if (paramMetadata.format !== Object && paramMetadata.format) {
+                if (this.driver.useParamValidator) {
+                    const options = paramMetadata.paramValidatorOptions || this.driver.paramValidatorOptions;
+                    return transformAndValidate(paramMetadata.format, parseValue, options)
+                        .catch(err => {
+                            const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info`);
+                            error.errors = err;
+                            throw error;
+                        });
+                } else if (this.driver.useClassTransformer) {
+                    const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
+                    return plainToClass(paramMetadata.format, parseValue, options);
+                }  
             } else {
                 return parseValue;
             }
@@ -115,6 +127,4 @@ export class ParamHandler {
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }
-
-
 }

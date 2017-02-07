@@ -1,3 +1,4 @@
+import {TransformValdiationOptions} from "class-transformer-validator";
 import {ClassTransformOptions} from "class-transformer";
 
 /**
@@ -19,5 +20,10 @@ export interface ParamOptions {
      * Class transform options used to perform plainToClass operation.
      */
     classTransformOptions?: ClassTransformOptions;
+
+    /**
+     * Class-transformer-validator options used to transform and validate param object.
+     */
+    paramValidatorOptions?: TransformValdiationOptions;
     
 }

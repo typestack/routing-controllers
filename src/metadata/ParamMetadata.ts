@@ -1,6 +1,7 @@
+import {TransformValdiationOptions} from "class-transformer-validator";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
-import {ParamTypes} from "./types/ParamTypes";
+import {ParamType} from "./types/ParamTypes";
 import {ClassTransformOptions} from "class-transformer";
 
 export class ParamMetadata {
@@ -32,7 +33,7 @@ export class ParamMetadata {
     /**
      * Parameter type.
      */
-    type: ParamTypes;
+    type: ParamType;
 
     /**
      * Reflected type of the parameter.
@@ -78,6 +79,11 @@ export class ParamMetadata {
      * Class transform options used to perform plainToClass operation.
      */
     classTransformOptions: ClassTransformOptions;
+
+    /**
+     * Class-transformer-validator options used to transform and validate param object.
+     */
+    paramValidatorOptions: TransformValdiationOptions;
 
     // -------------------------------------------------------------------------
     // Public Methods

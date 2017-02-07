@@ -931,14 +931,13 @@ createExpressServer({
 
 ## Creating instances of classes from action params
 
-When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class,
-instead of parsing it into simple literal object.
+When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class, instead of parsing it into simple literal object.
 You have ability to do this using [class-transformer][4].
 To use it simply specify a `useClassTransformer: true` option on application bootstrap:
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer, useContainer, loadControllers} from "routing-controllers";
+import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
     useClassTransformer: true
@@ -972,6 +971,61 @@ This technique works not only with `@Body`, but also with `@Param`, `@QueryParam
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
 If you want to disable it simply pass `useClassTransformer: false` to createExpressServer method.
+
+## Auto validating action params
+
+Sometimes parsing a json object into instance of some class is not enough. 
+E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
+
+It can be done easily thanks to integration with [class-transformer-validator][7] which internally depends on [class-validator][6]. So first of all, you have to install the modules:
+```
+npm install class-validator --save
+npm install class-transform-validator --save
+```
+
+Then simply specify a `useParamValidator: true` option on application bootstrap:
+```typescript
+import "reflect-metadata";
+import { createExpressServer } from "routing-controllers";
+
+createExpressServer({
+    useParamValidator: true
+}).listen(3000);
+```
+
+Now you need to define the class which type will be used in controller method params. Decorate the properties with appropriate validators.
+```typescript
+export class User {
+
+    @IsEmail()
+    email: string;
+
+    @MinLength(6)
+    password: string;
+
+}
+```
+If you haven't used class-validator yet, you can learn how to use the decorators and handle more complex object validation [here][6].
+
+Now, if you have specified a class type, your action params will be not only an instance of that class (with the data sent by a user) but they will be validated too, so you don't have to worry about eg. incorrect e-mail or too short password and manual checks every property in controller method body.
+```typescript
+@Controller()
+export class UserController {
+
+    @Post("/login/")
+    login(@Body() user: User) {
+        console.log(`${user.email} is for 100% sure a valid e-mail adress!`);
+        console.log(`${user.password.length} is for 100% sure 6 chars or more!`);
+    }
+
+}
+```
+If the param doesn't satisfy the requirements defined by class-validator decorators, an error will be throwed and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
+
+If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `paramValidatorOptions` in createExpressServer method or as a local setting for method parameter - `@Body({paramValidatorOptions: localOptions})`.
+
+This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
+This behaviour is **disabled** by default. If you want to enable it , you need to explicitly pass `useParamValidator: true` to createExpressServer method.
 
 ## Default error handling
 
@@ -1102,3 +1156,5 @@ See information about breaking changes and release notes [here](https://github.c
 [3]: https://github.com/expressjs/multer
 [4]: https://github.com/pleerock/class-transformer
 [5]: https://www.npmjs.com/package/express-session
+[6]: https://github.com/19majkel94/class-transformer-validator
+[7]: https://github.com/pleerock/class-validator

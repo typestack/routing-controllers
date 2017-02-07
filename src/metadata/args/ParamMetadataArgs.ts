@@ -1,5 +1,6 @@
-import {ParamTypes} from "../types/ParamTypes";
+import {TransformValdiationOptions} from "class-transformer-validator";
 import {ClassTransformOptions} from "class-transformer";
+import {ParamType} from "../types/ParamTypes";
 
 /**
  * Controller metadata used to storage information about registered parameters.
@@ -24,7 +25,7 @@ export interface ParamMetadataArgs {
     /**
      * Parameter type.
      */
-    type: ParamTypes;
+    type: ParamType;
 
     /**
      * Reflected type of the parameter.
@@ -65,5 +66,10 @@ export interface ParamMetadataArgs {
      * Class transform options used to perform plainToClass operation.
      */
     classTransformOptions?: ClassTransformOptions;
+
+    /**
+     * Class-transformer-validator options used to transform and validate param object.
+     */
+    paramValidatorOptions?: TransformValdiationOptions;
 
 }

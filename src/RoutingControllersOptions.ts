@@ -1,4 +1,5 @@
 import {ClassTransformOptions} from "class-transformer";
+import {TransformValdiationOptions} from "class-transformer-validator";
 
 /**
  * Routing controller initialization options.
@@ -45,6 +46,16 @@ export interface RoutingControllersOptions {
      * Indicates if constructor-utils should be used to perform serialization / deserialization.
      */
     useClassTransformer?: boolean;
+
+    /**
+     * Indicates if class-transformer-validator should be used to auto validate objects injected into params.
+     */
+    useParamValidator?: boolean;
+
+    /**
+     * Global class-transformer-validator options passed during transformAndValidate operation.
+     */
+    paramValidatorOptions?: TransformValdiationOptions;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.
