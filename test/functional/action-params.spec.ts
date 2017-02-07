@@ -1,7 +1,8 @@
 import "reflect-metadata";
 
-import * as session from "express-session";
-
+const convert = require("koa-convert");
+const KoaSession = require("koa-session");
+import {UseBefore, Middleware} from "../../src/decorator/decorators";
 import {
     Body,
     BodyParam,
@@ -20,13 +21,16 @@ import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "
 
 import {Controller} from "../../src/decorator/controllers";
 import {JsonResponse} from "../../src/decorator/decorators";
-import {UseBefore} from "../../src/decorator/decorators";
 import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("action parameters", () => {
+import * as session from "express-session";
+import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+
+
+describe.only("action parameters", () => {
 
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let sessionTestElement: string;
@@ -76,6 +80,28 @@ describe("action parameters", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();
 
+
+        @Middleware()
+        class SessionMiddleware implements MiddlewareInterface {
+            public use (requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
+                if (next) {
+                    return this.expSession(requestOrContext, responseOrNext, next);
+                } else {
+                    if (!this.koaSession) {
+                        this.koaSession = convert(KoaSession(requestOrContext.app));
+                    }
+                    return this.koaSession(requestOrContext, responseOrNext);
+                }
+            }
+
+            private expSession = session({
+                secret: "19majkel94_helps_pleerock",
+            });
+
+            private koaSession: any;
+        }
+
+
         @Controller()
         class UserActionParamsController {
 
@@ -101,12 +127,10 @@ describe("action parameters", () => {
             }
 
             @Post("/session/")
-            @UseBefore(session({
-                secret: "19majkel94_helps_pleerock",
-            }))
-            addToSession(@Session() session: Express.Session) {
-                (session as any).testElement = "@Session test";
-                (session as any).fakeObject = {
+            @UseBefore(SessionMiddleware)
+            addToSession(@Session() session: any) {
+                session.testElement = "@Session test";
+                session.fakeObject = {
                     name: "fake",
                     fake: true,
                     value: 666
@@ -115,9 +139,7 @@ describe("action parameters", () => {
             }
 
             @Get("/session/")
-            @UseBefore(session({
-                secret: "19majkel94_helps_pleerock",
-            }))
+            @UseBefore(SessionMiddleware)
             loadFromSession(@Session("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
@@ -277,9 +299,15 @@ describe("action parameters", () => {
     });
 
     let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
+    before(done => {
+        expressApp = createExpressServer().listen(3001, done);
+    });
     after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
+    before(done => {
+        koaApp = createKoaServer();
+        koaApp.keys = ["koa-session-secret"];
+        koaApp = koaApp.listen(3002, done);
+    });
     after(done => koaApp.close(done));
 
     describe("@Req and @Res should be provided as Request and Response objects", () => {
@@ -311,11 +339,12 @@ describe("action parameters", () => {
     });
 
     describe("@Session should return a value from session", () => {
-        assertRequest([3001], "post", "session", response => {
+        assertRequest([3001, 3002], "post", "session", response => {
+            console.log(response.response.statusCode, response.body);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>@Session</body></html>");
-            assertRequest([3001], "get", "session", response => {
+            assertRequest([3001, 3002], "get", "session", response => {
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
                 expect(response.body).to.be.equal("<html><body>@Session test</body></html>");
