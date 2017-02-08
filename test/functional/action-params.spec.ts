@@ -1,24 +1,28 @@
 import "reflect-metadata";
+
 import * as session from "express-session";
-import {Controller} from "../../src/decorator/controllers";
-import {Get, Post} from "../../src/decorator/methods";
-import {UseBefore} from "../../src/decorator/decorators";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+
 import {
-    Session,
-    Param,
-    QueryParam,
-    HeaderParam,
-    CookieParam,
     Body,
     BodyParam,
+    CookieParam,
+    HeaderParam,
+    Param,
+    QueryParam,
+    Req,
+    Res,
+    Session,
     UploadedFile,
     UploadedFiles,
-    Req,
-    Res
 } from "../../src/decorator/params";
-import {assertRequest} from "./test-utils";
+import {Get, Post} from "../../src/decorator/methods";
+import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+
+import {Controller} from "../../src/decorator/controllers";
 import {JsonResponse} from "../../src/decorator/decorators";
+import {UseBefore} from "../../src/decorator/decorators";
+import {assertRequest} from "./test-utils";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -339,10 +343,10 @@ describe("action parameters", () => {
             expect(response.body).to.be.equal("<html><body>0</body></html>");
         });
         assertRequest([3001, 3002], "get", "photos-with-required/?", response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "get", "photos-with-required/?limit", response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -388,10 +392,10 @@ describe("action parameters", () => {
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
         assertRequest([3001, 3002], "get", "posts-with-required", invalidRequestOptions, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "get", "posts-with-required", response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -444,7 +448,7 @@ describe("action parameters", () => {
         });
 
         assertRequest([3001, 3002], "get", "questions-with-required", invalidRequestOptions, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -494,11 +498,11 @@ describe("action parameters", () => {
         });
 
         assertRequest([3001, 3002], "post", "questions-with-required", "", requestOptions, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
 
         assertRequest([3001, 3002], "post", "questions-with-required", undefined, requestOptions, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -516,7 +520,7 @@ describe("action parameters", () => {
             expect(response).to.be.status(200);
         });
         assertRequest([3001, 3002], "post", "posts-with-required", undefined, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -535,19 +539,19 @@ describe("action parameters", () => {
             expect(response).to.be.status(204);
         });
         assertRequest([3001, 3002], "post", "users-with-required", undefined, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "post", "users-with-required", { name: "", age: 27, isActive: false }, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 0, isActive: false }, response => {
             expect(response).to.be.status(204);
         });
         assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: undefined, isActive: false }, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 27, isActive: undefined }, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         assertRequest([3001, 3002], "post", "users-with-required", { name: "Johny", age: 27, isActive: false }, response => {
             expect(response).to.be.status(204);
@@ -629,7 +633,7 @@ describe("action parameters", () => {
         });
 
         assertRequest([3001/*, 3002*/], "post", "files-with-required", undefined, {}, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
     });
 
@@ -722,7 +726,7 @@ describe("action parameters", () => {
             expect(response).to.be.status(200);
         });
         assertRequest([3001/*, 3002*/], "post", "photos-with-required", undefined, {}, response => {
-            expect(response).to.be.status(500);
+            expect(response).to.be.status(400);
         });
         
     });
