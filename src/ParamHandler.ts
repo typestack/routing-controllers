@@ -1,7 +1,9 @@
+import {plainToClass} from "class-transformer";
+import {ValidationError} from "class-validator";
+import {transformAndValidate} from "class-transformer-validator";
+
 import {BadRequestError} from "./error/http/BadRequestError";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {plainToClass} from "class-transformer";
-import {transformAndValidate} from "class-transformer-validator";
 import {ParamTypes} from "./metadata/types/ParamTypes";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
@@ -110,9 +112,9 @@ export class ParamHandler {
                 if (this.driver.useParamValidator) {
                     const options = paramMetadata.paramValidatorOptions || this.driver.paramValidatorOptions;
                     return transformAndValidate(paramMetadata.format, parseValue, options)
-                        .catch(err => {
-                            const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info`);
-                            error.errors = err;
+                        .catch((validationErrors: ValidationError[]) => {
+                            const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'details' property for more info.`);
+                            error.details = validationErrors;
                             throw error;
                         });
                 } else if (this.driver.useClassTransformer) {
