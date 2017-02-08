@@ -106,6 +106,7 @@ export class ParamHandler {
     private parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
+            // If value is already by instance of target class, then skip the plain to class step.
             if (!(value instanceof paramMetadata.format) && paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
                 const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
                 return plainToClass(paramMetadata.format, parseValue, options);

@@ -1,7 +1,5 @@
 import "reflect-metadata";
 
-const convert = require("koa-convert");
-const KoaSession = require("koa-session");
 import {UseBefore, Middleware} from "../../src/decorator/decorators";
 import {
     Body,
@@ -26,6 +24,8 @@ import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
+const convert = require("koa-convert");
+const KoaSession = require("koa-session");
 
 import * as session from "express-session";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
@@ -102,12 +102,20 @@ describe("action parameters", () => {
             private koaSession: any;
         }
 
+        class User {
+            public username: string;
+            public location: string;
+            public twitter: string;
+        }
+
         @Middleware()
         class SetStateMiddleware implements MiddlewareInterface {
             public use (context: any, next: (err?: any) => Promise<any>): Promise<any> {
-                context.state = {
-                    username: "pleerock"
-                };
+                const user = new User();
+                user.username = "pleerock";
+                user.location = "Dushanbe, Tajikistan";
+                user.twitter = "https://twitter.com/pleerock";
+                context.state = user;
                 return next().then(() => { console.log("here3", context.state); });
             }
         }
@@ -165,7 +173,7 @@ describe("action parameters", () => {
             @Get("/state")
             @UseBefore(SetStateMiddleware)
             @JsonResponse()
-            getState(@State() state: string) {
+            getState(@State() state: User) {
                 return state;
             }
 
