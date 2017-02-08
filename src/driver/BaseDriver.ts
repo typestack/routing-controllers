@@ -12,7 +12,7 @@ export class BaseDriver {
     // -------------------------------------------------------------------------
 
     useClassTransformer: boolean;
-    useParamValidator: boolean;
+    enableValidation: boolean;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.
@@ -23,7 +23,7 @@ export class BaseDriver {
     /**
      * Global class-transformer-validator options passed during transformAndValidate operation.
      */
-    paramValidatorOptions: TransformValdiationOptions;
+    validatorOptions: TransformValdiationOptions;
     
     /**
      * Global class transformer options passed to class-transformer during plainToClass operation.

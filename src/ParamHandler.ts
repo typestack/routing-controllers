@@ -109,8 +109,8 @@ export class ParamHandler {
         try {
             const parseValue = typeof value === "string" ? JSON.parse(value) : value;
             if (paramMetadata.format !== Object && paramMetadata.format) {
-                if (this.driver.useParamValidator) {
-                    const options = paramMetadata.paramValidatorOptions || this.driver.paramValidatorOptions;
+                if (this.driver.enableValidation || paramMetadata.validate) {
+                    const options = paramMetadata.validatorOptions || this.driver.validatorOptions;
                     return transformAndValidate(paramMetadata.format, parseValue, options)
                         .catch((validationErrors: ValidationError[]) => {
                             const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'details' property for more info.`);

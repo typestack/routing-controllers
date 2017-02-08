@@ -68,8 +68,13 @@ export interface ParamMetadataArgs {
     classTransformOptions?: ClassTransformOptions;
 
     /**
+     * If true, class-transformer-validator will be used to validate param object.
+     */
+    validate?: boolean;
+
+    /**
      * Class-transformer-validator options used to transform and validate param object.
      */
-    paramValidatorOptions?: TransformValdiationOptions;
+    validatorOptions?: TransformValdiationOptions;
 
 }

@@ -114,7 +114,8 @@ export function QueryParam(name: string, options?: ParamOptions) {
             parseJson: options ? options.parseJson : false,
             isRequired: options ? options.required : false,
             classTransformOptions: options ? options.classTransformOptions : undefined,
-            paramValidatorOptions: options ? options.paramValidatorOptions : undefined
+            validate: options ? options.validate : undefined,
+            validatorOptions: options ? options.validatorOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -141,7 +142,8 @@ export function HeaderParam(name: string, options?: ParamOptions) {
             parseJson: options ? options.parseJson : false,
             isRequired: options ? options.required : false,
             classTransformOptions: options ? options.classTransformOptions : undefined,
-            paramValidatorOptions: options ? options.paramValidatorOptions : undefined
+            validate: options ? options.validate : undefined,
+            validatorOptions: options ? options.validatorOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -168,7 +170,8 @@ export function CookieParam(name: string, options?: ParamOptions) {
             parseJson: options ? options.parseJson : false,
             isRequired: options ? options.required : false,
             classTransformOptions: options ? options.classTransformOptions : undefined,
-            paramValidatorOptions: options ? options.paramValidatorOptions : undefined
+            validate: options ? options.validate : undefined,
+            validatorOptions: options ? options.validatorOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -194,7 +197,8 @@ export function Body(options?: ParamOptions) {
             parseJson: false,
             isRequired: options ? options.required : false,
             classTransformOptions: options ? options.classTransformOptions : undefined,
-            paramValidatorOptions: options ? options.paramValidatorOptions : undefined
+            validate: options ? options.validate : undefined,
+            validatorOptions: options ? options.validatorOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
@@ -221,7 +225,8 @@ export function BodyParam(name: string, options?: ParamOptions) {
             parseJson: options ? options.parseJson : false,
             isRequired: options ? options.required : false,
             classTransformOptions: options ? options.classTransformOptions : undefined,
-            paramValidatorOptions: options ? options.paramValidatorOptions : undefined
+            validate: options ? options.validate : undefined,
+            validatorOptions: options ? options.validatorOptions : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

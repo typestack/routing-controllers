@@ -19,12 +19,12 @@ export interface Driver {
     /**
      * Indicates if class-transformer-validator should be used to auto validate objects injected into params.
      */
-    useParamValidator: boolean;
+    enableValidation: boolean;
 
     /**
      * Global class-transformer-validator options passed during transformAndValidate operation.
      */
-    paramValidatorOptions: TransformValdiationOptions;
+    validatorOptions: TransformValdiationOptions;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.
