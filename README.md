@@ -977,23 +977,23 @@ If you want to disable it simply pass `useClassTransformer: false` to createExpr
 Sometimes parsing a json object into instance of some class is not enough. 
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
-It can be done easily thanks to integration with [class-transformer-validator][7] which internally depends on [class-validator][6]. So first of all, you have to install the modules:
-```
-npm install class-validator --save
-npm install class-transform-validator --save
-```
-
-Then simply specify a `useParamValidator: true` option on application bootstrap:
+It can be done easily thanks to integration with [class-transformer-validator][7] which internally depends on [class-validator][6]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
 
 createExpressServer({
-    useParamValidator: true
+    enableValidation: true
 }).listen(3000);
 ```
 
-Now you need to define the class which type will be used in controller method params. Decorate the properties with appropriate validators.
+If you don't want to turn on the validation globally for every parameter, you can do this locally by setting `validate: true` option in parameter decorator options object:
+```typescript
+@Post("/login/")
+login(@Body({ validate: true }) user: User) {
+```
+
+Now you need to define the class which type will be used in controller method params. Decorate the properties with appropriate validation decorators.
 ```typescript
 export class User {
 
@@ -1022,10 +1022,10 @@ export class UserController {
 ```
 If the param doesn't satisfy the requirements defined by class-validator decorators, an error will be throwed and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
 
-If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `paramValidatorOptions` in createExpressServer method or as a local setting for method parameter - `@Body({paramValidatorOptions: localOptions})`.
+If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `validatorOptions ` in createExpressServer method or as a local setting for method parameter - `@Body({validatorOptions: localOptions})`.
 
 This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
-This behaviour is **disabled** by default. If you want to enable it , you need to explicitly pass `useParamValidator: true` to createExpressServer method.
+This behaviour is **disabled** by default. If you want to enable it, you need to do it explicitly eg. by passing `enableValidation: true` to createExpressServer method.
 
 ## Default error handling
 
