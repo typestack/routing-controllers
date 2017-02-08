@@ -2,12 +2,14 @@ import {plainToClass} from "class-transformer";
 import {ValidationError} from "class-validator";
 import {transformAndValidate} from "class-transformer-validator";
 
-import {BadRequestError} from "./error/http/BadRequestError";
-import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {ParamTypes} from "./metadata/types/ParamTypes";
-import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {BodyRequiredError} from "./error/BodyRequiredError";
+import {BadRequestError} from "./error/http/BadRequestError";
 import {Driver} from "./driver/Driver";
+import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
+import {ParameterRequiredError} from "./error/ParameterRequiredError";
+import {ParamMetadata} from "./metadata/ParamMetadata";
+import {ParamTypes} from "./metadata/types/ParamTypes";
 
 /**
  * Helps to handle parameters.
@@ -49,10 +51,10 @@ export class ParamHandler {
         if (param.isRequired) {
             // todo: make better error messages here
             if (param.name && isValueEmpty) {
-                return Promise.reject("Parameter " + param.name + " is required for request on " + request.method + " " + request.url);
+                return Promise.reject(new ParameterRequiredError(request.url, request.method, param.name));
 
             } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                return Promise.reject("Request body is required for request on " + request.method + " " + request.url);
+                return Promise.reject(new BodyRequiredError(request.url, request.method));
             }
         }
 
