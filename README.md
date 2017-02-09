@@ -415,7 +415,7 @@ savePost(@Session("user") user: User, @Body() post: Post) {
 }
 ```
 
-Routing-controllers Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
+Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
 
 #### Inject state object
 

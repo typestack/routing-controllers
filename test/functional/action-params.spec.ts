@@ -24,12 +24,8 @@ import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
-const convert = require("koa-convert");
-const KoaSession = require("koa-session");
-
-import * as session from "express-session";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
-
+import {User} from "../fakes/global-options/User";
 
 describe("action parameters", () => {
 
@@ -77,49 +73,13 @@ describe("action parameters", () => {
     });
 
     before(() => {
-
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();
 
 
-        @Middleware()
-        class SessionMiddleware implements MiddlewareInterface {
-            public use (requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
-                if (next) {
-                    return this.expSession(requestOrContext, responseOrNext, next);
-                } else {
-                    if (!this.koaSession) {
-                        this.koaSession = convert(KoaSession(requestOrContext.app));
-                    }
-                    return this.koaSession(requestOrContext, responseOrNext);
-                }
-            }
 
-            private expSession = session({
-                secret: "19majkel94_helps_pleerock",
-            });
-
-            private koaSession: any;
-        }
-
-        class User {
-            public username: string;
-            public location: string;
-            public twitter: string;
-        }
-
-        @Middleware()
-        class SetStateMiddleware implements MiddlewareInterface {
-            public use (context: any, next: (err?: any) => Promise<any>): Promise<any> {
-                const user = new User();
-                user.username = "pleerock";
-                user.location = "Dushanbe, Tajikistan";
-                user.twitter = "https://twitter.com/pleerock";
-                context.state = user;
-                return next().then(() => { console.log("here3", context.state); });
-            }
-        }
-
+        const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
+        const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
 
         @Controller()
         class UserActionParamsController {
@@ -147,9 +107,9 @@ describe("action parameters", () => {
 
             @Post("/session/")
             @UseBefore(SessionMiddleware)
-            addToSession(@Session() session: any) {
-                session.testElement = "@Session test";
-                session.fakeObject = {
+            addToSession(@Session() session: Express.Session) {
+                session["testElement"] = "@Session test";
+                session["fakeObject"] = {
                     name: "fake",
                     fake: true,
                     value: 666
