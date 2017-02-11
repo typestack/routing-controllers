@@ -49,43 +49,33 @@ export function createKoaServer(options?: RoutingControllersOptions): any {
  * Registers all loaded actions in your express application.
  */
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
+    let {
+        controllers, middlewares, interceptors,
+        controllerDirs, middlewareDirs, interceptorDirs,
+        developmentMode = process.env.NODE_ENV !== "production", 
+        defaultErrorHandler = true,
+        useClassTransformer = true,
+        classToPlainTransformOptions,
+        plainToClassTransformOptions,
+        errorOverridingMap,
+        routePrefix,
+    } = options;
 
     // import all controllers and middlewares and error handlers (new way)
-    if (options && options.controllers && options.controllers.length)
-        importClassesFromDirectories(options.controllers);
-    if (options && options.middlewares && options.middlewares.length)
-        importClassesFromDirectories(options.middlewares);
-    if (options && options.interceptors && options.interceptors.length)
-        importClassesFromDirectories(options.interceptors);
+    for (let element of [controllers, middlewares, interceptors])
+        if (element && element.length)
+            importClassesFromDirectories(element);
 
     // import all controllers and middlewares and error handlers (deprecated way)
-    if (options && options.controllerDirs && options.controllerDirs.length)
-        importClassesFromDirectories(options.controllerDirs);
-    if (options && options.middlewareDirs && options.middlewareDirs.length)
-        importClassesFromDirectories(options.middlewareDirs);
-    if (options && options.interceptorDirs && options.interceptorDirs.length)
-        importClassesFromDirectories(options.interceptorDirs);
+    for (let element of [controllerDirs, middlewareDirs, interceptorDirs])
+        if (element && element.length)
+            importClassesFromDirectories(element);
 
-    if (options && options.developmentMode !== undefined) {
-        driver.developmentMode = options.developmentMode;
-    } else {
-        driver.developmentMode = process.env.NODE_ENV !== "production";
-    }
-
-    if (options.defaultErrorHandler !== undefined) {
-        driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
-    } else {
-        driver.isDefaultErrorHandlingEnabled = true;
-    }
-
-    if (options.useClassTransformer !== undefined) {
-        driver.useClassTransformer = options.useClassTransformer;
-    } else {
-        driver.useClassTransformer = true;
-    }
-
-    driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
-    driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
+    driver.developmentMode = developmentMode;
+    driver.isDefaultErrorHandlingEnabled = defaultErrorHandler;
+    driver.useClassTransformer = useClassTransformer;
+    driver.classToPlainTransformOptions = classToPlainTransformOptions;
+    driver.plainToClassTransformOptions = plainToClassTransformOptions;
 
     if (options.errorOverridingMap !== undefined)
         driver.errorOverridingMap = options.errorOverridingMap;
