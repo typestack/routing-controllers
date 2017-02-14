@@ -415,8 +415,27 @@ savePost(@Session("user") user: User, @Body() post: Post) {
 }
 ```
 
-Routing-controllers uses [express-session][5] to handle session, so firstly you have to install it manually to use `@Session` decorator.
-This feature is not supported by koa driver yet.
+Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
+
+#### Inject state object
+
+To inject a whole state object, use `@State` decorator:
+
+```typescript
+@Post("/login/")
+loginUser(@State() state: StateType, @Body() user: User) {
+}
+```
+
+To inject a single object from state, use `@State` decorator with parameter:
+
+```typescript
+@Get("/login/")
+savePost(@State("user") user: User, @Body() post: Post) {
+}
+```
+
+This feature is not supported by express driver yet.
 
 #### Inject uploaded file
 
@@ -977,7 +996,7 @@ If you want to disable it simply pass `useClassTransformer: false` to createExpr
 Sometimes parsing a json object into instance of some class is not enough. 
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
-It can be done easily thanks to integration with [class-transformer-validator][7] which internally depends on [class-validator][6]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
+It can be done easily thanks to integration with [class-transformer-validator][10] which internally depends on [class-validator][9]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
@@ -1005,7 +1024,7 @@ export class User {
 
 }
 ```
-If you haven't used class-validator yet, you can learn how to use the decorators and handle more complex object validation [here][6].
+If you haven't used class-validator yet, you can learn how to use the decorators and handle more complex object validation [here][9].
 
 Now, if you have specified a class type, your action params will be not only an instance of that class (with the data sent by a user) but they will be validated too, so you don't have to worry about eg. incorrect e-mail or too short password and manual checks every property in controller method body.
 ```typescript
@@ -1100,6 +1119,8 @@ export class UsersController {
 | `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
 | `@Session(objectName: string, options?: ParamOptions)`             | `get(@Session("user") user: User)`               | Injects an object from session to a controller action parameter value. In options you can specify there if parameter is not required and action can work with empty parameter.                             | `request.session.user`                       |
 | `@Session()`                                                       | `get(@Session() session: express.Session)`       | Injects a whole session object to a controller action parameter value. A session object is required and action cannot work with empty parameter.                             | `request.session`                       |
+| `@State(objectName: string, options?: ParamOptions)`             | `get(@State("user") user: User)`               | Injects an object from state to a controller action parameter value. In options you can specify there if parameter is not required and action can work with empty parameter.                             | `ctx.state.user`                       |
+| `@State()`                                                       | `get(@State() session: StateType)`       | Injects a whole state object to a controller action parameter value. A state object is required and action cannot work with empty parameter.                             | `ctx.state`                       |
 | `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
 | `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
 | `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`         | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
@@ -1156,5 +1177,8 @@ See information about breaking changes and release notes [here](https://github.c
 [3]: https://github.com/expressjs/multer
 [4]: https://github.com/pleerock/class-transformer
 [5]: https://www.npmjs.com/package/express-session
-[6]: https://github.com/19majkel94/class-transformer-validator
-[7]: https://github.com/pleerock/class-validator
+[6]: https://www.npmjs.com/package/koa-session
+[7]: https://www.npmjs.com/package/koa-generic-session
+[8]: http://koajs.com/#ctx-state
+[9]: https://github.com/19majkel94/class-transformer-validator
+[10]: https://github.com/pleerock/class-validator

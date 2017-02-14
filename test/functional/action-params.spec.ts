@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
-import * as session from "express-session";
-
+import {UseBefore, Middleware} from "../../src/decorator/decorators";
 import {
     Body,
     BodyParam,
@@ -12,6 +11,7 @@ import {
     Req,
     Res,
     Session,
+    State,
     UploadedFile,
     UploadedFiles,
 } from "../../src/decorator/params";
@@ -20,11 +20,12 @@ import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "
 
 import {Controller} from "../../src/decorator/controllers";
 import {JsonResponse} from "../../src/decorator/decorators";
-import {UseBefore} from "../../src/decorator/decorators";
 import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
+import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {User} from "../fakes/global-options/User";
 
 describe("action parameters", () => {
 
@@ -72,9 +73,13 @@ describe("action parameters", () => {
     });
 
     before(() => {
-
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();
+
+
+
+        const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
+        const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
 
         @Controller()
         class UserActionParamsController {
@@ -101,12 +106,10 @@ describe("action parameters", () => {
             }
 
             @Post("/session/")
-            @UseBefore(session({
-                secret: "19majkel94_helps_pleerock",
-            }))
+            @UseBefore(SessionMiddleware)
             addToSession(@Session() session: Express.Session) {
-                (session as any).testElement = "@Session test";
-                (session as any).fakeObject = {
+                session["testElement"] = "@Session test";
+                session["fakeObject"] = {
                     name: "fake",
                     fake: true,
                     value: 666
@@ -115,12 +118,29 @@ describe("action parameters", () => {
             }
 
             @Get("/session/")
-            @UseBefore(session({
-                secret: "19majkel94_helps_pleerock",
-            }))
+            @UseBefore(SessionMiddleware)
             loadFromSession(@Session("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
+            }
+
+            @Get("/not-use-session/")
+            notUseSession(@Session("testElement") testElement: string) {
+                sessionTestElement = testElement;
+                return `<html><body>${testElement}</body></html>`;
+            }
+
+            @Get("/state")
+            @UseBefore(SetStateMiddleware)
+            @JsonResponse()
+            getState(@State() state: User) {
+                return state;
+            }
+
+            @Get("/state/username")
+            @UseBefore(SetStateMiddleware)
+            getUsernameFromState(@State("username") username: string) {
+                return `<html><body>${username}</body></html>`;
             }
 
             @Get("/photos")
@@ -277,9 +297,15 @@ describe("action parameters", () => {
     });
 
     let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
+    before(done => {
+        expressApp = createExpressServer().listen(3001, done);
+    });
     after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
+    before(done => {
+        koaApp = createKoaServer();
+        koaApp.keys = ["koa-session-secret"];
+        koaApp = koaApp.listen(3002, done);
+    });
     after(done => koaApp.close(done));
 
     describe("@Req and @Res should be provided as Request and Response objects", () => {
@@ -310,12 +336,18 @@ describe("action parameters", () => {
         });
     });
 
+    describe("@Session middleware not use", () => {
+        assertRequest([3001, 3002], "get", "not-use-session", response => {
+            expect(response).to.be.status(500);
+        });
+    });
+
     describe("@Session should return a value from session", () => {
-        assertRequest([3001], "post", "session", response => {
+        assertRequest([3001, 3002], "post", "session", response => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>@Session</body></html>");
-            assertRequest([3001], "get", "session", response => {
+            assertRequest([3001, 3002], "get", "session", response => {
                 expect(response).to.be.status(200);
                 expect(response).to.have.header("content-type", "text/html; charset=utf-8");
                 expect(response.body).to.be.equal("<html><body>@Session test</body></html>");
@@ -323,6 +355,26 @@ describe("action parameters", () => {
             });
         });
     });
+
+    describe("@State should return a value from state", () => {
+        assertRequest([3001], "get", "state", response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3001], "get", "state/username", response => {
+            expect(response).to.be.status(500);
+        });
+        assertRequest([3002], "get", "state", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response.body.username).to.be.equal("pleerock");
+        });
+        assertRequest([3002], "get", "state/username", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>pleerock</body></html>");
+        });
+    });
+
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {

@@ -119,7 +119,8 @@ export class ParamHandler {
                             error.details = validationErrors;
                             throw error;
                         });
-                } else if (this.driver.useClassTransformer) {
+                // If value is already an instance of target class, then skip the plain to class step
+                } else if (!(value instanceof paramMetadata.format) && this.driver.useClassTransformer) {
                     const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
                     return plainToClass(paramMetadata.format, parseValue, options);
                 }  
