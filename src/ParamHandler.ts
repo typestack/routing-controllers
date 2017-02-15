@@ -1,6 +1,5 @@
 import {plainToClass} from "class-transformer";
-import {ValidationError} from "class-validator";
-import {transformAndValidate} from "class-transformer-validator";
+import {ValidationError, validateOrReject as validate} from "class-validator";
 
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {BodyRequiredError} from "./error/BodyRequiredError";
@@ -107,28 +106,32 @@ export class ParamHandler {
         return value;
     }
 
-    private parseValue(value: any, paramMetadata: ParamMetadata) {
+    private async parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
-            const parseValue = typeof value === "string" ? JSON.parse(value) : value;
-            if (paramMetadata.format !== Object && paramMetadata.format) {
-                if (this.driver.enableValidation || paramMetadata.validate) {
-                    const options = paramMetadata.validatorOptions || this.driver.validatorOptions;
-                    return transformAndValidate(paramMetadata.format, parseValue, options)
-                        .catch((validationErrors: ValidationError[]) => {
-                            const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'details' property for more info.`);
-                            error.details = validationErrors;
-                            throw error;
-                        });
-                // If value is already an instance of target class, then skip the plain to class step
-                } else if (!(value instanceof paramMetadata.format) && this.driver.useClassTransformer) {
-                    const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
-                    return plainToClass(paramMetadata.format, parseValue, options);
-                }  
+            const valueObject = typeof value === "string" ? JSON.parse(value) : value;
+
+            let parsedValue: any;
+            // If value is already by instance of target class, then skip the plain to class step.
+            if (!(value instanceof paramMetadata.format) && paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
+                const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
+                parsedValue = plainToClass(paramMetadata.format, valueObject, options);
             } else {
-                return parseValue;
+                parsedValue = valueObject;
+            }
+
+            if (paramMetadata.validate || this.driver.enableValidation) {
+                const options = paramMetadata.validationOptions || this.driver.validationOptions;
+                return validate(parsedValue, options)
+                    .then(() => parsedValue)
+                    .catch((validationErrors: ValidationError[]) => {
+                        const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'details' property for more info.`);
+                        error.details = validationErrors;
+                        throw error;
+                    });
+            } else {
+                return parsedValue;
             }
         } catch (er) {
-            // console.log(er);
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }

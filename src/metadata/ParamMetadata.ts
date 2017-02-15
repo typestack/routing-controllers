@@ -1,4 +1,4 @@
-import {TransformValdiationOptions} from "class-transformer-validator";
+import {ValidationOptions} from "class-validator";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
 import {ParamType} from "./types/ParamTypes";
@@ -81,14 +81,14 @@ export class ParamMetadata {
     classTransformOptions: ClassTransformOptions;
 
     /**
-     * If true, class-transformer-validator will be used to validate param object.
+     * If true, class-validator will be used to validate param object.
      */
     validate: boolean;
 
     /**
-     * Class-transformer-validator options used to transform and validate param object.
+     * Class-validator options used to transform and validate param object.
      */
-    validatorOptions: TransformValdiationOptions;
+    validationOptions: ValidationOptions;
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -118,8 +118,8 @@ export class ParamMetadata {
             this.classTransformOptions = args.classTransformOptions;
         if (args.validate !== undefined) 
             this.validate = args.validate;
-        if (args.validatorOptions)
-            this.validatorOptions = args.validatorOptions;
+        if (args.validationOptions)
+            this.validationOptions = args.validationOptions;
         
         this.extraOptions = args.extraOptions;
     }

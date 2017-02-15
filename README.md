@@ -996,7 +996,7 @@ If you want to disable it simply pass `useClassTransformer: false` to createExpr
 Sometimes parsing a json object into instance of some class is not enough. 
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
-It can be done easily thanks to integration with [class-transformer-validator][10] which internally depends on [class-validator][9]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
+It can be done easily thanks to integration with [class-validator][9]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
@@ -1041,7 +1041,7 @@ export class UserController {
 ```
 If the param doesn't satisfy the requirements defined by class-validator decorators, an error will be throwed and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
 
-If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `validatorOptions ` in createExpressServer method or as a local setting for method parameter - `@Body({validatorOptions: localOptions})`.
+If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `validationOptions ` in createExpressServer method or as a local setting for method parameter - `@Body({validationOptions: localOptions})`.
 
 This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 This behaviour is **disabled** by default. If you want to enable it, you need to do it explicitly eg. by passing `enableValidation: true` to createExpressServer method.
@@ -1180,5 +1180,4 @@ See information about breaking changes and release notes [here](https://github.c
 [6]: https://www.npmjs.com/package/koa-session
 [7]: https://www.npmjs.com/package/koa-generic-session
 [8]: http://koajs.com/#ctx-state
-[9]: https://github.com/19majkel94/class-transformer-validator
-[10]: https://github.com/pleerock/class-validator
+[9]: https://github.com/pleerock/class-validator

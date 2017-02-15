@@ -1,4 +1,4 @@
-import {TransformValdiationOptions} from "class-transformer-validator";
+import {ValidationOptions} from "class-validator";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
@@ -17,14 +17,14 @@ export interface Driver {
     useClassTransformer: boolean;
     
     /**
-     * Indicates if class-transformer-validator should be used to auto validate objects injected into params.
+     * Indicates if class-validator should be used to auto validate objects injected into params.
      */
     enableValidation: boolean;
 
     /**
-     * Global class-transformer-validator options passed during transformAndValidate operation.
+     * Global class-validator options passed during validate operation.
      */
-    validatorOptions: TransformValdiationOptions;
+    validationOptions: ValidationOptions;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.

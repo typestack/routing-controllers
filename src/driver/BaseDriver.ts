@@ -1,4 +1,4 @@
-import {TransformValdiationOptions} from "class-transformer-validator";
+import {ValidationOptions} from "class-validator";
 import {HttpError} from "../error/http/HttpError";
 import {ClassTransformOptions} from "class-transformer";
 
@@ -21,9 +21,9 @@ export class BaseDriver {
     classToPlainTransformOptions: ClassTransformOptions;
 
     /**
-     * Global class-transformer-validator options passed during transformAndValidate operation.
+     * Global class-validator options passed during validate operation.
      */
-    validatorOptions: TransformValdiationOptions;
+    validationOptions: ValidationOptions;
     
     /**
      * Global class transformer options passed to class-transformer during plainToClass operation.

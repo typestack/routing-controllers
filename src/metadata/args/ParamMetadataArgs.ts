@@ -1,4 +1,4 @@
-import {TransformValdiationOptions} from "class-transformer-validator";
+import {ValidationOptions} from "class-validator";
 import {ClassTransformOptions} from "class-transformer";
 import {ParamType} from "../types/ParamTypes";
 
@@ -68,13 +68,13 @@ export interface ParamMetadataArgs {
     classTransformOptions?: ClassTransformOptions;
 
     /**
-     * If true, class-transformer-validator will be used to validate param object.
+     * If true, class-validator will be used to validate param object.
      */
     validate?: boolean;
 
     /**
-     * Class-transformer-validator options used to transform and validate param object.
+     * Class-validator options used to transform and validate param object.
      */
-    validatorOptions?: TransformValdiationOptions;
+    validationOptions?: ValidationOptions;
 
 }
