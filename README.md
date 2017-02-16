@@ -34,6 +34,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Inject cookie parameter](#inject-cookie-parameter)
       - [Make parameter required](#make-parameter-required)
       - [Convert parameters to objects](#convert-parameters-to-objects)
+      - [Auto validating action params](#auto-validating-action-params)
       - [Set custom ContentType](#set-custom-contenttype)
       - [Set Location](#set-location)
       - [Set Redirect](#set-redirect)
