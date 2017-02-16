@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
   "private": true,
-  "version": "0.6.9",
+  "version": "0.6.10",
   "description": "Allows to use class-based controllers with express.js or koa in Typescript",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -27,10 +27,11 @@
     "controllers"
   ],
   "dependencies": {
+    "class-transformer": "~0.1.3",
+    "class-validator": "^0.6.8",
     "cookie": "^0.3.1",
     "glob": "^7.0.5",
-    "reflect-metadata": "^0.1.3",
-    "class-transformer": "~0.1.3"
+    "reflect-metadata": "^0.1.3"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",

@@ -84,6 +84,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.useClassTransformer = true;
     }
 
+    if (options.enableValidation !== undefined) {
+        driver.enableValidation = options.enableValidation;
+    } else {
+        driver.enableValidation = false;
+    }
+
     driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
     driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
 

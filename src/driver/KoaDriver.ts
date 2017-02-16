@@ -283,7 +283,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                 response.status = error.httpCode;
             } else {
                 options.context.status = 500;
-                // TODO: FIX response.status(500);
+                response.status = 500;
             }
 
             // apply http headers
