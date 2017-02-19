@@ -33,8 +33,6 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Inject uploaded files](#inject-uploaded-files)
       - [Inject cookie parameter](#inject-cookie-parameter)
       - [Make parameter required](#make-parameter-required)
-      - [Convert parameters to objects](#convert-parameters-to-objects)
-      - [Auto validating action params](#auto-validating-action-params)
       - [Set custom ContentType](#set-custom-contenttype)
       - [Set Location](#set-location)
       - [Set Redirect](#set-redirect)
@@ -53,6 +51,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     + [Global interceptors](#global-interceptors)
     + [Don't forget to load your middlewares, error handlers and interceptors](#dont-forget-to-load-your-middlewares-error-handlers-and-interceptors)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
+  * [Auto validating action params](#auto-validating-action-params)
   * [Default error handling](#default-error-handling)
   * [Using DI container](#using-di-container)
   * [Decorators Reference](#decorators-reference)
@@ -493,24 +492,7 @@ Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and o
 
 If you specify a class type to parameter that is decorated with parameter decorator,
 routing-controllers will use [class-transformer][4] to create instance of that class type.
-To disable this behaviour you need to specify a `{ useClassTransformer: false }` in RoutingControllerOptions when creating a server.
-
-```typescript
-@Get("/users")
-getUsers(@QueryParam("filter") filter: UserFilter) {
-    // now you can use your filter, for example
-    if (filter.showAll === true)
-        return "all users";
-
-    return "not all users";
-}
-
-// you can send a request to http://localhost:3000/users?filter={"showAll": true}
-// and it will show you "all users"
-```
-
-If `UserFilter` is an interface - then simple literal object will be created.
-If its a class - then instance of this will be created.
+More info about this feature is available [here](#creating-instances-of-classes-from-action-params).
 
 #### Set custom ContentType
 
@@ -986,6 +968,8 @@ export class UserController {
 
 }
 ```
+
+If `User` is an interface - then simple literal object will be created. If its a class - then instance of this will be created.
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
