@@ -9,7 +9,7 @@ import {
 } from "../../src/index";
 import {QueryParam} from "../../src/decorator/params";
 import {assertRequest} from "./test-utils";
-import {Expose} from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
 import {ResponseClassTransformOptions} from "../../src/decorator/decorators";
 const chakram = require("chakram");
@@ -26,9 +26,32 @@ describe("class transformer options", () => {
         _firstName: string;
         _lastName: string;
 
+        @Type(() => Person)
+        @Transform(value => ArrayUtil.toArray<Person>(value))
+        person: Person[];
+
         @Expose()
         get name(): string {
             return this._firstName + " " + this._lastName;
+        }
+    }
+
+    class Person {
+        age: number;
+        gender: string;
+    }
+
+    class ArrayUtil {
+        public static toArray<T>(object: T): T[] {
+            let obj = new Array<any>();
+
+            if (!(object instanceof Array)) {
+                obj.push(object);
+            } else {
+                obj = object;
+            }
+
+            return obj;
         }
     }
 
