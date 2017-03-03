@@ -626,7 +626,7 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "files", undefined, requestOptions, response => {
+        assertRequest([3001, 3002], "post", "files", undefined, requestOptions, response => {
             // uploadedFileName.should.be.eql("hello-world.txt");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
@@ -658,11 +658,11 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "files-with-limit", undefined, validRequestOptions, response => {
+        assertRequest([3001, 3002], "post", "files-with-limit", undefined, validRequestOptions, response => {
             expect(response).to.be.status(200);
         });
 
-        assertRequest([3001/*, 3002*/], "post", "files-with-limit", undefined, invalidRequestOptions, response => {
+        assertRequest([3001, 3002], "post", "files-with-limit", undefined, invalidRequestOptions, response => {
             expect(response).to.be.status(500);
         });
     });
@@ -680,11 +680,11 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "files-with-required", undefined, requestOptions, response => {
+        assertRequest([3001, 3002], "post", "files-with-required", undefined, requestOptions, response => {
             expect(response).to.be.status(200);
         });
 
-        assertRequest([3001/*, 3002*/], "post", "files-with-required", undefined, {}, response => {
+        assertRequest([3001, 3002], "post", "files-with-required", undefined, {}, response => {
             expect(response).to.be.status(400);
         });
     });
@@ -708,7 +708,7 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "photos", undefined, requestOptions, response => {
+        assertRequest([3001, 3002], "post", "photos", undefined, requestOptions, response => {
             uploadedFilesFirstName.should.be.eql("me.jpg");
             uploadedFilesSecondName.should.be.eql("she.jpg");
             expect(response).to.be.status(200);
@@ -747,10 +747,10 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "photos-with-limit", undefined, validRequestOptions, response => {
+        assertRequest([3001, 3002], "post", "photos-with-limit", undefined, validRequestOptions, response => {
             expect(response).to.be.status(200);
         });
-        assertRequest([3001/*, 3002*/], "post", "photos-with-limit", undefined, invalidRequestOptions, response => {
+        assertRequest([3001, 3002], "post", "photos-with-limit", undefined, invalidRequestOptions, response => {
             expect(response).to.be.status(500);
         });
     });
@@ -774,10 +774,10 @@ describe("action parameters", () => {
             }
         };
 
-        assertRequest([3001/*, 3002*/], "post", "photos-with-required", undefined, requestOptions, response => {
+        assertRequest([3001, 3002], "post", "photos-with-required", undefined, requestOptions, response => {
             expect(response).to.be.status(200);
         });
-        assertRequest([3001/*, 3002*/], "post", "photos-with-required", undefined, {}, response => {
+        assertRequest([3001, 3002], "post", "photos-with-required", undefined, {}, response => {
             expect(response).to.be.status(400);
         });
         

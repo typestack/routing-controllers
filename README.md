@@ -102,7 +102,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa@next koa-router@next koa-bodyparser@next --save`
+    `npm install koa@next koa-router@next koa-bodyparser@next koa-multer --save`
 
     Optionally you can also install its [typings](https://github.com/typings/typings):
 
@@ -449,7 +449,6 @@ saveFile(@UploadedFile("fileName") file: any) {
 
 Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
-This feature is not supported by koa driver yet.
 
 #### Inject uploaded files
 
@@ -463,7 +462,6 @@ saveAll(@UploadedFiles("files") files: any[]) {
 
 Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
-This feature is not supported by koa driver yet.
 
 #### Inject cookie parameter
 
