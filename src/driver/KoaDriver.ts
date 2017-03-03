@@ -100,21 +100,19 @@ export class KoaDriver extends BaseDriver implements Driver {
                 // defaultMiddlewares.push(require("koa-body-parser")());
             }
         }
-        // file uploading is not working yet. need to implement it
-        /*if (action.isFileUsed || action.isFilesUsed) {
-            // todo: not implemented yet
-            const multer = require("koa-router-multer");
+        if (action.isFileUsed || action.isFilesUsed) {
+            const multer = this.loadMulter();
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILE)
                 .forEach(param => {
-                    defaultMiddlewares.push(multer({ dest: "uploads/" }).single(param.name));
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
                 });
             action.params
                 .filter(param => param.type === ParamTypes.UPLOADED_FILES)
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
-        }*/
+        }
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
@@ -175,11 +173,9 @@ export class KoaDriver extends BaseDriver implements Driver {
             case ParamTypes.QUERY:
                 return context.query[param.name];
             case ParamTypes.UPLOADED_FILE:
-                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
-                // return actionOptions.context.req.file;
+                return actionOptions.context.req.file;
             case ParamTypes.UPLOADED_FILES:
-                throw new Error("@UploadedFile and @UploadedFiles decorators are not supported by KoaDriver yet.");
-                // return actionOptions.context.req.files;
+                return actionOptions.context.req.files;
             case ParamTypes.HEADER:
                 return context.headers[param.name.toLowerCase()];
             case ParamTypes.BODY_PARAM:
@@ -342,6 +338,14 @@ export class KoaDriver extends BaseDriver implements Driver {
             }
         });
         return middlewareFunctions;
+    }
+
+    private loadMulter() {
+        try {
+            return require("koa-multer");
+        } catch (e) {
+            throw new Error("koa-multer package was not found installed. Try to install it: npm install koa-multer --save");
+        }
     }
 
 }
