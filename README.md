@@ -274,7 +274,7 @@ You can load all controllers in once from specific directories, by specifying ar
 
 ```typescript
 import "reflect-metadata"; // this shim is required
-import {createExpressServer, loadControllers} from "routing-controllers";
+import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
     controllers: [__dirname + "/controllers/*.js"]
@@ -922,7 +922,7 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer, loadControllers} from "routing-controllers";
+import {createExpressServer} from "routing-controllers";
 createExpressServer({
     controllers: [__dirname + "/controllers/**/*.js"],
     middlewares: [__dirname + "/middlewares/**/*.js"]
