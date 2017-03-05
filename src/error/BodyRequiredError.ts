@@ -8,6 +8,7 @@ export class BodyRequiredError extends BadRequestError {
 
     constructor(url: string, method: string) {
         super(`Request body is required for request on ${method} ${url}`);
+        Object.setPrototypeOf(this, BodyRequiredError.prototype);
     }
 
 }

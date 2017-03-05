@@ -8,6 +8,7 @@ export class ParameterParseJsonError extends BadRequestError {
 
     constructor(parameterName: string, value: any) {
         super(`Given parameter ${parameterName} is invalid. Value (${JSON.stringify(value)}) cannot be parsed to JSON`);
+        Object.setPrototypeOf(this, ParameterParseJsonError.prototype);
     }
 
 }

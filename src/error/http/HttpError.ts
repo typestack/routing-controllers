@@ -7,6 +7,8 @@ export class HttpError extends Error {
 
     constructor(httpCode: number, message?: string) {
         super();
+        Object.setPrototypeOf(this, HttpError.prototype);
+        
         if (httpCode)
             this.httpCode = httpCode;
         if (message)

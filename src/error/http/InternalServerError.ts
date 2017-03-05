@@ -8,6 +8,8 @@ export class InternalServerError extends HttpError {
 
     constructor(message: string) {
         super(500);
+        Object.setPrototypeOf(this, InternalServerError.prototype);
+
         if (message)
             this.message = message;
     }
