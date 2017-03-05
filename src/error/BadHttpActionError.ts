@@ -3,6 +3,8 @@ export class BadHttpActionError extends Error {
 
     constructor(action: string) {
         super();
+        Object.setPrototypeOf(this, BadHttpActionError.prototype);
+        
         this.message = `Method with the given action ${action} cannot be registered in the server framework.`;
     }
 

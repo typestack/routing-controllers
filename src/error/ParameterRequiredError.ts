@@ -8,6 +8,7 @@ export class ParameterRequiredError extends BadRequestError {
 
     constructor(url: string, method: string, parameterName: string) {
         super(`Parameter ${parameterName} is required for request on ${method} ${url}`);
+        Object.setPrototypeOf(this, ParameterRequiredError.prototype);
     }
 
 }

@@ -8,6 +8,8 @@ export class BadRequestError extends HttpError {
 
     constructor(message?: string) {
         super(400);
+        Object.setPrototypeOf(this, BadRequestError.prototype);
+
         if (message)
             this.message = message;
     }
