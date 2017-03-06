@@ -1,3 +1,4 @@
+import * as express from "express";
 import {HttpError} from "../error/http/HttpError";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
@@ -23,11 +24,11 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(public express?: any) {
+    constructor(public express?: express.Express) {
         super();
         if (require) {
             if (!express) {
-                try {
+                try {                  
                     this.express = require("express")();
                 } catch (e) {
                     throw new Error("express package was not found installed. Try to install it: npm install express --save");
@@ -95,7 +96,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                    interceptors: InterceptorMetadata[],
                    executeCallback: (options: ActionCallbackOptions) => any): void {
         const expressAction = action.type.toLowerCase();
-        if (!this.express[expressAction])
+        if (!(this.express as any)[expressAction])
             throw new BadHttpActionError(action.type);
 
         const useInterceptors = action.controllerMetadata.useInterceptors.concat(action.useInterceptors);
@@ -151,7 +152,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         const expressParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
 
         // finally register action
-        this.express[expressAction](...expressParams);
+        (this.express as any)[expressAction](...expressParams);
     }
 
     registerRoutes() {

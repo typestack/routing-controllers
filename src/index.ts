@@ -1,3 +1,4 @@
+import * as express from "express";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
@@ -14,7 +15,7 @@ import {RoutingControllersOptions} from "./RoutingControllersOptions";
 /**
  * Registers all loaded actions in your express application.
  */
-export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
+export function useExpressServer(expressApp: express.Express, options?: RoutingControllersOptions): express.Express {
     createExecutor(new ExpressDriver(expressApp), options || {});
     return expressApp;
 }
@@ -22,7 +23,7 @@ export function useExpressServer<T>(expressApp: T, options?: RoutingControllersO
 /**
  * Registers all loaded actions in your express application.
  */
-export function createExpressServer(options?: RoutingControllersOptions): any {
+export function createExpressServer(options?: RoutingControllersOptions): express.Express {
     const driver = new ExpressDriver();
     createExecutor(driver, options || {});
     return driver.express;
