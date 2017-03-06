@@ -6,6 +6,7 @@ import {KoaDriver} from "./driver/KoaDriver";
 import {Driver} from "./driver/Driver";
 import {getFromContainer} from "./container";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
+import {SwaggerDefinition} from "./swagger/SwaggerDefinition";
 
 // -------------------------------------------------------------------------
 // Main Functions
@@ -98,6 +99,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     if (options.routePrefix !== undefined)
         driver.routePrefix = options.routePrefix;
+
+    if (options && options.swagger && options.swagger.enabled) {
+          new SwaggerDefinition(options.swagger)
+              .bootstrap(options.routePrefix || "/")
+              .controller();
+    }
 
     // next create a controller executor
     new RoutingControllerExecutor(driver)

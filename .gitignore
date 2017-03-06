@@ -3,3 +3,5 @@ node_modules/
 typings/
 coverage/
 npm-debug.log
+*.iml
+/.idea/

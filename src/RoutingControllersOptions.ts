@@ -1,5 +1,6 @@
 import {ClassTransformOptions} from "class-transformer";
 import {ValidationOptions} from "class-validator";
+import {SwaggerOptions} from "./swagger/SwaggerDefinition";
 
 /**
  * Routing controller initialization options.
@@ -88,5 +89,9 @@ export interface RoutingControllersOptions {
      * Route prefix. eg '/api'
      */
     routePrefix?: string;
-    
+
+    /**
+     * Swagger options. By default disabled.
+     */
+    swagger?: SwaggerOptions;
 }
