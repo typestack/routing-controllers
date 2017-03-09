@@ -1,4 +1,4 @@
-import {ValidationOptions} from "class-validator";
+import {ValidatorOptions} from "class-validator";
 import {ClassTransformOptions} from "class-transformer";
 
 /**
@@ -29,6 +29,6 @@ export interface ParamOptions {
     /**
      * Class-validator options used to transform and validate param object.
      */
-    validationOptions?: ValidationOptions;
+    validationOptions?: ValidatorOptions;
     
 }

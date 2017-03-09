@@ -1,5 +1,5 @@
 import {ClassTransformOptions} from "class-transformer";
-import {ValidationOptions} from "class-validator";
+import {ValidatorOptions} from "class-validator";
 
 /**
  * Routing controller initialization options.
@@ -55,7 +55,7 @@ export interface RoutingControllersOptions {
     /**
      * Global class-validator options passed during validate operation.
      */
-    validationOptions?: ValidationOptions;
+    validationOptions?: ValidatorOptions;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.

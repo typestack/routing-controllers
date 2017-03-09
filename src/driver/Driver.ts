@@ -1,4 +1,4 @@
-import {ValidationOptions} from "class-validator";
+import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
@@ -24,7 +24,7 @@ export interface Driver {
     /**
      * Global class-validator options passed during validate operation.
      */
-    validationOptions: ValidationOptions;
+    validationOptions: ValidatorOptions;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.

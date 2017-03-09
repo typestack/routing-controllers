@@ -86,6 +86,9 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     if (options.enableValidation !== undefined) {
         driver.enableValidation = options.enableValidation;
+        if (options.validationOptions !== undefined) {
+            driver.validationOptions = options.validationOptions;
+        }
     } else {
         driver.enableValidation = false;
     }
