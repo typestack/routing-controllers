@@ -21,6 +21,11 @@ export class ActionMetadata {
     controllerMetadata: ControllerMetadata;
 
     /**
+     * Action's instance.
+     */
+     instance: any;
+
+    /**
      * Action's parameters.
      */
     params: ParamMetadata[];
@@ -67,7 +72,7 @@ export class ActionMetadata {
     
     constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs) {
         this.controllerMetadata = controllerMetadata;
-        
+        this.instance = controllerMetadata.instance;
         if (args.route)
             this.route = args.route;
         if (args.target)
@@ -247,7 +252,7 @@ export class ActionMetadata {
     // -------------------------------------------------------------------------
 
     executeAction(params: any[]) {
-        return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
+        return this.instance[this.method].apply(this.instance, params);
     }
 
     // -------------------------------------------------------------------------
