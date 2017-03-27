@@ -64,11 +64,12 @@ export class KoaDriver extends BaseDriver implements Driver {
     }
 
     registerMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.instance.use)
+        const instance = middleware.instance;
+        if (!instance.use)
             return;
         
         this.koa.use(function (ctx: any, next: any) {
-            return middleware.instance.use(ctx, next);
+            return instance.use(ctx, next);
         });
     }
 
@@ -87,8 +88,9 @@ export class KoaDriver extends BaseDriver implements Driver {
             .sort((interceptor1, interceptor2) => interceptor1.priority - interceptor2.priority)
             .reverse()
             .map(interceptor => {
+                const instance = interceptor.instance;
                 return function (request: any, response: any, result: any) {
-                    return interceptor.instance.intercept(request, response, result);
+                    return instance.intercept(request, response, result);
                 };
             });
 
@@ -307,9 +309,10 @@ export class KoaDriver extends BaseDriver implements Driver {
         useInterceptors.forEach(useInterceptor => {
             if (useInterceptor.interceptor.prototype && useInterceptor.interceptor.prototype.intercept) { // if this is function instance of MiddlewareInterface
                 interceptors.forEach(interceptor => {
-                    if (interceptor.instance instanceof useInterceptor.interceptor) {
+                    const instance = interceptor.instance;
+                    if (instance instanceof useInterceptor.interceptor) {
                         interceptFunctions.push(function (request: any, response: any, result: any) {
-                            return interceptor.instance.intercept(request, response, result);
+                            return instance.intercept(request, response, result);
                         });
                     }
                 });
@@ -326,9 +329,10 @@ export class KoaDriver extends BaseDriver implements Driver {
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
-                    if (middleware.instance instanceof use.middleware) {
+                    const instance = middleware.instance;
+                    if (instance instanceof use.middleware) {
                         middlewareFunctions.push(function(context: any, next: Function) {
-                            return middleware.instance.use(context, next);
+                            return instance.use(context, next);
                         });
                     }
                 });
