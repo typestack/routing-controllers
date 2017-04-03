@@ -61,12 +61,13 @@ export class ExpressDriver extends BaseDriver implements Driver {
      * Registers middleware that run before controller actions.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.instance.use)
+        const instance = middleware.instance;
+        if (!instance.use)
             return;
 
         this.express.use((request: any, response: any, next: (err: any) => any) => {
             try {
-                const useResult = middleware.instance.use(request, response, next);
+                const useResult = instance.use(request, response, next);
                 if (useResult instanceof Promise) {
                     useResult.catch((error: any) => {
                         this.handleError(error, undefined, {
@@ -105,8 +106,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
             .sort((interceptor1, interceptor2) => interceptor1.priority - interceptor2.priority)
             .reverse()
             .map(interceptor => {
+                const instance = interceptor.instance;
                 return function (request: any, response: any, result: any) {
-                    return interceptor.instance.intercept(request, response, result);
+                    return instance.intercept(request, response, result);
                 };
             });
 
@@ -314,9 +316,10 @@ export class ExpressDriver extends BaseDriver implements Driver {
         useInterceptors.forEach(useInterceptor => {
             if (useInterceptor.interceptor.prototype && useInterceptor.interceptor.prototype.intercept) { // if this is function instance of MiddlewareInterface
                 interceptors.forEach(interceptor => {
+                    const instance = interceptor.instance;
                     if (interceptor.instance instanceof useInterceptor.interceptor) {
                         interceptFunctions.push(function (request: any, response: any, result: any) {
-                            return interceptor.instance.intercept(request, response, result);
+                            return instance.intercept(request, response, result);
                         });
                     }
                 });
@@ -333,9 +336,10 @@ export class ExpressDriver extends BaseDriver implements Driver {
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
-                    if (middleware.instance instanceof use.middleware) {
+                    const instance = middleware.instance;
+                    if (instance instanceof use.middleware) {
                         middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
-                            return middleware.instance.use(request, response, next);
+                            return instance.use(request, response, next);
                         });
                     }
                 });
