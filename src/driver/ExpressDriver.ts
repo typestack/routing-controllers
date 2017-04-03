@@ -276,7 +276,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+    handleError(error: any, action: ActionMetadata|undefined, options: ActionCallbackOptions): void {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
@@ -289,12 +289,14 @@ export class ExpressDriver extends BaseDriver implements Driver {
             }
 
             // apply http headers
-            Object.keys(action.headers).forEach(name => {
-                response.header(name, action.headers[name]);
-            });
+            if (action) {
+                Object.keys(action.headers).forEach(name => {
+                    response.header(name, action.headers[name]);
+                });
+            }
 
             // send error content
-            if (action.isJsonTyped) {
+            if (action && action.isJsonTyped) {
                 response.json(this.processJsonError(error));
             } else {
                 response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
