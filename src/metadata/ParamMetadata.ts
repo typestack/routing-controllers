@@ -1,4 +1,4 @@
-import {ValidationOptions} from "class-validator";
+import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
 import {ParamType} from "./types/ParamTypes";
@@ -88,7 +88,7 @@ export class ParamMetadata {
     /**
      * Class-validator options used to transform and validate param object.
      */
-    validationOptions: ValidationOptions;
+    validationOptions: ValidatorOptions;
 
     // -------------------------------------------------------------------------
     // Public Methods

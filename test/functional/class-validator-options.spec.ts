@@ -16,7 +16,7 @@ import {ResponseClassTransformOptions} from "../../src/decorator/decorators";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("class transformer validator options", () => {
+describe("parameters auto-validation", () => {
 
     class UserFilter {
         @Length(5, 15)
@@ -162,6 +162,51 @@ describe("class transformer validator options", () => {
         assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
             expect(response).to.have.status(400);
             expect(requestFilter).to.be.undefined;
+        });
+    });
+
+    describe("should apply global validation options", () => {
+
+        let requestFilter: any;
+        beforeEach(() => {
+            requestFilter = undefined;
+        });
+
+        before(() => {
+            defaultMetadataArgsStorage().reset();
+
+            @JsonController()
+            class ClassTransformUserController {
+
+                @Get("/user")
+                getUsers(@QueryParam("filter") filter: UserFilter): any {
+                    requestFilter = filter;
+                    const user = new UserModel();
+                    user.id = 1;
+                    user._firstName = "Umed";
+                    user._lastName = "Khudoiberdiev";
+                    return user;
+                }
+
+            }
+        });
+
+        const options: RoutingControllersOptions = {
+            enableValidation: true,
+            validationOptions: {
+                skipMissingProperties: true
+            }
+        };
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer(options).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer(options).listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "get", "user?filter={\"notKeyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
+            expect(response).to.have.status(200);
+            expect(requestFilter).to.have.property("notKeyword");
         });
     });
 
