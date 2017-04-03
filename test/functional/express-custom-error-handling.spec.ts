@@ -4,7 +4,7 @@ import {Get} from "../../src/decorator/methods";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
 import {MiddlewareGlobalAfter, UseBefore, UseAfter, Middleware} from "../../src/decorator/decorators";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
-import {NotFoundError} from "../../src/error/http/NotFoundError";
+import {NotFoundError} from "../../src/http-error/NotFoundError";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

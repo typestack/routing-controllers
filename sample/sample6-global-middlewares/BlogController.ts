@@ -1,6 +1,6 @@
 import {Controller} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
-import {ForbiddenError} from "../../src/error/http/ForbiddenError";
+import {ForbiddenError} from "../../src/http-error/ForbiddenError";
 import {Param} from "../../src/decorator/params";
 import {JsonResponse} from "../../src/decorator/decorators";
 

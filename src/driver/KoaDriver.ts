@@ -3,7 +3,7 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {BaseDriver} from "./BaseDriver";
 import {Driver} from "./Driver";
-import {HttpError} from "../error/http/HttpError";
+import {HttpError} from "../http-error/HttpError";
 import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";

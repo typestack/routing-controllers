@@ -1,4 +1,4 @@
-import {HttpError} from "../error/http/HttpError";
+import {HttpError} from "../http-error/HttpError";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";

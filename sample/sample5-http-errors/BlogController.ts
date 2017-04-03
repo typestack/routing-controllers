@@ -1,6 +1,6 @@
 import {JsonController} from "../../src/decorator/controllers";
 import {Get} from "../../src/decorator/methods";
-import {ForbiddenError} from "../../src/error/http/ForbiddenError";
+import {ForbiddenError} from "../../src/http-error/ForbiddenError";
 
 export class ValidationError extends Error {
     name = "ValidationError";

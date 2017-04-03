@@ -3,7 +3,7 @@ import {ValidationError, validateOrReject as validate} from "class-validator";
 
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {BodyRequiredError} from "./error/BodyRequiredError";
-import {BadRequestError} from "./error/http/BadRequestError";
+import {BadRequestError} from "./http-error/BadRequestError";
 import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParameterRequiredError} from "./error/ParameterRequiredError";

@@ -1,5 +1,5 @@
 import {ValidatorOptions} from "class-validator";
-import {HttpError} from "../error/http/HttpError";
+import {HttpError} from "../http-error/HttpError";
 import {ClassTransformOptions} from "class-transformer";
 
 /**

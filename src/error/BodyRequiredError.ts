@@ -1,4 +1,4 @@
-import {BadRequestError} from "./http/BadRequestError";
+import {BadRequestError} from "../http-error/BadRequestError";
 
 /**
  * Caused when body is required, but not given in the user request.
