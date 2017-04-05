@@ -1,4 +1,3 @@
-import "es6-shim";
 import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
 
 const gulp = require("gulp");
@@ -169,8 +168,8 @@ export class Gulpfile {
     @Task("coveragePost", ["coveragePre"])
     coveragePost() {
         chai.should();
-        chai.use(require("sinon-chai"));
-        chai.use(require("chai-as-promised"));
+        // chai.use(require("sinon-chai"));
+        // chai.use(require("chai-as-promised"));
 
         return gulp.src(["./build/es5/test/functional/**/*.js"])
             .pipe(mocha())
