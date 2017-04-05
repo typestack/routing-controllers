@@ -1,4 +1,4 @@
-import {JsonController} from "../../../../../src/decorator/JsonController";
+import {JsonController} from "../../../../../src/deprecated/JsonController";
 import {Get} from "../../../../../src/decorator/Method";
 
 @JsonController()

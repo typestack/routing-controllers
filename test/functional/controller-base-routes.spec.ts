@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/JsonController";
+import {Controller} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";

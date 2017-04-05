@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import {Request} from "express";
-import {Controller} from "../../src/decorator/JsonController";
+import {Controller} from "../../src/deprecated/JsonController";
 import {Get, Post, Put, Patch, Delete} from "../../src/decorator/Method";
 import {Session, Req, Param} from "../../src/decorator/UploadedFiles";
-import {JsonResponse} from "../../src/decorator/JsonResponse";
+import {JsonResponse} from "../../src/deprecated/JsonResponse";
 
 @Controller()
 export class UserController {

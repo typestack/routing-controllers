@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/JsonController";
+import {Controller} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {Render} from "../../src/decorator/JsonResponse";
+import {Render} from "../../src/deprecated/JsonResponse";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;

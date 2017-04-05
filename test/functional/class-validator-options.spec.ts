@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {Length} from "class-validator";
-import {JsonController} from "../../src/decorator/JsonController";
+import {JsonController} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Method";
 import {
     createExpressServer,
@@ -12,7 +12,7 @@ import {QueryParam} from "../../src/decorator/UploadedFiles";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
-import {ResponseClassTransformOptions} from "../../src/decorator/JsonResponse";
+import {ResponseClassTransformOptions} from "../../src/deprecated/JsonResponse";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

@@ -126,8 +126,8 @@ export function defaultMetadataArgsStorage(): MetadataArgsStorage {
 // -------------------------------------------------------------------------
 
 export * from "./container";
-export * from "./decorator/JsonController";
-export * from "./decorator/JsonResponse";
+export * from "./deprecated/JsonController";
+export * from "./deprecated/JsonResponse";
 export * from "./decorator/Method";
 export * from "./decorator/UploadedFiles";
 export * from "./middleware/MiddlewareInterface";

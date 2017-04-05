@@ -1,4 +1,4 @@
-import {MiddlewareGlobalAfter} from "../../src/decorator/JsonResponse";
+import {MiddlewareGlobalAfter} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
 @MiddlewareGlobalAfter()

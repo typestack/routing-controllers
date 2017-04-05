@@ -1,5 +1,5 @@
 import {Request} from "express";
-import {JsonController} from "../../../../../src/decorator/JsonController";
+import {JsonController} from "../../../../../src/deprecated/JsonController";
 import {Get, Post, Put, Patch, Delete} from "../../../../../src/decorator/Method";
 import {Req, Param} from "../../../../../src/decorator/UploadedFiles";
 

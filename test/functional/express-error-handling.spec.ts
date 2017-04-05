@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/JsonController";
+import {JsonController} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {MiddlewareGlobalAfter, UseBefore, UseAfter, Middleware} from "../../src/decorator/JsonResponse";
+import {MiddlewareGlobalAfter, UseBefore, UseAfter, Middleware} from "../../src/deprecated/JsonResponse";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 const chakram = require("chakram");

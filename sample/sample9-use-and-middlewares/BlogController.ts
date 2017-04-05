@@ -1,7 +1,7 @@
-import {JsonController} from "../../src/decorator/JsonController";
+import {JsonController} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Method";
 import {Param} from "../../src/decorator/UploadedFiles";
-import {UseBefore} from "../../src/decorator/JsonResponse";
+import {UseBefore} from "../../src/deprecated/JsonResponse";
 import {CompressionMiddleware} from "./CompressionMiddleware";
 import {AllControllerActionsMiddleware} from "./AllControllerActionsMiddleware";
 
