@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {Controller} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Method";
 import {defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {
     UseBefore,
@@ -8,7 +8,7 @@ import {
     Middleware,
     MiddlewareGlobalBefore,
     MiddlewareGlobalAfter
-} from "../../src/decorator/decorators";
+} from "../../src/decorator/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;

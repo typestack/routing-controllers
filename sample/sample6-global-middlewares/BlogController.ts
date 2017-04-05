@@ -1,8 +1,8 @@
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {Controller} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Method";
 import {ForbiddenError} from "../../src/http-error/ForbiddenError";
-import {Param} from "../../src/decorator/params";
-import {JsonResponse} from "../../src/decorator/decorators";
+import {Param} from "../../src/decorator/UploadedFiles";
+import {JsonResponse} from "../../src/decorator/JsonResponse";
 
 @Controller()
 export class BlogController {

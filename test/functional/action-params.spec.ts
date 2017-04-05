@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {UseBefore, Middleware} from "../../src/decorator/decorators";
+import {UseBefore, Middleware} from "../../src/decorator/JsonResponse";
 import {
     Body,
     BodyParam,
@@ -14,12 +14,12 @@ import {
     State,
     UploadedFile,
     UploadedFiles,
-} from "../../src/decorator/params";
-import {Get, Post} from "../../src/decorator/methods";
+} from "../../src/decorator/UploadedFiles";
+import {Get, Post} from "../../src/decorator/Method";
 import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 
-import {Controller} from "../../src/decorator/controllers";
-import {JsonResponse} from "../../src/decorator/decorators";
+import {Controller} from "../../src/decorator/JsonController";
+import {JsonResponse} from "../../src/decorator/JsonResponse";
 import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");

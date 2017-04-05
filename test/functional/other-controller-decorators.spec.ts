@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get, Post} from "../../src/decorator/methods";
+import {Controller} from "../../src/decorator/JsonController";
+import {Get, Post} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {
     HttpCode,
@@ -11,8 +11,8 @@ import {
     Header,
     Location,
     Redirect
-} from "../../src/decorator/decorators";
-import {Param} from "../../src/decorator/params";
+} from "../../src/decorator/JsonResponse";
+import {Param} from "../../src/decorator/UploadedFiles";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;

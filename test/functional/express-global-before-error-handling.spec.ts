@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Method";
 import {createExpressServer} from "../../src/index";
-import {MiddlewareGlobalBefore, MiddlewareGlobalAfter} from "../../src/decorator/decorators";
+import {MiddlewareGlobalBefore, MiddlewareGlobalAfter} from "../../src/decorator/JsonResponse";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 

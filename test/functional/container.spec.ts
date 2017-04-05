@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Service, Container} from "typedi/index";

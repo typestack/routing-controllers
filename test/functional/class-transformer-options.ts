@@ -1,17 +1,17 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Method";
 import {
     createExpressServer,
     defaultMetadataArgsStorage,
     createKoaServer,
     RoutingControllersOptions
 } from "../../src/index";
-import {QueryParam} from "../../src/decorator/params";
+import {QueryParam} from "../../src/decorator/UploadedFiles";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
-import {ResponseClassTransformOptions} from "../../src/decorator/decorators";
+import {ResponseClassTransformOptions} from "../../src/decorator/JsonResponse";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

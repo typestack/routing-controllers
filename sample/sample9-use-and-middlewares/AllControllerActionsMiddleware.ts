@@ -1,4 +1,4 @@
-import {Middleware} from "../../src/decorator/decorators";
+import {Middleware} from "../../src/decorator/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 
 @Middleware()

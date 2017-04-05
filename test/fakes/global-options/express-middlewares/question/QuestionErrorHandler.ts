@@ -1,4 +1,4 @@
-import {MiddlewareGlobalAfter} from "../../../../../src/decorator/decorators";
+import {MiddlewareGlobalAfter} from "../../../../../src/decorator/JsonResponse";
 import {ErrorMiddlewareInterface} from "../../../../../src/middleware/ErrorMiddlewareInterface";
 import {defaultFakeService} from "../../FakeService";
 

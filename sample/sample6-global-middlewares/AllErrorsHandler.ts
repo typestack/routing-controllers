@@ -1,4 +1,4 @@
-import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
+import {MiddlewareGlobalBefore} from "../../src/decorator/JsonResponse";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
 
 @MiddlewareGlobalBefore()
