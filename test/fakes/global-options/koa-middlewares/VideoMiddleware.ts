@@ -2,7 +2,7 @@ import {MiddlewareInterface} from "../../../../src/middleware/MiddlewareInterfac
 import {defaultFakeService} from "../FakeService";
 import {Middleware} from "../../../../src/decorator/Middleware";
 
-@Middleware()
+@Middleware({ global: true })
 export class VideoMiddleware implements MiddlewareInterface {
 
     use(context: any, next?: (err?: any) => Promise<any>): Promise<any> {
