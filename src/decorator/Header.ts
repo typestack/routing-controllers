@@ -2,9 +2,10 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
- * Annotation must be set to controller action and given content-type will be set to response.
+ * Sets response header.
+ * Must be applied on a controller action.
  */
-export function Header(name: string, value: string) {
+export function Header(name: string, value: string): Function {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: name,

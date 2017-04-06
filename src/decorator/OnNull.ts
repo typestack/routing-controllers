@@ -2,9 +2,10 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
- * This decorator is used when user wants to get some specific HTTP code on null result returned by a controller.
+ * Used to set specific HTTP status code when result returned by a controller action is equal to null.
+ * Must be applied on a controller action.
  */
-export function OnNull(code: number) {
+export function OnNull(code: number): Function {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,

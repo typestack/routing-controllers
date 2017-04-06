@@ -2,10 +2,10 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * This decorator allows to inject a Response object to the controller action parameter. After that you can fully use
- * Response object in your action method. Applied to class method parameters.
+ * Injects a Response object to the controller action parameter.
+ * Must be applied on a controller action parameters.
  */
-export function Res() {
+export function Res(): Function {
     return function (object: Object, methodName: string, index: number) {
         const reflectedType = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {

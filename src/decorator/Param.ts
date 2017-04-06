@@ -2,14 +2,12 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * This decorator allows to inject a route parameter value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param name Parameter name
+ * Injects a request's route parameter value to the controller action parameter.
+ * Must be applied on a controller action parameters.
  */
-export function Param(name: string) {
+export function Param(name: string): Function {
     return function (object: Object, methodName: string, index: number) {
-        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,

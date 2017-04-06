@@ -2,12 +2,13 @@ import {ValidatorOptions} from "class-validator";
 import {ClassTransformOptions} from "class-transformer";
 
 /**
- * Extra parameters set to the parameter.
+ * Extra options set to the parameter decorators.
  */
 export interface ParamOptions {
 
     /**
      * If set to true then parameter will be required.
+     * If user performs a request and required parameter is not set then routing-controllers will throw an error.
      */
     required?: boolean;
 

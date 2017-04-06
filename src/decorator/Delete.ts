@@ -2,13 +2,21 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
- * Registers an action to be executed when DELETE request comes on a given route.
- * Applied to controller class methods.
- *
- * @param route When request comes to this route this action will be executed
+ * Registers a controller method to be executed when DELETE request comes on a given route.
+ * Must be applied on a controller action.
  */
 export function Delete(route?: RegExp): Function;
+
+/**
+ * Registers a controller method to be executed when DELETE request comes on a given route.
+ * Must be applied on a controller action.
+ */
 export function Delete(route?: string): Function;
+
+/**
+ * Registers a controller method to be executed when DELETE request comes on a given route.
+ * Must be applied on a controller action.
+ */
 export function Delete(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
         const metadata: ActionMetadataArgs = {

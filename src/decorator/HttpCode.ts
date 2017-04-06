@@ -2,10 +2,10 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
- * Annotation must be set to controller action and given to it code will be used as HTTP Status Code in the case
- * if response result is success.
+ * Sets response HTTP status code.
+ * Must be applied on a controller action.
  */
-export function HttpCode(code: number) {
+export function HttpCode(code: number): Function {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,

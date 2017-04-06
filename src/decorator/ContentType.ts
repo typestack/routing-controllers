@@ -2,12 +2,13 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
- * Annotation must be set to controller action and given content-type will be set to response.
+ * Sets response Content-Type.
+ * Must be applied on a controller action.
  */
-export function ContentType(type: string) {
+export function ContentType(contentType: string): Function {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
-            value: type,
+            value: contentType,
             target: object.constructor,
             method: methodName,
             type: "content-type"

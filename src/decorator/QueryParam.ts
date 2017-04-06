@@ -1,15 +1,12 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamOptions} from "../metadata-options/ParamOptions";
+import {ParamOptions} from "../decorator-options/ParamOptions";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * This decorator allows to inject a query parameter value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param name Parameter name
- * @param options Extra parameter options
+ * Injects a request's query parameter value to the controller action parameter.
+ * Must be applied on a controller action parameters.
  */
-export function QueryParam(name: string, options?: ParamOptions) {
+export function QueryParam(name: string, options?: ParamOptions): Function {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {

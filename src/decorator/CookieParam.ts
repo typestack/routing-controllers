@@ -1,17 +1,14 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamOptions} from "../metadata-options/ParamOptions";
+import {ParamOptions} from "../decorator-options/ParamOptions";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * This decorator allows to inject a cookie value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param name Cookie parameter name
- * @param options Extra parameter options
+ * Injects a request's cookie value to the controller action parameter.
+ * Must be applied on a controller action parameters.
  */
 export function CookieParam(name: string, options?: ParamOptions) {
     return function (object: Object, methodName: string, index: number) {
-        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,

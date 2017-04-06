@@ -2,7 +2,8 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * This decorator allows to inject "files" from a request to a given parameter of the controller action.
+ * Injects all uploaded files to the controller action parameter.
+ * Must be applied on a controller action parameters.
  */
 export function UploadedFiles(name: string, options?: { uploadOptions?: any, required?: boolean }): Function {
     return function (object: Object, methodName: string, index: number) {

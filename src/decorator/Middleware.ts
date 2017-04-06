@@ -2,7 +2,8 @@ import {defaultMetadataArgsStorage} from "../index";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 
 /**
- * Registers a new middleware.
+ * Marks given class as a middleware.
+ * Allows to create global middlewares and control order of middleware execution.
  */
 export function Middleware(options?: { type?: "after"|"before", global?: boolean, priority?: number }): Function {
     return function (target: Function) {

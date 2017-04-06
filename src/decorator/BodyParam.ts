@@ -1,17 +1,14 @@
 import {defaultMetadataArgsStorage} from "../index";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
-import {BodyParamOptions} from "../metadata-options/BodyParamOptions";
+import {ParamOptions} from "../decorator-options/ParamOptions";
 
 /**
- * This decorator allows to inject a request body's value to the controller action parameter.
- * Applied to class method parameters.
- *
- * @param name Body's parameter name
- * @param options Extra parameter options
+ * Takes partial data of the request body.
+ * Must be applied on a controller action parameters.
  */
-export function BodyParam(name: string, options?: BodyParamOptions) {
+export function BodyParam(name: string, options?: ParamOptions): Function {
     return function (object: Object, methodName: string, index: number) {
-        let format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
+        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,

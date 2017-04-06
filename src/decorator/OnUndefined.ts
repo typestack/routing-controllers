@@ -2,9 +2,10 @@ import {defaultMetadataArgsStorage} from "../index";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
- * This decorator is used when user wants to get some specific HTTP code on undefined result returned by a controller.
+ * Used to set specific HTTP status code when result returned by a controller action is equal to undefined.
+ * Must be applied on a controller action.
  */
-export function OnUndefined(code: number) {
+export function OnUndefined(code: number): Function {
     return function (object: Object, methodName: string) {
         const metadata: ResponseHandlerMetadataArgs = {
             value: code,

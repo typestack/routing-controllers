@@ -1,6 +1,6 @@
 import {defaultMetadataArgsStorage} from "../index";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
-import {GlobalMiddlewareOptions} from "../metadata-options/GlobalMiddlewareOptions";
+import {GlobalMiddlewareOptions} from "../decorator-options/GlobalMiddlewareOptions";
 
 /**
  * Registers a global middleware that runs after the route actions.
