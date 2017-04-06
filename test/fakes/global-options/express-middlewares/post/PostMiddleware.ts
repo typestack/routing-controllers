@@ -1,8 +1,8 @@
-import {MiddlewareGlobalBefore} from "../../../../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../../../../src/middleware/MiddlewareInterface";
 import {defaultFakeService} from "../../FakeService";
+import {Middleware} from "../../../../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
+@Middleware({ global: true })
 export class PostMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: (err?: any) => any): any {

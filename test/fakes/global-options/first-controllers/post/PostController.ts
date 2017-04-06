@@ -1,5 +1,5 @@
 import {JsonController} from "../../../../../src/deprecated/JsonController";
-import {Get} from "../../../../../src/decorator/Method";
+import {Get} from "../../../../../src/decorator/Get";
 
 @JsonController()
 export class PostController {

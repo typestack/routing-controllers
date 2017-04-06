@@ -1,10 +1,12 @@
 import "reflect-metadata";
-import {Controller} from "../../src/deprecated/JsonController";
-import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {UseInterceptor, Interceptor, InterceptorGlobal} from "../../src/deprecated/JsonResponse";
 import {InterceptorInterface} from "../../src/middleware/InterceptorInterface";
+import {InterceptorGlobal} from "../../src/deprecated/InterceptorGlobal";
+import {Interceptor} from "../../src/deprecated/Interceptor";
+import {UseInterceptor} from "../../src/deprecated/UseInterceptor";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

@@ -1,14 +1,29 @@
 import "reflect-metadata";
-import {Controller} from "../../src/deprecated/JsonController";
-import {Get} from "../../src/decorator/Method";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/decorator/Req";
+import {Res} from "../../src/decorator/Res";
+import {Param} from "../../src/decorator/Param";
+import {Post} from "../../src/decorator/Post";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Session} from "../../src/decorator/Session";
+import {State} from "../../src/decorator/State";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {HeaderParam} from "../../src/decorator/HeaderParam";
+import {CookieParam} from "../../src/decorator/CookieParam";
+import {Body} from "../../src/decorator/Body";
+import {BodyParam} from "../../src/decorator/BodyParam";
+import {UploadedFile} from "../../src/decorator/UploadedFile";
+import {UploadedFiles} from "../../src/decorator/UploadedFiles";
+import {JsonResponse} from "../../src/deprecated/JsonResponse";
+import {Method} from "../../src/decorator/Method";
+import {Head} from "../../src/decorator/Head";
+import {Delete} from "../../src/decorator/Delete";
+import {Patch} from "../../src/decorator/Patch";
+import {Put} from "../../src/decorator/Put";
+import {Middleware} from "../../src/decorator/Middleware";
+import {UseAfter} from "../../src/decorator/UseAfter";
 import {defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {
-    UseBefore,
-    UseAfter,
-    Middleware,
-    MiddlewareGlobalBefore,
-    MiddlewareGlobalAfter
-} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -37,7 +52,7 @@ describe("koa middlewares", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage().reset();
 
-        @MiddlewareGlobalBefore()
+        @Middleware({ global: true })
         class TestGlobalBeforeKoaMidleware implements MiddlewareInterface {
 
             use(context: any, next?: Function): any {
@@ -48,7 +63,7 @@ describe("koa middlewares", () => {
 
         }
 
-        @MiddlewareGlobalAfter()
+        @Middleware({ global: true, type: "after" })
         class TestGlobalAfterKoaMidleware implements MiddlewareInterface {
 
             use(context: any, next?: Function): any {

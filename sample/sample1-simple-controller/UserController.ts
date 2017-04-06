@@ -1,9 +1,13 @@
 import "reflect-metadata";
 import {Request} from "express";
-import {Controller} from "../../src/deprecated/JsonController";
-import {Get, Post, Put, Patch, Delete} from "../../src/decorator/Method";
-import {Req} from "../../src/decorator/UploadedFiles";
 import {JsonResponse} from "../../src/deprecated/JsonResponse";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/index";
+import {Post} from "../../src/decorator/Post";
+import {Put} from "../../src/decorator/Put";
+import {Patch} from "../../src/decorator/Patch";
+import {Delete} from "../../src/decorator/Delete";
 
 @Controller()
 export class UserController {

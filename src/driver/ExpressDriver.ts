@@ -2,7 +2,6 @@ import {HttpError} from "../http-error/HttpError";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
 import {classToPlain, ClassTransformOptions} from "class-transformer";
@@ -131,12 +130,12 @@ export class ExpressDriver extends BaseDriver implements Driver {
         if (action.isFileUsed || action.isFilesUsed) {
             const multer = this.loadMulter();
             action.params
-                .filter(param => param.type === ParamTypes.UPLOADED_FILE)
+                .filter(param => param.type === "file")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
                 });
             action.params
-                .filter(param => param.type === ParamTypes.UPLOADED_FILES)
+                .filter(param => param.type === "files")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
@@ -163,29 +162,29 @@ export class ExpressDriver extends BaseDriver implements Driver {
     getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
         const request: any = actionOptions.request;
         switch (param.type) {
-            case ParamTypes.BODY:
+            case "body":
                 return request.body;
-            case ParamTypes.PARAM:
+            case "param":
                 return request.params[param.name];
-            case ParamTypes.SESSION:
+            case "session":
                 if (param.name) {
                     return request.session[param.name]; 
                 } else {
                     return request.session;
                 }
-            case ParamTypes.STATE:
+            case "state":
                 throw new Error("@State decorators are not supported by ExpressDriver yet.");
-            case ParamTypes.QUERY:
+            case "query":
                 return request.query[param.name];
-            case ParamTypes.HEADER:
+            case "header":
                 return request.headers[param.name.toLowerCase()];
-            case ParamTypes.UPLOADED_FILE:
+            case "file":
                 return request.file;
-            case ParamTypes.UPLOADED_FILES:
+            case "files":
                 return request.files;
-            case ParamTypes.BODY_PARAM:
+            case "body-param":
                 return request.body[param.name];
-            case ParamTypes.COOKIE:
+            case "cookie":
                 if (!request.headers.cookie) return;
                 const cookies = cookie.parse(request.headers.cookie);
                 return cookies[param.name];

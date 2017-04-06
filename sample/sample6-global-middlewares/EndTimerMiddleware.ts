@@ -1,7 +1,7 @@
-import {MiddlewareGlobalAfter} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
-@MiddlewareGlobalAfter()
+@Middleware({ global: true, type: "after" })
 export class EndTimerMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {

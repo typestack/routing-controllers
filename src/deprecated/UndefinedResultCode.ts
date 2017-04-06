@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -13,7 +12,7 @@ export function UndefinedResultCode(code: number) {
             value: code,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.UNDEFINED_RESULT_CODE
+            type: "on-undefined"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

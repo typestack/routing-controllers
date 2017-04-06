@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
@@ -15,7 +14,7 @@ export function Session(objectName?: string) {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.SESSION,
+            type: "session",
             reflectedType: format,
             name: objectName,
             format: format,

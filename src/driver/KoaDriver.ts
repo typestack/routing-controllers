@@ -3,12 +3,9 @@ import {ActionMetadata} from "../metadata/ActionMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {BaseDriver} from "./BaseDriver";
 import {Driver} from "./Driver";
-import {HttpError} from "../http-error/HttpError";
 import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
-import {ParamTypes} from "../metadata/types/ParamTypes";
-import {PromiseUtils} from "../util/PromiseUtils";
 import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {classToPlain} from "class-transformer";
@@ -103,12 +100,12 @@ export class KoaDriver extends BaseDriver implements Driver {
         if (action.isFileUsed || action.isFilesUsed) {
             const multer = this.loadMulter();
             action.params
-                .filter(param => param.type === ParamTypes.UPLOADED_FILE)
+                .filter(param => param.type === "file")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
                 });
             action.params
-                .filter(param => param.type === ParamTypes.UPLOADED_FILES)
+                .filter(param => param.type === "files")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
@@ -154,33 +151,33 @@ export class KoaDriver extends BaseDriver implements Driver {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {
-            case ParamTypes.BODY:
+            case "body":
                 return request.body;
-            case ParamTypes.PARAM:
+            case "param":
                 return context.params[param.name];
-            case ParamTypes.SESSION:
+            case "session":
                 if (param.name) {
                     return context.session[param.name]; 
                 } else {
                     return context.session;
                 }
-            case ParamTypes.STATE:
+            case "state":
                 if (param.name) {
                     return context.state[param.name];
                 } else {
                     return context.state;
                 }
-            case ParamTypes.QUERY:
+            case "query":
                 return context.query[param.name];
-            case ParamTypes.UPLOADED_FILE:
+            case "file":
                 return actionOptions.context.req.file;
-            case ParamTypes.UPLOADED_FILES:
+            case "files":
                 return actionOptions.context.req.files;
-            case ParamTypes.HEADER:
+            case "header":
                 return context.headers[param.name.toLowerCase()];
-            case ParamTypes.BODY_PARAM:
+            case "body-param":
                 return request.body[param.name];
-            case ParamTypes.COOKIE:
+            case "cookie":
                 if (!context.headers.cookie) return;
                 const cookies = cookie.parse(context.headers.cookie);
                 return cookies[param.name];

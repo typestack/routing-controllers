@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -12,7 +11,7 @@ export function Header(name: string, value: string) {
             secondaryValue: value,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.HEADER
+            type: "header"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

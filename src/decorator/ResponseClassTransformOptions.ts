@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {ClassTransformOptions} from "class-transformer";
 
@@ -12,7 +11,7 @@ export function ResponseClassTransformOptions(options: ClassTransformOptions) {
             value: options,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS
+            type: "response-class-transform-options"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

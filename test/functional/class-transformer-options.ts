@@ -1,19 +1,34 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/deprecated/JsonController";
-import {Get} from "../../src/decorator/Method";
 import {
     createExpressServer,
     defaultMetadataArgsStorage,
     createKoaServer,
     RoutingControllersOptions
 } from "../../src/index";
-import {QueryParam} from "../../src/decorator/UploadedFiles";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
-import {ResponseClassTransformOptions} from "../../src/deprecated/JsonResponse";
 const chakram = require("chakram");
 const expect = chakram.expect;
+import {User} from "../fakes/global-options/User";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/decorator/Req";
+import {Res} from "../../src/decorator/Res";
+import {Param} from "../../src/decorator/Param";
+import {Post} from "../../src/decorator/Post";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Session} from "../../src/decorator/Session";
+import {State} from "../../src/decorator/State";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {HeaderParam} from "../../src/decorator/HeaderParam";
+import {CookieParam} from "../../src/decorator/CookieParam";
+import {Body} from "../../src/decorator/Body";
+import {BodyParam} from "../../src/decorator/BodyParam";
+import {UploadedFile} from "../../src/decorator/UploadedFile";
+import {UploadedFiles} from "../../src/decorator/UploadedFiles";
+import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
 
 describe("class transformer options", () => {
 

@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamOptions} from "../metadata-options/ParamOptions";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
@@ -17,7 +16,7 @@ export function HeaderParam(name: string, options?: ParamOptions) {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.HEADER,
+            type: "header",
             reflectedType: format,
             name: name,
             format: format,

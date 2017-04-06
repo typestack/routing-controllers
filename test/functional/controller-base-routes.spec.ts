@@ -1,9 +1,24 @@
 import "reflect-metadata";
-import {Controller} from "../../src/deprecated/JsonController";
-import {Get} from "../../src/decorator/Method";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 const expect = require("chakram").expect;
+import {User} from "../fakes/global-options/User";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/decorator/Req";
+import {Res} from "../../src/decorator/Res";
+import {Param} from "../../src/decorator/Param";
+import {Post} from "../../src/decorator/Post";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Session} from "../../src/decorator/Session";
+import {State} from "../../src/decorator/State";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {HeaderParam} from "../../src/decorator/HeaderParam";
+import {CookieParam} from "../../src/decorator/CookieParam";
+import {Body} from "../../src/decorator/Body";
+import {BodyParam} from "../../src/decorator/BodyParam";
+import {UploadedFile} from "../../src/decorator/UploadedFile";
+import {UploadedFiles} from "../../src/decorator/UploadedFiles";
 
 describe("controller > base routes functionality", () => {
     before(() => {

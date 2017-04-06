@@ -1,31 +1,29 @@
 import "reflect-metadata";
 
-import {UseBefore, Middleware} from "../../src/deprecated/JsonResponse";
-import {
-    Body,
-    BodyParam,
-    CookieParam,
-    HeaderParam,
-    Param,
-    QueryParam,
-    Req,
-    Res,
-    Session,
-    State,
-    UploadedFile,
-    UploadedFiles,
-} from "../../src/decorator/UploadedFiles";
-import {Get, Post} from "../../src/decorator/Method";
 import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 
-import {Controller} from "../../src/deprecated/JsonController";
 import {JsonResponse} from "../../src/deprecated/JsonResponse";
 import {assertRequest} from "./test-utils";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
 import {User} from "../fakes/global-options/User";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/decorator/Req";
+import {Res} from "../../src/decorator/Res";
+import {Param} from "../../src/decorator/Param";
+import {Post} from "../../src/decorator/Post";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Session} from "../../src/decorator/Session";
+import {State} from "../../src/decorator/State";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {HeaderParam} from "../../src/decorator/HeaderParam";
+import {CookieParam} from "../../src/decorator/CookieParam";
+import {Body} from "../../src/decorator/Body";
+import {BodyParam} from "../../src/decorator/BodyParam";
+import {UploadedFile} from "../../src/decorator/UploadedFile";
+import {UploadedFiles} from "../../src/decorator/UploadedFiles";
 
 describe("action parameters", () => {
 

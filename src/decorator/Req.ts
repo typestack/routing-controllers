@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
@@ -13,7 +12,7 @@ export function Req() {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.REQUEST,
+            type: "request",
             reflectedType: reflectedType,
             parseJson: false,
             isRequired: false

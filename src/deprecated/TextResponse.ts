@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -14,7 +13,7 @@ export function TextResponse() {
         const metadata: ResponseHandlerMetadataArgs = {
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.TEXT_RESPONSE
+            type: "text-response"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

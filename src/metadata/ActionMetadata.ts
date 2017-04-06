@@ -3,9 +3,7 @@ import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
 import {ActionType} from "./types/ActionTypes";
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
-import {ParamTypes} from "./types/ParamTypes";
 import {ClassTransformOptions} from "class-transformer";
 import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
 
@@ -105,51 +103,51 @@ export class ActionMetadata {
     }
     
     get contentTypeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.CONTENT_TYPE);
+        return this.responseHandlers.find(handler => handler.type === "content-type");
     }
     
     get locationHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.LOCATION);
+        return this.responseHandlers.find(handler => handler.type === "location");
     }
     
     get regirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.REDIRECT);
+        return this.responseHandlers.find(handler => handler.type === "redirect");
     }
     
     get successCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.SUCCESS_CODE);
+        return this.responseHandlers.find(handler => handler.type === "success-code");
     }
     
     get emptyResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.EMPTY_RESULT_CODE);
+        return this.responseHandlers.find(handler => handler.type === "on-empty");
     }
     
     get nullResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.NULL_RESULT_CODE);
+        return this.responseHandlers.find(handler => handler.type === "on-null");
     }
     
     get undefinedResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.UNDEFINED_RESULT_CODE);
+        return this.responseHandlers.find(handler => handler.type === "on-undefined");
     }
     
     get errorCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.ERROR_CODE);
+        return this.responseHandlers.find(handler => handler.type === "error-code");
     }
     
     get redirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.REDIRECT);
+        return this.responseHandlers.find(handler => handler.type === "redirect");
     }
     
     get renderedTemplateHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RENDERED_TEMPLATE);
+        return this.responseHandlers.find(handler => handler.type === "rendered-template");
     }
     
     get headerHandlers(): ResponseHandlerMetadata[] {
-        return this.responseHandlers.filter(handler => handler.type === ResponseHandlerTypes.HEADER);
+        return this.responseHandlers.filter(handler => handler.type === "header");
     }
 
     get responseClassTransformOptions(): ClassTransformOptions {
-        const responseHandler = this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS);
+        const responseHandler = this.responseHandlers.find(handler => handler.type === "response-class-transform-options");
         if (responseHandler)
             return responseHandler.value;
 
@@ -213,33 +211,33 @@ export class ActionMetadata {
     }
     
     get isCookiesUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.COOKIE);
+        return !!this.params.find(param => param.type === "cookie");
     }
     
     get isBodyUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.BODY ||  param.type === ParamTypes.BODY_PARAM);
+        return !!this.params.find(param => param.type === "body" || param.type === "body-param");
     }
     
     get isFilesUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILES);
+        return !!this.params.find(param => param.type === "files");
     }
     
     get isFileUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE);
+        return !!this.params.find(param => param.type === "file");
     }
 
     /**
      * If set to true then response will be forced to json (serialized and application/json content-type will be used).
      */
     get jsonResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.JSON_RESPONSE);
+        return !!this.responseHandlers.find(handler => handler.type === "json-response");
     }
 
     /**
      * If set to true then response will be forced to simple string text response.
      */
     get textResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.TEXT_RESPONSE);
+        return !!this.responseHandlers.find(handler => handler.type === "text-response");
     }
     
     // -------------------------------------------------------------------------

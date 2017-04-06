@@ -1,6 +1,6 @@
 import {MiddlewareInterface} from "../../../src/middleware/MiddlewareInterface";
-import {Middleware} from "../../../src/deprecated/JsonResponse";
 import * as session from "express-session";
+import {Middleware} from "../../../src/decorator/Middleware";
 
 const convert = require("koa-convert");
 const KoaSession = require("koa-session");

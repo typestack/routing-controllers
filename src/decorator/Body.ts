@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamOptions} from "../metadata-options/ParamOptions";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
@@ -16,7 +15,7 @@ export function Body(options?: ParamOptions) {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.BODY,
+            type: "body",
             reflectedType: format,
             format: format,
             parseJson: false,

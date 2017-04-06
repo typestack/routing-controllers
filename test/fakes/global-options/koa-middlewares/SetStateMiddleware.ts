@@ -1,6 +1,6 @@
 import {MiddlewareInterface} from "../../../../src/middleware/MiddlewareInterface";
-import {Middleware} from "../../../../src/deprecated/JsonResponse";
 import {User} from "../User";
+import {Middleware} from "../../../../src/index";
 
 @Middleware()
 export class SetStateMiddleware implements MiddlewareInterface {

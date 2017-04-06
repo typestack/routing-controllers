@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ActionTypes} from "../metadata/types/ActionTypes";
 import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
@@ -16,7 +15,7 @@ export function Put(route?: string|RegExp): Function {
             route: route,
             target: object.constructor,
             method: methodName,
-            type: ActionTypes.PUT
+            type: "put"
         };
         defaultMetadataArgsStorage().actions.push(metadata);
     };

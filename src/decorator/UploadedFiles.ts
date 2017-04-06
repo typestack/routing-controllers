@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
@@ -12,7 +11,7 @@ export function UploadedFiles(name: string, options?: { uploadOptions?: any, req
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.UPLOADED_FILES,
+            type: "files",
             reflectedType: format,
             name: name,
             format: format,

@@ -52,9 +52,9 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     // import all controllers and middlewares and error handlers (new way)
     if (options && options.controllers && options.controllers.length)
-        importClassesFromDirectories(options.controllers);
+        importClassesFromDirectories(options.controllers as string[]); // casting is temporary
     if (options && options.middlewares && options.middlewares.length)
-        importClassesFromDirectories(options.middlewares);
+        importClassesFromDirectories(options.middlewares as string[]); // casting is temporary
     if (options && options.interceptors && options.interceptors.length)
         importClassesFromDirectories(options.interceptors);
 
@@ -126,10 +126,53 @@ export function defaultMetadataArgsStorage(): MetadataArgsStorage {
 // -------------------------------------------------------------------------
 
 export * from "./container";
+
+export * from "./decorator/Body";
+export * from "./decorator/BodyParam";
+export * from "./decorator/ContentType";
+export * from "./decorator/Controller";
+export * from "./decorator/CookieParam";
+export * from "./decorator/Delete";
+export * from "./decorator/Get";
+export * from "./decorator/Head";
+export * from "./decorator/Header";
+export * from "./decorator/HeaderParam";
+export * from "./decorator/HttpCode";
+export * from "./decorator/Location";
+export * from "./decorator/Method";
+export * from "./decorator/Middleware";
+export * from "./decorator/OnNull";
+export * from "./decorator/OnUndefined";
+export * from "./decorator/Param";
+export * from "./decorator/Patch";
+export * from "./decorator/Post";
+export * from "./decorator/Put";
+export * from "./decorator/QueryParam";
+export * from "./decorator/Redirect";
+export * from "./decorator/Render";
+export * from "./decorator/Req";
+export * from "./decorator/Res";
+export * from "./decorator/ResponseClassTransformOptions";
+export * from "./decorator/Session";
+export * from "./decorator/State";
+export * from "./decorator/UploadedFile";
+export * from "./decorator/UploadedFiles";
+export * from "./decorator/UseAfter";
+export * from "./decorator/UseBefore";
+export * from "./decorator/UploadedFiles";
+
+export * from "./deprecated/EmptyResultCode";
+export * from "./deprecated/Interceptor";
+export * from "./deprecated/InterceptorGlobal";
 export * from "./deprecated/JsonController";
 export * from "./deprecated/JsonResponse";
-export * from "./decorator/Method";
-export * from "./decorator/UploadedFiles";
+export * from "./deprecated/MiddlewareGlobalAfter";
+export * from "./deprecated/MiddlewareGlobalBefore";
+export * from "./deprecated/NullResultCode";
+export * from "./deprecated/TextResponse";
+export * from "./deprecated/UndefinedResultCode";
+export * from "./deprecated/UseInterceptor";
+
 export * from "./middleware/MiddlewareInterface";
 export * from "./middleware/InterceptorInterface";
 export * from "./middleware/ErrorMiddlewareInterface";

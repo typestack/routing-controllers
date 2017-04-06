@@ -1,5 +1,5 @@
-import {Middleware} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
 @Middleware()
 export class AllControllerActionsMiddleware implements MiddlewareInterface {

@@ -8,7 +8,6 @@ import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParameterRequiredError} from "./error/ParameterRequiredError";
 import {ParamMetadata} from "./metadata/ParamMetadata";
-import {ParamTypes} from "./metadata/types/ParamTypes";
 
 /**
  * Helps to handle parameters.
@@ -31,10 +30,10 @@ export class ParamHandler {
         const request = actionOptions.request;
         const response = actionOptions.response;
         
-        if (param.type === ParamTypes.REQUEST)
+        if (param.type === "request")
             return Promise.resolve(request);
 
-        if (param.type === ParamTypes.RESPONSE)
+        if (param.type === "response")
             return Promise.resolve(response);
         
         let value: any, originalValue: any;

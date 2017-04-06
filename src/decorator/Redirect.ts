@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -11,7 +10,7 @@ export function Redirect(url: string) {
             value: url,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.REDIRECT
+            type: "redirect"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

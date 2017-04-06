@@ -1,8 +1,8 @@
-import {MiddlewareGlobalBefore} from "../../../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../../../src/middleware/MiddlewareInterface";
 import {defaultFakeService} from "../FakeService";
+import {Middleware} from "../../../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
+@Middleware()
 export class VideoMiddleware implements MiddlewareInterface {
 
     use(context: any, next?: (err?: any) => Promise<any>): Promise<any> {

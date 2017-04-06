@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -12,7 +11,7 @@ export function HttpCode(code: number) {
             value: code,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.SUCCESS_CODE
+            type: "success-code"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

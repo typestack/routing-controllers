@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerTypes} from "../metadata/types/ResponsePropertyTypes";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 
 /**
@@ -13,7 +12,7 @@ export function EmptyResultCode(code: number) {
             value: code,
             target: object.constructor,
             method: methodName,
-            type: ResponseHandlerTypes.EMPTY_RESULT_CODE
+            type: "on-empty"
         };
         defaultMetadataArgsStorage().responseHandlers.push(metadata);
     };

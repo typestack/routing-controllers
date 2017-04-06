@@ -1,8 +1,17 @@
 import {JsonController} from "../../src/deprecated/JsonController";
-import {Get, Post} from "../../src/decorator/Method";
-import {QueryParam, Body} from "../../src/decorator/UploadedFiles";
 import {UserFilter} from "./UserFilter";
 import {User} from "./User";
+import {JsonResponse} from "../../src/deprecated/JsonResponse";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/index";
+import {Post} from "../../src/decorator/Post";
+import {Put} from "../../src/decorator/Put";
+import {Patch} from "../../src/decorator/Patch";
+import {Delete} from "../../src/decorator/Delete";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {Param} from "../../src/decorator/Param";
+import {Body} from "../../src/decorator/Body";
 
 @JsonController()
 export class UserController {

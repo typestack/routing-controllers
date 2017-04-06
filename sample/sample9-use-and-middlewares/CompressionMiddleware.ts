@@ -1,5 +1,5 @@
-import {Middleware} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Middleware} from "../../src/index";
 
 @Middleware()
 export class CompressionMiddleware implements MiddlewareInterface {

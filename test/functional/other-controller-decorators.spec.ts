@@ -1,19 +1,38 @@
 import "reflect-metadata";
-import {Controller} from "../../src/deprecated/JsonController";
-import {Get, Post} from "../../src/decorator/Method";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Req} from "../../src/decorator/Req";
+import {Res} from "../../src/decorator/Res";
+import {Param} from "../../src/decorator/Param";
+import {Post} from "../../src/decorator/Post";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Session} from "../../src/decorator/Session";
+import {State} from "../../src/decorator/State";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {HeaderParam} from "../../src/decorator/HeaderParam";
+import {CookieParam} from "../../src/decorator/CookieParam";
+import {Body} from "../../src/decorator/Body";
+import {BodyParam} from "../../src/decorator/BodyParam";
+import {UploadedFile} from "../../src/decorator/UploadedFile";
+import {UploadedFiles} from "../../src/decorator/UploadedFiles";
+import {JsonResponse} from "../../src/deprecated/JsonResponse";
+import {Method} from "../../src/decorator/Method";
+import {Head} from "../../src/decorator/Head";
+import {Delete} from "../../src/decorator/Delete";
+import {Patch} from "../../src/decorator/Patch";
+import {Put} from "../../src/decorator/Put";
+import {Middleware} from "../../src/decorator/Middleware";
+import {UseAfter} from "../../src/decorator/UseAfter";
 import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {
-    HttpCode,
-    EmptyResultCode,
-    NullResultCode,
-    UndefinedResultCode,
-    ContentType,
-    Header,
-    Location,
-    Redirect
-} from "../../src/deprecated/JsonResponse";
-import {Param} from "../../src/decorator/UploadedFiles";
 import {assertRequest} from "./test-utils";
+import {EmptyResultCode} from "../../src/deprecated/EmptyResultCode";
+import {HttpCode} from "../../src/decorator/HttpCode";
+import {NullResultCode} from "../../src/deprecated/NullResultCode";
+import {UndefinedResultCode} from "../../src/deprecated/UndefinedResultCode";
+import {ContentType} from "../../src/decorator/ContentType";
+import {Header} from "../../src/decorator/Header";
+import {Redirect} from "../../src/decorator/Redirect";
+import {Location} from "../../src/decorator/Location";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

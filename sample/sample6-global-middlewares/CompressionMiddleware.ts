@@ -1,7 +1,7 @@
-import {MiddlewareGlobalBefore} from "../../src/deprecated/JsonResponse";
 import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
+@Middleware({ global: true })
 export class CompressionMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {

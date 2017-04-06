@@ -1,5 +1,4 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ParamTypes} from "../metadata/types/ParamTypes";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
@@ -15,7 +14,7 @@ export function Param(name: string) {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: ParamTypes.PARAM,
+            type: "param",
             reflectedType: format,
             name: name,
             format: format,

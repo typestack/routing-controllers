@@ -1,7 +1,7 @@
-import {MiddlewareGlobalBefore} from "../../src/deprecated/JsonResponse";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
+@Middleware({ global: true })
 export class AllErrorsHandler implements ErrorMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: Function): void {
