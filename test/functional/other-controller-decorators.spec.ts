@@ -5,7 +5,6 @@ import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
 import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {EmptyResultCode} from "../../src/deprecated/EmptyResultCode";
 import {HttpCode} from "../../src/decorator/HttpCode";
 import {NullResultCode} from "../../src/deprecated/NullResultCode";
 import {UndefinedResultCode} from "../../src/deprecated/UndefinedResultCode";
@@ -35,25 +34,6 @@ describe("other controller decorators", () => {
             @HttpCode(403)
             getAdmin() {
                 return "<html><body>Access is denied</body></html>";
-            }
-
-            @Get("/users/:id")
-            @EmptyResultCode(404)
-            getUser(@Param("id") id: number) {
-                return new Promise((ok, fail) => {
-                    if (id === 1) {
-                        ok("User");
-
-                    } else if (id === 2) {
-                        ok("");
-
-                    } else if (id === 3) {
-                        ok(null);
-
-                    } else {
-                        ok(undefined);
-                    }
-                });
             }
 
             @Get("/posts/:id")
@@ -148,27 +128,6 @@ describe("other controller decorators", () => {
             expect(response).to.have.status(403);
             expect(response.body).to.be.eql("<html><body>Access is denied</body></html>");
         });
-    });
-
-    describe("should return custom code when @EmptyResultCode", () => {
-
-        assertRequest([3001, 3002], "get", "users/1", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.eql("User");
-        });
-        assertRequest([3001, 3002], "get", "users/2", response => {
-            expect(response).to.have.status(404);
-        });
-        assertRequest([3001, 3002], "get", "users/3", response => {
-            expect(response).to.have.status(404);
-        });
-        assertRequest([3001, 3002], "get", "users/4", response => {
-            expect(response).to.have.status(404);
-        });
-        assertRequest([3001, 3002], "get", "users/5", response => {
-            expect(response).to.have.status(404);
-        });
-        
     });
 
     describe("should return custom code when @NullResultCode", () => {

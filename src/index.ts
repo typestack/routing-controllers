@@ -161,7 +161,6 @@ export * from "./decorator/UseAfter";
 export * from "./decorator/UseBefore";
 export * from "./decorator/UploadedFiles";
 
-export * from "./deprecated/EmptyResultCode";
 export * from "./deprecated/Interceptor";
 export * from "./deprecated/InterceptorGlobal";
 export * from "./deprecated/JsonController";

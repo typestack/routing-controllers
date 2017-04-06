@@ -203,9 +203,6 @@ export class KoaDriver extends BaseDriver implements Driver {
         } else if (action.nullResultCode && isResultNull) {
             response.status = action.nullResultCode;
 
-        } else if (action.emptyResultCode && isResultEmpty) {
-            response.status = action.emptyResultCode;
-
         } else if (action.successHttpCode) {
             response.status = action.successHttpCode;
         }
@@ -240,9 +237,6 @@ export class KoaDriver extends BaseDriver implements Driver {
                 // todo: duplication. we make it here because after we set null to body koa seems overrides status
                 if (action.nullResultCode) {
                     response.status = action.nullResultCode;
-
-                } else if (action.emptyResultCode) {
-                    response.status = action.emptyResultCode;
 
                 } else if (result === undefined && action.undefinedResultCode) {
                     response.status = action.undefinedResultCode;

@@ -118,10 +118,6 @@ export class ActionMetadata {
         return this.responseHandlers.find(handler => handler.type === "success-code");
     }
     
-    get emptyResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "on-empty");
-    }
-    
     get nullResultHandler(): ResponseHandlerMetadata {
         return this.responseHandlers.find(handler => handler.type === "on-null");
     }
@@ -164,13 +160,6 @@ export class ActionMetadata {
     get nullResultCode(): number {
         if (this.nullResultHandler)
             return this.nullResultHandler.value;
-        
-        return undefined;
-    }
-    
-    get emptyResultCode(): number {
-        if (this.emptyResultHandler)
-            return this.emptyResultHandler.value;
         
         return undefined;
     }

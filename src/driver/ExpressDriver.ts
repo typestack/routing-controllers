@@ -201,7 +201,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
         const response: any = options.response;
         const isResultUndefined = result === undefined;
         const isResultNull = result === null;
-        const isResultEmpty = isResultUndefined || isResultNull || result === false || result === "";
 
         // set http status
         if (action.undefinedResultCode && isResultUndefined) {
@@ -209,9 +208,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         } else if (action.nullResultCode && isResultNull) {
             response.status(action.nullResultCode);
-
-        } else if (action.emptyResultCode && isResultEmpty) {
-            response.status(action.emptyResultCode);
 
         } else if (action.successHttpCode) {
             response.status(action.successHttpCode);
@@ -246,7 +242,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
-                if (result === null && !action.nullResultCode && !action.emptyResultCode) {
+                if (result === null && !action.nullResultCode) {
                     response.status(204);
                 }
 
