@@ -55,16 +55,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         importClassesFromDirectories(options.controllers as string[]); // casting is temporary
     if (options && options.middlewares && options.middlewares.length)
         importClassesFromDirectories(options.middlewares as string[]); // casting is temporary
-    if (options && options.interceptors && options.interceptors.length)
-        importClassesFromDirectories(options.interceptors);
 
     // import all controllers and middlewares and error handlers (deprecated way)
     if (options && options.controllerDirs && options.controllerDirs.length)
         importClassesFromDirectories(options.controllerDirs);
     if (options && options.middlewareDirs && options.middlewareDirs.length)
         importClassesFromDirectories(options.middlewareDirs);
-    if (options && options.interceptorDirs && options.interceptorDirs.length)
-        importClassesFromDirectories(options.interceptorDirs);
 
     if (options && options.developmentMode !== undefined) {
         driver.developmentMode = options.developmentMode;
@@ -161,8 +157,6 @@ export * from "./decorator/UseAfter";
 export * from "./decorator/UseBefore";
 export * from "./decorator/UploadedFiles";
 
-export * from "./deprecated/Interceptor";
-export * from "./deprecated/InterceptorGlobal";
 export * from "./deprecated/JsonController";
 export * from "./deprecated/JsonResponse";
 export * from "./deprecated/MiddlewareGlobalAfter";
@@ -170,10 +164,8 @@ export * from "./deprecated/MiddlewareGlobalBefore";
 export * from "./deprecated/NullResultCode";
 export * from "./deprecated/TextResponse";
 export * from "./deprecated/UndefinedResultCode";
-export * from "./deprecated/UseInterceptor";
 
 export * from "./middleware/MiddlewareInterface";
-export * from "./middleware/InterceptorInterface";
 export * from "./middleware/ErrorMiddlewareInterface";
 export * from "./RoutingControllersOptions";
 export * from "./http-error/HttpError";

@@ -40,11 +40,10 @@ export class RoutingControllerExecutor {
      */
     registerActions(classes?: Function[]): this {
         const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
-        const interceptors = this.metadataBuilder.buildInterceptorMetadata(classes);
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, middlewares, interceptors, (options: ActionCallbackOptions) => {
+                this.driver.registerAction(action, middlewares, (options: ActionCallbackOptions) => {
                     this.handleAction(action, options);
                 });
             });
@@ -108,26 +107,7 @@ export class RoutingControllerExecutor {
                     this.driver.handleError(error, action, options);
                 });
         } else {
-            if (options.useInterceptorFunctions) {
-                const awaitPromise = PromiseUtils.runInSequence(options.useInterceptorFunctions, interceptorFn => {
-                    const interceptedResult = interceptorFn(options.request, options.response, result);
-                    if (interceptedResult instanceof Promise) {
-                        return interceptedResult.then((resultFromPromise: any) => {
-                            result = resultFromPromise;
-                        });
-                    } else {
-                        result = interceptedResult;
-                        return Promise.resolve();
-                    }
-                });
-
-                awaitPromise
-                    .then(() => this.driver.handleSuccess(result, action, options))
-                    .catch(error => this.driver.handleError(error, action, options));
-            } else {
-                this.driver.handleSuccess(result, action, options);
-            }
-
+            this.driver.handleSuccess(result, action, options);
         }
     }
 

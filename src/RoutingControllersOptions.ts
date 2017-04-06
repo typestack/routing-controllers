@@ -68,13 +68,6 @@ export interface RoutingControllersOptions {
     // deprecated API:
 
     /**
-     * List of directories from where to "require" all your interceptors.
-     *
-     * @deprecated interceptors functionality is deprecated
-     */
-    interceptors?: string[];
-
-    /**
      * List of directories from where to "require" all your controllers.
      *
      * @deprecated Use controllers instead.
@@ -87,13 +80,6 @@ export interface RoutingControllersOptions {
      * @deprecated Use middlewares instead.
      */
     middlewareDirs?: string[];
-
-    /**
-     * List of directories from where to "require" all your interceptors.
-     *
-     * @deprecated interceptors functionality is deprecated
-     */
-    interceptorDirs?: string[];
 
     /**
      * Indicates if constructor-utils should be used to perform serialization / deserialization.

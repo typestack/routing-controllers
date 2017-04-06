@@ -5,7 +5,6 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {UseMetadata} from "./UseMetadata";
 import {ClassTransformOptions} from "class-transformer";
-import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
 
 export class ActionMetadata {
 
@@ -27,11 +26,6 @@ export class ActionMetadata {
      * Action's use metadatas.
      */
     uses: UseMetadata[];
-
-    /**
-     * Action's intercepts.
-     */
-    useInterceptors: UseInterceptorMetadata[];
 
     /**
      * Action's response handlers.

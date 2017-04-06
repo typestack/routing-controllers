@@ -45,11 +45,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     + [Creating your own koa middleware](#creating-your-own-koa-middleware)
     + [Global middlewares](#global-middlewares)
     + [Error handlers](#error-handlers)
-  * [Using interceptors](#using-interceptors)
-    + [Interceptor function](#interceptor-function)
-    + [Interceptor classes](#interceptor-classes)
-    + [Global interceptors](#global-interceptors)
-    + [Don't forget to load your middlewares, error handlers and interceptors](#dont-forget-to-load-your-middlewares-error-handlers-and-interceptors)
+    + [Don't forget to load your middlewares and error handlers](#dont-forget-to-load-your-middlewares-and-error-handlers)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
   * [Auto validating action params](#auto-validating-action-params)
   * [Default error handling](#default-error-handling)
@@ -58,7 +54,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Controller Decorators](#controller-decorators)
       - [Controller Method Decorators](#controller-method-decorators)
       - [Method Parameter Decorators](#method-parameter-decorators)
-      - [Middleware and Interceptor Decorators](#middleware-and-interceptor-decorators)
+      - [Middleware Decorators](#middleware-decorators)
       - [Other Decorators](#other-decorators)
   * [Samples](#samples)
   * [Release notes](#release-notes)
@@ -824,86 +820,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-## Using interceptors
-
-Interceptors are used to change or replace the data returned to the client.
-You can create your own interceptor class or function and use to all or specific controller or controller action.
-It works pretty much the same as middlewares.
-
-### Interceptor function
-
-The easiest way is to use functions directly passed to `@UseInterceptor` of the action. 
-
-```typescript
-import {Get, Param, UseInterceptor} from "routing-controllers";
-
-// ...
-
-@Get("/users")
-@UseInterceptor(function(request: any, response: any, content: any) {
-    // here you have content returned by this action. you can replace something 
-    // in it and return a replaced result. replaced result will be returned to the user
-    return content.replace(/Mike/gi, "Michael");
-})
-getOne(@Param("id") id: number) {
-    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
-}
-```
-
-You can use `@UseInterceptor` per-action, on per-controller. 
-If its used per-controller then interceptor will apply to all controller actions.
-
-### Interceptor classes
-
-You can also create a class and use it with `@UseInterceptor` decorator:
-
-```typescript
-import {Interceptor, InterceptorInterface} from "routing-controllers";
-
-@Interceptor()
-export class NameCorrectionInterceptor implements InterceptorInterface {
-    
-    intercept(request: any, response: any, content: any) {
-        return content.replace(/Mike/gi, "Michael");
-    }
-    
-}
-```
-
-And use it in your controllers this way:
-
-```typescript
-import {Get, Param, UseInterceptor} from "routing-controllers";
-import {NameCorrectionInterceptor} from "./NameCorrectionInterceptor";
-
-// ...
-
-@Get("/users")
-@UseInterceptor(NameCorrectionInterceptor)
-getOne(@Param("id") id: number) {
-    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
-}
-```
-
-### Global interceptors
-
-You can create interceptors that will affect all controllers in your project by creating interceptor class
-and mark it with `@InterceptorGlobal` decorator:
-
-```typescript
-import {InterceptorGlobal, InterceptorInterface} from "routing-controllers";
-
-@InterceptorGlobal()
-export class NameCorrectionInterceptor implements InterceptorInterface {
-    
-    intercept(request: any, response: any, content: any) {
-        return content.replace(/Mike/gi, "Michael");
-    }
-    
-}
-```
-
-### Don't forget to load your middlewares, error handlers and interceptors
+### Don't forget to load your middlewares and error handlers
 
 Middlewares and error handlers should be loaded globally the same way as controllers, before app bootstrap:
 
@@ -913,7 +830,6 @@ import {createExpressServer} from "routing-controllers";
 import "./UserController";
 import "./MyMiddleware"; // here we load it
 import "./CustomErrorHandler"; // here we load it
-import "./BadWordInterceptor"; // here we load it
 let app = createExpressServer();
 app.listen(3000);
 ```
@@ -1052,7 +968,6 @@ useContainer(Container);
 createExpressServer({
     controllers: [__dirname + "/controllers/*.js"],
     middlewares: [__dirname + "/middlewares/*.js"],
-    interceptors: [__dirname + "/interceptor/*.js"],
 }).listen(3000);
 ```
 
@@ -1111,7 +1026,7 @@ export class UsersController {
 | `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
 | `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
 
-#### Middleware and Interceptor Decorators
+#### Middleware Decorators
 
 | Signature                                                          | Example                                          | Description                                                                                                     |
 |--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
@@ -1121,9 +1036,6 @@ export class UsersController {
 | `@ErrorHandler()`                                                  | `@ErrorHandler() class SomeErrorHandler`         | Registers a new error handler.                                                                                  |
 | `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`              | Uses given middleware before action is being executed.                                                          |
 | `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`               | Uses given middleware after action is being executed.                                                           |
-| `@Interceptor()`                                                   | `@Interceptor(InterceptorMiddleware)`            | Registers a given class as an interceptor                                                                       |
-| `@InterceptorGlobal()`                                             | `@InterceptorGlobal(InterceptorMiddleware)`      | Registers a global interceptor.                                                                                 |
-| `@UseInterceptor()`                                                | `@UseInterceptor(InterceptorMiddleware)`         | Uses given interceptor for the given action or controller.                                                      |
 
 #### Other Decorators
 

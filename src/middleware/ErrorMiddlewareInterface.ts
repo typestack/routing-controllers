@@ -1,5 +1,5 @@
 /**
- * Classes that intercepts response result must implement this interface.
+ * Error middlewares can implement this interface.
  */
 export interface ErrorMiddlewareInterface {
 

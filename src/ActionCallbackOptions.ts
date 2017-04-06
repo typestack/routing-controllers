@@ -5,9 +5,4 @@ export interface ActionCallbackOptions {
     response: any;
     next: Function;
 
-    /**
-     * Interceptor functions to be applied for response result.
-     */
-    useInterceptorFunctions?: Function[];
-
 }
