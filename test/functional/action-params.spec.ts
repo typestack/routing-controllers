@@ -264,7 +264,7 @@ describe("action parameters", () => {
             }
 
             @Post("/files-with-limit")
-            postFileWithLimit(@UploadedFile("myfile", { uploadOptions: { limits: { fileSize: 2 } } }) file: any): any {
+            postFileWithLimit(@UploadedFile("myfile", { options: { limits: { fileSize: 2 } } }) file: any): any {
                 return `<html><body>${file.originalname}</body></html>`;
             }
 
@@ -281,7 +281,7 @@ describe("action parameters", () => {
             }
 
             @Post("/photos-with-limit")
-            postPhotosWithLimit(@UploadedFiles("photos", { uploadOptions: { limits: { files: 1 } } }) files: any): any {
+            postPhotosWithLimit(@UploadedFiles("photos", { options: { limits: { files: 1 } } }) files: any): any {
                 return `<html><body>${files[0].originalname}</body></html>`;
             }
 

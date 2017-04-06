@@ -1,24 +1,26 @@
 import {defaultMetadataArgsStorage} from "../index";
+import {ParamOptions} from "../decorator-options/ParamOptions";
 import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 
 /**
- * Injects all uploaded files to the controller action parameter.
+ * Injects all request's http headers to the controller action parameter.
  * Must be applied on a controller action parameters.
  */
-export function UploadedFiles(name: string, options?: { options?: any, required?: boolean }): Function {
+export function HeaderParams(options?: ParamOptions): Function {
     return function (object: Object, methodName: string, index: number) {
         const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
         const metadata: ParamMetadataArgs = {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: "files",
+            type: "header",
             reflectedType: format,
-            name: name,
             format: format,
-            parseJson: false,
+            parseJson: options ? options.parse : false,
             isRequired: options ? options.required : false,
-            extraOptions: options ? options.options : undefined
+            classTransformOptions: options ? options.transform : undefined,
+            validate: options && options.validate ? true : false,
+            validationOptions: options && options.validate instanceof Object ? options.validate : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
