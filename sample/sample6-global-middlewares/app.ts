@@ -5,7 +5,7 @@ import "./CompressionMiddleware";
 import "./LoggerMiddleware";
 import "./StartTimerMiddleware";
 import "./EndTimerMiddleware";
-import "./AllErrorsHandler";  // same as: require("./BlogController");
+import "./AllErrorsHandler"; // same as: require("./BlogController");
 // same as: require("./CompressionMiddleware");
 // same as: require("./LoggerMiddleware");
 // same as: require("./StartTimerMiddleware");

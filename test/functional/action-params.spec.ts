@@ -4,9 +4,6 @@ import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "
 
 import {JsonResponse} from "../../src/deprecated/JsonResponse";
 import {assertRequest} from "./test-utils";
-
-const chakram = require("chakram");
-const expect = chakram.expect;
 import {User} from "../fakes/global-options/User";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
@@ -24,6 +21,9 @@ import {Body} from "../../src/decorator/Body";
 import {BodyParam} from "../../src/decorator/BodyParam";
 import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
+
+const chakram = require("chakram");
+const expect = chakram.expect;
 
 describe("action parameters", () => {
 
@@ -160,7 +160,7 @@ describe("action parameters", () => {
             }
 
             @Get("/photos-with-json")
-            getPhotosWithJsonParam(@QueryParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+            getPhotosWithJsonParam(@QueryParam("filter", { parse: true }) filter: { keyword: string, limit: number }) {
                 queryParamFilter = filter;
                 return `<html><body>hello</body></html>`;
             }
@@ -182,7 +182,7 @@ describe("action parameters", () => {
             }
 
             @Get("/posts-with-json")
-            getPostsWithJsonParam(@HeaderParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+            getPostsWithJsonParam(@HeaderParam("filter", { parse: true }) filter: { keyword: string, limit: number }) {
                 headerParamFilter = filter;
                 return `<html><body>hello</body></html>`;
             }
@@ -204,7 +204,7 @@ describe("action parameters", () => {
             }
 
             @Get("/questions-with-json")
-            getQuestionsWithJsonParam(@CookieParam("filter", { parseJson: true }) filter: { keyword: string, limit: number }) {
+            getQuestionsWithJsonParam(@CookieParam("filter", { parse: true }) filter: { keyword: string, limit: number }) {
                 cookieParamFilter = filter;
                 return `<html><body>hello</body></html>`;
             }

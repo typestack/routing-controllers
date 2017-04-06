@@ -1,6 +1,4 @@
 import {Request} from "express";
-import {JsonResponse} from "../../../src/deprecated/JsonResponse";
-import {Controller} from "../../../src/decorator/Controller";
 import {Get} from "../../../src/decorator/Get";
 import {Req} from "../../../src/index";
 import {Post} from "../../../src/decorator/Post";

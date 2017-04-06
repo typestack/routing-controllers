@@ -1,7 +1,7 @@
-import { expect } from "chai";
+import {expect} from "chai";
 
-import { HttpError } from "../../src/http-error/HttpError";
-import { BadRequestError } from "../../src/http-error/BadRequestError";
+import {HttpError} from "../../src/http-error/HttpError";
+import {BadRequestError} from "../../src/http-error/BadRequestError";
 
 describe("using Error subclasses should be possible,", () => {
     describe("HttpError", () => {

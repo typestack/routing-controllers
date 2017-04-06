@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {InterceptorInterface} from "../../src/middleware/InterceptorInterface";
 import {InterceptorGlobal} from "../../src/deprecated/InterceptorGlobal";

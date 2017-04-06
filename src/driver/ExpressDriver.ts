@@ -1,16 +1,14 @@
-import {HttpError} from "../http-error/HttpError";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionCallbackOptions} from "../ActionCallbackOptions";
-import {classToPlain, ClassTransformOptions} from "class-transformer";
+import {classToPlain} from "class-transformer";
 import {Driver} from "./Driver";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {BaseDriver} from "./BaseDriver";
 import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 import {UseInterceptorMetadata} from "../metadata/UseInterceptorMetadata";
-import {PromiseUtils} from "../util/PromiseUtils";
 const cookie = require("cookie");
 
 /**

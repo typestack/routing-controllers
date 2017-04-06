@@ -4,17 +4,12 @@ import {ClassTransformOptions} from "class-transformer";
 /**
  * Extra parameters set to the parameter.
  */
-export interface ParamOptions {
+export interface BodyParamOptions {
 
     /**
      * If set to true then parameter will be required.
      */
     required?: boolean;
-
-    /**
-     * If set to true then parameter will be parsed to json.
-     */
-    parse?: boolean;
 
     /**
      * Class transform options used to perform plainToClass operation.

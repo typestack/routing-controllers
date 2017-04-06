@@ -1,8 +1,5 @@
 import {JsonController} from "../../src/deprecated/JsonController";
-import {JsonResponse} from "../../src/deprecated/JsonResponse";
-import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {Req} from "../../src/index";
 import {Post} from "../../src/decorator/Post";
 import {Put} from "../../src/decorator/Put";
 import {Patch} from "../../src/decorator/Patch";
@@ -21,7 +18,7 @@ export interface BlogFilter {
 export class BlogController {
 
     @Get("/blogs")
-    getAll(@QueryParam("filter", { required: true, parseJson: true }) filter: BlogFilter) {
+    getAll(@QueryParam("filter", { required: true, parse: true }) filter: BlogFilter) {
         return [
             { id: 1, name: "Blog " + filter.keyword },
             { id: 2, name: "Blog " + filter.keyword }

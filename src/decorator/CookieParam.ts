@@ -20,11 +20,11 @@ export function CookieParam(name: string, options?: ParamOptions) {
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: options ? options.parseJson : false,
+            parseJson: options ? options.parse : false,
             isRequired: options ? options.required : false,
-            classTransformOptions: options ? options.classTransformOptions : undefined,
-            validate: options ? options.validate : undefined,
-            validationOptions: options ? options.validationOptions : undefined
+            classTransformOptions: options ? options.transform : undefined,
+            validate: options && options.validate ? true : false,
+            validationOptions: options && options.validate instanceof Object ? options.validate : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

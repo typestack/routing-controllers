@@ -1,5 +1,5 @@
 import {plainToClass} from "class-transformer";
-import {ValidationError, validateOrReject as validate} from "class-validator";
+import {validateOrReject as validate, ValidationError} from "class-validator";
 
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {BodyRequiredError} from "./error/BodyRequiredError";

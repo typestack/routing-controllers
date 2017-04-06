@@ -7,9 +7,7 @@ import {Post} from "../../src/decorator/Post";
 import {Put} from "../../src/decorator/Put";
 import {Patch} from "../../src/decorator/Patch";
 import {Delete} from "../../src/decorator/Delete";
-import {QueryParam} from "../../src/decorator/QueryParam";
 import {Param} from "../../src/decorator/Param";
-import {Body} from "../../src/decorator/Body";
 import {JsonResponse} from "../../src/deprecated/JsonResponse";
 import {Session} from "../../src/decorator/Session";
 
