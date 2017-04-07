@@ -8,7 +8,7 @@ import {PromiseUtils} from "./util/PromiseUtils";
 /**
  * Registers controllers and actions in the given server framework.
  */
-export class RoutingControllerExecutor {
+export class RoutingControllers {
 
     // -------------------------------------------------------------------------
     // Private properties

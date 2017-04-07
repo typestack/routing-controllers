@@ -1,6 +1,6 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
-import {RoutingControllerExecutor} from "./RoutingControllerExecutor";
+import {RoutingControllers} from "./RoutingControllers";
 import {ExpressDriver} from "./driver/ExpressDriver";
 import {KoaDriver} from "./driver/KoaDriver";
 import {Driver} from "./driver/Driver";
@@ -99,7 +99,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.routePrefix = options.routePrefix;
 
     // next create a controller executor
-    new RoutingControllerExecutor(driver)
+    new RoutingControllers(driver)
         .bootstrap()
         .registerMiddlewares(false)
         .registerActions()
