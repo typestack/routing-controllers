@@ -16,11 +16,11 @@ export function Body(options?: BodyOptions): Function {
             type: "body",
             reflectedType: format,
             format: format,
-            parseJson: false,
-            isRequired: options ? options.required : false,
+            parse: false,
+            required: options ? options.required : false,
             classTransformOptions: options ? options.transform : undefined,
             validate: options && options.validate ? true : false,
-            validationOptions: options && options.validate instanceof Object ? options.validate : undefined
+            validateOptions: options && options.validate instanceof Object ? options.validate : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

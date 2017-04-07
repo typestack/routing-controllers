@@ -45,12 +45,12 @@ export interface ParamMetadataArgs {
     /**
      * Specifies if parameter should be parsed as json or not.
      */
-    parseJson: boolean;
+    parse: boolean;
 
     /**
      * Indicates if this parameter is required or not
      */
-    isRequired: boolean;
+    required: boolean;
 
     /**
      * Transforms the value.
@@ -75,6 +75,6 @@ export interface ParamMetadataArgs {
     /**
      * Class-validator options used to transform and validate param object.
      */
-    validationOptions?: ValidatorOptions;
+    validateOptions?: ValidatorOptions;
 
 }

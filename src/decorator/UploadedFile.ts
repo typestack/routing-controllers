@@ -17,8 +17,8 @@ export function UploadedFile(name: string, options?: UploadOptions): Function {
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: false,
-            isRequired: options ? options.required : false,
+            parse: false,
+            required: options ? options.required : false,
             extraOptions: options ? options.options : undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);

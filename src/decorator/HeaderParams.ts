@@ -15,8 +15,8 @@ export function HeaderParams(): Function {
             type: "header",
             reflectedType: format,
             format: format,
-            parseJson: false,
-            isRequired: false,
+            parse: false,
+            required: false,
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

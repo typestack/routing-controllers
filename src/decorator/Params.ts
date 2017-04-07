@@ -15,8 +15,8 @@ export function Params(): Function {
             type: "param",
             reflectedType: format,
             format: format,
-            parseJson: false, // it does not make sense for Param to be parsed
-            isRequired: false,
+            parse: false, // it does not make sense for Param to be parsed
+            required: false,
             classTransformOptions: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);

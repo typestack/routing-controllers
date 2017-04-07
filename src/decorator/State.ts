@@ -16,8 +16,8 @@ export function State(objectName?: string): Function {
             reflectedType: format,
             name: objectName,
             format: format,
-            parseJson: false, // it does not make sense for Session to be parsed
-            isRequired: true, // when we demand session object, it must exist (working session middleware)
+            parse: false, // it does not make sense for Session to be parsed
+            required: true, // when we demand session object, it must exist (working session middleware)
             classTransformOptions: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);

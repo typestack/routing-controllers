@@ -15,8 +15,8 @@ export function CookieParams() {
             type: "cookie",
             reflectedType: format,
             format: format,
-            parseJson: false,
-            isRequired: false,
+            parse: false,
+            required: false,
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

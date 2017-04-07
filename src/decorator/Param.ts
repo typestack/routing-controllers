@@ -16,8 +16,8 @@ export function Param(name: string): Function {
             reflectedType: format,
             name: name,
             format: format,
-            parseJson: false, // it does not make sense for Param to be parsed
-            isRequired: true, // params are always required, because if they are missing router will not match the route
+            parse: false, // it does not make sense for Param to be parsed
+            required: true, // params are always required, because if they are missing router will not match the route
             classTransformOptions: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);

@@ -58,12 +58,12 @@ export class ParamMetadata {
     /**
      * Specifies if parameter should be parsed as json or not.
      */
-    parseJson: boolean;
+    parse: boolean;
 
     /**
      * Indicates if this parameter is required or not
      */
-    isRequired: boolean;
+    required: boolean;
 
     /**
      * Transforms the value.
@@ -88,7 +88,7 @@ export class ParamMetadata {
     /**
      * Class-validator options used to transform and validate param object.
      */
-    validationOptions: ValidatorOptions;
+    validateOptions: ValidatorOptions;
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -108,25 +108,20 @@ export class ParamMetadata {
             this.name = args.name;
         if (args.format)
             this.format = args.format;
-        if (args.parseJson)
-            this.parseJson = args.parseJson;
-        if (args.isRequired)
-            this.isRequired = args.isRequired;
+        if (args.parse)
+            this.parse = args.parse;
+        if (args.required)
+            this.required = args.required;
         if (args.transform)
             this.transform = args.transform;
         if (args.classTransformOptions)
             this.classTransformOptions = args.classTransformOptions;
         if (args.validate !== undefined) 
             this.validate = args.validate;
-        if (args.validationOptions)
-            this.validationOptions = args.validationOptions;
+        if (args.validateOptions)
+            this.validateOptions = args.validateOptions;
         
         this.extraOptions = args.extraOptions;
     }
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    
 }

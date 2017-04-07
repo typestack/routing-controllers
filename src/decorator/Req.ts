@@ -14,8 +14,8 @@ export function Req(): Function {
             index: index,
             type: "request",
             reflectedType: reflectedType,
-            parseJson: false,
-            isRequired: false
+            parse: false,
+            required: false
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

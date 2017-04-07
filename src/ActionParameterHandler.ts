@@ -7,6 +7,7 @@ import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParameterRequiredError} from "./error/ParameterRequiredError";
 import {ParamMetadata} from "./metadata/ParamMetadata";
+import {NotFoundError} from "./http-error/NotFoundError";
 
 /**
  * Helps to handle parameters.
@@ -42,13 +43,12 @@ export class ActionParameterHandler {
             value = this.handleParamFormat(value, param);
         
         // check cases when parameter is required but its empty and throw errors in such cases
-        if (param.isRequired) {
-            // todo: make better error messages here
-            if (param.name && isValueEmpty) {
-                return Promise.reject(new ParameterRequiredError(actionProperties.request.url, actionProperties.request.method, param.name));
+        if (param.required) {
+            if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check
+                return Promise.reject(new BodyRequiredError(actionProperties));
 
-            } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                return Promise.reject(new BodyRequiredError(actionProperties.request.url, actionProperties.request.method));
+            } else if (param.name && isValueEmpty) { // regular check for all other parameters
+                return Promise.reject(new ParameterRequiredError(param, actionProperties));
             }
         }
 
@@ -59,11 +59,10 @@ export class ActionParameterHandler {
         const promiseValue = value instanceof Promise ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {
 
-            if (param.isRequired && originalValue !== null && originalValue !== undefined && isValueEmpty) {
-                // TODO: handleResultOptions.errorHttpCode = 404; // maybe throw ErrorNotFoundError here?
+            if (param.required && originalValue !== null && originalValue !== undefined && isValueEmpty) {
                 const contentType = param.reflectedType && param.reflectedType.name ? param.reflectedType.name : "content";
                 const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
-                return Promise.reject(`Requested ${contentType + message} was not found`);
+                return Promise.reject(new NotFoundError(`Requested ${contentType + message} was not found`));
             }
 
             return value;
@@ -74,7 +73,7 @@ export class ActionParameterHandler {
     // Private Methods
     // -------------------------------------------------------------------------
 
-    private handleParamFormat(value: any, param: ParamMetadata): any {
+    protected handleParamFormat(value: any, param: ParamMetadata): any {
         const format = param.format;
         const formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : "";
         switch (formatName.toLowerCase()) {
@@ -95,13 +94,13 @@ export class ActionParameterHandler {
 
             default:
                 const isObjectFormat = format instanceof Function || formatName.toLowerCase() === "object";
-                if (value && (param.parseJson || isObjectFormat))
+                if (value && (param.parse || isObjectFormat))
                     value = this.parseValue(value, param);
         }
         return value;
     }
 
-    private async parseValue(value: any, paramMetadata: ParamMetadata) {
+    protected async parseValue(value: any, paramMetadata: ParamMetadata) {
         try {
             const valueObject = typeof value === "string" ? JSON.parse(value) : value;
 
@@ -115,7 +114,7 @@ export class ActionParameterHandler {
             }
 
             if (paramMetadata.validate || this.driver.enableValidation) {
-                const options = paramMetadata.validationOptions || this.driver.validationOptions;
+                const options = paramMetadata.validateOptions || this.driver.validationOptions;
                 return validate(parsedValue, options)
                     .then(() => parsedValue)
                     .catch((validationErrors: ValidationError[]) => {
@@ -130,4 +129,5 @@ export class ActionParameterHandler {
             throw new ParameterParseJsonError(paramMetadata.name, value);
         }
     }
+
 }
