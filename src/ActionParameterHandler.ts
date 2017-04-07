@@ -1,6 +1,6 @@
 import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
-import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {ActionProperties} from "./ActionProperties";
 import {BodyRequiredError} from "./error/BodyRequiredError";
 import {BadRequestError} from "./http-error/BadRequestError";
 import {Driver} from "./driver/Driver";
@@ -11,7 +11,7 @@ import {ParamMetadata} from "./metadata/ParamMetadata";
 /**
  * Helps to handle parameters.
  */
-export class ParamHandler {
+export class ActionParameterHandler {
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -24,19 +24,16 @@ export class ParamHandler {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    handleParam(actionOptions: ActionCallbackOptions, param: ParamMetadata): Promise<any> {
+    handleParam(actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
 
-        const request = actionOptions.request;
-        const response = actionOptions.response;
-        
         if (param.type === "request")
-            return Promise.resolve(request);
+            return actionProperties.request;
 
         if (param.type === "response")
-            return Promise.resolve(response);
+            return actionProperties.response;
         
         let value: any, originalValue: any;
-        value = originalValue = this.driver.getParamFromRequest(actionOptions, param);
+        value = originalValue = this.driver.getParamFromRequest(actionProperties, param);
         
         const isValueEmpty = value === null || value === undefined || value === "";
         const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
@@ -48,16 +45,16 @@ export class ParamHandler {
         if (param.isRequired) {
             // todo: make better error messages here
             if (param.name && isValueEmpty) {
-                return Promise.reject(new ParameterRequiredError(request.url, request.method, param.name));
+                return Promise.reject(new ParameterRequiredError(actionProperties.request.url, actionProperties.request.method, param.name));
 
             } else if (!param.name && (isValueEmpty || isValueEmptyObject)) {
-                return Promise.reject(new BodyRequiredError(request.url, request.method));
+                return Promise.reject(new BodyRequiredError(actionProperties.request.url, actionProperties.request.method));
             }
         }
 
         // if transform function is given for this param then apply it
         if (param.transform)
-            value = param.transform(value, request, response);
+            value = param.transform(value, actionProperties.request, actionProperties.response);
         
         const promiseValue = value instanceof Promise ? value : Promise.resolve(value);
         return promiseValue.then((value: any) => {

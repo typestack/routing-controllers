@@ -1,4 +1,4 @@
-import {ActionCallbackOptions} from "../ActionCallbackOptions";
+import {ActionProperties} from "../ActionProperties";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {BaseDriver} from "./BaseDriver";
@@ -69,7 +69,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
     registerAction(action: ActionMetadata,
                    middlewares: MiddlewareMetadata[],
-                   executeCallback: (options: ActionCallbackOptions) => any): void {
+                   executeCallback: (options: ActionProperties) => any): void {
         const koaAction = action.type.toLowerCase();
         if (!this.router[koaAction])
             throw new BadHttpActionError(action.type);
@@ -102,7 +102,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         const routeHandler = (ctx: any, next: () => Promise<any>) => {
             return new Promise((resolve, reject) => {
-                const options: ActionCallbackOptions = {
+                const options: ActionProperties = {
                     request: ctx.request,
                     response: ctx.response,
                     next: (err: any) => {
@@ -134,7 +134,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         this.koa.use(this.router.allowedMethods());
     }
 
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
+    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): void {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {
@@ -183,7 +183,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
     }
 
-    handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void {
 
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -258,7 +258,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
     }
 
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+    handleError(error: any, action: ActionMetadata, options: ActionProperties): void {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 

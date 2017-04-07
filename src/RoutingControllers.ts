@@ -1,7 +1,7 @@
-import {ParamHandler} from "./ParamHandler";
+import {ActionParameterHandler} from "./ActionParameterHandler";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
-import {ActionCallbackOptions} from "./ActionCallbackOptions";
+import {ActionProperties} from "./ActionProperties";
 import {Driver} from "./driver/Driver";
 
 /**
@@ -16,7 +16,7 @@ export class RoutingControllers {
     /**
      * Used to check and handle controller action parameters.
      */
-    private paramHandler: ParamHandler;
+    private paramHandler: ActionParameterHandler;
 
     /**
      * Used to build metadata objects for controllers and middlewares.
@@ -28,7 +28,7 @@ export class RoutingControllers {
     // -------------------------------------------------------------------------
 
     constructor(private driver: Driver) {
-        this.paramHandler = new ParamHandler(driver);
+        this.paramHandler = new ActionParameterHandler(driver);
         this.metadataBuilder = new MetadataBuilder();
     }
 
@@ -52,8 +52,8 @@ export class RoutingControllers {
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, middlewares, (options: ActionCallbackOptions) => {
-                    this.executeAction(action, options);
+                this.driver.registerAction(action, middlewares, (actionProperties: ActionProperties) => {
+                    this.executeAction(action, actionProperties);
                 });
             });
         });
@@ -82,29 +82,29 @@ export class RoutingControllers {
     /**
      * Executes given controller action.
      */
-    protected executeAction(action: ActionMetadata, options: ActionCallbackOptions) {
+    protected executeAction(action: ActionMetadata, actionProperties: ActionProperties) {
 
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)
-            .map(param => this.paramHandler.handleParam(options, param));
+            .map(param => this.paramHandler.handleParam(actionProperties, param));
 
         // after all parameters are computed
         Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
             const result = action.callMethod(params);
-            this.handleCallMethodResult(result, action, options);
+            this.handleCallMethodResult(result, action, actionProperties);
 
         }).catch(error => { // otherwise simply handle error without action execution
-            this.driver.handleError(error, action, options);
+            this.driver.handleError(error, action, actionProperties);
         });
     }
 
     /**
      * Handles result of the action method execution.
      */
-    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
+    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionProperties) {
         if (this.isPromiseLike(result)) {
             result
                 .then((data: any) => {

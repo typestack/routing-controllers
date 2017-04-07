@@ -2,7 +2,7 @@ import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ActionCallbackOptions} from "../ActionCallbackOptions";
+import {ActionProperties} from "../ActionProperties";
 import {classToPlain} from "class-transformer";
 import {Driver} from "./Driver";
 import {ParamMetadata} from "../metadata/ParamMetadata";
@@ -85,13 +85,13 @@ export class ExpressDriver extends BaseDriver implements Driver {
      */
     registerAction(action: ActionMetadata,
                    middlewares: MiddlewareMetadata[],
-                   executeCallback: (options: ActionCallbackOptions) => any): void {
+                   executeCallback: (options: ActionProperties) => any): void {
         const expressAction = action.type.toLowerCase();
         if (!this.express[expressAction])
             throw new BadHttpActionError(action.type);
 
         const routeHandler = function RouteHandler(request: any, response: any, next: Function) {
-            const options: ActionCallbackOptions = {
+            const options: ActionProperties = {
                 request: request,
                 response: response,
                 next: next,
@@ -142,8 +142,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void {
-        const request: any = actionOptions.request;
+    getParamFromRequest(actionProperties: ActionProperties, param: ParamMetadata): void {
+        const request: any = actionProperties.request;
         switch (param.type) {
             case "body":
                 if (param.name)
@@ -190,7 +190,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Defines an algorithm of how to handle success result of executing controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void {
+    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void {
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
@@ -263,7 +263,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionCallbackOptions): void {
+    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): void {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
