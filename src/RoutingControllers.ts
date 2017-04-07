@@ -3,10 +3,9 @@ import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionCallbackOptions} from "./ActionCallbackOptions";
 import {Driver} from "./driver/Driver";
-import {PromiseUtils} from "./util/PromiseUtils";
 
 /**
- * Registers controllers and actions in the given server framework.
+ * Registers controllers and middlewares in the given server framework.
  */
 export class RoutingControllers {
 
@@ -14,7 +13,14 @@ export class RoutingControllers {
     // Private properties
     // -------------------------------------------------------------------------
 
+    /**
+     * Used to check and handle controller action parameters.
+     */
     private paramHandler: ParamHandler;
+
+    /**
+     * Used to build metadata objects for controllers and middlewares.
+     */
     private metadataBuilder: MetadataBuilder;
 
     // -------------------------------------------------------------------------
@@ -30,21 +36,24 @@ export class RoutingControllers {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    bootstrap() {
-        this.driver.bootstrap();
+    /**
+     * Initializes the things driver needs before routes and middleware registration.
+     */
+    initialize(): this {
+        this.driver.initialize();
         return this;
     }
 
     /**
-     * Registers actions in the driver.
+     * Registers all given controllers and actions from those controllers.
      */
-    registerActions(classes?: Function[]): this {
+    registerControllers(classes?: Function[]): this {
         const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
                 this.driver.registerAction(action, middlewares, (options: ActionCallbackOptions) => {
-                    this.handleAction(action, options);
+                    this.executeAction(action, options);
                 });
             });
         });
@@ -55,29 +64,25 @@ export class RoutingControllers {
     /**
      * Registers post-execution middlewares in the driver.
      */
-    registerMiddlewares(afterAction: boolean, classes?: Function[]): this {
+    registerMiddlewares(type: "before"|"after", classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
-            .filter(middleware => middleware.isGlobal && middleware.afterAction === afterAction)
+            .filter(middleware => middleware.global && middleware.type === type)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .reverse()
-            .forEach(middleware => {
-                if (middleware.isErrorHandler) {
-                    this.driver.registerErrorHandler(middleware);
-
-                } else if (middleware.isUseMiddleware) {
-                    this.driver.registerMiddleware(middleware);
-                }
-            });
+            .forEach(middleware => this.driver.registerMiddleware(middleware));
 
         return this;
     }
 
     // -------------------------------------------------------------------------
-    // Private Methods
+    // Protected Methods
     // -------------------------------------------------------------------------
 
-    private handleAction(action: ActionMetadata, options: ActionCallbackOptions) {
+    /**
+     * Executes given controller action.
+     */
+    protected executeAction(action: ActionMetadata, options: ActionCallbackOptions) {
 
         // compute all parameters
         const paramsPromises = action.params
@@ -88,20 +93,22 @@ export class RoutingControllers {
         Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
-            const result = action.executeAction(params);
-            // if (result !== undefined)
-            this.handleResult(result, action, options);
+            const result = action.callMethod(params);
+            this.handleCallMethodResult(result, action, options);
 
-        }).catch(error => {
+        }).catch(error => { // otherwise simply handle error without action execution
             this.driver.handleError(error, action, options);
         });
     }
 
-    private handleResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
-        if (PromiseUtils.isPromiseLike(result)) {
+    /**
+     * Handles result of the action method execution.
+     */
+    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionCallbackOptions) {
+        if (this.isPromiseLike(result)) {
             result
                 .then((data: any) => {
-                    return this.handleResult(data, action, options);
+                    return this.handleCallMethodResult(data, action, options);
                 })
                 .catch((error: any) => {
                     this.driver.handleError(error, action, options);
@@ -109,6 +116,13 @@ export class RoutingControllers {
         } else {
             this.driver.handleSuccess(result, action, options);
         }
+    }
+
+    /**
+     * Checks if given value is a Promise-like object.
+     */
+    protected isPromiseLike(arg: any): arg is Promise<any> {
+        return arg != null && typeof arg === "object" && typeof arg.then === "function";
     }
 
 }

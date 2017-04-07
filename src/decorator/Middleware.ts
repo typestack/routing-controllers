@@ -9,9 +9,9 @@ export function Middleware(options?: { type?: "after"|"before", global?: boolean
     return function (target: Function) {
         const metadata: MiddlewareMetadataArgs = {
             target: target,
-            isGlobal: options && options.global === true ? true : false,
+            global: options && options.global === true ? true : false,
             priority: options && options.priority !== undefined ? options.priority : undefined,
-            afterAction: options && options.type === "after" ? true : false,
+            type: options && options.type ? options.type : "before",
         };
         defaultMetadataArgsStorage().middlewares.push(metadata);
     };

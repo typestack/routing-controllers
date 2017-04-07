@@ -12,7 +12,7 @@ export class MiddlewareMetadata {
     /**
      * Indicates if this middleware is global, thous applied to all routes.
      */
-    isGlobal: boolean;
+    global: boolean;
 
     /**
      * Object class of the middleware class.
@@ -27,17 +27,17 @@ export class MiddlewareMetadata {
     /**
      * Indicates if middleware must be executed after routing action is executed.
      */
-    afterAction: boolean;
+    type: "before"|"after";
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
     
     constructor(args: MiddlewareMetadataArgs) {
-        this.isGlobal = args.isGlobal;
+        this.global = args.global;
         this.target = args.target;
         this.priority = args.priority;
-        this.afterAction = args.afterAction;
+        this.type = args.type;
     }
 
     // -------------------------------------------------------------------------

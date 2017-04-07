@@ -57,15 +57,13 @@ export interface Driver {
      */
     routePrefix: string;
 
-    bootstrap(): void;
-
     /**
-     * Registers given error handler in the driver.
+     * Initializes the things driver needs before routes and middleware registration.
      */
-    registerErrorHandler(middleware: MiddlewareMetadata): void;
+    initialize(): void;
 
     /**
-     * Registers middleware that run before controller actions.
+     * Registers given middleware.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void;
 

@@ -56,14 +56,8 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     if (options && options.middlewares && options.middlewares.length)
         importClassesFromDirectories(options.middlewares as string[]); // casting is temporary
 
-    // import all controllers and middlewares and error handlers (deprecated way)
-    if (options && options.controllerDirs && options.controllerDirs.length)
-        importClassesFromDirectories(options.controllerDirs);
-    if (options && options.middlewareDirs && options.middlewareDirs.length)
-        importClassesFromDirectories(options.middlewareDirs);
-
-    if (options && options.developmentMode !== undefined) {
-        driver.developmentMode = options.developmentMode;
+    if (options && options.development !== undefined) {
+        driver.developmentMode = options.development;
     } else {
         driver.developmentMode = process.env.NODE_ENV !== "production";
     }
@@ -74,17 +68,17 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.isDefaultErrorHandlingEnabled = true;
     }
 
-    if (options.useClassTransformer !== undefined) {
-        driver.useClassTransformer = options.useClassTransformer;
+    if (options.classTransformer !== undefined) {
+        driver.useClassTransformer = options.classTransformer;
     } else {
         driver.useClassTransformer = true;
     }
 
-    if (options.enableValidation !== undefined) {
-        driver.enableValidation = options.enableValidation;
-        if (options.validationOptions !== undefined) {
-            driver.validationOptions = options.validationOptions;
-        }
+    if (options.validator !== undefined) {
+        driver.enableValidation = !!options.validator;
+        if (options.validator instanceof Object)
+            driver.validationOptions = options.validator;
+
     } else {
         driver.enableValidation = false;
     }
@@ -100,10 +94,10 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 
     // next create a controller executor
     new RoutingControllers(driver)
-        .bootstrap()
-        .registerMiddlewares(false)
-        .registerActions()
-        .registerMiddlewares(true); // todo: register only for loaded controllers?
+        .initialize()
+        .registerMiddlewares("before")
+        .registerControllers()
+        .registerMiddlewares("after"); // todo: register only for loaded controllers?
 }
 
 // -------------------------------------------------------------------------

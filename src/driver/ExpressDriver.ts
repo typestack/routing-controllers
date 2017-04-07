@@ -37,25 +37,23 @@ export class ExpressDriver extends BaseDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    bootstrap() {
-    }
-    
     /**
-     * Registers given error handler in the driver.
+     * Initializes the things driver needs before routes and middleware registration.
      */
-    registerErrorHandler(middleware: MiddlewareMetadata): void {
-        if (!middleware.errorHandlerInstance.error)
-            return;
-
-        this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
-            middleware.errorHandlerInstance.error(error, request, response, next);
-        });
+    initialize() {
     }
 
     /**
      * Registers middleware that run before controller actions.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void {
+        if (middleware.errorHandlerInstance.error) {
+            this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
+                middleware.errorHandlerInstance.error(error, request, response, next);
+            });
+            return;
+        }
+
         if (!middleware.instance.use)
             return;
 
@@ -135,6 +133,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
         this.express[expressAction](...expressParams);
     }
 
+    /**
+     * Registers all routes in the framework.
+     */
     registerRoutes() {
     }
     

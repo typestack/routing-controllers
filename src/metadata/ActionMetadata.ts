@@ -209,7 +209,11 @@ export class ActionMetadata {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    executeAction(params: any[]) {
+    /**
+     * Calls action method.
+     * Action method is an action defined in a user controller.
+     */
+    callMethod(params: any[]) {
         return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
     }
 

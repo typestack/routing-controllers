@@ -50,12 +50,12 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    bootstrap() {
+    /**
+     * Initializes the things driver needs before routes and middleware registration.
+     */
+    initialize() {
         const bodyParser = require("koa-bodyparser");
         this.koa.use(bodyParser());
-    }
-    
-    registerErrorHandler(middleware: MiddlewareMetadata): void {
     }
 
     registerMiddleware(middleware: MiddlewareMetadata): void {
@@ -125,7 +125,10 @@ export class KoaDriver extends BaseDriver implements Driver {
         const routerParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
         this.router[koaAction](...routerParams);
     }
-    
+
+    /**
+     * Registers all routes in the framework.
+     */
     registerRoutes() {
         this.koa.use(this.router.routes());
         this.koa.use(this.router.allowedMethods());
