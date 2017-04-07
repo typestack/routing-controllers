@@ -6,7 +6,6 @@ import {ControllerMetadataArgs} from "../metadata/args/ControllerMetadataArgs";
  * a serialized json data, and its response content-type always will be application/json.
  *
  * @param baseRoute Extra path you can apply as a base route to all controller actions
- * @deprecated Use @Controller decorator instead
  */
 export function JsonController(baseRoute?: string) {
     return function (object: Function) {

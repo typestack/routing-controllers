@@ -21,7 +21,7 @@ import {BodyParam} from "../../src/decorator/BodyParam";
 import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
 import {ContentType} from "../../src/decorator/ContentType";
-import {JsonController} from "../../src/deprecated/JsonController";
+import {JsonController} from "../../src/decorator/JsonController";
 
 const chakram = require("chakram");
 const expect = chakram.expect;

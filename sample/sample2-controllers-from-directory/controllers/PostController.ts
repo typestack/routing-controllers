@@ -5,7 +5,7 @@ import {Post} from "../../../src/decorator/Post";
 import {Put} from "../../../src/decorator/Put";
 import {Patch} from "../../../src/decorator/Patch";
 import {Delete} from "../../../src/decorator/Delete";
-import {JsonController} from "../../../src/deprecated/JsonController";
+import {JsonController} from "../../../src/decorator/JsonController";
 
 @JsonController()
 export class PostController {

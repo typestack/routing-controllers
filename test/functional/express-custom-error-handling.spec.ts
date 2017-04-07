@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/deprecated/JsonController";
+import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
 import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";

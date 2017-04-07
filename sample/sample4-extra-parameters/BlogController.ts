@@ -1,4 +1,4 @@
-import {JsonController} from "../../src/deprecated/JsonController";
+import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
 import {Post} from "../../src/decorator/Post";
 import {Put} from "../../src/decorator/Put";

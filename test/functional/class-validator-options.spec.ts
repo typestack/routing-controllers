@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {Length} from "class-validator";
-import {JsonController} from "../../src/deprecated/JsonController";
+import {JsonController} from "../../src/decorator/JsonController";
 import {
     createExpressServer,
     createKoaServer,

@@ -157,7 +157,7 @@ export * from "./decorator/UseAfter";
 export * from "./decorator/UseBefore";
 export * from "./decorator/UploadedFiles";
 
-export * from "./deprecated/JsonController";
+export * from "./decorator/JsonController";
 
 export * from "./middleware/MiddlewareInterface";
 export * from "./middleware/ErrorMiddlewareInterface";
