@@ -158,12 +158,6 @@ export * from "./decorator/UseBefore";
 export * from "./decorator/UploadedFiles";
 
 export * from "./deprecated/JsonController";
-export * from "./deprecated/JsonResponse";
-export * from "./deprecated/MiddlewareGlobalAfter";
-export * from "./deprecated/MiddlewareGlobalBefore";
-export * from "./deprecated/NullResultCode";
-export * from "./deprecated/TextResponse";
-export * from "./deprecated/UndefinedResultCode";
 
 export * from "./middleware/MiddlewareInterface";
 export * from "./middleware/ErrorMiddlewareInterface";

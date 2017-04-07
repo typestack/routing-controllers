@@ -89,10 +89,6 @@ export class ActionMetadata {
     }
     
     get isJsonTyped(): boolean {
-        if (this.jsonResponse)
-            return true;
-        if (this.textResponse)
-            return false;
         return this.controllerMetadata.isJsonTyped;
     }
     
@@ -198,7 +194,7 @@ export class ActionMetadata {
     }
     
     get isBodyUsed() {
-        return !!this.params.find(param => param.type === "body" || param.type === "body-param");
+        return !!this.params.find(param => param.type === "body");
     }
     
     get isFilesUsed() {
@@ -209,20 +205,6 @@ export class ActionMetadata {
         return !!this.params.find(param => param.type === "file");
     }
 
-    /**
-     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
-     */
-    get jsonResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === "json-response");
-    }
-
-    /**
-     * If set to true then response will be forced to simple string text response.
-     */
-    get textResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === "text-response");
-    }
-    
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------

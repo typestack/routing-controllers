@@ -7,6 +7,4 @@ export type ResponseHandlerType = "success-code"
     |"location"
     |"on-null"
     |"on-undefined"
-    |"text-response"
-    |"json-response"
     |"response-class-transform-options";

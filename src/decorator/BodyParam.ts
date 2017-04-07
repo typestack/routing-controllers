@@ -13,7 +13,7 @@ export function BodyParam(name: string, options?: ParamOptions): Function {
             target: object.constructor,
             method: methodName,
             index: index,
-            type: "body-param",
+            type: "body",
             reflectedType: format,
             name: name,
             format: format,

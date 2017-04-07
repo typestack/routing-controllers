@@ -2,7 +2,6 @@ import "reflect-metadata";
 
 import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 
-import {JsonResponse} from "../../src/deprecated/JsonResponse";
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
 import {Controller} from "../../src/decorator/Controller";
@@ -21,6 +20,8 @@ import {Body} from "../../src/decorator/Body";
 import {BodyParam} from "../../src/decorator/BodyParam";
 import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
+import {ContentType} from "../../src/decorator/ContentType";
+import {JsonController} from "../../src/deprecated/JsonController";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -130,7 +131,7 @@ describe("action parameters", () => {
 
             @Get("/state")
             @UseBefore(SetStateMiddleware)
-            @JsonResponse()
+            @ContentType("application/json")
             getState(@State() state: User) {
                 return state;
             }
@@ -221,42 +222,6 @@ describe("action parameters", () => {
                 return `<html><body>hello</body></html>`;
             }
 
-            @Post("/posts")
-            @JsonResponse()
-            postPost(@Body() question: string) {
-                body = question;
-                return body;
-            }
-
-            @Post("/posts-with-required")
-            @JsonResponse()
-            postRequiredPost(@Body({ required: true }) post: string) {
-                body = post;
-                return body;
-            }
-
-            @Post("/users")
-            @JsonResponse()
-            postUser(@BodyParam("name") name: string, 
-                     @BodyParam("age") age: number, 
-                     @BodyParam("isActive") isActive: boolean): any {
-                bodyParamName = name;
-                bodyParamAge = age;
-                bodyParamIsActive = isActive;
-                return null;
-            }
-
-            @Post("/users-with-required")
-            @JsonResponse()
-            postUserWithRequired(@BodyParam("name", { required: true }) name: string, 
-                                 @BodyParam("age", { required: true }) age: number, 
-                                 @BodyParam("isActive", { required: true }) isActive: boolean): any {
-                bodyParamName = name;
-                bodyParamAge = age;
-                bodyParamIsActive = isActive;
-                return null;
-            }
-
             @Post("/files")
             postFile(@UploadedFile("myfile") file: any): any {
                 uploadedFileName = file.originalname;
@@ -290,6 +255,43 @@ describe("action parameters", () => {
                 return `<html><body>${files[0].originalname}</body></html>`;
             }
 
+        }
+
+        @JsonController()
+        class SecondUserActionParamsController {
+
+
+            @Post("/posts")
+            postPost(@Body() question: string) {
+                body = question;
+                return body;
+            }
+
+            @Post("/posts-with-required")
+            postRequiredPost(@Body({ required: true }) post: string) {
+                body = post;
+                return body;
+            }
+
+            @Post("/users")
+            postUser(@BodyParam("name") name: string,
+                     @BodyParam("age") age: number,
+                     @BodyParam("isActive") isActive: boolean): any {
+                bodyParamName = name;
+                bodyParamAge = age;
+                bodyParamIsActive = isActive;
+                return null;
+            }
+
+            @Post("/users-with-required")
+            postUserWithRequired(@BodyParam("name", { required: true }) name: string,
+                                 @BodyParam("age", { required: true }) age: number,
+                                 @BodyParam("isActive", { required: true }) isActive: boolean): any {
+                bodyParamName = name;
+                bodyParamAge = age;
+                bodyParamIsActive = isActive;
+                return null;
+            }
         }
 
     });

@@ -548,7 +548,7 @@ saveUser(@Param("id") id: number) {
 In this example `findOneById` returns undefined in the case if user with given was not found.
 This action will return 404 in the case if user was not found, and regular 200 in the case if it was found.
 `@EmptyResultCode` allows to set any HTTP code in the case if controller's action returned empty result (null or undefined).
-There are also `@NullResultCode` and `@UndefindeResultCode()` in the case if you want to return specific codes only
+There are also `@OnNull` and `@UndefindeResultCode()` in the case if you want to return specific codes only
 if controller's action returned null or undefined respectively.
 
 #### Set custom headers
@@ -1044,9 +1044,8 @@ export class UsersController {
 | `@JsonResponse()`                                                  | `@JsonResponse()` get()                           | Controller actions marked with this decorator will return a json response instead of default text/html.         |
 | `@TextResponse()`                                                  | `@TextResponse()` get()                           | Controller actions marked with this decorator will return a text/html response instead of default json.         |
 | `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                           | Allows to explicitly set HTTP code to be returned in the response.                                              |
-| `@EmptyResultCode(code: number)`                                   | `@EmptyResultCode(201)` post()                    | Sets a given HTTP code when controller action returned empty result (null or undefined).                        |
-| `@NullResultCode(code: number)`                                    | `@NullResultCode(201)` post()                     | Sets a given HTTP code when controller action returned null.                                                    |
-| `@UndefinedResultCode(code: number)`                               | `@UndefinedResultCode(201)` post()                | Sets a given HTTP code when controller action returned undefined.                                               |
+| `@OnNull(code: number)`                                            | `@OnNull(201)` post()                             | Sets a given HTTP code when controller action returned null.                                                    |
+| `@OnUndefined(code: number)`                                       | `@OnUndefined(201)` post()                        | Sets a given HTTP code when controller action returned undefined.                                               |
 | `@ResponseClassTransformOptions(options: ClassTransformOptions)`   | `@ResponseClassTransformOptions({/*...*/})` get() | Sets options to be passed to class-transformer when it used for classToPlain a response result.                 |
 | `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-type returned in the response.                                            |
 | `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP Header returned in the response.                                              |

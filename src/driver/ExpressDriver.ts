@@ -145,31 +145,44 @@ export class ExpressDriver extends BaseDriver implements Driver {
         const request: any = actionOptions.request;
         switch (param.type) {
             case "body":
+                if (param.name)
+                    return request.body[param.name];
                 return request.body;
+
             case "param":
-                return request.params[param.name];
+                if (param.name)
+                    return request.params[param.name];
+                return request.params;
+
             case "session":
-                if (param.name) {
+                if (param.name)
                     return request.session[param.name]; 
-                } else {
-                    return request.session;
-                }
+                return request.session;
+
             case "state":
                 throw new Error("@State decorators are not supported by ExpressDriver yet.");
             case "query":
-                return request.query[param.name];
+                if (param.name)
+                    return request.query[param.name];
+
+                return request.query;
             case "header":
-                return request.headers[param.name.toLowerCase()];
+                if (param.name)
+                    return request.headers[param.name.toLowerCase()];
+
+                return request.headers;
             case "file":
                 return request.file;
+
             case "files":
                 return request.files;
-            case "body-param":
-                return request.body[param.name];
+
             case "cookie":
                 if (!request.headers.cookie) return;
                 const cookies = cookie.parse(request.headers.cookie);
-                return cookies[param.name];
+                if (param.name)
+                    return cookies[param.name];
+                return cookies;
         }
     }
 
@@ -182,28 +195,24 @@ export class ExpressDriver extends BaseDriver implements Driver {
             result = classToPlain(result, options);
         }
 
-        const response: any = options.response;
-        const isResultUndefined = result === undefined;
-        const isResultNull = result === null;
-
         // set http status
-        if (action.undefinedResultCode && isResultUndefined) {
-            response.status(action.undefinedResultCode);
+        if (action.undefinedResultCode && result === undefined) {
+            options.response.status(action.undefinedResultCode);
 
-        } else if (action.nullResultCode && isResultNull) {
-            response.status(action.nullResultCode);
+        } else if (action.nullResultCode && result === null) {
+            options.response.status(action.nullResultCode);
 
         } else if (action.successHttpCode) {
-            response.status(action.successHttpCode);
+            options.response.status(action.successHttpCode);
         }
 
         // apply http headers
         Object.keys(action.headers).forEach(name => {
-            response.header(name, action.headers[name]);
+            options.response.header(name, action.headers[name]);
         });
 
         if (action.redirect) { // if redirect is set then do it
-            response.redirect(action.redirect);
+            options.response.redirect(action.redirect);
             options.next();
 
         } else if (action.renderedTemplate) { // if template is set then render it
@@ -219,7 +228,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                     return options.next(err);
 
                 } else if (html) {
-                    response.send(html);
+                    options.response.send(html);
                 }
                 options.next();
             });
@@ -227,20 +236,20 @@ export class ExpressDriver extends BaseDriver implements Driver {
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
                 if (result === null && !action.nullResultCode) {
-                    response.status(204);
+                    options.response.status(204);
                 }
 
                 if (action.isJsonTyped) {
-                    response.json();
+                    options.response.json();
                 } else {
-                    response.send();
+                    options.response.send();
                 }
                 options.next();
             } else {
                 if (action.isJsonTyped) {
-                    response.json(result);
+                    options.response.json(result);
                 } else {
-                    response.send(String(result));
+                    options.response.send(String(result));
                 }
                 options.next();
             }

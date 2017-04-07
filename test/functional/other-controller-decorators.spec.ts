@@ -3,15 +3,14 @@ import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
-import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer, defaultMetadataArgsStorage, OnNull} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {HttpCode} from "../../src/decorator/HttpCode";
-import {NullResultCode} from "../../src/deprecated/NullResultCode";
-import {UndefinedResultCode} from "../../src/deprecated/UndefinedResultCode";
 import {ContentType} from "../../src/decorator/ContentType";
 import {Header} from "../../src/decorator/Header";
 import {Redirect} from "../../src/decorator/Redirect";
 import {Location} from "../../src/decorator/Location";
+import {OnUndefined} from "../../src/decorator/OnUndefined";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -37,7 +36,7 @@ describe("other controller decorators", () => {
             }
 
             @Get("/posts/:id")
-            @NullResultCode(404)
+            @OnNull(404)
             getPost(@Param("id") id: number) {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
@@ -56,7 +55,7 @@ describe("other controller decorators", () => {
             }
 
             @Get("/photos/:id")
-            @UndefinedResultCode(201)
+            @OnUndefined(201)
             getPhoto(@Param("id") id: number) {
                 if (id === 4) {
                     return undefined;
@@ -130,7 +129,7 @@ describe("other controller decorators", () => {
         });
     });
 
-    describe("should return custom code when @NullResultCode", () => {
+    describe("should return custom code when @OnNull", () => {
         assertRequest([3001, 3002], "get", "posts/1", response => {
             expect(response).to.have.status(200);
             expect(response.body).to.be.eql("Post");
@@ -149,7 +148,7 @@ describe("other controller decorators", () => {
         });
     });
     
-    describe("should return custom code when @UndefinedResultCode", () => {
+    describe("should return custom code when @OnUndefined", () => {
         assertRequest([3001, 3002], "get", "photos/1", response => {
             expect(response).to.have.status(200);
             expect(response.body).to.be.eql("Photo");

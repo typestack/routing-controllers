@@ -136,35 +136,47 @@ export class KoaDriver extends BaseDriver implements Driver {
         const request: any = actionOptions.request;
         switch (param.type) {
             case "body":
+                if (param.name)
+                    return request.body[param.name];
                 return request.body;
+
             case "param":
-                return context.params[param.name];
+                if (param.name)
+                    return context.params[param.name];
+                return context.params;
+
             case "session":
-                if (param.name) {
+                if (param.name)
                     return context.session[param.name]; 
-                } else {
-                    return context.session;
-                }
+                return context.session;
+
             case "state":
-                if (param.name) {
+                if (param.name)
                     return context.state[param.name];
-                } else {
-                    return context.state;
-                }
+                return context.state;
+
             case "query":
-                return context.query[param.name];
+                if (param.name)
+                    return context.query[param.name];
+                return context.query;
+
             case "file":
                 return actionOptions.context.req.file;
+
             case "files":
                 return actionOptions.context.req.files;
+
             case "header":
-                return context.headers[param.name.toLowerCase()];
-            case "body-param":
-                return request.body[param.name];
+                if (param.name)
+                    return context.headers[param.name.toLowerCase()];
+                return context.headers;
+
             case "cookie":
                 if (!context.headers.cookie) return;
                 const cookies = cookie.parse(context.headers.cookie);
-                return cookies[param.name];
+                if (param.name)
+                    return cookies[param.name];
+                return cookies;
         }
     }
 
@@ -228,7 +240,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
                 options.next();
             } else {
-                if (action.isJsonTyped) {
+                if (result instanceof Object) {
                     response.body = result;
                 } else {
                     response.body = String(result);

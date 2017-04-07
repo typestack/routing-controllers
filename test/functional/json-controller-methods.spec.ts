@@ -2,15 +2,13 @@ import "reflect-metadata";
 import {JsonController} from "../../src/deprecated/JsonController";
 import {Get} from "../../src/decorator/Get";
 import {Post} from "../../src/decorator/Post";
-import {JsonResponse} from "../../src/deprecated/JsonResponse";
 import {Method} from "../../src/decorator/Method";
 import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+import {ContentType, createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {TextResponse} from "../../src/deprecated/TextResponse";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -73,19 +71,6 @@ describe("json-controller methods", () => {
             getCategories() {
                 return {
                     status: "removed"
-                };
-            }
-            @Get("/categories-text")
-            @TextResponse()
-            getWithTextResponseType() {
-                return "<html><body>All categories</body></html>";
-            }
-            @Get("/categories-json")
-            @JsonResponse()
-            getWithTextResponseJson() {
-                return {
-                    id: 1,
-                    name: "People"
                 };
             }
             @Get("/users/:id")
@@ -220,23 +205,6 @@ describe("json-controller methods", () => {
             expect(response.body).to.be.eql({
                 status: "removed"
             });
-        });
-    });
-
-    describe("custom response type (text)", () => {
-        assertRequest([3001, 3002], "get", "categories-text", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>All categories</body></html>");
-        });
-    });
-
-    describe("custom response type (json)", () => {
-        assertRequest([3001, 3002], "get", "categories-json", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body.id).to.be.equal(1);
-            expect(response.body.name).to.be.equal("People");
         });
     });
 
