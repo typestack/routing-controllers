@@ -243,7 +243,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                 if (result instanceof Object) {
                     response.body = result;
                 } else {
-                    response.body = String(result);
+                    response.body = result;
                 }
                 options.next();
             }

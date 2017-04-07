@@ -249,7 +249,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 if (action.isJsonTyped) {
                     options.response.json(result);
                 } else {
-                    options.response.send(String(result));
+                    options.response.send(result);
                 }
                 options.next();
             }
