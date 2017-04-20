@@ -14,14 +14,12 @@ export function HeaderParam(name: string, options?: ParamOptions): Function {
             method: methodName,
             index: index,
             type: "header",
-            reflectedType: format,
             name: name,
-            format: format,
+            targetType: format,
             parse: options ? options.parse : false,
             required: options ? options.required : false,
-            classTransformOptions: options ? options.transform : undefined,
-            validate: options && options.validate ? true : false,
-            validateOptions: options && options.validate instanceof Object ? options.validate : undefined
+            classTransform: options ? options.transform : undefined,
+            validate: options ? options.validate : undefined,
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

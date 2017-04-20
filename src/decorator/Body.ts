@@ -14,13 +14,11 @@ export function Body(options?: BodyOptions): Function {
             method: methodName,
             index: index,
             type: "body",
-            reflectedType: format,
-            format: format,
+            targetType: format,
             parse: false,
             required: options ? options.required : false,
-            classTransformOptions: options ? options.transform : undefined,
-            validate: options && options.validate ? true : false,
-            validateOptions: options && options.validate instanceof Object ? options.validate : undefined
+            classTransform: options ? options.transform : undefined,
+            validate: options ? options.validate : undefined,
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

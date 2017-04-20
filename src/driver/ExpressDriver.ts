@@ -1,6 +1,5 @@
 import {UseMetadata} from "../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {BadHttpActionError} from "../error/BadHttpActionError";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ActionProperties} from "../ActionProperties";
 import {classToPlain} from "class-transformer";
@@ -87,9 +86,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
                    middlewares: MiddlewareMetadata[],
                    executeCallback: (options: ActionProperties) => any): void {
         const expressAction = action.type.toLowerCase();
-        if (!this.express[expressAction])
-            throw new BadHttpActionError(action.type);
-
         const routeHandler = function RouteHandler(request: any, response: any, next: Function) {
             const options: ActionProperties = {
                 request: request,
@@ -142,7 +138,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionProperties: ActionProperties, param: ParamMetadata): void {
+    getParamFromRequest(actionProperties: ActionProperties, param: ParamMetadata): any {
         const request: any = actionProperties.request;
         switch (param.type) {
             case "body":

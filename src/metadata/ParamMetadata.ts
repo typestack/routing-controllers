@@ -36,19 +36,24 @@ export class ParamMetadata {
     type: ParamType;
 
     /**
-     * Reflected type of the parameter.
-     */
-    reflectedType: any;
-
-    /**
      * Parameter name.
      */
     name: string;
 
     /**
-     * Parameter format.
+     * Parameter target type.
      */
-    format: any;
+    targetType: any;
+
+    /**
+     * Parameter target type's name in lowercase.
+     */
+    targetName: string = "";
+
+    /**
+     * Indicates if target type is an object.
+     */
+    isTargetObject: boolean = false;
 
     /**
      * Parameter target.
@@ -78,20 +83,16 @@ export class ParamMetadata {
     /**
      * Class transform options used to perform plainToClass operation.
      */
-    classTransformOptions: ClassTransformOptions;
+    classTransform?: ClassTransformOptions;
 
     /**
      * If true, class-validator will be used to validate param object.
+     * If validation options are given then it means validation will be applied (is true).
      */
-    validate: boolean;
-
-    /**
-     * Class-validator options used to transform and validate param object.
-     */
-    validateOptions: ValidatorOptions;
+    validate?: boolean|ValidatorOptions;
 
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
 
     constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
@@ -99,29 +100,34 @@ export class ParamMetadata {
         
         this.target = args.target;
         this.method = args.method;
-        this.reflectedType = args.reflectedType;
+        this.extraOptions = args.extraOptions;
         if (args.index !== undefined)
             this.index = args.index;
         if (args.type)
             this.type = args.type;
         if (args.name)
             this.name = args.name;
-        if (args.format)
-            this.format = args.format;
         if (args.parse)
             this.parse = args.parse;
         if (args.required)
             this.required = args.required;
         if (args.transform)
             this.transform = args.transform;
-        if (args.classTransformOptions)
-            this.classTransformOptions = args.classTransformOptions;
+        if (args.classTransform)
+            this.classTransform = args.classTransform;
         if (args.validate !== undefined) 
             this.validate = args.validate;
-        if (args.validateOptions)
-            this.validateOptions = args.validateOptions;
-        
-        this.extraOptions = args.extraOptions;
+
+        if (args.targetType) {
+            this.targetType = args.targetType;
+            if (args.targetType instanceof Function && args.targetType.name) {
+                this.targetName = args.targetType.name.toLowerCase();
+
+            } else if (typeof args.targetType === "string") {
+                this.targetName = args.targetType.toLowerCase();
+            }
+            this.isTargetObject = this.targetType instanceof Function || this.targetType.toLowerCase() === "object";
+        }
     }
 
 }

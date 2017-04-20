@@ -262,7 +262,7 @@ describe("action parameters", () => {
 
 
             @Post("/posts")
-            postPost(@Body() question: string) {
+            postPost(@Body() question: any) {
                 body = question;
                 return body;
             }

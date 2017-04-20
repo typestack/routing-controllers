@@ -13,12 +13,11 @@ export function State(objectName?: string): Function {
             method: methodName,
             index: index,
             type: "state",
-            reflectedType: format,
             name: objectName,
-            format: format,
+            targetType: format,
             parse: false, // it does not make sense for Session to be parsed
             required: true, // when we demand session object, it must exist (working session middleware)
-            classTransformOptions: undefined
+            classTransform: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

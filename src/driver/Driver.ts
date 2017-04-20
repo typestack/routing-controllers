@@ -82,7 +82,7 @@ export interface Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): void;
+    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any;
 
     /**
      * Defines an algorithm of how to handle error during executing controller action.

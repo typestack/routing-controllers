@@ -13,8 +13,7 @@ export function QueryParams(): Function {
             method: methodName,
             index: index,
             type: "query",
-            reflectedType: format,
-            format: format,
+            targetType: format,
             parse: false,
             required: false
         };

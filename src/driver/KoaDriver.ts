@@ -1,6 +1,5 @@
 import {ActionProperties} from "../ActionProperties";
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {BadHttpActionError} from "../error/BadHttpActionError";
 import {BaseDriver} from "./BaseDriver";
 import {Driver} from "./Driver";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
@@ -71,9 +70,6 @@ export class KoaDriver extends BaseDriver implements Driver {
                    middlewares: MiddlewareMetadata[],
                    executeCallback: (options: ActionProperties) => any): void {
         const koaAction = action.type.toLowerCase();
-        if (!this.router[koaAction])
-            throw new BadHttpActionError(action.type);
-
         const defaultMiddlewares: any[] = [];
         if (action.isBodyUsed) {
             if (action.isJsonTyped) {
@@ -134,7 +130,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         this.koa.use(this.router.allowedMethods());
     }
 
-    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): void {
+    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {

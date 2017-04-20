@@ -13,8 +13,7 @@ export function HeaderParams(): Function {
             method: methodName,
             index: index,
             type: "header",
-            reflectedType: format,
-            format: format,
+            targetType: format,
             parse: false,
             required: false,
         };

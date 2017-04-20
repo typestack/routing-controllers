@@ -16,7 +16,7 @@ export class RoutingControllers {
     /**
      * Used to check and handle controller action parameters.
      */
-    private paramHandler: ActionParameterHandler;
+    private parameterHandler: ActionParameterHandler;
 
     /**
      * Used to build metadata objects for controllers and middlewares.
@@ -28,7 +28,7 @@ export class RoutingControllers {
     // -------------------------------------------------------------------------
 
     constructor(private driver: Driver) {
-        this.paramHandler = new ActionParameterHandler(driver);
+        this.parameterHandler = new ActionParameterHandler(driver);
         this.metadataBuilder = new MetadataBuilder();
     }
 
@@ -87,7 +87,7 @@ export class RoutingControllers {
         // compute all parameters
         const paramsPromises = action.params
             .sort((param1, param2) => param1.index - param2.index)
-            .map(param => this.paramHandler.handleParam(actionProperties, param));
+            .map(param => this.parameterHandler.handle(actionProperties, param));
 
         // after all parameters are computed
         Promise.all(paramsPromises).then(params => {

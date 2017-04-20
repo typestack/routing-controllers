@@ -13,8 +13,7 @@ export function CookieParams() {
             method: methodName,
             index: index,
             type: "cookie",
-            reflectedType: format,
-            format: format,
+            targetType: format,
             parse: false,
             required: false,
         };

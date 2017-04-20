@@ -28,19 +28,14 @@ export interface ParamMetadataArgs {
     type: ParamType;
 
     /**
-     * Reflected type of the parameter.
-     */
-    reflectedType: any;
-
-    /**
      * Parameter name.
      */
     name?: string;
 
     /**
-     * Parameter format.
+     * Parameter target type.
      */
-    format?: any;
+    targetType?: any;
 
     /**
      * Specifies if parameter should be parsed as json or not.
@@ -65,16 +60,12 @@ export interface ParamMetadataArgs {
     /**
      * Class transform options used to perform plainToClass operation.
      */
-    classTransformOptions?: ClassTransformOptions;
+    classTransform?: ClassTransformOptions;
 
     /**
      * If true, class-validator will be used to validate param object.
+     * If validation options are given then it means validation will be applied (is true).
      */
-    validate?: boolean;
-
-    /**
-     * Class-validator options used to transform and validate param object.
-     */
-    validateOptions?: ValidatorOptions;
+    validate?: boolean|ValidatorOptions;
 
 }

@@ -1,4 +1,4 @@
-import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
+import {Gulpclass, MergedTask, SequenceTask, Task} from "gulpclass";
 
 const gulp = require("gulp");
 const del = require("del");
@@ -171,7 +171,10 @@ export class Gulpfile {
         // chai.use(require("sinon-chai"));
         // chai.use(require("chai-as-promised"));
 
-        return gulp.src(["./build/es5/test/functional/**/*.js"])
+        return gulp.src([
+            "./build/es5/test/functional/**/*.js",
+            "./build/es5/test/issues/**/*.js",
+        ])
             .pipe(mocha())
             .pipe(istanbul.writeReports());
     }

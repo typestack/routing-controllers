@@ -1,16 +1,14 @@
 import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
 import {ActionProperties} from "./ActionProperties";
-import {BodyRequiredError} from "./error/BodyRequiredError";
 import {BadRequestError} from "./http-error/BadRequestError";
 import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {ParameterRequiredError} from "./error/ParameterRequiredError";
 import {ParamMetadata} from "./metadata/ParamMetadata";
-import {NotFoundError} from "./http-error/NotFoundError";
+import {ParamRequiredError} from "./error/ParamRequiredError";
 
 /**
- * Helps to handle parameters.
+ * Handles action parameter.
  */
 export class ActionParameterHandler {
 
@@ -25,59 +23,54 @@ export class ActionParameterHandler {
     // Public Methods
     // -------------------------------------------------------------------------
 
-    handleParam(actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
+    /**
+     * Handles action parameter.
+     */
+    handle(actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
 
         if (param.type === "request")
             return actionProperties.request;
 
         if (param.type === "response")
             return actionProperties.response;
-        
-        let value: any, originalValue: any;
-        value = originalValue = this.driver.getParamFromRequest(actionProperties, param);
-        
-        const isValueEmpty = value === null || value === undefined || value === "";
-        const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
-        if (!isValueEmpty)
-            value = this.handleParamFormat(value, param);
-        
-        // check cases when parameter is required but its empty and throw errors in such cases
+        // get parameter value from request and normalize it
+        const value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+
+        // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
-            if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check
-                return Promise.reject(new BodyRequiredError(actionProperties));
+            const isValueEmpty = value === null || value === undefined || value === "";
+            const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
-            } else if (param.name && isValueEmpty) { // regular check for all other parameters
-                return Promise.reject(new ParameterRequiredError(param, actionProperties));
+            if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
+                return Promise.reject(new ParamRequiredError(actionProperties, param));
+
+            } else if (param.name && isValueEmpty) { // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
+                return Promise.reject(new ParamRequiredError(actionProperties, param));
             }
         }
 
         // if transform function is given for this param then apply it
         if (param.transform)
-            value = param.transform(value, actionProperties.request, actionProperties.response);
-        
-        const promiseValue = value instanceof Promise ? value : Promise.resolve(value);
-        return promiseValue.then((value: any) => {
+            return param.transform(value, actionProperties.request, actionProperties.response);
 
-            if (param.required && originalValue !== null && originalValue !== undefined && isValueEmpty) {
-                const contentType = param.reflectedType && param.reflectedType.name ? param.reflectedType.name : "content";
-                const message = param.name ? ` with ${param.name}='${originalValue}'` : ``;
-                return Promise.reject(new NotFoundError(`Requested ${contentType + message} was not found`));
-            }
-
-            return value;
-        });
+        return value;
     }
 
     // -------------------------------------------------------------------------
-    // Private Methods
+    // Protected Methods
     // -------------------------------------------------------------------------
 
-    protected handleParamFormat(value: any, param: ParamMetadata): any {
-        const format = param.format;
-        const formatName = format instanceof Function && format.name ? format.name : format instanceof String ? format : "";
-        switch (formatName.toLowerCase()) {
+    /**
+     * Normalizes parameter value.
+     */
+    protected normalizeParamValue(value: any, param: ParamMetadata): any {
+        if (value === null || value === undefined)
+            return value;
+
+        switch (param.targetName) {
             case "number":
+                if (value === "") return undefined;
                 return +value;
 
             case "string":
@@ -86,48 +79,70 @@ export class ActionParameterHandler {
             case "boolean":
                 if (value === "true") {
                     return true;
-                    
+
                 } else if (value === "false") {
                     return false;
                 }
+
                 return !!value;
 
             default:
-                const isObjectFormat = format instanceof Function || formatName.toLowerCase() === "object";
-                if (value && (param.parse || isObjectFormat))
+                if (value && (param.parse || param.isTargetObject)) {
                     value = this.parseValue(value, param);
+                    value = this.transformValue(value, param);
+                    value = this.validateValue(value, param);
+                }
         }
         return value;
     }
 
-    protected async parseValue(value: any, paramMetadata: ParamMetadata) {
-        try {
-            const valueObject = typeof value === "string" ? JSON.parse(value) : value;
-
-            let parsedValue: any;
-            // If value is already by instance of target class, then skip the plain to class step.
-            if (!(value instanceof paramMetadata.format) && paramMetadata.format !== Object && paramMetadata.format && this.driver.useClassTransformer) {
-                const options = paramMetadata.classTransformOptions || this.driver.plainToClassTransformOptions;
-                parsedValue = plainToClass(paramMetadata.format, valueObject, options);
-            } else {
-                parsedValue = valueObject;
+    /**
+     * Parses string value into a JSON object.
+     */
+    protected parseValue(value: any, paramMetadata: ParamMetadata): any {
+        if (typeof value === "string") {
+            try {
+                return JSON.parse(value);
+            } catch (error) {
+                throw new ParameterParseJsonError(paramMetadata.name, value);
             }
-
-            if (paramMetadata.validate || this.driver.enableValidation) {
-                const options = paramMetadata.validateOptions || this.driver.validationOptions;
-                return validate(parsedValue, options)
-                    .then(() => parsedValue)
-                    .catch((validationErrors: ValidationError[]) => {
-                        const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'details' property for more info.`);
-                        error.details = validationErrors;
-                        throw error;
-                    });
-            } else {
-                return parsedValue;
-            }
-        } catch (er) {
-            throw new ParameterParseJsonError(paramMetadata.name, value);
         }
+
+        return value;
+    }
+
+    /**
+     * Perform class-transformation if enabled.
+     */
+    protected transformValue(value: any, paramMetadata: ParamMetadata): any {
+        if (this.driver.useClassTransformer &&
+            paramMetadata.targetType &&
+            paramMetadata.targetType !== Object &&
+            !(value instanceof paramMetadata.targetType)) {
+
+            const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
+            value = plainToClass(paramMetadata.targetType, value, options);
+        }
+
+        return value;
+    }
+
+    /**
+     * Perform class-validation if enabled.
+     */
+    protected validateValue(value: any, paramMetadata: ParamMetadata): Promise<any>|any {
+        if (paramMetadata.validate || (this.driver.enableValidation && paramMetadata.validate !== false)) {
+            const options = paramMetadata.validate instanceof Object ? paramMetadata.validate : this.driver.validationOptions;
+            return validate(value, options)
+                .then(() => value)
+                .catch((validationErrors: ValidationError[]) => {
+                    const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
+                    error.errors = validationErrors;
+                    throw error;
+                });
+        }
+
+        return value;
     }
 
 }

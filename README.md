@@ -69,47 +69,37 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     `npm install reflect-metadata --save`
 
-    and make sure to import it in a global place, like app.ts:
+    and make sure to import it before you use routing-controllers:
 
     ```typescript
     import "reflect-metadata";
     ```
 
-3. ES6 features are used, if you are using old version of node.js you may need to install
- [es6-shim](https://github.com/paulmillr/es6-shim):
-
-    `npm install es6-shim --save`
-
-    and import it in a global place like app.ts:
-
-    ```typescript
-    import "es6-shim";
-    ```
-
-4. Install framework:
+3. Install framework:
 
     **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
 
     `npm install express body-parser multer --save`
 
-    Optionally you can also install its [typings](https://github.com/typings/typings):
+    Optionally you can also install their typings:
 
-    `typings install dt~express dt~serve-static --save --global`
+    `npm install @types/express @types/body-parser @types/multer --save`
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa@next koa-router@next koa-bodyparser@next koa-multer --save`
+    `npm install koa koa-router koa-bodyparser koa-multer --save`
 
-    Optionally you can also install its [typings](https://github.com/typings/typings):
+    Optionally you can also install their typings:
 
-    `typings install dt~koa --save --global`
+    `typings install @types/koa --save --global`
     
 5. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
     {
         "emitDecoratorMetadata": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "lib": ["es6"]
     }
     ```
 
@@ -156,7 +146,6 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 2. Create a file `app.ts`
 
     ```typescript
-    import "es6-shim"; // this shim is optional if you are using old version of node
     import "reflect-metadata"; // this shim is required
     import {createExpressServer} from "routing-controllers";
     import "./UserController";  // we need to "load" our controller before call createServer. this is required

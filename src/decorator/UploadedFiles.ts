@@ -14,9 +14,8 @@ export function UploadedFiles(name: string, options?: UploadOptions): Function {
             method: methodName,
             index: index,
             type: "files",
-            reflectedType: format,
             name: name,
-            format: format,
+            targetType: format,
             parse: false,
             required: options ? options.required : false,
             extraOptions: options ? options.options : undefined

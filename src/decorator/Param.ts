@@ -13,12 +13,11 @@ export function Param(name: string): Function {
             method: methodName,
             index: index,
             type: "param",
-            reflectedType: format,
             name: name,
-            format: format,
+            targetType: format,
             parse: false, // it does not make sense for Param to be parsed
             required: true, // params are always required, because if they are missing router will not match the route
-            classTransformOptions: undefined
+            classTransform: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };

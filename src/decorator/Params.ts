@@ -13,11 +13,10 @@ export function Params(): Function {
             method: methodName,
             index: index,
             type: "param",
-            reflectedType: format,
-            format: format,
+            targetType: format,
             parse: false, // it does not make sense for Param to be parsed
             required: false,
-            classTransformOptions: undefined
+            classTransform: undefined
         };
         defaultMetadataArgsStorage().params.push(metadata);
     };
