@@ -14,45 +14,86 @@ export class MetadataArgsStorage {
     // Properties
     // -------------------------------------------------------------------------
 
+    /**
+     * Registered controller metadata args.
+     */
     controllers: ControllerMetadataArgs[] = [];
+
+    /**
+     * Registered middleware metadata args.
+     */
     middlewares: MiddlewareMetadataArgs[] = [];
+
+    /**
+     * Registered "use middleware" metadata args.
+     */
     uses: UseMetadataArgs[] = [];
+
+    /**
+     * Registered action metadata args.
+     */
     actions: ActionMetadataArgs[] = [];
+
+    /**
+     * Registered param metadata args.
+     */
     params: ParamMetadataArgs[] = [];
+
+    /**
+     * Registered response handler metadata args.
+     */
     responseHandlers: ResponseHandlerMetadataArgs[] = [];
 
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
+    /**
+     * Filters registered middlewares by a given classes.
+     */
     findMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
         return this.middlewares.filter(ctrl => {
             return classes.filter(cls => ctrl.target === cls).length > 0;
         });
     }
 
+    /**
+     * Filters registered controllers by a given classes.
+     */
     findControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
         return this.controllers.filter(ctrl => {
             return classes.filter(cls => ctrl.target === cls).length > 0;
         });
     }
 
+    /**
+     * Filters registered actions by a given classes.
+     */
     findActionsWithTarget(target: Function): ActionMetadataArgs[] {
         return this.actions.filter(action => action.target === target);
     }
 
+    /**
+     * Filters registered "use middlewares" by a given target class and method name.
+     */
     findUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
         return this.uses.filter(use => {
             return use.target === target && use.method === methodName;
         });
     }
 
+    /**
+     * Filters parameters by a given classes.
+     */
     findParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
         return this.params.filter(param => {
             return param.target === target && param.method === methodName;
         });
     }
 
+    /**
+     * Filters response handlers by a given classes.
+     */
     findResponseHandlersWithTargetAndMethod(target: Function, methodName: string): ResponseHandlerMetadataArgs[] {
         return this.responseHandlers.filter(property => {
             return property.target === target && property.method === methodName;

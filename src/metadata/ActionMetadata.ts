@@ -1,11 +1,14 @@
 import {ParamMetadata} from "./ParamMetadata";
 import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
-import {ActionType} from "./types/ActionTypes";
+import {ActionType} from "./types/ActionType";
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {UseMetadata} from "./UseMetadata";
 import {ClassTransformOptions} from "class-transformer";
 
+/**
+ * Action metadata.
+ */
 export class ActionMetadata {
 
     // -------------------------------------------------------------------------
@@ -33,11 +36,6 @@ export class ActionMetadata {
     responseHandlers: ResponseHandlerMetadata[];
 
     /**
-     * Route to be registered for the action.
-     */
-    route: string|RegExp;
-
-    /**
      * Class on which's method this action is attached.
      */
     target: Function;
@@ -53,31 +51,131 @@ export class ActionMetadata {
      */
     type: ActionType;
 
+    /**
+     * Route to be registered for the action.
+     */
+    route: string|RegExp;
+
+    /**
+     * Full route to this action (includes controller base route).
+     */
+    fullRoute: string|RegExp;
+
+    /**
+     * Indicates if this action uses Body.
+     */
+    isBodyUsed: boolean;
+
+    /**
+     * Indicates if this action uses Uploaded File.
+     */
+    isFileUsed: boolean;
+
+    /**
+     * Indicates if this action uses Uploaded Files.
+     */
+    isFilesUsed: boolean;
+
+    /**
+     * Indicates if controller of this action is json-typed.
+     */
+    isJsonTyped: boolean;
+
+    /**
+     * Class-transformer options for the action response content.
+     */
+    responseClassTransformOptions: ClassTransformOptions;
+
+    /**
+     * Http code to be used on undefined action returned content.
+     */
+    undefinedResultCode: number;
+
+    /**
+     * Http code to be used on null action returned content.
+     */
+    nullResultCode: number;
+
+    /**
+     * Http code to be set on successful response.
+     */
+    successHttpCode: number;
+
+    /**
+     * Specifies redirection url for this action.
+     */
+    redirect: string;
+
+    /**
+     * Rendered template to be used for this controller action.
+     */
+    renderedTemplate: string;
+
+    /**
+     * Response headers to be set.
+     */
+    headers: { [name: string]: any };
+
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
     
     constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs) {
         this.controllerMetadata = controllerMetadata;
-        
-        if (args.route)
-            this.route = args.route;
-        if (args.target)
-            this.target = args.target;
-        if (args.method)
-            this.method = args.method;
-        if (args.type)
-            this.type = args.type;
+        this.route = args.route;
+        this.target = args.target;
+        this.method = args.method;
+        this.type = args.type;
     }
 
     // -------------------------------------------------------------------------
-    // Accessors
+    // Public Methods
     // -------------------------------------------------------------------------
 
-    get fullRoute(): string|RegExp {
+    /**
+     * Builds everything action metadata needs.
+     * Action metadata can be used only after its build.
+     */
+    build() {
+        const classTransformerResponseHandler = this.responseHandlers.find(handler => handler.type === "response-class-transform-options");
+        const undefinedResultHandler = this.responseHandlers.find(handler => handler.type === "on-undefined");
+        const nullResultHandler = this.responseHandlers.find(handler => handler.type === "on-null");
+        const successCodeHandler = this.responseHandlers.find(handler => handler.type === "success-code");
+        const redirectHandler = this.responseHandlers.find(handler => handler.type === "redirect");
+        const renderedTemplateHandler = this.responseHandlers.find(handler => handler.type === "rendered-template");
+
+        if (classTransformerResponseHandler)
+            this.responseClassTransformOptions = classTransformerResponseHandler.value;
+        if (undefinedResultHandler)
+            this.undefinedResultCode = undefinedResultHandler.value;
+        if (nullResultHandler)
+            this.nullResultCode = nullResultHandler.value;
+        if (successCodeHandler)
+            this.successHttpCode = successCodeHandler.value;
+        if (redirectHandler)
+            this.redirect = redirectHandler.value;
+        if (renderedTemplateHandler)
+            this.renderedTemplate = renderedTemplateHandler.value;
+
+        this.isBodyUsed = !!this.params.find(param => param.type === "body");
+        this.isFilesUsed = !!this.params.find(param => param.type === "files");
+        this.isFileUsed = !!this.params.find(param => param.type === "file");
+        this.isJsonTyped = this.controllerMetadata.type === "json";
+        this.fullRoute = this.buildFullRoute();
+        this.headers = this.buildHeaders();
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds full action route.
+     */
+    private buildFullRoute(): string|RegExp {
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
-                return ActionMetadata.appendBaseRouteToRegexpRoute(this.route as RegExp, this.controllerMetadata.route);
+                return ActionMetadata.appendBaseRouteToRegexpRoute(this.controllerMetadata.route, this.route);
             }
             return this.route;
         }
@@ -87,122 +185,26 @@ export class ActionMetadata {
         if (this.route && typeof this.route === "string") path += this.route;
         return path;
     }
-    
-    get isJsonTyped(): boolean {
-        return this.controllerMetadata.isJsonTyped;
-    }
-    
-    get contentTypeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "content-type");
-    }
-    
-    get locationHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "location");
-    }
-    
-    get regirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "redirect");
-    }
-    
-    get successCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "success-code");
-    }
-    
-    get nullResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "on-null");
-    }
-    
-    get undefinedResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "on-undefined");
-    }
-    
-    get errorCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "error-code");
-    }
-    
-    get redirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "redirect");
-    }
-    
-    get renderedTemplateHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === "rendered-template");
-    }
-    
-    get headerHandlers(): ResponseHandlerMetadata[] {
-        return this.responseHandlers.filter(handler => handler.type === "header");
-    }
 
-    get responseClassTransformOptions(): ClassTransformOptions {
-        const responseHandler = this.responseHandlers.find(handler => handler.type === "response-class-transform-options");
-        if (responseHandler)
-            return responseHandler.value;
+    /**
+     * Builds action response headers.
+     */
+    private buildHeaders() {
+        const contentTypeHandler = this.responseHandlers.find(handler => handler.type === "content-type");
+        const locationHandler = this.responseHandlers.find(handler => handler.type === "location");
 
-        return undefined;
-    }
+        const headers: { [name: string]: string } = {};
+        if (locationHandler)
+            headers["Location"] = locationHandler.value;
 
-    get undefinedResultCode(): number {
-        if (this.undefinedResultHandler)
-            return this.undefinedResultHandler.value;
+        if (contentTypeHandler)
+            headers["Content-type"] = contentTypeHandler.value;
 
-        return undefined;
-    }
+        const headerHandlers = this.responseHandlers.filter(handler => handler.type === "header");
+        if (headerHandlers)
+            headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
 
-    get nullResultCode(): number {
-        if (this.nullResultHandler)
-            return this.nullResultHandler.value;
-        
-        return undefined;
-    }
-    
-    get successHttpCode(): number {
-        if (this.successCodeHandler)
-            return this.successCodeHandler.value;
-        
-        return undefined;
-    }
-    
-    get headers(): { [name: string]: any } {
-        const headers: { [name: string]: any } = {};
-        if (this.locationHandler)
-            headers["Location"] = this.locationHandler.value;
-        
-        if (this.contentTypeHandler)
-            headers["Content-type"] = this.contentTypeHandler.value;
-        
-        if (this.headerHandlers)
-            this.headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
-        
         return headers;
-    }
-    
-    get redirect() {
-        if (this.redirectHandler)
-            return this.redirectHandler.value;
-
-        return undefined;
-    }
-    
-    get renderedTemplate() {
-        if (this.renderedTemplateHandler)
-            return this.renderedTemplateHandler.value;
-
-        return undefined;
-    }
-    
-    get isCookiesUsed() {
-        return !!this.params.find(param => param.type === "cookie");
-    }
-    
-    get isBodyUsed() {
-        return !!this.params.find(param => param.type === "body");
-    }
-    
-    get isFilesUsed() {
-        return !!this.params.find(param => param.type === "files");
-    }
-    
-    get isFileUsed() {
-        return !!this.params.find(param => param.type === "file");
     }
 
     // -------------------------------------------------------------------------
@@ -220,8 +222,11 @@ export class ActionMetadata {
     // -------------------------------------------------------------------------
     // Static Methods
     // -------------------------------------------------------------------------
-    
-    static appendBaseRouteToRegexpRoute(route: RegExp, baseRoute: string) {
+
+    /**
+     * Appends base route to a given regexp route.
+     */
+    static appendBaseRouteToRegexpRoute(baseRoute: string, route: RegExp) {
         if (!baseRoute || baseRoute === "") return route;
         const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
         return new RegExp(fullPath, route.flags);

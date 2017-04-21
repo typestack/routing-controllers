@@ -1,9 +1,12 @@
 import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
-import {ParamType} from "./types/ParamTypes";
+import {ParamType} from "./types/ParamType";
 import {ClassTransformOptions} from "class-transformer";
 
+/**
+ * Action Parameter metadata.
+ */
 export class ParamMetadata {
 
     // -------------------------------------------------------------------------
@@ -101,22 +104,14 @@ export class ParamMetadata {
         this.target = args.target;
         this.method = args.method;
         this.extraOptions = args.extraOptions;
-        if (args.index !== undefined)
-            this.index = args.index;
-        if (args.type)
-            this.type = args.type;
-        if (args.name)
-            this.name = args.name;
-        if (args.parse)
-            this.parse = args.parse;
-        if (args.required)
-            this.required = args.required;
-        if (args.transform)
-            this.transform = args.transform;
-        if (args.classTransform)
-            this.classTransform = args.classTransform;
-        if (args.validate !== undefined) 
-            this.validate = args.validate;
+        this.index = args.index;
+        this.type = args.type;
+        this.name = args.name;
+        this.parse = args.parse;
+        this.required = args.required;
+        this.transform = args.transform;
+        this.classTransform = args.classTransform;
+        this.validate = args.validate;
 
         if (args.targetType) {
             this.targetType = args.targetType;

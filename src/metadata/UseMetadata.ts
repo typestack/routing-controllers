@@ -1,5 +1,8 @@
 import {UseMetadataArgs} from "./args/UseMetadataArgs";
 
+/**
+ * "Use middleware" metadata.
+ */
 export class UseMetadata {
 
     // -------------------------------------------------------------------------

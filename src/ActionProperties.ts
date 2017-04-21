@@ -13,17 +13,17 @@ export interface ActionProperties {
      * Action Request object.
      * Express-specific property.
      */
-    request: any;
+    request?: any;
 
     /**
      * Action Response object.
      * Express-specific property.
      */
-    response: any;
+    response?: any;
 
     /**
      * "Next" function used to call next middleware.
      */
-    next: Function;
+    next?: Function;
 
 }

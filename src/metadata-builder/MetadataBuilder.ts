@@ -15,25 +15,37 @@ export class MetadataBuilder {
     // Public Methods
     // -------------------------------------------------------------------------
 
+    /**
+     * Builds controller metadata from a registered controller metadata args.
+     */
     buildControllerMetadata(classes?: Function[]) {
         return this.createControllers(classes);
     }
 
+    /**
+     * Builds middleware metadata from a registered middleware metadata args.
+     */
     buildMiddlewareMetadata(classes?: Function[]) {
         return this.createMiddlewares(classes);
     }
 
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Protected Methods
     // -------------------------------------------------------------------------
 
-    private createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
+    /**
+     * Creates middleware metadatas.
+     */
+    protected createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const middlewares = !classes ? storage.middlewares : storage.findMiddlewareMetadatasForClasses(classes);
         return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
     }
-    
-    private createControllers(classes?: Function[]): ControllerMetadata[] {
+
+    /**
+     * Creates controller metadatas.
+     */
+    protected createControllers(classes?: Function[]): ControllerMetadata[] {
         const storage = defaultMetadataArgsStorage();
         const controllers = !classes ? storage.controllers : storage.findControllerMetadatasForClasses(classes);
         return controllers.map(controllerArgs => {
@@ -43,8 +55,11 @@ export class MetadataBuilder {
             return controller;
         });
     }
-    
-    private createActions(controller: ControllerMetadata): ActionMetadata[] {
+
+    /**
+     * Creates action metadatas.
+     */
+    protected createActions(controller: ControllerMetadata): ActionMetadata[] {
         return defaultMetadataArgsStorage()
             .findActionsWithTarget(controller.target)
             .map(actionArgs => {
@@ -52,29 +67,42 @@ export class MetadataBuilder {
                 action.params = this.createParams(action);
                 action.responseHandlers = this.createResponseHandlers(action);
                 action.uses = this.createActionUses(action);
+                action.build();
                 return action;
             });
     }
-    
-    private createParams(action: ActionMetadata): ParamMetadata[] {
+
+    /**
+     * Creates param metadatas.
+     */
+    protected createParams(action: ActionMetadata): ParamMetadata[] {
         return defaultMetadataArgsStorage()
             .findParamsWithTargetAndMethod(action.target, action.method)
             .map(paramArgs => new ParamMetadata(action, paramArgs));
     }
 
-    private createResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
+    /**
+     * Creates response handler metadatas.
+     */
+    protected createResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
         return defaultMetadataArgsStorage()
             .findResponseHandlersWithTargetAndMethod(action.target, action.method)
             .map(handlerArgs => new ResponseHandlerMetadata(action, handlerArgs));
     }
 
-    private createActionUses(action: ActionMetadata): UseMetadata[] {
+    /**
+     * Creates use metadatas for actions.
+     */
+    protected createActionUses(action: ActionMetadata): UseMetadata[] {
         return defaultMetadataArgsStorage()
             .findUsesWithTargetAndMethod(action.target, action.method)
             .map(useArgs => new UseMetadata(useArgs));
     }
 
-    private createControllerUses(controller: ControllerMetadata): UseMetadata[] {
+    /**
+     * Creates use metadatas for controllers.
+     */
+    protected createControllerUses(controller: ControllerMetadata): UseMetadata[] {
         return defaultMetadataArgsStorage()
             .findUsesWithTargetAndMethod(controller.target, undefined)
             .map(useArgs => new UseMetadata(useArgs));

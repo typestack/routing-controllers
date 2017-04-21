@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {UseBefore} from "../../src/decorator/UseBefore";
@@ -34,7 +34,7 @@ describe("express middlewares", () => {
         defaultMetadataArgsStorage().reset();
 
         @Middleware({ global: true })
-        class TestGlobalBeforeMidleware implements MiddlewareInterface {
+        class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalBefore = true;
@@ -45,7 +45,7 @@ describe("express middlewares", () => {
         }
 
         @Middleware({ global: true, type: "after" })
-        class TestGlobalAfterMidleware implements MiddlewareInterface {
+        class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalAfter = true;
@@ -56,7 +56,7 @@ describe("express middlewares", () => {
         }
 
         @Middleware()
-        class TestLoggerMiddleware implements MiddlewareInterface {
+        class TestLoggerMiddleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useCustom = true;

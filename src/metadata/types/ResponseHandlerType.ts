@@ -1,3 +1,6 @@
+/**
+ * Response handler type.
+ */
 export type ResponseHandlerType = "success-code"
     |"error-code"
     |"content-type"

@@ -3,8 +3,8 @@ import {JsonController} from "../../src/decorator/JsonController";
 import {createExpressServer} from "../../src/index";
 import {Get} from "../../src/decorator/Get";
 import {Middleware} from "../../src/decorator/Middleware";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 
 
 const chakram = require("chakram");
@@ -29,7 +29,7 @@ describe("custom express global before middleware error handling", () => {
 
 
         @Middleware({ global: true })
-        class GlobalBeforeMiddleware implements MiddlewareInterface {
+        class GlobalBeforeMiddleware implements ExpressMiddlewareInterface {
             use(request: any, response: any, next?: Function): any {
               console.log("GLOBAL BEFORE MIDDLEWARE CALLED");
               throw new CustomError();
@@ -37,7 +37,7 @@ describe("custom express global before middleware error handling", () => {
         }
 
         @Middleware({ global: true, type: "after" })
-        class CustomErrorHandler implements ErrorMiddlewareInterface {
+        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 errorHandlerName = error.name;

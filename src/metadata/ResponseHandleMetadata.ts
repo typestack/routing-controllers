@@ -1,7 +1,10 @@
 import {ActionMetadata} from "./ActionMetadata";
 import {ResponseHandlerMetadataArgs} from "./args/ResponseHandleMetadataArgs";
-import {ResponseHandlerType} from "./types/ResponsePropertyTypes";
+import {ResponseHandlerType} from "./types/ResponseHandlerType";
 
+/**
+ * Response handler metadata.
+ */
 export class ResponseHandlerMetadata {
 
     // -------------------------------------------------------------------------
@@ -39,22 +42,16 @@ export class ResponseHandlerMetadata {
     secondaryValue: any;
 
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
 
     constructor(actionMetadata: ActionMetadata, args: ResponseHandlerMetadataArgs) {
         this.actionMetadata = actionMetadata;
-
-        if (args.target)
-            this.target = args.target;
-        if (args.method)
-            this.method = args.method;
-        if (args.type)
-            this.type = args.type;
-        if (args.value)
-            this.value = args.value;
-        if (args.secondaryValue)
-            this.secondaryValue = args.secondaryValue;
+        this.target = args.target;
+        this.method = args.method;
+        this.type = args.type;
+        this.value = args.value;
+        this.secondaryValue = args.secondaryValue;
     }
 
 }

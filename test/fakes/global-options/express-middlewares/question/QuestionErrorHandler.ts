@@ -1,9 +1,9 @@
-import {ErrorMiddlewareInterface} from "../../../../../src/middleware/ErrorMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../../../../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {defaultFakeService} from "../../FakeService";
 import {Middleware} from "../../../../../src/decorator/Middleware";
 
 @Middleware({ global: true, type: "after" })
-export class QuestionErrorHandler implements ErrorMiddlewareInterface {
+export class QuestionErrorHandler implements ExpressErrorMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: (err?: any) => any): any {
         defaultFakeService.questionErrorMiddleware();

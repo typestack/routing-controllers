@@ -4,7 +4,7 @@ import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
 import {Get} from "../../src/decorator/Get";
 import {Middleware} from "../../src/decorator/Middleware";
 import {UseAfter} from "../../src/decorator/UseAfter";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -25,7 +25,7 @@ describe("express error handling", () => {
         defaultMetadataArgsStorage().reset();
 
         @Middleware({ global: true, type: "after" })
-        class AllErrorsHandler implements ErrorMiddlewareInterface {
+        class AllErrorsHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandlerCalled = true;
@@ -36,7 +36,7 @@ describe("express error handling", () => {
         }
 
         @Middleware()
-        class SpecificErrorHandler implements ErrorMiddlewareInterface {
+        class SpecificErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandledSpecifically = true;
@@ -47,7 +47,7 @@ describe("express error handling", () => {
         }
 
         @Middleware()
-        class SoftErrorHandler implements ErrorMiddlewareInterface {
+        class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 console.log("ERROR WAS IGNORED: ", error);

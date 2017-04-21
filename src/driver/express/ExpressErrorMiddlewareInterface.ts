@@ -1,7 +1,7 @@
 /**
  * Error middlewares can implement this interface.
  */
-export interface ErrorMiddlewareInterface {
+export interface ExpressErrorMiddlewareInterface {
 
     /**
      * Called before response.send is being called. The data passed to method is the data passed to .send method.

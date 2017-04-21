@@ -1,11 +1,12 @@
-import {UseMetadata} from "../metadata/UseMetadata";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ActionProperties} from "../ActionProperties";
+import {UseMetadata} from "../../metadata/UseMetadata";
+import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
+import {ActionMetadata} from "../../metadata/ActionMetadata";
+import {ActionProperties} from "../../ActionProperties";
 import {classToPlain} from "class-transformer";
-import {Driver} from "./Driver";
-import {ParamMetadata} from "../metadata/ParamMetadata";
-import {BaseDriver} from "./BaseDriver";
+import {Driver} from "../Driver";
+import {ParamMetadata} from "../../metadata/ParamMetadata";
+import {BaseDriver} from "../BaseDriver";
+import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
 const cookie = require("cookie");
 
 /**
@@ -58,7 +59,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         this.express.use((request: any, response: any, next: (err: any) => any) => {
             try {
-                const useResult = middleware.instance.use(request, response, next);
+                const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                 if (useResult instanceof Promise) {
                     useResult.catch((error: any) => {
                         this.handleError(error, undefined, {
@@ -119,7 +120,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         const uses = action.controllerMetadata.uses.concat(action.uses);
         const fullRoute = action.fullRoute instanceof RegExp
-            ? ActionMetadata.appendBaseRouteToRegexpRoute(action.fullRoute as RegExp, this.routePrefix) 
+            ? ActionMetadata.appendBaseRouteToRegexpRoute(this.routePrefix, action.fullRoute as RegExp)
             : `${this.routePrefix}${action.fullRoute}`;
         const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
         const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
@@ -299,7 +300,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
                         middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
-                            return middleware.instance.use(request, response, next);
+                            return (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                         });
                     }
                 });

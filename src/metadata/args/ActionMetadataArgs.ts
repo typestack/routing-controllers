@@ -1,4 +1,4 @@
-import {ActionType} from "../types/ActionTypes";
+import {ActionType} from "../types/ActionType";
 
 /**
  * Action metadata used to storage information about registered action.

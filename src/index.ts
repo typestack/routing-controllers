@@ -1,8 +1,8 @@
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
 import {RoutingControllers} from "./RoutingControllers";
-import {ExpressDriver} from "./driver/ExpressDriver";
-import {KoaDriver} from "./driver/KoaDriver";
+import {ExpressDriver} from "./driver/express/ExpressDriver";
+import {KoaDriver} from "./driver/koa/KoaDriver";
 import {Driver} from "./driver/Driver";
 import {getFromContainer} from "./container";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
@@ -153,8 +153,8 @@ export * from "./decorator/UploadedFiles";
 
 export * from "./decorator/JsonController";
 
-export * from "./middleware/MiddlewareInterface";
-export * from "./middleware/ErrorMiddlewareInterface";
+export * from "./driver/express/ExpressMiddlewareInterface";
+export * from "./driver/express/ExpressErrorMiddlewareInterface";
 export * from "./RoutingControllersOptions";
 export * from "./http-error/HttpError";
 export * from "./http-error/InternalServerError";

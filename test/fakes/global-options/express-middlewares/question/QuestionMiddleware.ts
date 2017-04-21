@@ -1,9 +1,9 @@
-import {MiddlewareInterface} from "../../../../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../../../../src/driver/express/ExpressMiddlewareInterface";
 import {defaultFakeService} from "../../FakeService";
 import {Middleware} from "../../../../../src/decorator/Middleware";
 
 @Middleware({ global: true })
-export class QuestionMiddleware implements MiddlewareInterface {
+export class QuestionMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next?: (err?: any) => any): any {
         defaultFakeService.questionMiddleware();

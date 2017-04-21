@@ -3,6 +3,9 @@ import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
 
+/**
+ * Controller metadata.
+ */
 export class ControllerMetadata {
 
     // -------------------------------------------------------------------------
@@ -39,22 +42,18 @@ export class ControllerMetadata {
     // -------------------------------------------------------------------------
     
     constructor(args: ControllerMetadataArgs) {
-        if (args.target)
-            this.target = args.target;
-        if (args.route)
-            this.route = args.route;
-        if (args.type)
-            this.type = args.type;
+        this.target = args.target;
+        this.route = args.route;
+        this.type = args.type;
     }
 
     // -------------------------------------------------------------------------
     // Accessors
     // -------------------------------------------------------------------------
-    
-    get isJsonTyped() {
-        return this.type === "json";
-    }
 
+    /**
+     * Gets instance of the controller.
+     */
     get instance(): any {
         return getFromContainer(this.target);
     }

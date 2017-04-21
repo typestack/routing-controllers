@@ -1,8 +1,12 @@
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {MiddlewareInterface} from "../middleware/MiddlewareInterface";
-import {ErrorMiddlewareInterface} from "../middleware/ErrorMiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../driver/express/ExpressMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../driver/express/ExpressErrorMiddlewareInterface";
 import {getFromContainer} from "../container";
+import {KoaMiddlewareInterface} from "../driver/koa/KoaMiddlewareInterface";
 
+/**
+ * Middleware metadata.
+ */
 export class MiddlewareMetadata {
 
     // -------------------------------------------------------------------------
@@ -44,20 +48,18 @@ export class MiddlewareMetadata {
     // Accessors
     // -------------------------------------------------------------------------
 
-    get isErrorHandler(): boolean {
-        return !!(this.errorHandlerInstance && this.errorHandlerInstance.error);
+    /**
+     * Gets middleware instance from the container.
+     */
+    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface {
+        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface>(this.target);
     }
 
-    get isUseMiddleware(): boolean {
-        return !!(this.instance && this.instance.use);
-    }
-
-    get instance(): MiddlewareInterface {
-        return getFromContainer<MiddlewareInterface>(this.target);
-    }
-
-    get errorHandlerInstance(): ErrorMiddlewareInterface {
-        return getFromContainer<ErrorMiddlewareInterface>(this.target);
+    /**
+     * Gets error handler instance from the container.
+     */
+    get errorHandlerInstance(): ExpressErrorMiddlewareInterface {
+        return getFromContainer<ExpressErrorMiddlewareInterface>(this.target);
     }
     
 }

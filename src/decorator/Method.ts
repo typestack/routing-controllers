@@ -1,5 +1,5 @@
 import {defaultMetadataArgsStorage} from "../index";
-import {ActionType} from "../metadata/types/ActionTypes";
+import {ActionType} from "../metadata/types/ActionType";
 import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**

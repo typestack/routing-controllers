@@ -1,11 +1,12 @@
-import {ActionProperties} from "../ActionProperties";
-import {ActionMetadata} from "../metadata/ActionMetadata";
-import {BaseDriver} from "./BaseDriver";
-import {Driver} from "./Driver";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ParamMetadata} from "../metadata/ParamMetadata";
-import {UseMetadata} from "../metadata/UseMetadata";
+import {ActionProperties} from "../../ActionProperties";
+import {ActionMetadata} from "../../metadata/ActionMetadata";
+import {BaseDriver} from "../BaseDriver";
+import {Driver} from "../Driver";
+import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
+import {ParamMetadata} from "../../metadata/ParamMetadata";
+import {UseMetadata} from "../../metadata/UseMetadata";
 import {classToPlain} from "class-transformer";
+import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
 const cookie = require("cookie");
 
 /**
@@ -29,7 +30,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         if (require) {
             if (!koa) {
                 try {
-                    this.koa = new (require("koa"))();
+                    this.koa = new (require(""))();
                 } catch (e) {
                     throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
                 }
@@ -62,7 +63,7 @@ export class KoaDriver extends BaseDriver implements Driver {
             return;
         
         this.koa.use(function (ctx: any, next: any) {
-            return middleware.instance.use(ctx, next);
+            return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
         });
     }
 
@@ -116,7 +117,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         };
 
         const fullRoute = action.fullRoute instanceof RegExp
-            ? ActionMetadata.appendBaseRouteToRegexpRoute(action.fullRoute as RegExp, this.routePrefix)
+            ? ActionMetadata.appendBaseRouteToRegexpRoute(this.routePrefix, action.fullRoute as RegExp)
             : `${this.routePrefix}${action.fullRoute}`;
         const routerParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
         this.router[koaAction](...routerParams);
@@ -294,8 +295,8 @@ export class KoaDriver extends BaseDriver implements Driver {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewares.forEach(middleware => {
                     if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function(context: any, next: Function) {
-                            return middleware.instance.use(context, next);
+                        middlewareFunctions.push(function(context: any, next: (err?: any) => Promise<any>) {
+                            return (middleware.instance as KoaMiddlewareInterface).use(context, next);
                         });
                     }
                 });

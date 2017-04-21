@@ -5,7 +5,7 @@ import {UseBefore} from "../../src/decorator/UseBefore";
 import {Middleware} from "../../src/decorator/Middleware";
 import {UseAfter} from "../../src/decorator/UseAfter";
 import {createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -34,7 +34,7 @@ describe("koa middlewares", () => {
         defaultMetadataArgsStorage().reset();
 
         @Middleware({ global: true })
-        class TestGlobalBeforeKoaMidleware implements MiddlewareInterface {
+        class TestGlobalBeforeKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useGlobalBefore = true;
@@ -45,7 +45,7 @@ describe("koa middlewares", () => {
         }
 
         @Middleware({ global: true, type: "after" })
-        class TestGlobalAfterKoaMidleware implements MiddlewareInterface {
+        class TestGlobalAfterKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useGlobalAfter = true;
@@ -56,7 +56,7 @@ describe("koa middlewares", () => {
         }
 
         @Middleware()
-        class TestLoggerKoaMiddleware implements MiddlewareInterface {
+        class TestLoggerKoaMiddleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useCustom = true;

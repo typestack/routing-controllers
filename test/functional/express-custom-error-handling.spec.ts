@@ -2,7 +2,7 @@ import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
 import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 import {Middleware} from "../../src/decorator/Middleware";
 const chakram = require("chakram");
@@ -22,7 +22,7 @@ describe("custom express error handling", () => {
         defaultMetadataArgsStorage().reset();
 
         @Middleware({ global: true, type: "after" })
-        class CustomErrorHandler implements ErrorMiddlewareInterface {
+        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 
