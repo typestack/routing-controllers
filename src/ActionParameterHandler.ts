@@ -52,7 +52,7 @@ export class ActionParameterHandler {
 
         // if transform function is given for this param then apply it
         if (param.transform)
-            return param.transform(value, actionProperties.request, actionProperties.response);
+            return param.transform(actionProperties, value);
 
         return value;
     }

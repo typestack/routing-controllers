@@ -19,11 +19,6 @@ export class KoaDriver extends BaseDriver implements Driver {
     // -------------------------------------------------------------------------
 
     /**
-     * Koa module.
-     */
-    private koa: any;
-
-    /**
      * Koa-router module.
      */
     private router: any;
@@ -32,9 +27,8 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(koa?: any) {
+    constructor(public koa?: any) {
         super();
-        this.koa = koa;
         this.loadKoa();
     }
 

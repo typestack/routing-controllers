@@ -8,6 +8,7 @@ import {defaultMetadataStorage} from "class-transformer/storage";
 import {Get} from "../../src/decorator/Get";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
+import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 

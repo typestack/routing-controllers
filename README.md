@@ -98,10 +98,12 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     ```json
     {
         "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "lib": ["es6"]
+        "experimentalDecorators": true
     }
     ```
+    
+    Also note, routing-controllers uses some of es6 functionality, 
+    so you either need to have new node.js versions, either install `es6-shim`. 
 
 ## Example of usage
 
@@ -148,12 +150,15 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     ```typescript
     import "reflect-metadata"; // this shim is required
     import {createExpressServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller before call createServer. this is required
-    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
+    import "./UserController";
+ 
+    const app = createExpressServer({
+       controllers : [UserController] // we specify controllers we want to use
+    }); // creates express app, registers all controller routes and returns you express app instance
     app.listen(3000); // run express application
     ```
 
-    > koa users just need to call `createKoaServer` instead of `createExpressServer`
+    > if you are koa user you just need to use `createKoaServer` instead of `createExpressServer`
 
 3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser.
 If you open `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
@@ -216,8 +221,8 @@ export class UserController {
 }
 ```
 
-`@Req()` decorator inject you a `Request` object, and `@Res()` decorator inject you a `Response` object.
-If you have installed a express typings too, you can use their types:
+`@Req()` decorator injects you a `Request` object, and `@Res()` decorator injects you a `Response` object.
+If you have installed a express typings, you can use their types:
 
 ```typescript
 import {Request, Response} from "express";
@@ -973,6 +978,48 @@ export class UsersController {
 
 }
 ```
+
+## Custom parameter decorators
+
+You can create your own parameter decorators. 
+Here is simple example how "session user" can be implemented using custom decorators:
+
+```typescript
+import {registerParamDecorator} from "routing-controllers";
+
+export function UserFromSession(options?: { required?: boolean }) {
+    return function(object: Object, method: string, index: number) {
+        registerParamDecorator({
+            object: object,
+            method: method,
+            index: index,
+            required: options && options.required ? true : false,
+            value: actionProperties => {
+                const token = actionProperties.request.headers["authorization"];
+                return database.findUserByToken(token);
+            }
+        });
+    };
+}
+```
+
+And use it in the controllers:
+
+```typescript
+@JsonController()
+export class QuestionController {
+
+    @Post()
+    save(@Body() question: Question, @UserFromSession({ required: true }) user: User) {
+        // here you'll have user authorized and you can safely save your question
+        // in the case if user returned your undefined from the database and "required"
+        // parameter was set, routing-controllers will throw you ParameterRequired error
+    }        
+    
+    
+}
+```
+
 
 ## Decorators Reference
 

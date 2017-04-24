@@ -4,6 +4,65 @@ import {ExpressDriver} from "./driver/express/ExpressDriver";
 import {KoaDriver} from "./driver/koa/KoaDriver";
 import {Driver} from "./driver/Driver";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
+import {CustomParameterDecorator} from "./CustomParameterDecorator";
+import {defaultMetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+
+// -------------------------------------------------------------------------
+// Main exports
+// -------------------------------------------------------------------------
+
+export * from "./container";
+
+export * from "./decorator/Body";
+export * from "./decorator/BodyParam";
+export * from "./decorator/ContentType";
+export * from "./decorator/Controller";
+export * from "./decorator/CookieParam";
+export * from "./decorator/Delete";
+export * from "./decorator/Get";
+export * from "./decorator/Head";
+export * from "./decorator/Header";
+export * from "./decorator/HeaderParam";
+export * from "./decorator/HttpCode";
+export * from "./decorator/Location";
+export * from "./decorator/Method";
+export * from "./decorator/Middleware";
+export * from "./decorator/OnNull";
+export * from "./decorator/OnUndefined";
+export * from "./decorator/Param";
+export * from "./decorator/Patch";
+export * from "./decorator/Post";
+export * from "./decorator/Put";
+export * from "./decorator/QueryParam";
+export * from "./decorator/Redirect";
+export * from "./decorator/Render";
+export * from "./decorator/Req";
+export * from "./decorator/Res";
+export * from "./decorator/ResponseClassTransformOptions";
+export * from "./decorator/Session";
+export * from "./decorator/State";
+export * from "./decorator/UploadedFile";
+export * from "./decorator/UploadedFiles";
+export * from "./decorator/UseAfter";
+export * from "./decorator/UseBefore";
+export * from "./decorator/UploadedFiles";
+export * from "./decorator/JsonController";
+
+export * from "./http-error/HttpError";
+export * from "./http-error/InternalServerError";
+export * from "./http-error/BadRequestError";
+export * from "./http-error/ForbiddenError";
+export * from "./http-error/NotAcceptableError";
+export * from "./http-error/MethodNotAllowedError";
+export * from "./http-error/NotFoundError";
+export * from "./http-error/UnauthorizedError";
+
+export * from "./driver/express/ExpressMiddlewareInterface";
+export * from "./driver/express/ExpressErrorMiddlewareInterface";
+export * from "./driver/koa/KoaMiddlewareInterface";
+
+export * from "./RoutingControllersOptions";
+export * from "./CustomParameterDecorator";
 
 // -------------------------------------------------------------------------
 // Main Functions
@@ -107,56 +166,17 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         .registerMiddlewares("after", middlewareClasses); // todo: register only for loaded controllers?
 }
 
-// -------------------------------------------------------------------------
-// Commonly Used exports
-// -------------------------------------------------------------------------
-
-export * from "./container";
-
-export * from "./decorator/Body";
-export * from "./decorator/BodyParam";
-export * from "./decorator/ContentType";
-export * from "./decorator/Controller";
-export * from "./decorator/CookieParam";
-export * from "./decorator/Delete";
-export * from "./decorator/Get";
-export * from "./decorator/Head";
-export * from "./decorator/Header";
-export * from "./decorator/HeaderParam";
-export * from "./decorator/HttpCode";
-export * from "./decorator/Location";
-export * from "./decorator/Method";
-export * from "./decorator/Middleware";
-export * from "./decorator/OnNull";
-export * from "./decorator/OnUndefined";
-export * from "./decorator/Param";
-export * from "./decorator/Patch";
-export * from "./decorator/Post";
-export * from "./decorator/Put";
-export * from "./decorator/QueryParam";
-export * from "./decorator/Redirect";
-export * from "./decorator/Render";
-export * from "./decorator/Req";
-export * from "./decorator/Res";
-export * from "./decorator/ResponseClassTransformOptions";
-export * from "./decorator/Session";
-export * from "./decorator/State";
-export * from "./decorator/UploadedFile";
-export * from "./decorator/UploadedFiles";
-export * from "./decorator/UseAfter";
-export * from "./decorator/UseBefore";
-export * from "./decorator/UploadedFiles";
-
-export * from "./decorator/JsonController";
-
-export * from "./driver/express/ExpressMiddlewareInterface";
-export * from "./driver/express/ExpressErrorMiddlewareInterface";
-export * from "./RoutingControllersOptions";
-export * from "./http-error/HttpError";
-export * from "./http-error/InternalServerError";
-export * from "./http-error/BadRequestError";
-export * from "./http-error/ForbiddenError";
-export * from "./http-error/NotAcceptableError";
-export * from "./http-error/MethodNotAllowedError";
-export * from "./http-error/NotFoundError";
-export * from "./http-error/UnauthorizedError";
+/**
+ * Registers custom parameter decorator used in the controller actions.
+ */
+export function registerParamDecorator(options: CustomParameterDecorator) {
+    defaultMetadataArgsStorage.params.push({
+        type: "custom-converter",
+        object: options.object,
+        method: options.method,
+        index: options.index,
+        parse: false,
+        required: options.required,
+        transform: options.value
+    });
+}

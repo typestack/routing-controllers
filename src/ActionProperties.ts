@@ -4,22 +4,20 @@
 export interface ActionProperties {
 
     /**
+     * Action Request object.
+     */
+    request: any;
+
+    /**
+     * Action Response object.
+     */
+    response: any;
+
+    /**
      * Content in which action is executed.
      * Koa-specific property.
      */
     context?: any;
-
-    /**
-     * Action Request object.
-     * Express-specific property.
-     */
-    request?: any;
-
-    /**
-     * Action Response object.
-     * Express-specific property.
-     */
-    response?: any;
 
     /**
      * "Next" function used to call next middleware.
