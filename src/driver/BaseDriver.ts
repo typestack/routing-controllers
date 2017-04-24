@@ -1,6 +1,8 @@
 import {ValidatorOptions} from "class-validator";
 import {HttpError} from "../http-error/HttpError";
 import {ClassTransformOptions} from "class-transformer";
+import {CurrentUserChecker} from "../CurrentUserChecker";
+import {AuthorizationChecker} from "../AuthorizationChecker";
 
 /**
  * Base driver functionality for all other drivers.
@@ -57,6 +59,17 @@ export class BaseDriver {
      * Map of error overrides.
      */
     errorOverridingMap: { [key: string]: any };
+
+    /**
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
+     */
+    authorizationChecker?: AuthorizationChecker;
+
+    /**
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
 
     // -------------------------------------------------------------------------
     // Protected Methods

@@ -1,5 +1,7 @@
 import {ClassTransformOptions} from "class-transformer";
 import {ValidatorOptions} from "class-validator";
+import {AuthorizationChecker} from "./AuthorizationChecker";
+import {CurrentUserChecker} from "./CurrentUserChecker";
 
 /**
  * Routing controller initialization options.
@@ -60,5 +62,16 @@ export interface RoutingControllersOptions {
      * Map of error overrides.
      */
     errorOverridingMap?: { [key: string]: any };
+
+    /**
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
+     */
+    authorizationChecker?: AuthorizationChecker;
+
+    /**
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
     
 }

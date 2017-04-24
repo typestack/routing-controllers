@@ -7,6 +7,9 @@ import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {UseMetadata} from "../../metadata/UseMetadata";
 import {classToPlain} from "class-transformer";
 import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
+import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
+import {AccessDeniedError} from "../../error/AccessDeniedError";
+import {isPromiseLike} from "../../util/isPromiseLike";
 const cookie = require("cookie");
 
 /**
@@ -21,7 +24,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Koa-router module.
      */
-    private router: any;
+    public router: any;
     
     // -------------------------------------------------------------------------
     // Constructor
@@ -78,39 +81,51 @@ export class KoaDriver extends BaseDriver implements Driver {
                 });
         }
 
+        if (action.isAuthorizedUsed) {
+            defaultMiddlewares.push((context: any, next: Function) => {
+                if (!this.authorizationChecker)
+                    throw new AuthorizationCheckerNotDefinedError();
+
+                const actionProperties = { request: context.request, response: context.response, context, next };
+                const checkResult = this.authorizationChecker(actionProperties, action.authorizedRoles);
+                if (isPromiseLike(checkResult)) {
+                    return checkResult.then(result => {
+                        if (!result) {
+                            return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+
+                        } else {
+                            return next();
+                        }
+                    });
+                } else {
+                    if (!checkResult) {
+                        return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                    } else {
+                        return next();
+                    }
+                }
+            });
+        }
+
         // user used middlewares
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const preMiddlewareFunctions = this.prepareMiddlewares(uses.filter(use => !use.afterAction), middlewares);
-        const postMiddlewareFunctions = this.prepareMiddlewares(uses.filter(use => use.afterAction), middlewares);
+        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction), middlewares);
+        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction), middlewares);
 
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
-        const routeHandler = (ctx: any, next: () => Promise<any>) => {
-            return new Promise((resolve, reject) => {
-                const options: ActionProperties = {
-                    request: ctx.request,
-                    response: ctx.response,
-                    next: (err: any) => {
-                        next().then(r => {
-                            if (err && !this.isDefaultErrorHandlingEnabled) {
-                                return reject(err);
-                            }
-                            resolve(r);
-                        }).catch(reject);
-                    },
-                    context: ctx,
-                };
-                executeCallback(options);
-            });
+        const routeHandler = (context: any, next: () => Promise<any>) => {
+            const options: ActionProperties = { request: context.request, response: context.response, context, next };
+            return executeCallback(options);
         };
 
         // finally register action in koa
         this.router[action.type.toLowerCase()](...[
             route,
-            ...preMiddlewareFunctions,
+            ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,
-            ...postMiddlewareFunctions
+            ...afterMiddlewares
         ]);
     }
 
@@ -209,7 +224,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         if (action.redirect) { // if redirect is set then do it
             options.response.redirect(action.redirect);
-            options.next();
+            return options.next();
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
@@ -218,7 +233,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
 
-            options.next();
+            return options.next();
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
@@ -237,25 +252,25 @@ export class KoaDriver extends BaseDriver implements Driver {
                     options.response.status = action.undefinedResultCode;
                 }
 
-                options.next();
+                return options.next();
             } else {
                 if (result instanceof Object) {
                     options.response.body = result;
                 } else {
                     options.response.body = result;
                 }
-                options.next();
+                return options.next();
             }
 
         } else {
-            options.next();
+            return options.next();
         }
     }
 
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): void {
+    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
@@ -282,8 +297,10 @@ export class KoaDriver extends BaseDriver implements Driver {
             } else {
                 response.body = this.processJsonError(error);
             }
+
+            return Promise.resolve();
         }
-        options.next(error);
+        return Promise.reject(error);
     }
 
     // -------------------------------------------------------------------------

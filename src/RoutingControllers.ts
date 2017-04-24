@@ -3,6 +3,7 @@ import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionProperties} from "./ActionProperties";
 import {Driver} from "./driver/Driver";
+import {isPromiseLike} from "./util/isPromiseLike";
 
 /**
  * Registers controllers and middlewares in the given server framework.
@@ -53,7 +54,7 @@ export class RoutingControllers {
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
                 this.driver.registerAction(action, middlewares, (actionProperties: ActionProperties) => {
-                    this.executeAction(action, actionProperties);
+                    return this.executeAction(action, actionProperties);
                 });
             });
         });
@@ -90,39 +91,37 @@ export class RoutingControllers {
             .map(param => this.parameterHandler.handle(actionProperties, param));
 
         // after all parameters are computed
-        Promise.all(paramsPromises).then(params => {
+        return Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
             const result = action.callMethod(params);
-            this.handleCallMethodResult(result, action, actionProperties);
+            return this.handleCallMethodResult(result, action, actionProperties);
 
         }).catch(error => { // otherwise simply handle error without action execution
-            this.driver.handleError(error, action, actionProperties);
+            // if (this.driver instanceof KoaDriver) {
+            //     this.driver.router[action.type.toLowerCase()](function(context: any, next) {
+            //
+            //     });
+            // }
+            return this.driver.handleError(error, action, actionProperties);
         });
     }
 
     /**
      * Handles result of the action method execution.
      */
-    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionProperties) {
-        if (this.isPromiseLike(result)) {
-            result
+    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionProperties): any {
+        if (isPromiseLike(result)) {
+            return result
                 .then((data: any) => {
                     return this.handleCallMethodResult(data, action, options);
                 })
                 .catch((error: any) => {
-                    this.driver.handleError(error, action, options);
+                    return this.driver.handleError(error, action, options);
                 });
         } else {
-            this.driver.handleSuccess(result, action, options);
+            return this.driver.handleSuccess(result, action, options);
         }
-    }
-
-    /**
-     * Checks if given value is a Promise-like object.
-     */
-    protected isPromiseLike(arg: any): arg is Promise<any> {
-        return arg != null && typeof arg === "object" && typeof arg.then === "function";
     }
 
 }

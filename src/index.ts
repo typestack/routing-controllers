@@ -158,6 +158,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     if (options.routePrefix !== undefined)
         driver.routePrefix = options.routePrefix;
 
+    if (options.currentUserChecker !== undefined)
+        driver.currentUserChecker = options.currentUserChecker;
+
+    if (options.authorizationChecker !== undefined)
+        driver.authorizationChecker = options.authorizationChecker;
+
     // next create a controller executor
     new RoutingControllers(driver)
         .initialize()

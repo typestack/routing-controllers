@@ -8,6 +8,9 @@ import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {BaseDriver} from "../BaseDriver";
 import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
 import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface";
+import {AccessDeniedError} from "../../error/AccessDeniedError";
+import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
+import {isPromiseLike} from "../../util/isPromiseLike";
 const cookie = require("cookie");
 
 /**
@@ -52,23 +55,15 @@ export class ExpressDriver extends BaseDriver implements Driver {
             this.express.use((request: any, response: any, next: (err: any) => any) => {
                 try {
                     const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
-                    if (useResult instanceof Promise) {
+                    if (isPromiseLike(useResult)) {
                         useResult.catch((error: any) => {
-                            this.handleError(error, undefined, {
-                                request: request,
-                                response: response,
-                                next: next,
-                            });
+                            this.handleError(error, undefined, { request, response, next });
                             return error;
                         });
                     }
 
                 } catch (error) {
-                    this.handleError(error, undefined, {
-                        request: request,
-                        response: response,
-                        next: next,
-                    });
+                    this.handleError(error, undefined, { request, response, next });
                 }
             });
         }
@@ -102,6 +97,32 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
+        }
+
+        if (action.isAuthorizedUsed) {
+            defaultMiddlewares.push((request: any, response: any, next: Function) => {
+                if (!this.authorizationChecker)
+                    throw new AuthorizationCheckerNotDefinedError();
+
+                const actionProperties = { request, response, next };
+                const checkResult = this.authorizationChecker(actionProperties, action.authorizedRoles);
+                if (isPromiseLike(checkResult)) {
+                    checkResult.then(result => {
+                        if (!result) {
+                            return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+
+                        } else {
+                            next();
+                        }
+                    });
+                } else {
+                    if (!checkResult) {
+                        this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                    } else {
+                        next();
+                    }
+                }
+            });
         }
 
         // user used middlewares
@@ -263,7 +284,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): void {
+    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 

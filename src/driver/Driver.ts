@@ -4,6 +4,8 @@ import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ActionProperties} from "../ActionProperties";
 import {ClassTransformOptions} from "class-transformer";
+import {AuthorizationChecker} from "../AuthorizationChecker";
+import {CurrentUserChecker} from "../CurrentUserChecker";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
@@ -58,6 +60,17 @@ export interface Driver {
     routePrefix: string;
 
     /**
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
+     */
+    authorizationChecker?: AuthorizationChecker;
+
+    /**
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
+
+    /**
      * Initializes the things driver needs before routes and middleware registration.
      */
     initialize(): void;
@@ -87,7 +100,7 @@ export interface Driver {
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(error: any, action: ActionMetadata, options: ActionProperties): void;
+    handleError(error: any, action: ActionMetadata, options: ActionProperties): any;
 
     /**
      * Defines an algorithm of how to handle success result of executing controller action.

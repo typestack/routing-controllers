@@ -12,7 +12,8 @@ export function UserFromSession(options?: { required?: boolean }) {
             index: index,
             required: options && options.required ? true : false,
             value: actionProperties => {
-                const token = actionProperties.request.headers["authorization"];
+                // perform queries based on token from request headers
+                // const token = actionProperties.request.headers["authorization"];
                 // return database.findUserByToken(token);
                 return new User(1, "Johny", "Cage");
             }

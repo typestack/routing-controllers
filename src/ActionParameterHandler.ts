@@ -6,6 +6,9 @@ import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ParamRequiredError} from "./error/ParamRequiredError";
+import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
+import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
+import {isPromiseLike} from "./util/isPromiseLike";
 
 /**
  * Handles action parameter.
@@ -35,7 +38,19 @@ export class ActionParameterHandler {
             return actionProperties.response;
 
         // get parameter value from request and normalize it
-        const value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+        let value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+
+        // if transform function is given for this param then apply it
+        if (param.transform)
+            value = param.transform(actionProperties, value);
+
+        // if its current-user decorator then get its value
+        if (param.type === "current-user") {
+            if (!this.driver.currentUserChecker)
+                throw new CurrentUserCheckerNotDefinedError();
+
+            value = this.driver.currentUserChecker(actionProperties);
+        }
 
         // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
@@ -45,14 +60,25 @@ export class ActionParameterHandler {
             if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
                 return Promise.reject(new ParamRequiredError(actionProperties, param));
 
+            } else if (param.type === "current-user") { // current user has a special check as well
+
+                if (isPromiseLike(value)) {
+                    return value.then(currentUser => {
+                        if (!currentUser)
+                            return Promise.reject(new AuthorizationRequiredError(actionProperties));
+
+                        return currentUser;
+                    });
+
+                } else {
+                    if (!value)
+                        return Promise.reject(new AuthorizationRequiredError(actionProperties));
+                }
+
             } else if (param.name && isValueEmpty) { // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
                 return Promise.reject(new ParamRequiredError(actionProperties, param));
             }
         }
-
-        // if transform function is given for this param then apply it
-        if (param.transform)
-            return param.transform(actionProperties, value);
 
         return value;
     }

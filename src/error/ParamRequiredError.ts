@@ -7,7 +7,7 @@ import {ActionProperties} from "../ActionProperties";
  */
 export class ParamRequiredError extends BadRequestError {
 
-    name = "BadRequestError";
+    name = "ParamRequiredError";
 
     constructor(actionProperties: ActionProperties, param: ParamMetadata) {
         super();

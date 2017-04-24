@@ -82,6 +82,11 @@ export class ActionMetadata {
     isJsonTyped: boolean;
 
     /**
+     * Indicates if this action uses Authorized decorator.
+     */
+    isAuthorizedUsed: boolean;
+
+    /**
      * Class-transformer options for the action response content.
      */
     responseClassTransformOptions: ClassTransformOptions;
@@ -121,6 +126,11 @@ export class ActionMetadata {
      */
     bodyExtraOptions: any;
 
+    /**
+     * Roles set by @Authorized decorator.
+     */
+    authorizedRoles: any[];
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -148,6 +158,7 @@ export class ActionMetadata {
         const successCodeHandler = this.responseHandlers.find(handler => handler.type === "success-code");
         const redirectHandler = this.responseHandlers.find(handler => handler.type === "redirect");
         const renderedTemplateHandler = this.responseHandlers.find(handler => handler.type === "rendered-template");
+        const authorizedHandler = this.responseHandlers.find(handler => handler.type === "authorized");
         const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
@@ -164,6 +175,8 @@ export class ActionMetadata {
             this.renderedTemplate = renderedTemplateHandler.value;
 
         this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
+        this.isAuthorizedUsed = !!authorizedHandler;
+        this.authorizedRoles = authorizedHandler ? authorizedHandler.value : [];
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");

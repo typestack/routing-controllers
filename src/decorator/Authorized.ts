@@ -1,0 +1,34 @@
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+
+/**
+ * Marks controller action to have a special access.
+ * Authorization logic must be defined in routing-controllers settings.
+ */
+export function Authorized(): Function;
+
+/**
+ * Marks controller action to have a special access.
+ * Authorization logic must be defined in routing-controllers settings.
+ */
+export function Authorized(role: string): Function;
+
+/**
+ * Marks controller action to have a special access.
+ * Authorization logic must be defined in routing-controllers settings.
+ */
+export function Authorized(roles: string[]): Function;
+
+/**
+ * Marks controller action to have a special access.
+ * Authorization logic must be defined in routing-controllers settings.
+ */
+export function Authorized(roleOrRoles?: string|string[]): Function {
+    return function (object: Object, methodName: string) {
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "authorized",
+            target: object.constructor,
+            method: methodName,
+            value: roleOrRoles
+        });
+    };
+}
