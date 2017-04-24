@@ -7,7 +7,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
 export function HeaderParams(): Function {
     return function (object: Object, methodName: string, index: number) {
         defaultMetadataArgsStorage.params.push({
-            type: "header",
+            type: "headers",
             object: object,
             method: methodName,
             index: index,

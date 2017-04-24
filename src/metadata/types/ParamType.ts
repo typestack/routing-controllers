@@ -2,15 +2,19 @@
  * Controller action's parameter type.
  */
 export type ParamType = "body"
+    |"body-param"
     |"query"
+    |"queries"
     |"header"
-    // |"header-param"
+    |"headers"
     |"file"
     |"files"
     |"param"
+    |"params"
     |"session"
     |"state"
     |"cookie"
+    |"cookies"
     |"request"
     |"response"
     |"custom-converter";

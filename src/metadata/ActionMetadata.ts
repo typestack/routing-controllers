@@ -163,8 +163,8 @@ export class ActionMetadata {
         if (renderedTemplateHandler)
             this.renderedTemplate = renderedTemplateHandler.value;
 
-        this.bodyExtraOptions = bodyParam.extraOptions;
-        this.isBodyUsed = !!bodyParam;
+        this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
+        this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
         this.isJsonTyped = this.controllerMetadata.type === "json";

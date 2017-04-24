@@ -7,7 +7,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
 export function Params(): Function {
     return function (object: Object, methodName: string, index: number) {
         defaultMetadataArgsStorage.params.push({
-            type: "param",
+            type: "params",
             object: object,
             method: methodName,
             index: index,

@@ -8,7 +8,7 @@ import {ParamOptions} from "../decorator-options/ParamOptions";
 export function BodyParam(name: string, options?: ParamOptions): Function {
     return function (object: Object, methodName: string, index: number) {
         defaultMetadataArgsStorage.params.push({
-            type: "body",
+            type: "body-param",
             object: object,
             method: methodName,
             index: index,

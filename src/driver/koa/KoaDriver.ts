@@ -136,13 +136,15 @@ export class KoaDriver extends BaseDriver implements Driver {
         const request: any = actionOptions.request;
         switch (param.type) {
             case "body":
-                if (param.name)
-                    return request.body[param.name];
                 return request.body;
 
+            case "body-param":
+                return request.body[param.name];
+
             case "param":
-                if (param.name)
-                    return context.params[param.name];
+                return context.params[param.name];
+
+            case "params":
                 return context.params;
 
             case "session":
@@ -156,8 +158,9 @@ export class KoaDriver extends BaseDriver implements Driver {
                 return context.state;
 
             case "query":
-                if (param.name)
-                    return context.query[param.name];
+                return context.query[param.name];
+
+            case "queries":
                 return context.query;
 
             case "file":
@@ -167,16 +170,19 @@ export class KoaDriver extends BaseDriver implements Driver {
                 return actionOptions.context.req.files;
 
             case "header":
-                if (param.name)
-                    return context.headers[param.name.toLowerCase()];
-                return context.headers;
+                return context.headers[param.name.toLowerCase()];
+
+            case "headers":
+                return request.headers;
 
             case "cookie":
                 if (!context.headers.cookie) return;
                 const cookies = cookie.parse(context.headers.cookie);
-                if (param.name)
-                    return cookies[param.name];
-                return cookies;
+                return cookies[param.name];
+
+            case "cookies":
+                if (!request.headers.cookie) return {};
+                return cookie.parse(request.headers.cookie);
         }
     }
 

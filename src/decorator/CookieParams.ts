@@ -7,7 +7,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
 export function CookieParams() {
     return function (object: Object, methodName: string, index: number) {
         defaultMetadataArgsStorage.params.push({
-            type: "cookie",
+            type: "cookies",
             object: object,
             method: methodName,
             index: index,

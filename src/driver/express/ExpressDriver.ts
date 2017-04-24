@@ -138,33 +138,38 @@ export class ExpressDriver extends BaseDriver implements Driver {
         const request: any = actionProperties.request;
         switch (param.type) {
             case "body":
-                if (param.name)
-                    return request.body[param.name];
                 return request.body;
 
+            case "body-param":
+                return request.body[param.name];
+
             case "param":
-                if (param.name)
-                    return request.params[param.name];
+                return request.params[param.name];
+
+            case "params":
                 return request.params;
 
             case "session":
                 if (param.name)
-                    return request.session[param.name]; 
+                    return request.session[param.name];
+
                 return request.session;
 
             case "state":
                 throw new Error("@State decorators are not supported by express driver.");
 
             case "query":
-                if (param.name)
-                    return request.query[param.name];
+                return request.query[param.name];
 
+            case "queries":
                 return request.query;
-            case "header":
-                if (param.name)
-                    return request.headers[param.name.toLowerCase()];
 
+            case "header":
+                return request.headers[param.name.toLowerCase()];
+
+            case "headers":
                 return request.headers;
+
             case "file":
                 return request.file;
 
@@ -174,9 +179,11 @@ export class ExpressDriver extends BaseDriver implements Driver {
             case "cookie":
                 if (!request.headers.cookie) return;
                 const cookies = cookie.parse(request.headers.cookie);
-                if (param.name)
-                    return cookies[param.name];
-                return cookies;
+                return cookies[param.name];
+
+            case "cookies":
+                if (!request.headers.cookie) return {};
+                return cookie.parse(request.headers.cookie);
         }
     }
 
