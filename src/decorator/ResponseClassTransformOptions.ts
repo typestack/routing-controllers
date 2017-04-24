@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 import {ClassTransformOptions} from "class-transformer";
 
 /**
@@ -7,12 +6,11 @@ import {ClassTransformOptions} from "class-transformer";
  */
 export function ResponseClassTransformOptions(options: ClassTransformOptions): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandlerMetadataArgs = {
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "response-class-transform-options",
             value: options,
             target: object.constructor,
-            method: methodName,
-            type: "response-class-transform-options"
-        };
-        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+            method: methodName
+        });
     };
 }

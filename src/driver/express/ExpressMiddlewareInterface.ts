@@ -1,5 +1,6 @@
 /**
  * Used to register middlewares.
+ * This signature is used for express middlewares.
  */
 export interface ExpressMiddlewareInterface {
 

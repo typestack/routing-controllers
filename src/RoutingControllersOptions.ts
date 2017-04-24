@@ -22,7 +22,7 @@ export interface RoutingControllersOptions {
     middlewares?: Function[]|string[];
 
     /**
-     * Indicates if constructor-utils should be used to perform serialization / deserialization.
+     * Indicates if class-transformer should be used to perform serialization / deserialization.
      */
     classTransformer?: boolean;
 
@@ -40,7 +40,7 @@ export interface RoutingControllersOptions {
 
     /**
      * Indicates if class-validator should be used to auto validate objects injected into params.
-     * You can also directory pass validator options to enable validator with a given options.
+     * You can also directly pass validator options to enable validator with a given options.
      */
     validator?: boolean|ValidatorOptions;
 

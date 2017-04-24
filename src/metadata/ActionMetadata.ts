@@ -116,6 +116,11 @@ export class ActionMetadata {
      */
     headers: { [name: string]: any };
 
+    /**
+     * Extra options used by @Body decorator.
+     */
+    bodyExtraOptions: any;
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -143,6 +148,7 @@ export class ActionMetadata {
         const successCodeHandler = this.responseHandlers.find(handler => handler.type === "success-code");
         const redirectHandler = this.responseHandlers.find(handler => handler.type === "redirect");
         const renderedTemplateHandler = this.responseHandlers.find(handler => handler.type === "rendered-template");
+        const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
             this.responseClassTransformOptions = classTransformerResponseHandler.value;
@@ -157,7 +163,8 @@ export class ActionMetadata {
         if (renderedTemplateHandler)
             this.renderedTemplate = renderedTemplateHandler.value;
 
-        this.isBodyUsed = !!this.params.find(param => param.type === "body");
+        this.bodyExtraOptions = bodyParam.extraOptions;
+        this.isBodyUsed = !!bodyParam;
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
         this.isJsonTyped = this.controllerMetadata.type === "json";
@@ -175,7 +182,7 @@ export class ActionMetadata {
     private buildFullRoute(): string|RegExp {
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
-                return ActionMetadata.appendBaseRouteToRegexpRoute(this.controllerMetadata.route, this.route);
+                return ActionMetadata.appendBaseRoute(this.controllerMetadata.route, this.route);
             }
             return this.route;
         }
@@ -226,7 +233,10 @@ export class ActionMetadata {
     /**
      * Appends base route to a given regexp route.
      */
-    static appendBaseRouteToRegexpRoute(baseRoute: string, route: RegExp) {
+    static appendBaseRoute(baseRoute: string, route: RegExp|string) {
+        if (typeof route === "string")
+            return `${baseRoute}${route}`;
+
         if (!baseRoute || baseRoute === "") return route;
         const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
         return new RegExp(fullPath, route.flags);

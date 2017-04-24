@@ -1,5 +1,5 @@
 /**
- * Error middlewares can implement this interface.
+ * Express error middlewares can implement this interface.
  */
 export interface ExpressErrorMiddlewareInterface {
 

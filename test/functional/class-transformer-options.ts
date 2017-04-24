@@ -1,17 +1,14 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
-import {
-    createExpressServer,
-    createKoaServer,
-    defaultMetadataArgsStorage,
-    RoutingControllersOptions
-} from "../../src/index";
+import {createExpressServer, createKoaServer} from "../../src/index";
+import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
 import {Get} from "../../src/decorator/Get";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
+import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -44,7 +41,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            defaultMetadataArgsStorage.reset();
 
             @JsonController()
             class UserController {
@@ -92,7 +89,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            defaultMetadataArgsStorage.reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -146,7 +143,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            defaultMetadataArgsStorage.reset();
 
             @JsonController()
             class ClassTransformUserController {

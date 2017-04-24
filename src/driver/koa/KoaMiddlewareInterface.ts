@@ -1,6 +1,6 @@
 /**
  * Used to register middlewares.
- * This signature is used for Koa Middlewares.
+ * This signature is used for koa middlewares.
  */
 export interface KoaMiddlewareInterface {
 

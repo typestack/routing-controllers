@@ -79,7 +79,8 @@ export class ParamMetadata {
     transform: (value?: any, request?: any, response?: any) => Promise<any>|any;
 
     /**
-     * Additional parameter options. For example it can be uploading options.
+     * Additional parameter options.
+     * For example it can be uploader middleware options or body-parser middleware options.
      */
     extraOptions: any;
 
@@ -101,7 +102,7 @@ export class ParamMetadata {
     constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
         this.actionMetadata = actionMetadata;
         
-        this.target = args.target;
+        this.target = args.object.constructor;
         this.method = args.method;
         this.extraOptions = args.extraOptions;
         this.index = args.index;
@@ -112,14 +113,14 @@ export class ParamMetadata {
         this.transform = args.transform;
         this.classTransform = args.classTransform;
         this.validate = args.validate;
+        this.targetType = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method)[args.index];
 
-        if (args.targetType) {
-            this.targetType = args.targetType;
-            if (args.targetType instanceof Function && args.targetType.name) {
-                this.targetName = args.targetType.name.toLowerCase();
+        if (this.targetType) {
+            if (this.targetType instanceof Function && this.targetType.name) {
+                this.targetName = this.targetType.name.toLowerCase();
 
-            } else if (typeof args.targetType === "string") {
-                this.targetName = args.targetType.toLowerCase();
+            } else if (typeof this.targetType === "string") {
+                this.targetName = this.targetType.toLowerCase();
             }
             this.isTargetObject = this.targetType instanceof Function || this.targetType.toLowerCase() === "object";
         }

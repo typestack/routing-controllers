@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Marks given class as a middleware.
@@ -7,12 +6,11 @@ import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
  */
 export function Middleware(options?: { type?: "after"|"before", global?: boolean, priority?: number }): Function {
     return function (target: Function) {
-        const metadata: MiddlewareMetadataArgs = {
+        defaultMetadataArgsStorage.middlewares.push({
             target: target,
-            global: options && options.global === true ? true : false,
-            priority: options && options.priority !== undefined ? options.priority : undefined,
             type: options && options.type ? options.type : "before",
-        };
-        defaultMetadataArgsStorage().middlewares.push(metadata);
+            global: options && options.global === true ? true : false,
+            priority: options && options.priority !== undefined ? options.priority : undefined
+        });
     };
 }

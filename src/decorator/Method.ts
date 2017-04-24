@@ -1,6 +1,5 @@
-import {defaultMetadataArgsStorage} from "../index";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 import {ActionType} from "../metadata/types/ActionType";
-import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
  * Registers an action to be executed when request with specified method comes on a given route.
@@ -20,12 +19,11 @@ export function Method(method: ActionType, route?: string): Function;
  */
 export function Method(method: ActionType, route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadataArgs = {
-            route: route,
+        defaultMetadataArgsStorage.actions.push({
+            type: method,
             target: object.constructor,
             method: methodName,
-            type: method
-        };
-        defaultMetadataArgsStorage().actions.push(metadata);
+            route: route
+        });
     };
 }

@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Sets Location header with given value to the response.
@@ -7,12 +6,11 @@ import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetada
  */
 export function Location(url: string): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandlerMetadataArgs = {
-            value: url,
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "location",
             target: object.constructor,
             method: methodName,
-            type: "location"
-        };
-        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+            value: url
+        });
     };
 }

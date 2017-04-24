@@ -1,20 +1,18 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Injects a Request object to the controller action parameter.
- * Must be applied on a controller action parameters.
+ * Must be applied on a controller action parameter.
  */
 export function Req(): Function {
     return function (object: Object, methodName: string, index: number) {
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
+        defaultMetadataArgsStorage.params.push({
+            type: "request",
+            object: object,
             method: methodName,
             index: index,
-            type: "request",
             parse: false,
             required: false
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
+        });
     };
 }

@@ -2,7 +2,8 @@ import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Post} from "../../src/decorator/Post";
 import {Body} from "../../src/decorator/Body";
-import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer} from "../../src/index";
+import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -26,7 +27,7 @@ describe("routing-controllers global options", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        defaultMetadataArgsStorage.reset();
 
         @JsonController()
         class TestUserController {

@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Registers a controller method to be executed when DELETE request comes on a given route.
@@ -19,12 +18,11 @@ export function Delete(route?: string): Function;
  */
 export function Delete(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadataArgs = {
-            route: route,
+        defaultMetadataArgsStorage.actions.push({
+            type: "delete",
             target: object.constructor,
             method: methodName,
-            type: "delete"
-        };
-        defaultMetadataArgsStorage().actions.push(metadata);
+            route: route
+        });
     };
 }

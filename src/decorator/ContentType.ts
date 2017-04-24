@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Sets response Content-Type.
@@ -7,12 +6,11 @@ import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetada
  */
 export function ContentType(contentType: string): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandlerMetadataArgs = {
-            value: contentType,
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "content-type",
             target: object.constructor,
             method: methodName,
-            type: "content-type"
-        };
-        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+            value: contentType
+        });
     };
 }

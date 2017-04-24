@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Sets response header.
@@ -7,13 +6,12 @@ import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetada
  */
 export function Header(name: string, value: string): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandlerMetadataArgs = {
-            value: name,
-            secondaryValue: value,
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "header",
             target: object.constructor,
             method: methodName,
-            type: "header"
-        };
-        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+            value: name,
+            secondaryValue: value
+        });
     };
 }

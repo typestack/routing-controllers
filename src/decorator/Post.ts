@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Registers an action to be executed when POST request comes on a given route.
@@ -19,12 +18,11 @@ export function Post(route?: string): Function;
  */
 export function Post(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ActionMetadataArgs = {
-            route: route,
+        defaultMetadataArgsStorage.actions.push({
+            type: "post",
             target: object.constructor,
             method: methodName,
-            type: "post"
-        };
-        defaultMetadataArgsStorage().actions.push(metadata);
+            route: route
+        });
     };
 }

@@ -4,8 +4,8 @@
 export interface UploadOptions {
 
     /**
-     * If set to true then uploaded file will become required.
-     * If user performs a request and file is not set then routing-controllers will throw an error.
+     * If set to true then uploaded file become required.
+     * If user performs a request and file is not in a request then routing-controllers will throw an error.
      */
     required?: boolean;
 

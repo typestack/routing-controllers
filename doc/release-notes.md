@@ -1,5 +1,9 @@
 # Release notes
 
+**0.7.0** *[BREAKING CHANGES]*
+
+* 
+
 **0.6.10**
 
 * added integration with `class-transform-validator` for deserialization and auto validation request parameters

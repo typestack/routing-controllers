@@ -87,7 +87,7 @@ export class MetadataArgsStorage {
      */
     findParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
         return this.params.filter(param => {
-            return param.target === target && param.method === methodName;
+            return param.object.constructor === target && param.method === methodName;
         });
     }
 
@@ -113,3 +113,8 @@ export class MetadataArgsStorage {
     }
 
 }
+
+/**
+ * Default metadata args storage.
+ */
+export const defaultMetadataArgsStorage = new MetadataArgsStorage();

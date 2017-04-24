@@ -18,32 +18,24 @@ export class KoaDriver extends BaseDriver implements Driver {
     // Private Properties
     // -------------------------------------------------------------------------
 
+    /**
+     * Koa module.
+     */
+    private koa: any;
+
+    /**
+     * Koa-router module.
+     */
     private router: any;
     
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(public koa?: any) {
+    constructor(koa?: any) {
         super();
-        
-        if (require) {
-            if (!koa) {
-                try {
-                    this.koa = new (require(""))();
-                } catch (e) {
-                    throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
-                }
-            }
-            try {
-                this.router = new (require("koa-router"))();
-            } catch (e) {
-                throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
-            }
-        } else {
-            throw new Error("Cannot load koa. Try to install all required dependencies.");
-        }
-
+        this.koa = koa;
+        this.loadKoa();
     }
 
     // -------------------------------------------------------------------------
@@ -58,27 +50,26 @@ export class KoaDriver extends BaseDriver implements Driver {
         this.koa.use(bodyParser());
     }
 
+    /**
+     * Registers middleware that run before controller actions.
+     */
     registerMiddleware(middleware: MiddlewareMetadata): void {
-        if (!middleware.instance.use)
-            return;
-        
-        this.koa.use(function (ctx: any, next: any) {
-            return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
-        });
+        if ((middleware.instance as KoaMiddlewareInterface).use) {
+            this.koa.use(function (ctx: any, next: any) {
+                return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
+            });
+        }
     }
 
+    /**
+     * Registers action in the driver.
+     */
     registerAction(action: ActionMetadata,
                    middlewares: MiddlewareMetadata[],
                    executeCallback: (options: ActionProperties) => any): void {
-        const koaAction = action.type.toLowerCase();
+
+        // middlewares required for this action
         const defaultMiddlewares: any[] = [];
-        if (action.isBodyUsed) {
-            if (action.isJsonTyped) {
-                // defaultMiddlewares.push(require("koa-body-parser")());
-            } else {
-                // defaultMiddlewares.push(require("koa-body-parser")());
-            }
-        }
         if (action.isFileUsed || action.isFilesUsed) {
             const multer = this.loadMulter();
             action.params
@@ -93,10 +84,13 @@ export class KoaDriver extends BaseDriver implements Driver {
                 });
         }
 
+        // user used middlewares
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const preMiddlewareFunctions = this.registerUses(uses.filter(use => !use.afterAction), middlewares);
-        const postMiddlewareFunctions = this.registerUses(uses.filter(use => use.afterAction), middlewares);
+        const preMiddlewareFunctions = this.prepareMiddlewares(uses.filter(use => !use.afterAction), middlewares);
+        const postMiddlewareFunctions = this.prepareMiddlewares(uses.filter(use => use.afterAction), middlewares);
 
+        // prepare route and route handler function
+        const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
         const routeHandler = (ctx: any, next: () => Promise<any>) => {
             return new Promise((resolve, reject) => {
                 const options: ActionProperties = {
@@ -116,11 +110,14 @@ export class KoaDriver extends BaseDriver implements Driver {
             });
         };
 
-        const fullRoute = action.fullRoute instanceof RegExp
-            ? ActionMetadata.appendBaseRouteToRegexpRoute(this.routePrefix, action.fullRoute as RegExp)
-            : `${this.routePrefix}${action.fullRoute}`;
-        const routerParams: any[] = [fullRoute, ...preMiddlewareFunctions, ...defaultMiddlewares, routeHandler, ...postMiddlewareFunctions];
-        this.router[koaAction](...routerParams);
+        // finally register action in koa
+        this.router[action.type.toLowerCase()](...[
+            route,
+            ...preMiddlewareFunctions,
+            ...defaultMiddlewares,
+            routeHandler,
+            ...postMiddlewareFunctions
+        ]);
     }
 
     /**
@@ -131,6 +128,9 @@ export class KoaDriver extends BaseDriver implements Driver {
         this.koa.use(this.router.allowedMethods());
     }
 
+    /**
+     * Gets param from the request.
+     */
     getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
@@ -180,38 +180,36 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * Handles result of successfully executed controller action.
+     */
     handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void {
 
+        // check if we need to transform result and do it
         if (this.useClassTransformer && result && result instanceof Object) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
         }
 
-        const response: any = options.response;
-        const isResultUndefined = result === undefined;
-        const isResultNull = result === null;
-        const isResultEmpty = isResultUndefined || isResultNull || result === false || result === "";
+        // set http status code
+        if (action.undefinedResultCode && result === undefined) {
+            options.response.status = action.undefinedResultCode;
 
-        // set http status
-        if (action.undefinedResultCode && isResultUndefined) {
-            response.status = action.undefinedResultCode;
-
-        } else if (action.nullResultCode && isResultNull) {
-            response.status = action.nullResultCode;
+        } else if (action.nullResultCode && result === null) {
+            options.response.status = action.nullResultCode;
 
         } else if (action.successHttpCode) {
-            response.status = action.successHttpCode;
+            options.response.status = action.successHttpCode;
         }
 
         // apply http headers
         Object.keys(action.headers).forEach(name => {
-            response.set(name, action.headers[name]);
+            options.response.set(name, action.headers[name]);
         });
 
         if (action.redirect) { // if redirect is set then do it
-            response.redirect(action.redirect);
+            options.response.redirect(action.redirect);
             options.next();
-            // options.resolver();
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
@@ -221,41 +219,43 @@ export class KoaDriver extends BaseDriver implements Driver {
             });
 
             options.next();
+
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
 
                 if (action.isJsonTyped) {
-                    response.body = null;
+                    options.response.body = null;
                 } else {
-                    response.body = null;
+                    options.response.body = null;
                 }
 
                 // todo: duplication. we make it here because after we set null to body koa seems overrides status
                 if (action.nullResultCode) {
-                    response.status = action.nullResultCode;
+                    options.response.status = action.nullResultCode;
 
                 } else if (result === undefined && action.undefinedResultCode) {
-                    response.status = action.undefinedResultCode;
+                    options.response.status = action.undefinedResultCode;
                 }
 
                 options.next();
             } else {
                 if (result instanceof Object) {
-                    response.body = result;
+                    options.response.body = result;
                 } else {
-                    response.body = result;
+                    options.response.body = result;
                 }
                 options.next();
             }
-            // options.resolver();
 
         } else {
             options.next();
-            // options.resolver();
         }
     }
 
-    handleError(error: any, action: ActionMetadata, options: ActionProperties): void {
+    /**
+     * Handles result of failed executed controller action.
+     */
+    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): void {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
@@ -270,26 +270,30 @@ export class KoaDriver extends BaseDriver implements Driver {
             }
 
             // apply http headers
-            Object.keys(action.headers).forEach(name => {
-                response.set(name, action.headers[name]);
-            });
+            if (action) {
+                Object.keys(action.headers).forEach(name => {
+                    response.set(name, action.headers[name]);
+                });
+            }
 
             // send error content
-            if (action.isJsonTyped) {
+            if (action && action.isJsonTyped) {
                 response.body = this.processJsonError(error);
             } else {
                 response.body = this.processJsonError(error);
             }
         }
         options.next(error);
-        // throw error;
     }
 
     // -------------------------------------------------------------------------
-    // Private Methods
+    // Protected Methods
     // -------------------------------------------------------------------------
 
-    private registerUses(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
+    /**
+     * Creates middlewares from the given "use"-s.
+     */
+    protected prepareMiddlewares(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
@@ -308,6 +312,39 @@ export class KoaDriver extends BaseDriver implements Driver {
         return middlewareFunctions;
     }
 
+    /**
+     * Dynamically loads koa and required koa-router module.
+     */
+    protected loadKoa() {
+        if (require) {
+            if (!this.koa) {
+                try {
+                    this.koa = new (require("koa"))();
+                } catch (e) {
+                    throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
+                }
+
+                this.loadRouter();
+            }
+        } else {
+            throw new Error("Cannot load koa. Try to install all required dependencies.");
+        }
+    }
+
+    /**
+     * Dynamically loads koa-router module.
+     */
+    private loadRouter() {
+        try {
+            this.router = new (require("koa-router"))();
+        } catch (e) {
+            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
+        }
+    }
+
+    /**
+     * Dynamically loads koa-multer module.
+     */
     private loadMulter() {
         try {
             return require("koa-multer");

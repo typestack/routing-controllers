@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Sets response HTTP status code.
@@ -9,12 +8,11 @@ import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetada
  */
 export function HttpCode(code: number): Function {
     return function (object: Object, methodName: string) {
-        const metadata: ResponseHandlerMetadataArgs = {
-            value: code,
+        defaultMetadataArgsStorage.responseHandlers.push({
+            type: "success-code",
             target: object.constructor,
             method: methodName,
-            type: "success-code"
-        };
-        defaultMetadataArgsStorage().responseHandlers.push(metadata);
+            value: code
+        });
     };
 }

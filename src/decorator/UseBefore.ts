@@ -1,5 +1,4 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Specifies a given middleware to be used for controller or controller action BEFORE the action executes.
@@ -26,13 +25,12 @@ export function UseBefore(...middlewares: Array<(request: any, response: any, ne
 export function UseBefore(...middlewares: Array<Function|((request: any, response: any, next: Function) => any)>): Function {
     return function (objectOrFunction: Object|Function, methodName?: string) {
         middlewares.forEach(middleware => {
-            const metadata: UseMetadataArgs = {
-                middleware: middleware,
+            defaultMetadataArgsStorage.uses.push({
                 target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,
                 method: methodName,
+                middleware: middleware,
                 afterAction: false
-            };
-            defaultMetadataArgsStorage().uses.push(metadata);
+            });
         });
     };
 }

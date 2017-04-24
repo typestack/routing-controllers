@@ -1,22 +1,18 @@
-import {defaultMetadataArgsStorage} from "../index";
-import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
+import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
 
 /**
  * Injects all request's cookies to the controller action parameter.
- * Must be applied on a controller action parameters.
+ * Must be applied on a controller action parameter.
  */
 export function CookieParams() {
     return function (object: Object, methodName: string, index: number) {
-        const format = (Reflect as any).getMetadata("design:paramtypes", object, methodName)[index];
-        const metadata: ParamMetadataArgs = {
-            target: object.constructor,
+        defaultMetadataArgsStorage.params.push({
+            type: "cookie",
+            object: object,
             method: methodName,
             index: index,
-            type: "cookie",
-            targetType: format,
             parse: false,
-            required: false,
-        };
-        defaultMetadataArgsStorage().params.push(metadata);
+            required: false
+        });
     };
 }

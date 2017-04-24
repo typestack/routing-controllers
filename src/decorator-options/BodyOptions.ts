@@ -8,7 +8,7 @@ export interface BodyOptions {
 
     /**
      * If set to true then request body will become required.
-     * If user performs a request and required parameter is not set then routing-controllers will throw an error.
+     * If user performs a request and body is not in a request then routing-controllers will throw an error.
      */
     required?: boolean;
 
@@ -26,5 +26,10 @@ export interface BodyOptions {
      * @see https://github.com/pleerock/class-validator
      */
     validate?: boolean|ValidatorOptions;
+
+    /**
+     * Extra options to be passed to body-parser middleware.
+     */
+    options?: any;
     
 }

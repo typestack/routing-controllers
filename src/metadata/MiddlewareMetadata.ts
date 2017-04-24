@@ -51,15 +51,8 @@ export class MiddlewareMetadata {
     /**
      * Gets middleware instance from the container.
      */
-    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface {
-        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface>(this.target);
-    }
-
-    /**
-     * Gets error handler instance from the container.
-     */
-    get errorHandlerInstance(): ExpressErrorMiddlewareInterface {
-        return getFromContainer<ExpressErrorMiddlewareInterface>(this.target);
+    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface {
+        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface>(this.target);
     }
     
 }

@@ -8,9 +8,9 @@ import {ParamType} from "../types/ParamType";
 export interface ParamMetadataArgs {
 
     /**
-     * Parameter target.
+     * Parameter object.
      */
-    target: any;
+    object: any;
 
     /**
      * Method on which's parameter is attached.
@@ -31,11 +31,6 @@ export interface ParamMetadataArgs {
      * Parameter name.
      */
     name?: string;
-
-    /**
-     * Parameter target type.
-     */
-    targetType?: any;
 
     /**
      * Specifies if parameter should be parsed as json or not.

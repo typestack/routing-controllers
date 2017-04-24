@@ -7,9 +7,9 @@ import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer} from "../../src/index";
+import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 import {assertRequest} from "./test-utils";
-import {ContentType} from "../../src/decorator/ContentType";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -18,7 +18,7 @@ describe("controller methods", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        defaultMetadataArgsStorage.reset();
 
         @Controller()
         class UserController {

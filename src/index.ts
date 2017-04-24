@@ -1,10 +1,8 @@
-import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
-import {importClassesFromDirectories} from "./util/DirectoryExportedClassesLoader";
+import {importClassesFromDirectories} from "./util/importClassesFromDirectories";
 import {RoutingControllers} from "./RoutingControllers";
 import {ExpressDriver} from "./driver/express/ExpressDriver";
 import {KoaDriver} from "./driver/koa/KoaDriver";
 import {Driver} from "./driver/Driver";
-import {getFromContainer} from "./container";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 
 // -------------------------------------------------------------------------
@@ -51,10 +49,19 @@ export function createKoaServer(options?: RoutingControllersOptions): any {
 function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
 
     // import all controllers and middlewares and error handlers (new way)
-    if (options && options.controllers && options.controllers.length)
-        importClassesFromDirectories(options.controllers as string[]); // casting is temporary
+    let controllerClasses: Function[];
+    if (options && options.controllers && options.controllers.length) {
+        controllerClasses = (options.controllers as any[]).filter(controller => controller instanceof Function);
+        const controllerDirs = (options.controllers as any[]).filter(controller => typeof controller === "string");
+        controllerClasses.push(...importClassesFromDirectories(controllerDirs));
+    }
+    let middlewareClasses: Function[];
+    if (options && options.middlewares && options.middlewares.length) {
+        middlewareClasses = (options.middlewares as any[]).filter(controller => controller instanceof Function);
+        const middlewareDirs = (options.middlewares as any[]).filter(controller => typeof controller === "string");
+        middlewareClasses.push(...importClassesFromDirectories(middlewareDirs));
+    }
     if (options && options.middlewares && options.middlewares.length)
-        importClassesFromDirectories(options.middlewares as string[]); // casting is temporary
 
     if (options && options.development !== undefined) {
         driver.developmentMode = options.development;
@@ -96,19 +103,8 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     new RoutingControllers(driver)
         .initialize()
         .registerMiddlewares("before")
-        .registerControllers()
-        .registerMiddlewares("after"); // todo: register only for loaded controllers?
-}
-
-// -------------------------------------------------------------------------
-// Global Metadata Storage
-// -------------------------------------------------------------------------
-
-/**
- * Gets the metadata arguments storage.
- */
-export function defaultMetadataArgsStorage(): MetadataArgsStorage {
-    return getFromContainer(MetadataArgsStorage);
+        .registerControllers(controllerClasses)
+        .registerMiddlewares("after", middlewareClasses); // todo: register only for loaded controllers?
 }
 
 // -------------------------------------------------------------------------
