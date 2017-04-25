@@ -37,6 +37,9 @@ export class ActionParameterHandler {
         if (param.type === "response")
             return actionProperties.response;
 
+        if (param.type === "context")
+            return actionProperties.context;
+
         // get parameter value from request and normalize it
         let value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
 

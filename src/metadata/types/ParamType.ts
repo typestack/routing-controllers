@@ -17,5 +17,6 @@ export type ParamType = "body"
     |"cookies"
     |"request"
     |"response"
+    |"context"
     |"current-user"
     |"custom-converter";
