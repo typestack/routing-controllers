@@ -49,11 +49,10 @@ export class RoutingControllers {
      * Registers all given controllers and actions from those controllers.
      */
     registerControllers(classes?: Function[]): this {
-        const middlewares = this.metadataBuilder.buildMiddlewareMetadata(classes);
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
             controller.actions.forEach(action => {
-                this.driver.registerAction(action, middlewares, (actionProperties: ActionProperties) => {
+                this.driver.registerAction(action, (actionProperties: ActionProperties) => {
                     return this.executeAction(action, actionProperties);
                 });
             });
@@ -97,12 +96,9 @@ export class RoutingControllers {
             const result = action.callMethod(params);
             return this.handleCallMethodResult(result, action, actionProperties);
 
-        }).catch(error => { // otherwise simply handle error without action execution
-            // if (this.driver instanceof KoaDriver) {
-            //     this.driver.router[action.type.toLowerCase()](function(context: any, next) {
-            //
-            //     });
-            // }
+        }).catch(error => {
+
+            // otherwise simply handle error without action execution
             return this.driver.handleError(error, action, actionProperties);
         });
     }

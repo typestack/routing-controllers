@@ -2,7 +2,7 @@ import {ExpressErrorMiddlewareInterface} from "../../../../../src/driver/express
 import {defaultFakeService} from "../../FakeService";
 import {Middleware} from "../../../../../src/decorator/Middleware";
 
-@Middleware({ global: true, type: "after" })
+@Middleware({ type: "after" })
 export class QuestionErrorHandler implements ExpressErrorMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: (err?: any) => any): any {

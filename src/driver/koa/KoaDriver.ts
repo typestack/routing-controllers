@@ -10,6 +10,7 @@ import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
+import {getFromContainer} from "../../container";
 const cookie = require("cookie");
 
 /**
@@ -61,9 +62,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata,
-                   middlewares: MiddlewareMetadata[],
-                   executeCallback: (options: ActionProperties) => any): void {
+    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
@@ -109,8 +108,8 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         // user used middlewares
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction), middlewares);
-        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction), middlewares);
+        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
+        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
 
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
@@ -208,9 +207,15 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         // set http status code
         if (action.undefinedResultCode && result === undefined) {
+            if (action.undefinedResultCode instanceof Function)
+                throw new (action.undefinedResultCode as any)(options);
+
             options.response.status = action.undefinedResultCode;
 
         } else if (action.nullResultCode && result === null) {
+            if (action.nullResultCode instanceof Function)
+                throw new (action.nullResultCode as any)(options);
+
             options.response.status = action.nullResultCode;
 
         } else if (action.successHttpCode) {
@@ -273,10 +278,12 @@ export class KoaDriver extends BaseDriver implements Driver {
     handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
+            console.log("ERROR: ", error);
 
             // set http status
             // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
             if (error.httpCode) {
+                console.log("setting status code: ", error.httpCode);
                 options.context.status = error.httpCode;
                 response.status = error.httpCode;
             } else {
@@ -310,16 +317,12 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Creates middlewares from the given "use"-s.
      */
-    protected prepareMiddlewares(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
+    protected prepareMiddlewares(uses: UseMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
-                middlewares.forEach(middleware => {
-                    if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function(context: any, next: (err?: any) => Promise<any>) {
-                            return (middleware.instance as KoaMiddlewareInterface).use(context, next);
-                        });
-                    }
+                middlewareFunctions.push(function(context: any, next: (err?: any) => Promise<any>) {
+                    return (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
                 });
 
             } else {

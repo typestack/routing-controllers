@@ -6,21 +6,6 @@ import {ActionProperties} from "./ActionProperties";
 export interface CustomParameterDecorator {
 
     /**
-     * Decorated controller's object.
-     */
-    object: Object;
-
-    /**
-     * Decorated controller's action property name.
-     */
-    method: string;
-
-    /**
-     * Decorated controller's action parameter index.
-     */
-    index: number;
-
-    /**
      * Indicates if this parameter is required or not.
      * If parameter is required and value provided by it is not set then routing-controllers will throw an error.
      */

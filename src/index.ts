@@ -13,6 +13,8 @@ import {defaultMetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage
 
 export * from "./container";
 
+export * from "./decorator/Authorized";
+export * from "./decorator/CurrentUser";
 export * from "./decorator/Body";
 export * from "./decorator/BodyParam";
 export * from "./decorator/ContentType";
@@ -140,13 +142,13 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         driver.useClassTransformer = true;
     }
 
-    if (options.validator !== undefined) {
-        driver.enableValidation = !!options.validator;
-        if (options.validator instanceof Object)
-            driver.validationOptions = options.validator;
+    if (options.validation !== undefined) {
+        driver.enableValidation = !!options.validation;
+        if (options.validation instanceof Object)
+            driver.validationOptions = options.validation;
 
     } else {
-        driver.enableValidation = false;
+        driver.enableValidation = true;
     }
 
     driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
@@ -175,14 +177,16 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
 /**
  * Registers custom parameter decorator used in the controller actions.
  */
-export function registerParamDecorator(options: CustomParameterDecorator) {
-    defaultMetadataArgsStorage.params.push({
-        type: "custom-converter",
-        object: options.object,
-        method: options.method,
-        index: options.index,
-        parse: false,
-        required: options.required,
-        transform: options.value
-    });
+export function createParamDecorator(options: CustomParameterDecorator) {
+    return function(object: Object, method: string, index: number) {
+        defaultMetadataArgsStorage.params.push({
+            type: "custom-converter",
+            object: object,
+            method: method,
+            index: index,
+            parse: false,
+            required: options.required,
+            transform: options.value
+        });
+    };
 }

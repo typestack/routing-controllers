@@ -11,6 +11,7 @@ import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface
 import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
+import {getFromContainer} from "../../container";
 const cookie = require("cookie");
 
 /**
@@ -72,9 +73,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata,
-                   middlewares: MiddlewareMetadata[],
-                   executeCallback: (options: ActionProperties) => any): void {
+    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
@@ -127,8 +126,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         // user used middlewares
         const uses = action.controllerMetadata.uses.concat(action.uses);
-        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction), middlewares);
-        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction), middlewares);
+        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
+        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
 
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
@@ -221,9 +220,15 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         // set http status code
         if (action.undefinedResultCode && result === undefined) {
+            if (action.undefinedResultCode instanceof Function)
+                throw new (action.undefinedResultCode as any)(options);
+
             options.response.status(action.undefinedResultCode);
 
         } else if (action.nullResultCode && result === null) {
+            if (action.nullResultCode instanceof Function)
+                throw new (action.nullResultCode as any)(options);
+
             options.response.status(action.nullResultCode);
 
         } else if (action.successHttpCode) {
@@ -320,24 +325,17 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Creates middlewares from the given "use"-s.
      */
-    protected prepareMiddlewares(uses: UseMetadata[], middlewares: MiddlewareMetadata[]) {
+    protected prepareMiddlewares(uses: UseMetadata[]) {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
-                middlewares.forEach(middleware => {
-                    if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
-                            return (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
-                        });
-                    }
+                middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
+                    return (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
                 });
+
             } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
-                middlewares.forEach(middleware => {
-                    if (middleware.instance instanceof use.middleware) {
-                        middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-                            return (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
-                        });
-                    }
+                middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                    return (getFromContainer(use.middleware) as ExpressErrorMiddlewareInterface).error(error, request, response, next);
                 });
 
             } else {

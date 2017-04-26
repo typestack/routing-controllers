@@ -44,7 +44,7 @@ export interface RoutingControllersOptions {
      * Indicates if class-validator should be used to auto validate objects injected into params.
      * You can also directly pass validator options to enable validator with a given options.
      */
-    validator?: boolean|ValidatorOptions;
+    validation?: boolean|ValidatorOptions;
 
     /**
      * Indicates if development mode is enabled.

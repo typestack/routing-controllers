@@ -1,7 +1,7 @@
 import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {Middleware} from "../../src/decorator/Middleware";
 
-@Middleware({ global: true })
+@Middleware({ type: "before" })
 export class AllErrorsHandler implements ExpressErrorMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: Function): void {

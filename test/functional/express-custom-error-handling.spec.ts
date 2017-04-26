@@ -22,7 +22,7 @@ describe("custom express error handling", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage.reset();
 
-        @Middleware({ global: true, type: "after" })
+        @Middleware({ type: "after" })
         class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;

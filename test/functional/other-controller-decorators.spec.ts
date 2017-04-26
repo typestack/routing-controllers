@@ -12,6 +12,9 @@ import {Redirect} from "../../src/decorator/Redirect";
 import {Location} from "../../src/decorator/Location";
 import {OnUndefined} from "../../src/decorator/OnUndefined";
 import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {HttpError} from "../../src/http-error/HttpError";
+import {ActionProperties} from "../../src/ActionProperties";
+import {JsonController} from "../../src/decorator/JsonController";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -20,6 +23,15 @@ describe("other controller decorators", () => {
 
         // reset metadata args storage
         defaultMetadataArgsStorage.reset();
+
+        class QuestionNotFoundError extends HttpError {
+
+            constructor(actionProperties: ActionProperties) {
+                super(404, `Question was not found!`);
+                Object.setPrototypeOf(this, QuestionNotFoundError.prototype);
+            }
+
+        }
 
         @Controller()
         class OtherDectoratorsController {
@@ -110,6 +122,24 @@ describe("other controller decorators", () => {
             }
             
         }
+
+        @JsonController()
+        class JsonOtherDectoratorsController {
+
+            @Get("/questions/:id")
+            @OnUndefined(QuestionNotFoundError)
+            getPosts(@Param("id") id: number) {
+                return new Promise((ok, fail) => {
+                    if (id === 1) {
+                        ok("Question");
+
+                    } else {
+                        ok(undefined);
+                    }
+                });
+            }
+
+        }
     });
 
     let expressApp: any, koaApp: any;
@@ -149,6 +179,27 @@ describe("other controller decorators", () => {
         });
     });
     
+    describe("should return custom error message and code when @OnUndefined is used with Error class", () => {
+        assertRequest([3001, 3002], "get", "questions/1", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.be.eql("Question");
+        });
+        assertRequest([3001, 3002], "get", "questions/2", response => {
+            expect(response).to.have.status(404);
+            expect(response.body).to.be.eql({
+                name: "QuestionNotFoundError",
+                message: "Question was not found!"
+            });
+        });
+        assertRequest([3001, 3002], "get", "questions/3", response => {
+            expect(response).to.have.status(404); // because of null
+            expect(response.body).to.be.eql({
+                name: "QuestionNotFoundError",
+                message: "Question was not found!"
+            });
+        });
+    });
+
     describe("should return custom code when @OnUndefined", () => {
         assertRequest([3001, 3002], "get", "photos/1", response => {
             expect(response).to.have.status(200);

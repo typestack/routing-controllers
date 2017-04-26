@@ -94,12 +94,12 @@ export class ActionMetadata {
     /**
      * Http code to be used on undefined action returned content.
      */
-    undefinedResultCode: number;
+    undefinedResultCode: number|Function;
 
     /**
      * Http code to be used on null action returned content.
      */
-    nullResultCode: number;
+    nullResultCode: number|Function;
 
     /**
      * Http code to be set on successful response.

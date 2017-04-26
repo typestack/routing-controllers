@@ -1,8 +1,6 @@
 import {ExpressMiddlewareInterface} from "../../../../src/driver/express/ExpressMiddlewareInterface";
 import {User} from "../User";
-import {Middleware} from "../../../../src/index";
 
-@Middleware()
 export class SetStateMiddleware implements ExpressMiddlewareInterface {
     public use (context: any, next: (err?: any) => Promise<any>): Promise<any> {
         const user = new User();

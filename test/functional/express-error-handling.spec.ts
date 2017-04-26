@@ -25,7 +25,7 @@ describe("express error handling", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage.reset();
 
-        @Middleware({ global: true, type: "after" })
+        @Middleware({ type: "after" })
         class AllErrorsHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
@@ -36,7 +36,6 @@ describe("express error handling", () => {
 
         }
 
-        @Middleware()
         class SpecificErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
@@ -47,7 +46,6 @@ describe("express error handling", () => {
 
         }
 
-        @Middleware()
         class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {

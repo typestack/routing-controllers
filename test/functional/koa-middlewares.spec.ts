@@ -34,7 +34,7 @@ describe("koa middlewares", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage.reset();
 
-        @Middleware({ global: true })
+        @Middleware({ type: "before" })
         class TestGlobalBeforeKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
@@ -45,7 +45,7 @@ describe("koa middlewares", () => {
 
         }
 
-        @Middleware({ global: true, type: "after" })
+        @Middleware({ type: "after" })
         class TestGlobalAfterKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
@@ -56,7 +56,6 @@ describe("koa middlewares", () => {
 
         }
 
-        @Middleware()
         class TestLoggerKoaMiddleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {

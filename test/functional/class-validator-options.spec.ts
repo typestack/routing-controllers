@@ -107,7 +107,7 @@ describe("parameters auto-validation", () => {
         });
 
         const options: RoutingControllersOptions = {
-            validator: true
+            validation: true
         };
 
         let expressApp: any, koaApp: any;
@@ -188,7 +188,7 @@ describe("parameters auto-validation", () => {
         });
 
         const options: RoutingControllersOptions = {
-            validator: {
+            validation: {
                 skipMissingProperties: true
             }
         };
@@ -232,7 +232,7 @@ describe("parameters auto-validation", () => {
         });
 
         const options: RoutingControllersOptions = {
-            validator: true
+            validation: true
         };
 
         let expressApp: any, koaApp: any;

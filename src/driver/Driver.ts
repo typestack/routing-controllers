@@ -83,9 +83,7 @@ export interface Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata,
-                   middlewares: MiddlewareMetadata[],
-                   executeCallback: (options: ActionProperties) => any): void;
+    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void;
 
     /**
      * Registers all routes in the framework.

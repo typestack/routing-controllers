@@ -34,7 +34,7 @@ describe("express middlewares", () => {
         // reset metadata args storage
         defaultMetadataArgsStorage.reset();
 
-        @Middleware({ global: true })
+        @Middleware({ type: "before" })
         class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
@@ -45,7 +45,7 @@ describe("express middlewares", () => {
 
         }
 
-        @Middleware({ global: true, type: "after" })
+        @Middleware({ type: "after" })
         class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
@@ -56,7 +56,6 @@ describe("express middlewares", () => {
 
         }
 
-        @Middleware()
         class TestLoggerMiddleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
