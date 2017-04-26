@@ -62,6 +62,7 @@ export * from "./http-error/UnauthorizedError";
 export * from "./driver/express/ExpressMiddlewareInterface";
 export * from "./driver/express/ExpressErrorMiddlewareInterface";
 export * from "./driver/koa/KoaMiddlewareInterface";
+export * from "./metadata-builder/MetadataArgsStorage";
 
 export * from "./RoutingControllersOptions";
 export * from "./CustomParameterDecorator";
