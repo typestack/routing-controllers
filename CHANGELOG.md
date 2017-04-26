@@ -17,6 +17,7 @@ and `@Middleware({ type: "after" })`
 * added new `@Ctx` decorator to use context with koa
 * `@NullResultCode` has been renamed to `@OnNull`, now supports error classes
 * `@UndefinedResultCode` has been renamed to `@OnUndefined`, now supports error classes
+* `@EmptyResultCode` has been removed. Use `@OnUndefined` decorator instead and return concrete types in your controllers.
 * added ability to create custom decorators
 * enabled validation by default
 * multiple bug fixes
