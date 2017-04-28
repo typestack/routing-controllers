@@ -113,8 +113,3 @@ export class MetadataArgsStorage {
     }
 
 }
-
-/**
- * Default metadata args storage.
- */
-export const defaultMetadataArgsStorage = new MetadataArgsStorage();

@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects all request's query parameters to the controller action parameter.
@@ -6,7 +6,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function QueryParams(): Function {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "queries",
             object: object,
             method: methodName,

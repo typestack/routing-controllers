@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Marks controller action to have a special access.
@@ -30,7 +30,7 @@ export function Authorized(role: Function): Function;
  */
 export function Authorized(roleOrRoles?: string|string[]|Function): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.responseHandlers.push({
+        getMetadataArgsStorage().responseHandlers.push({
             type: "authorized",
             target: object.constructor,
             method: methodName,

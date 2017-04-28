@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer, createKoaServer} from "../../src/index";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
@@ -41,7 +40,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class UserController {
@@ -89,7 +88,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -143,7 +142,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {

@@ -5,7 +5,7 @@ import {KoaDriver} from "./driver/koa/KoaDriver";
 import {Driver} from "./driver/Driver";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {CustomParameterDecorator} from "./CustomParameterDecorator";
-import {defaultMetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 
 // -------------------------------------------------------------------------
 // Main exports
@@ -70,10 +70,22 @@ export * from "./metadata-builder/MetadataArgsStorage";
 
 export * from "./RoutingControllersOptions";
 export * from "./CustomParameterDecorator";
+export * from "./RoleChecker";
 
 // -------------------------------------------------------------------------
 // Main Functions
 // -------------------------------------------------------------------------
+
+/**
+ * Gets metadata args storage.
+ * Metadata args storage follows the best practices and stores metadata in a global variable.
+ */
+export function getMetadataArgsStorage(): MetadataArgsStorage {
+    if (!(global as any).routingControllersMetadataArgsStorage)
+        (global as any).routingControllersMetadataArgsStorage = new MetadataArgsStorage();
+
+    return (global as any).routingControllersMetadataArgsStorage;
+}
 
 /**
  * Registers all loaded actions in your express application.
@@ -184,7 +196,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
  */
 export function createParamDecorator(options: CustomParameterDecorator) {
     return function(object: Object, method: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "custom-converter",
             object: object,
             method: method,

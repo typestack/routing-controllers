@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects a Koa's Context object to the controller action parameter.
@@ -6,7 +6,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function Ctx(): Function {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "context",
             object: object,
             method: methodName,

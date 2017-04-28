@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 import {UploadOptions} from "../decorator-options/UploadOptions";
 
 /**
@@ -7,7 +7,7 @@ import {UploadOptions} from "../decorator-options/UploadOptions";
  */
 export function UploadedFiles(name: string, options?: UploadOptions): Function {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "files",
             object: object,
             method: methodName,

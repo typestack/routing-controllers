@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects currently authorized user.
@@ -6,7 +6,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function CurrentUser(options?: { required?: boolean }) {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "current-user",
             object: object,
             method: methodName,

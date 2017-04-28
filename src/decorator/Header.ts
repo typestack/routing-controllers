@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Sets response header.
@@ -6,7 +6,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function Header(name: string, value: string): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.responseHandlers.push({
+        getMetadataArgsStorage().responseHandlers.push({
             type: "header",
             target: object.constructor,
             method: methodName,

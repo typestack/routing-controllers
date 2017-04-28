@@ -7,9 +7,8 @@ import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -18,7 +17,7 @@ describe("json-controller methods", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         @JsonController()
         class JsonUserController {

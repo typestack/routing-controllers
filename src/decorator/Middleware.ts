@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Marks given class as a middleware.
@@ -6,7 +6,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function Middleware(options: { type: "after"|"before", priority?: number }): Function {
     return function (target: Function) {
-        defaultMetadataArgsStorage.middlewares.push({
+        getMetadataArgsStorage().middlewares.push({
             target: target,
             type: options && options.type ? options.type : "before",
             global: true,

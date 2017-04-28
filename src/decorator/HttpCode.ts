@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Sets response HTTP status code.
@@ -8,7 +8,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function HttpCode(code: number): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.responseHandlers.push({
+        getMetadataArgsStorage().responseHandlers.push({
             type: "success-code",
             target: object.constructor,
             method: methodName,

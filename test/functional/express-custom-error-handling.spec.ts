@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
-import {createExpressServer} from "../../src/index";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
 import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 import {Middleware} from "../../src/decorator/Middleware";
@@ -20,7 +19,7 @@ describe("custom express error handling", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         @Middleware({ type: "after" })
         class CustomErrorHandler implements ExpressErrorMiddlewareInterface {

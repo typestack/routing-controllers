@@ -3,7 +3,7 @@ import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
-import {createExpressServer, createKoaServer, OnNull} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage, OnNull} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {HttpCode} from "../../src/decorator/HttpCode";
 import {ContentType} from "../../src/decorator/ContentType";
@@ -11,7 +11,6 @@ import {Header} from "../../src/decorator/Header";
 import {Redirect} from "../../src/decorator/Redirect";
 import {Location} from "../../src/decorator/Location";
 import {OnUndefined} from "../../src/decorator/OnUndefined";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 import {HttpError} from "../../src/http-error/HttpError";
 import {ActionProperties} from "../../src/ActionProperties";
 import {JsonController} from "../../src/decorator/JsonController";
@@ -22,7 +21,7 @@ describe("other controller decorators", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         class QuestionNotFoundError extends HttpError {
 

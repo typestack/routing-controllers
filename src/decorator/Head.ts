@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Registers an action to be executed when HEAD request comes on a given route.
@@ -18,7 +18,7 @@ export function Head(route?: string): Function;
  */
 export function Head(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.actions.push({
+        getMetadataArgsStorage().actions.push({
             type: "head",
             target: object.constructor,
             method: methodName,

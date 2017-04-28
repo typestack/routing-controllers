@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Registers an action to be executed when PUT request comes on a given route.
@@ -18,7 +18,7 @@ export function Put(route?: string): Function;
  */
 export function Put(route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.actions.push({
+        getMetadataArgsStorage().actions.push({
             type: "put",
             target: object.constructor,
             method: methodName,

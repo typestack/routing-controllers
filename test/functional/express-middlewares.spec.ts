@@ -1,6 +1,5 @@
 import "reflect-metadata";
-import {createExpressServer} from "../../src/index";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
 import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
@@ -32,7 +31,7 @@ describe("express middlewares", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         @Middleware({ type: "before" })
         class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {

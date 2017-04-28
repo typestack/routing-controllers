@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 import {ActionType} from "../metadata/types/ActionType";
 
 /**
@@ -19,7 +19,7 @@ export function Method(method: ActionType, route?: string): Function;
  */
 export function Method(method: ActionType, route?: string|RegExp): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.actions.push({
+        getMetadataArgsStorage().actions.push({
             type: method,
             target: object.constructor,
             method: methodName,

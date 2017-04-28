@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Defines a class as a controller.
@@ -9,7 +9,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function Controller(baseRoute?: string): Function {
     return function (object: Function) {
-        defaultMetadataArgsStorage.controllers.push({
+        getMetadataArgsStorage().controllers.push({
             type: "default",
             target: object,
             route: baseRoute

@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import {Length} from "class-validator";
 import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer, createKoaServer} from "../../src/index";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {defaultMetadataStorage} from "class-transformer/storage";
 import {Get} from "../../src/decorator/Get";
@@ -41,7 +40,7 @@ describe("parameters auto-validation", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -83,7 +82,7 @@ describe("parameters auto-validation", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -122,7 +121,7 @@ describe("parameters auto-validation", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -166,7 +165,7 @@ describe("parameters auto-validation", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage.reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class UserController {

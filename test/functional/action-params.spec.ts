@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {createExpressServer, createKoaServer} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
@@ -22,7 +22,6 @@ import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
 import {ContentType} from "../../src/decorator/ContentType";
 import {JsonController} from "../../src/decorator/JsonController";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -74,7 +73,7 @@ describe("action parameters", () => {
 
     before(() => {
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");

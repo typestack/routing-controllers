@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 import {ClassTransformOptions} from "class-transformer";
 
 /**
@@ -6,7 +6,7 @@ import {ClassTransformOptions} from "class-transformer";
  */
 export function ResponseClassTransformOptions(options: ClassTransformOptions): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.responseHandlers.push({
+        getMetadataArgsStorage().responseHandlers.push({
             type: "response-class-transform-options",
             value: options,
             target: object.constructor,

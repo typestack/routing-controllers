@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Used to set specific HTTP status code when result returned by a controller action is equal to null.
@@ -18,7 +18,7 @@ export function OnNull(error: Function): Function;
  */
 export function OnNull(codeOrError: number|Function): Function {
     return function (object: Object, methodName: string) {
-        defaultMetadataArgsStorage.responseHandlers.push({
+        getMetadataArgsStorage().responseHandlers.push({
             type: "on-null",
             target: object.constructor,
             method: methodName,

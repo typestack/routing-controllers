@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Defines a class as a JSON controller. If JSON controller is used, then all controller actions will return
@@ -8,7 +8,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function JsonController(baseRoute?: string) {
     return function (object: Function) {
-        defaultMetadataArgsStorage.controllers.push({
+        getMetadataArgsStorage().controllers.push({
             type: "json",
             target: object,
             route: baseRoute

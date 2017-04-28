@@ -1,5 +1,5 @@
 import {BodyOptions} from "../decorator-options/BodyOptions";
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Allows to inject a request body value to the controller action parameter.
@@ -7,7 +7,7 @@ import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorag
  */
 export function Body(options?: BodyOptions): Function {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "body",
             object: object,
             method: methodName,

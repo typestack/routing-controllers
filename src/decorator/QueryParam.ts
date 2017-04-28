@@ -1,4 +1,4 @@
-import {defaultMetadataArgsStorage} from "../metadata-builder/MetadataArgsStorage";
+import {getMetadataArgsStorage} from "../index";
 import {ParamOptions} from "../decorator-options/ParamOptions";
 
 /**
@@ -7,7 +7,7 @@ import {ParamOptions} from "../decorator-options/ParamOptions";
  */
 export function QueryParam(name: string, options?: ParamOptions): Function {
     return function (object: Object, methodName: string, index: number) {
-        defaultMetadataArgsStorage.params.push({
+        getMetadataArgsStorage().params.push({
             type: "query",
             object: object,
             method: methodName,

@@ -4,8 +4,7 @@ import {Get} from "../../src/decorator/Get";
 import {UseBefore} from "../../src/decorator/UseBefore";
 import {Middleware} from "../../src/decorator/Middleware";
 import {UseAfter} from "../../src/decorator/UseAfter";
-import {createKoaServer} from "../../src/index";
-import {defaultMetadataArgsStorage} from "../../src/metadata-builder/MetadataArgsStorage";
+import {createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -32,7 +31,7 @@ describe("koa middlewares", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage.reset();
+        getMetadataArgsStorage().reset();
 
         @Middleware({ type: "before" })
         class TestGlobalBeforeKoaMidleware implements ExpressMiddlewareInterface {
