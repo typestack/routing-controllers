@@ -33,53 +33,6 @@ describe("parameters auto-validation", () => {
         defaultMetadataStorage.clear();
     });
 
-    describe("should not use any options if not set", () => {
-
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            defaultMetadataArgsStorage.reset();
-
-            @JsonController()
-            class UserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-
-            }
-        });
-
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer().listen(3002, done));
-        after(done => koaApp.close(done));
-
-        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.eql({
-                id: 1,
-                _firstName: "Umed",
-                _lastName: "Khudoiberdiev"
-            });
-            requestFilter.should.be.instanceOf(UserFilter);
-            requestFilter.should.be.eql({
-                keyword: "Um",
-                __somethingPrivate: "blablabla",
-            });
-        });
-    });
-
     describe("should apply global validation enable", () => {
 
         let requestFilter: any;

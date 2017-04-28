@@ -22,7 +22,13 @@ export function Authorized(roles: string[]): Function;
  * Marks controller action to have a special access.
  * Authorization logic must be defined in routing-controllers settings.
  */
-export function Authorized(roleOrRoles?: string|string[]): Function {
+export function Authorized(role: Function): Function;
+
+/**
+ * Marks controller action to have a special access.
+ * Authorization logic must be defined in routing-controllers settings.
+ */
+export function Authorized(roleOrRoles?: string|string[]|Function): Function {
     return function (object: Object, methodName: string) {
         defaultMetadataArgsStorage.responseHandlers.push({
             type: "authorized",

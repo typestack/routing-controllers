@@ -132,7 +132,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
-            executeCallback({ request, response, next });
+            return executeCallback({ request, response, next });
         };
 
         // finally register action in express

@@ -50,6 +50,10 @@ export * from "./decorator/UseBefore";
 export * from "./decorator/UploadedFiles";
 export * from "./decorator/JsonController";
 
+export * from "./decorator-options/BodyOptions";
+export * from "./decorator-options/ParamOptions";
+export * from "./decorator-options/UploadOptions";
+
 export * from "./http-error/HttpError";
 export * from "./http-error/InternalServerError";
 export * from "./http-error/BadRequestError";

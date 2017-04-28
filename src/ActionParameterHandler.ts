@@ -41,7 +41,21 @@ export class ActionParameterHandler {
             return actionProperties.context;
 
         // get parameter value from request and normalize it
-        let value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+        const value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+        if (isPromiseLike(value))
+            return value.then(value => this.handleValue(value, actionProperties, param));
+
+        return this.handleValue(value, actionProperties, param);
+    }
+
+    // -------------------------------------------------------------------------
+    // Protected Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Handles non-promise value.
+     */
+    protected handleValue(value: any, actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
 
         // if transform function is given for this param then apply it
         if (param.transform)
@@ -86,14 +100,10 @@ export class ActionParameterHandler {
         return value;
     }
 
-    // -------------------------------------------------------------------------
-    // Protected Methods
-    // -------------------------------------------------------------------------
-
     /**
      * Normalizes parameter value.
      */
-    protected normalizeParamValue(value: any, param: ParamMetadata): any {
+    protected normalizeParamValue(value: any, param: ParamMetadata): Promise<any>|any {
         if (value === null || value === undefined)
             return value;
 
@@ -119,7 +129,7 @@ export class ActionParameterHandler {
                 if (value && (param.parse || param.isTargetObject)) {
                     value = this.parseValue(value, param);
                     value = this.transformValue(value, param);
-                    value = this.validateValue(value, param);
+                    value = this.validateValue(value, param); // note this one can return promise
                 }
         }
         return value;

@@ -15,24 +15,28 @@ export class ParamRequiredError extends BadRequestError {
 
         let paramName: string;
         switch (param.type) {
+            case "param":
+                paramName = `Parameter "${param.name}" is`;
+                break;
+
             case "body":
                 paramName = "Request body is";
                 break;
 
             case "query":
-                paramName = "Query parameter is";
+                paramName = `Query parameter "${param.name}" is`;
                 break;
 
             case "header":
-                paramName = "Header is";
+                paramName = `Header "${param.name}" is`;
                 break;
 
             case "file":
-                paramName = "Uploaded file is";
+                paramName = `Uploaded file "${param.name}" is`;
                 break;
 
             case "files":
-                paramName = "Uploaded files are";
+                paramName = `Uploaded files "${param.name}" are`;
                 break;
 
             case "session":

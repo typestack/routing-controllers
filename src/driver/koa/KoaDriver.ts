@@ -11,6 +11,7 @@ import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationChec
 import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
+import {RoleChecker} from "../../RoleChecker";
 const cookie = require("cookie");
 
 /**
@@ -86,7 +87,10 @@ export class KoaDriver extends BaseDriver implements Driver {
                     throw new AuthorizationCheckerNotDefinedError();
 
                 const actionProperties = { request: context.request, response: context.response, context, next };
-                const checkResult = this.authorizationChecker(actionProperties, action.authorizedRoles);
+                const checkResult = action.authorizedRoles instanceof Function ?
+                    getFromContainer<RoleChecker>(action.authorizedRoles).check(actionProperties) :
+                    this.authorizationChecker(actionProperties, action.authorizedRoles);
+
                 if (isPromiseLike(checkResult)) {
                     return checkResult.then(result => {
                         if (!result) {
