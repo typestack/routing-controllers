@@ -977,25 +977,24 @@ If you want to disable it simply pass `useClassTransformer: false` to createExpr
 Sometimes parsing a json object into instance of some class is not enough. 
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
-It can be done easily thanks to integration with [class-validator][9]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
+It can be done easily thanks to integration with [class-validator][9]. This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly e.g. by passing `validation: false` option on application bootstrap:
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
 
 createExpressServer({
-    validator: true
+    validation: false
 }).listen(3000);
 ```
 
-If you don't want to turn on the validation globally for every parameter, 
-you can do this locally by setting `validate: true` option in parameter decorator options object:
+If you want to turn on the validation only for some params, not globally for every parameter, you can do this locally by setting `validate: true` option in parameter decorator options object:
 
 ```typescript
 @Post("/login/")
 login(@Body({ validate: true }) user: User) {
 ```
 
-Now you need to define the class which type will be used in controller method params. 
+Now you need to define the class which type will be used as type of controller's method param. 
 Decorate the properties with appropriate validation decorators.
 ```typescript
 export class User {
@@ -1027,12 +1026,9 @@ export class UserController {
 If the param doesn't satisfy the requirements defined by class-validator decorators, 
 an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
 
-If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) 
-you can pass them as global config as `validation ` in createExpressServer method or as a local setting for method parameter - `@Body({validation: localOptions})`.
+If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
 This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
-This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly 
-e.g. by passing `validation: false` to createExpressServer method.
 
 ## Using authorization features
 
@@ -1216,7 +1212,7 @@ export class QuestionController {
 | `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
 | `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
 | `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Method(methodName: string, route: string|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
