@@ -29,11 +29,11 @@ export function Authorized(role: Function): Function;
  * Authorization logic must be defined in routing-controllers settings.
  */
 export function Authorized(roleOrRoles?: string|string[]|Function): Function {
-    return function (object: Object, methodName: string) {
+    return function (clsOrObject: Function|Object, method?: string) {
         getMetadataArgsStorage().responseHandlers.push({
             type: "authorized",
-            target: object.constructor,
-            method: methodName,
+            target: method ? clsOrObject.constructor : clsOrObject as Function,
+            method: method,
             value: roleOrRoles
         });
     };

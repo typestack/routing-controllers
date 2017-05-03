@@ -18,23 +18,15 @@ const cookie = require("cookie");
  * Integration with koa framework.
  */
 export class KoaDriver extends BaseDriver implements Driver {
-
-    // -------------------------------------------------------------------------
-    // Private Properties
-    // -------------------------------------------------------------------------
-
-    /**
-     * Koa-router module.
-     */
-    public router: any;
     
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(public koa?: any) {
+    constructor(public koa?: any, public router?: any) {
         super();
         this.loadKoa();
+        this.loadRouter();
     }
 
     // -------------------------------------------------------------------------
@@ -347,8 +339,6 @@ export class KoaDriver extends BaseDriver implements Driver {
                 } catch (e) {
                     throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
                 }
-
-                this.loadRouter();
             }
         } else {
             throw new Error("Cannot load koa. Try to install all required dependencies.");
@@ -359,10 +349,16 @@ export class KoaDriver extends BaseDriver implements Driver {
      * Dynamically loads koa-router module.
      */
     private loadRouter() {
-        try {
-            this.router = new (require("koa-router"))();
-        } catch (e) {
-            throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
+        if (require) {
+            if (!this.router) {
+                try {
+                    this.router = new (require("koa-router"))();
+                } catch (e) {
+                    throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
+                }
+            }
+        } else {
+            throw new Error("Cannot load koa. Try to install all required dependencies.");
         }
     }
 

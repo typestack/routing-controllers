@@ -93,7 +93,8 @@ export class RoutingControllers {
         return Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
-            const result = action.callMethod(params);
+            const allParams = action.appendParams ? action.appendParams(actionProperties).concat(params) : params;
+            const result = action.methodOverride ? action.methodOverride(action, actionProperties, allParams) : action.callMethod(allParams);
             return this.handleCallMethodResult(result, action, actionProperties);
 
         }).catch(error => {

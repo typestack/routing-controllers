@@ -92,6 +92,15 @@ export class MetadataArgsStorage {
     }
 
     /**
+     * Filters response handlers by a given class.
+     */
+    findResponseHandlersWithTarget(target: Function): ResponseHandlerMetadataArgs[] {
+        return this.responseHandlers.filter(property => {
+            return property.target === target;
+        });
+    }
+
+    /**
      * Filters response handlers by a given classes.
      */
     findResponseHandlersWithTargetAndMethod(target: Function, methodName: string): ResponseHandlerMetadataArgs[] {

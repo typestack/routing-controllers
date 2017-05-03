@@ -2,6 +2,7 @@ import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
+import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 
 /**
  * Controller metadata.
@@ -37,6 +38,16 @@ export class ControllerMetadata {
      */
     uses: UseMetadata[];
 
+    /**
+     * Indicates if this action uses Authorized decorator.
+     */
+    isAuthorizedUsed: boolean;
+
+    /**
+     * Roles set by @Authorized decorator.
+     */
+    authorizedRoles: any[];
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -57,5 +68,19 @@ export class ControllerMetadata {
     get instance(): any {
         return getFromContainer(this.target);
     }
-    
+
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds everything controller metadata needs.
+     * Controller metadata should be used only after its build.
+     */
+    build(responseHandlers: ResponseHandlerMetadata[]) {
+        const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized" && !handler.method);
+        this.isAuthorizedUsed = !!authorizedHandler;
+        this.authorizedRoles = authorizedHandler ? authorizedHandler.value : [];
+    }
+
 }

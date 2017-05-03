@@ -1,4 +1,3 @@
-import {ActionMetadata} from "./ActionMetadata";
 import {ResponseHandlerMetadataArgs} from "./args/ResponseHandleMetadataArgs";
 import {ResponseHandlerType} from "./types/ResponseHandlerType";
 
@@ -10,11 +9,6 @@ export class ResponseHandlerMetadata {
     // -------------------------------------------------------------------------
     // Properties
     // -------------------------------------------------------------------------
-
-    /**
-     * Response handler's action.
-     */
-    actionMetadata: ActionMetadata;
 
     /**
      * Class on which's method decorator is set.
@@ -45,8 +39,7 @@ export class ResponseHandlerMetadata {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(actionMetadata: ActionMetadata, args: ResponseHandlerMetadataArgs) {
-        this.actionMetadata = actionMetadata;
+    constructor(args: ResponseHandlerMetadataArgs) {
         this.target = args.target;
         this.method = args.method;
         this.type = args.type;

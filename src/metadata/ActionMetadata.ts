@@ -5,6 +5,7 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {UseMetadata} from "./UseMetadata";
 import {ClassTransformOptions} from "class-transformer";
+import {ActionProperties} from "../ActionProperties";
 
 /**
  * Action metadata.
@@ -29,11 +30,6 @@ export class ActionMetadata {
      * Action's use metadatas.
      */
     uses: UseMetadata[];
-
-    /**
-     * Action's response handlers.
-     */
-    responseHandlers: ResponseHandlerMetadata[];
 
     /**
      * Class on which's method this action is attached.
@@ -131,6 +127,16 @@ export class ActionMetadata {
      */
     authorizedRoles: any[];
 
+    /**
+     * Params to be appended to the method call.
+     */
+    appendParams?: (actionProperties: ActionProperties) => any[];
+
+    /**
+     * Special function that will be called instead of orignal method of the target.
+     */
+    methodOverride?: (actionMetadata: ActionMetadata, actionProperties: ActionProperties, params: any[]) => Promise<any>|any;
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -141,6 +147,8 @@ export class ActionMetadata {
         this.target = args.target;
         this.method = args.method;
         this.type = args.type;
+        this.appendParams = args.appendParams;
+        this.methodOverride = args.methodOverride;
     }
 
     // -------------------------------------------------------------------------
@@ -151,14 +159,14 @@ export class ActionMetadata {
      * Builds everything action metadata needs.
      * Action metadata can be used only after its build.
      */
-    build() {
-        const classTransformerResponseHandler = this.responseHandlers.find(handler => handler.type === "response-class-transform-options");
-        const undefinedResultHandler = this.responseHandlers.find(handler => handler.type === "on-undefined");
-        const nullResultHandler = this.responseHandlers.find(handler => handler.type === "on-null");
-        const successCodeHandler = this.responseHandlers.find(handler => handler.type === "success-code");
-        const redirectHandler = this.responseHandlers.find(handler => handler.type === "redirect");
-        const renderedTemplateHandler = this.responseHandlers.find(handler => handler.type === "rendered-template");
-        const authorizedHandler = this.responseHandlers.find(handler => handler.type === "authorized");
+    build(responseHandlers: ResponseHandlerMetadata[]) {
+        const classTransformerResponseHandler = responseHandlers.find(handler => handler.type === "response-class-transform-options");
+        const undefinedResultHandler = responseHandlers.find(handler => handler.type === "on-undefined");
+        const nullResultHandler = responseHandlers.find(handler => handler.type === "on-null");
+        const successCodeHandler = responseHandlers.find(handler => handler.type === "success-code");
+        const redirectHandler = responseHandlers.find(handler => handler.type === "redirect");
+        const renderedTemplateHandler = responseHandlers.find(handler => handler.type === "rendered-template");
+        const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
         const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
@@ -175,14 +183,15 @@ export class ActionMetadata {
             this.renderedTemplate = renderedTemplateHandler.value;
 
         this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
-        this.isAuthorizedUsed = !!authorizedHandler;
-        this.authorizedRoles = authorizedHandler ? authorizedHandler.value : [];
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
         this.isJsonTyped = this.controllerMetadata.type === "json";
         this.fullRoute = this.buildFullRoute();
-        this.headers = this.buildHeaders();
+        this.headers = this.buildHeaders(responseHandlers);
+
+        this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
+        this.authorizedRoles = this.controllerMetadata.authorizedRoles.concat(authorizedHandler ? authorizedHandler.value : []);
     }
 
     // -------------------------------------------------------------------------
@@ -209,9 +218,9 @@ export class ActionMetadata {
     /**
      * Builds action response headers.
      */
-    private buildHeaders() {
-        const contentTypeHandler = this.responseHandlers.find(handler => handler.type === "content-type");
-        const locationHandler = this.responseHandlers.find(handler => handler.type === "location");
+    private buildHeaders(responseHandlers: ResponseHandlerMetadata[]) {
+        const contentTypeHandler = responseHandlers.find(handler => handler.type === "content-type");
+        const locationHandler = responseHandlers.find(handler => handler.type === "location");
 
         const headers: { [name: string]: string } = {};
         if (locationHandler)
@@ -220,7 +229,7 @@ export class ActionMetadata {
         if (contentTypeHandler)
             headers["Content-type"] = contentTypeHandler.value;
 
-        const headerHandlers = this.responseHandlers.filter(handler => handler.type === "header");
+        const headerHandlers = responseHandlers.filter(handler => handler.type === "header");
         if (headerHandlers)
             headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
 

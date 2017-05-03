@@ -48,6 +48,7 @@ export class MetadataBuilder {
         const controllers = !classes ? getMetadataArgsStorage().controllers : getMetadataArgsStorage().findControllerMetadatasForClasses(classes);
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
+            controller.build(this.createControllerResponseHandlers(controller));
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
             return controller;
@@ -63,9 +64,8 @@ export class MetadataBuilder {
             .map(actionArgs => {
                 const action = new ActionMetadata(controller, actionArgs);
                 action.params = this.createParams(action);
-                action.responseHandlers = this.createResponseHandlers(action);
                 action.uses = this.createActionUses(action);
-                action.build();
+                action.build(this.createActionResponseHandlers(action));
                 return action;
             });
     }
@@ -80,12 +80,21 @@ export class MetadataBuilder {
     }
 
     /**
-     * Creates response handler metadatas.
+     * Creates response handler metadatas for action.
      */
-    protected createResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
+    protected createActionResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
         return getMetadataArgsStorage()
             .findResponseHandlersWithTargetAndMethod(action.target, action.method)
-            .map(handlerArgs => new ResponseHandlerMetadata(action, handlerArgs));
+            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
+    }
+
+    /**
+     * Creates response handler metadatas for controller.
+     */
+    protected createControllerResponseHandlers(controller: ControllerMetadata): ResponseHandlerMetadata[] {
+        return getMetadataArgsStorage()
+            .findResponseHandlersWithTarget(controller.target)
+            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
     }
 
     /**
