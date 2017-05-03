@@ -1,9 +1,13 @@
 import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
-import {ParamType} from "./types/ParamTypes";
+import {ParamType} from "./types/ParamType";
 import {ClassTransformOptions} from "class-transformer";
+import {ActionProperties} from "../ActionProperties";
 
+/**
+ * Action Parameter metadata.
+ */
 export class ParamMetadata {
 
     // -------------------------------------------------------------------------
@@ -36,19 +40,24 @@ export class ParamMetadata {
     type: ParamType;
 
     /**
-     * Reflected type of the parameter.
-     */
-    reflectedType: any;
-
-    /**
      * Parameter name.
      */
     name: string;
 
     /**
-     * Parameter format.
+     * Parameter target type.
      */
-    format: any;
+    targetType: any;
+
+    /**
+     * Parameter target type's name in lowercase.
+     */
+    targetName: string = "";
+
+    /**
+     * Indicates if target type is an object.
+     */
+    isTargetObject: boolean = false;
 
     /**
      * Parameter target.
@@ -58,75 +67,64 @@ export class ParamMetadata {
     /**
      * Specifies if parameter should be parsed as json or not.
      */
-    parseJson: boolean;
+    parse: boolean;
 
     /**
      * Indicates if this parameter is required or not
      */
-    isRequired: boolean;
+    required: boolean;
 
     /**
      * Transforms the value.
      */
-    transform: (value?: any, request?: any, response?: any) => Promise<any>|any;
+    transform: (actionProperties: ActionProperties, value?: any) => Promise<any>|any;
 
     /**
-     * Additional parameter options. For example it can be uploading options.
+     * Additional parameter options.
+     * For example it can be uploader middleware options or body-parser middleware options.
      */
     extraOptions: any;
 
     /**
      * Class transform options used to perform plainToClass operation.
      */
-    classTransformOptions: ClassTransformOptions;
+    classTransform?: ClassTransformOptions;
 
     /**
      * If true, class-validator will be used to validate param object.
+     * If validation options are given then it means validation will be applied (is true).
      */
-    validate: boolean;
-
-    /**
-     * Class-validator options used to transform and validate param object.
-     */
-    validationOptions: ValidatorOptions;
+    validate?: boolean|ValidatorOptions;
 
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
 
     constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
         this.actionMetadata = actionMetadata;
         
-        this.target = args.target;
+        this.target = args.object.constructor;
         this.method = args.method;
-        this.reflectedType = args.reflectedType;
-        if (args.index !== undefined)
-            this.index = args.index;
-        if (args.type)
-            this.type = args.type;
-        if (args.name)
-            this.name = args.name;
-        if (args.format)
-            this.format = args.format;
-        if (args.parseJson)
-            this.parseJson = args.parseJson;
-        if (args.isRequired)
-            this.isRequired = args.isRequired;
-        if (args.transform)
-            this.transform = args.transform;
-        if (args.classTransformOptions)
-            this.classTransformOptions = args.classTransformOptions;
-        if (args.validate !== undefined) 
-            this.validate = args.validate;
-        if (args.validationOptions)
-            this.validationOptions = args.validationOptions;
-        
         this.extraOptions = args.extraOptions;
+        this.index = args.index;
+        this.type = args.type;
+        this.name = args.name;
+        this.parse = args.parse;
+        this.required = args.required;
+        this.transform = args.transform;
+        this.classTransform = args.classTransform;
+        this.validate = args.validate;
+        this.targetType = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method)[args.index];
+
+        if (this.targetType) {
+            if (this.targetType instanceof Function && this.targetType.name) {
+                this.targetName = this.targetType.name.toLowerCase();
+
+            } else if (typeof this.targetType === "string") {
+                this.targetName = this.targetType.toLowerCase();
+            }
+            this.isTargetObject = this.targetType instanceof Function || this.targetType.toLowerCase() === "object";
+        }
     }
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    
 }

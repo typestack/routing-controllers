@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {MiddlewareGlobalAfter, UseBefore, UseAfter, Middleware} from "../../src/decorator/decorators";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Get";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
+import {Middleware} from "../../src/decorator/Middleware";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -19,10 +19,10 @@ describe("custom express error handling", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
-        @MiddlewareGlobalAfter()
-        class CustomErrorHandler implements ErrorMiddlewareInterface {
+        @Middleware({ type: "after" })
+        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 

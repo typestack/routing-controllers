@@ -14,51 +14,52 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
   * [Installation](#installation)
   * [Example of usage](#example-of-usage)
-  * [More usage examples](#more-usage-examples)
+  * [More examples](#more-examples)
+      - [Working with json](#working-with-json)
       - [Return promises](#return-promises)
       - [Using Request and Response objects](#using-request-and-response-objects)
-      - [Using exist server instead of creating a new one](#using-exist-server-instead-of-creating-a-new-one)
+      - [Pre-configure express/koa](#pre-configure-expresskoa)
       - [Load all controllers from the given directory](#load-all-controllers-from-the-given-directory)
-      - [Load all controllers from the given directory and prefix routes](#load-all-controllers-from-the-given-directory-and-prefix-routes)
+      - [Prefix all controllers routes](#prefix-all-controllers-routes)
       - [Prefix controller with base route](#prefix-controller-with-base-route)
-      - [Using JSON instead of regular text content](#using-json-instead-of-regular-text-content)
-      - [Per-action JSON / non-JSON output](#per-action-json--non-json-output)
       - [Inject routing parameters](#inject-routing-parameters)
       - [Inject query parameters](#inject-query-parameters)
       - [Inject request body](#inject-request-body)
       - [Inject request body parameters](#inject-request-body-parameters)
       - [Inject request header parameters](#inject-request-header-parameters)
+      - [Inject cookie parameters](#inject-cookie-parameters)
       - [Inject session object](#inject-session-object)
+      - [Inject state object](#inject-state-object)
       - [Inject uploaded file](#inject-uploaded-file)
-      - [Inject uploaded files](#inject-uploaded-files)
-      - [Inject cookie parameter](#inject-cookie-parameter)
       - [Make parameter required](#make-parameter-required)
+      - [Convert parameters to objects](#convert-parameters-to-objects)
       - [Set custom ContentType](#set-custom-contenttype)
       - [Set Location](#set-location)
       - [Set Redirect](#set-redirect)
       - [Set custom HTTP code](#set-custom-http-code)
+      - [Controlling empty responses](#controlling-empty-responses)
       - [Set custom headers](#set-custom-headers)
       - [Render templates](#render-templates)
+      - [Throw HTTP errors](#throw-http-errors)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
     + [Creating your own koa middleware](#creating-your-own-koa-middleware)
     + [Global middlewares](#global-middlewares)
     + [Error handlers](#error-handlers)
-  * [Using interceptors](#using-interceptors)
-    + [Interceptor function](#interceptor-function)
-    + [Interceptor classes](#interceptor-classes)
-    + [Global interceptors](#global-interceptors)
-    + [Don't forget to load your middlewares, error handlers and interceptors](#dont-forget-to-load-your-middlewares-error-handlers-and-interceptors)
+    + [Loading middlewares and controllers from directories](#loading-middlewares-and-controllers-from-directories)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
   * [Auto validating action params](#auto-validating-action-params)
-  * [Default error handling](#default-error-handling)
+  * [Using authorization features](#using-authorization-features)
+      - [@Authorized decorator](#authorized-decorator)
+      - [@CurrentUser decorator](#currentuser-decorator)
   * [Using DI container](#using-di-container)
+  * [Custom parameter decorators](#custom-parameter-decorators)
   * [Decorators Reference](#decorators-reference)
       - [Controller Decorators](#controller-decorators)
       - [Controller Method Decorators](#controller-method-decorators)
       - [Method Parameter Decorators](#method-parameter-decorators)
-      - [Middleware and Interceptor Decorators](#middleware-and-interceptor-decorators)
+      - [Middleware Decorators](#middleware-decorators)
       - [Other Decorators](#other-decorators)
   * [Samples](#samples)
   * [Release notes](#release-notes)
@@ -73,42 +74,31 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     `npm install reflect-metadata --save`
 
-    and make sure to import it in a global place, like app.ts:
+    and make sure to import it before you use routing-controllers:
 
     ```typescript
     import "reflect-metadata";
     ```
 
-3. ES6 features are used, if you are using old version of node.js you may need to install
- [es6-shim](https://github.com/paulmillr/es6-shim):
-
-    `npm install es6-shim --save`
-
-    and import it in a global place like app.ts:
-
-    ```typescript
-    import "es6-shim";
-    ```
-
-4. Install framework:
+3. Install framework:
 
     **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
 
     `npm install express body-parser multer --save`
 
-    Optionally you can also install its [typings](https://github.com/typings/typings):
+    Optionally you can also install their typings:
 
-    `typings install dt~express dt~serve-static --save --global`
+    `npm install @types/express @types/body-parser @types/multer --save`
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa@next koa-router@next koa-bodyparser@next koa-multer --save`
+    `npm install koa koa-router koa-bodyparser koa-multer --save`
 
-    Optionally you can also install its [typings](https://github.com/typings/typings):
+    Optionally you can also install their typings:
 
-    `typings install dt~koa --save --global`
+    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
     
-5. Its important to set these options in `tsconfig.json` file of your project:
+4. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
     {
@@ -116,7 +106,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
         "experimentalDecorators": true
     }
     ```
-
+    
 ## Example of usage
 
 1. Create a file `UserController.ts`
@@ -160,24 +150,60 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 2. Create a file `app.ts`
 
     ```typescript
-    import "es6-shim"; // this shim is optional if you are using old version of node
     import "reflect-metadata"; // this shim is required
     import {createExpressServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller before call createServer. this is required
-    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
-    app.listen(3000); // run express application
+    import {UserController} from "./UserController";
+ 
+    // creates express app, registers all controller routes and returns you express app instance
+    const app = createExpressServer({
+       controllers: [UserController] // we specify controllers we want to use
+    });
+ 
+    // run express application on port 3000
+    app.listen(3000);
     ```
 
-    > koa users just need to call `createKoaServer` instead of `createExpressServer`
+    > if you are koa user you just need to use `createKoaServer` instead of `createExpressServer`
 
-3. Open in browser `http://localhost:3000/users`. You should see `This action returns all users` in your browser.
-If you open `http://localhost:3000/users/1` you should see `This action returns user #1` in your browser.
+3. Open in browser `http://localhost:3000/users`. You will see `This action returns all users` in your browser.
+If you open `http://localhost:3000/users/1` you will see `This action returns user #1`.
 
-## More usage examples
+## More examples
 
+#### Working with json
+
+If you are designing a REST API where your endpoints always receive and return JSON then 
+you can use `@JsonController` decorator instead of `@Controller`. 
+This will guarantee you that data returned by your controller actions always be transformed to JSON
+and `Content-Type` header will be always set to `application/json`. 
+It will also guarantee `application/json` header is understood from the requests and the body parsed as JSON:
+
+```typescript
+import {JsonController, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
+
+@JsonController()
+export class UserController {
+
+    @Get("/users")
+    getAll() {
+       return userRepository.findAll();
+    }
+
+    @Get("/users/:id")
+    getOne(@Param("id") id: number) {
+       return userRepository.findById(id);
+    }
+
+    @Post("/users")
+    post(@Body() user: User) {
+       return userRepository.insert(user);
+    }
+
+}
+```
 #### Return promises
 
-You can return a promise in the controller, and it will wait until promise resolved and return in a response a promise result.
+You can return a promise in the controller, and it will wait until promise resolved and return promise result in a response body.
 
 ```typescript
 import {JsonController, Param, Body, Get, Post, Put, Delete} from "routing-controllers";
@@ -231,8 +257,8 @@ export class UserController {
 }
 ```
 
-`@Req()` decorator inject you a `Request` object, and `@Res()` decorator inject you a `Response` object.
-If you have installed a express typings too, you can use their types:
+`@Req()` decorator injects you a `Request` object, and `@Res()` decorator injects you a `Response` object.
+If you have installed typings, you can use their types:
 
 ```typescript
 import {Request, Response} from "express";
@@ -249,18 +275,20 @@ export class UserController {
 }
 ```
 
-#### Using exist server instead of creating a new one
+> note: koa users can also use `@Ctx() context` to inject koa's Context object.
+
+#### Pre-configure express/koa 
 
 If you have, or if you want to create and configure express app separately,
 you can use `useExpressServer` instead of `createExpressServer` function:
 
 ```typescript
-import "reflect-metadata"; // this shim is required
+import "reflect-metadata";
 import {useExpressServer} from "routing-controllers";
 
 let express = require("express"); // or you can import it if you have installed typings
 let app = express(); // your created express server
-// app.use() // maybe you configure it the way you want
+// app.use() // you can configure it the way you want
 useExpressServer(app); // register created express server in routing-controllers
 app.listen(3000); // run your express server
 ```
@@ -269,11 +297,11 @@ app.listen(3000); // run your express server
 
 #### Load all controllers from the given directory
 
-You can load all controllers in once from specific directories, by specifying array of directories via options in
+You can load all controllers from directories, by specifying array of directories in options of
 `createExpressServer` or `useExpressServer`:
 
 ```typescript
-import "reflect-metadata"; // this shim is required
+import "reflect-metadata";
 import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
@@ -283,17 +311,18 @@ createExpressServer({
 
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
-#### Load all controllers from the given directory and prefix routes
+#### Prefix all controllers routes
 
-If you want to prefix all routes in some directory eg. /api 
+If you want to prefix all your routes, e.g. `/api` you can use  `routePrefix` option:
 
 ```typescript
-import "reflect-metadata"; // this shim is required
+import "reflect-metadata";
 import {createExpressServer} from "routing-controllers";
+import {UserController} from "./controller/UserController";
 
 createExpressServer({
     routePrefix: "/api",
-    controllers: [__dirname + "/api/controllers/*.js"] // register controllers routes in our express app
+    controllers: [UserController]
 }).listen(3000);
 ```
 
@@ -301,7 +330,7 @@ createExpressServer({
 
 #### Prefix controller with base route
 
-You can prefix all controller's actions with specific base route:
+You can prefix all specific controller's actions with base route:
 
 ```typescript
 @Controller("/users")
@@ -310,47 +339,17 @@ export class UserController {
 }
 ```
 
-#### Using JSON instead of regular text content
-
-If you are designing a REST API where your endpoints always receive and return JSON you can use `@JsonController` decorator instead
-of `@Controller`. This will guarantee you that data returned by your controller actions always be transformed to JSON
- and `Content-Type` header will be always set to `application/json`. It will also guarantee that the `application/json` header is understood from the requests and the body parsed as JSON:
-
-```typescript
-@JsonController()
-export class UserController {
-    // ...
-}
-```
-
-#### Per-action JSON / non-JSON output
-
-In the case if you want to control if your controller's action will return json or regular plain text,
-you can specify a special option:
-
-```typescript
-// this will ignore @Controller if it used and return a json in a response
-@Get("/users")
-@JsonResponse()
-getUsers() {
-}
-
-// this will ignore @JsonController if it used and return a regular text in a response
-@Get("/posts")
-@TextResponse()
-getPosts() {
-}
-```
-
 #### Inject routing parameters
 
-You can use parameters in your routes, and to inject such parameters in your controller methods use `@Param` decorator:
+You can use `@Param` decorator to inject parameters in your controller actions:
 
 ```typescript
 @Get("/users/:id")
-getUsers(@Param("id") id: number) {
+getOne(@Param("id") id: number) { // id will be automatically casted to "number" because it has type number
 }
 ```
+
+If you want to inject all parameters use `@Params()` decorator.
 
 #### Inject query parameters
 
@@ -361,6 +360,8 @@ To inject query parameters, use `@QueryParam` decorator:
 getUsers(@QueryParam("limit") limit: number) {
 }
 ```
+
+If you want to inject all query parameters use `@QueryParams()` decorator.
 
 #### Inject request body
 
@@ -373,9 +374,8 @@ saveUser(@Body() user: User) {
 ```
 
 If you specify a class type to parameter that is decorated with `@Body()`,
-routing-controllers will use [class-transformer][4] to create instance of the given class type with the data received in request body.
+routing-controllers will use [class-transformer][4] to create instance of the given class type from the data received in request body.
 To disable this behaviour you need to specify a `{ useClassTransformer: false }` in RoutingControllerOptions when creating a server.
-
 
 #### Inject request body parameters
 
@@ -397,17 +397,23 @@ saveUser(@HeaderParam("authorization") token: string) {
 }
 ```
 
-#### Inject session object
+If you want to inject all header parameters use `@HeaderParams()` decorator.
 
-To inject a whole session object, use `@Session` decorator:
+#### Inject cookie parameters
+
+To get a cookie parameter, use `@CookieParam` decorator:
 
 ```typescript
-@Post("/login/")
-loginUser(@Session() session: Express.Session, @Body() user: User) {
+@Get("/users")
+getUsers(@CookieParam("username") username: string) {
 }
 ```
 
-To inject a single object from session, use `@Session` decorator with parameter:
+If you want to inject all header parameters use `@CookieParams()` decorator.
+
+#### Inject session object
+
+To inject a session value, use `@Session` decorator:
 
 ```typescript
 @Get("/login/")
@@ -415,19 +421,14 @@ savePost(@Session("user") user: User, @Body() post: Post) {
 }
 ```
 
-Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
+If you want to inject all session parameters use `@Session()` without any parameters.
+
+Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, 
+so firstly you have to install it manually to use `@Session` decorator.
 
 #### Inject state object
 
-To inject a whole state object, use `@State` decorator:
-
-```typescript
-@Post("/login/")
-loginUser(@State() state: StateType, @Body() user: User) {
-}
-```
-
-To inject a single object from state, use `@State` decorator with parameter:
+To inject a state parameter use `@State` decorator:
 
 ```typescript
 @Get("/login/")
@@ -435,7 +436,8 @@ savePost(@State("user") user: User, @Body() post: Post) {
 }
 ```
 
-This feature is not supported by express driver yet.
+If you want to inject the whole state object use `@State()` without any parameters.
+This feature is only supported by Koa.
 
 #### Inject uploaded file
 
@@ -447,31 +449,34 @@ saveFile(@UploadedFile("fileName") file: any) {
 }
 ```
 
-Routing-controllers uses [multer][3] to handle file uploads.
-You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
-
-#### Inject uploaded files
-
-To inject all uploaded files, use `@UploadedFiles` decorator:
+You can also specify uploading options to multer this way:
 
 ```typescript
+// to keep code clean better to extract this function into separate file
+export const fileUploadOptions = () => {
+    storage: multer.diskStorage({
+        destination: (req: any, file: any, cb: any) => { ...
+        },
+        filename: (req: any, file: any, cb: any) => { ...
+        }
+    }),
+    fileFilter: (req: any, file: any, cb: any) => { ...
+    },
+    limits: {
+        fieldNameSize: 255,
+        fileSize: 1024 * 1024 * 2
+    }
+};
+
+// use options this way:
 @Post("/files")
-saveAll(@UploadedFiles("files") files: any[]) {
+saveFile(@UploadedFile("fileName", { options: fileUploadOptions }) file: any) {
 }
 ```
 
+To inject all uploaded files use `@UploadedFiles` decorator instead.
 Routing-controllers uses [multer][3] to handle file uploads.
 You can install multer's file definitions via typings, and use `files: File[]` type instead of `any[]`.
-
-#### Inject cookie parameter
-
-To get a cookie parameter, use `@CookieParam` decorator:
-
-```typescript
-@Get("/users")
-getUsers(@CookieParam("username") username: string) {
-}
-```
 
 #### Make parameter required
 
@@ -484,7 +489,8 @@ save(@Body({ required: true }) user: any) {
 }
 ```
 
-Same you can do with all other parameters: @Param, @QueryParam, @BodyParam and others.
+Same you can do with all other parameters `@QueryParam`, `@BodyParam` and others.
+If user request does not contain required parameter routing-controller will throw an error.
 
 #### Convert parameters to objects
 
@@ -494,7 +500,7 @@ More info about this feature is available [here](#creating-instances-of-classes-
 
 #### Set custom ContentType
 
-You can specify a custom ContentType:
+You can specify a custom ContentType header:
 
 ```typescript
 @Get("/users")
@@ -505,7 +511,7 @@ getUsers() {
 ```
 #### Set Location
 
-You can set a location for any action:
+You can set a Location header for any action:
 
 ```typescript
 @Get("/users")
@@ -517,7 +523,7 @@ getUsers() {
 
 #### Set Redirect
 
-You can set a redirect for any action:
+You can set a Redirect header for any action:
 
 ```typescript
 @Get("/users")
@@ -539,21 +545,52 @@ saveUser(@Body() user: User) {
 }
 ```
 
-Also, there are several additional decorators, that sets conditional http code:
+#### Controlling empty responses
+
+If your controller returns `void` or `Promise<void>` or `undefined` it will throw you 404 error.
+To prevent this if you need to specify what status code you want to return using `@OnUndefined` decorator.
+
+```typescript
+@Delete("/users/:id")
+@OnUndefined(204)
+async remove(@Param("id") id: number): Promise<void> {
+    return userRepository.removeById(id);
+}
+```
+
+`@OnUndefined` is also useful when you return some object which can or cannot be undefined.
+In this example `findOneById` returns undefined in the case if user with given id was not found.
+This action will return 404 in the case if user was not found, and regular 200 in the case if it was found.
 
 ```typescript
 @Get("/users/:id")
-@EmptyResultCode(404)
+@OnUndefined(404)
+getOne(@Param("id") id: number) {
+    return userRepository.findOneById(id);
+}
+```
+
+You can also specify error class you want to use if it returned undefined:
+
+```typescript
+import {HttpError} from "routing-controllers";
+
+export class UserNotFoundError extends HttpError {
+    constructor() {
+        super(404, "User not found!");
+    }
+}
+```
+
+```typescript
+@Get("/users/:id")
+@OnUndefined(UserNotFoundError)
 saveUser(@Param("id") id: number) {
     return userRepository.findOneById(id);
 }
 ```
 
-In this example `findOneById` returns undefined in the case if user with given was not found.
-This action will return 404 in the case if user was not found, and regular 200 in the case if it was found.
-`@EmptyResultCode` allows to set any HTTP code in the case if controller's action returned empty result (null or undefined).
-There are also `@NullResultCode` and `@UndefindeResultCode()` in the case if you want to return specific codes only
-if controller's action returned null or undefined respectively.
+If controller action returns `null` you can use `@OnNull` decorator instead.
 
 #### Set custom headers
 
@@ -566,9 +603,10 @@ getOne(@Param("id") id: number) {
     // ...
 }
 ```
+
 #### Render templates
 
-You can set any custom header in a response:
+If you are using server-side rendering you can render any template:
 
 ```typescript
 @Get("/users/:id")
@@ -581,12 +619,47 @@ getOne() {
 }
 ```
 
-To use rendering ability make sure to configure express properly.
-[Here](https://github.com/pleerock/routing-controllers/blob/0.6.0-release/test/functional/render-decorator.spec.ts)
-is a test where you can take a look how to do it.
-
+To use rendering ability make sure to configure express / koa properly.
 To use rendering ability with Koa you will need to use a rendering 3rd party such as [koa-views](https://github.com/queckezz/koa-views/), 
 koa-views is the only render middleware that has been tested.
+
+#### Throw HTTP errors
+
+If you want to return errors with specific error codes, there is an easy way: 
+
+```typescript
+@Get("/users/:id")
+getOne(@Param("id") id: number) {
+
+    const user = this.userRepository.findOneById(id);
+    if (!user)
+        throw new NotFoundError(`User was not found.`); // message is optional
+        
+    return user;
+}
+```
+
+Now, when user won't be found with requested id, response will be with http status code 404 and following content:
+
+```json
+{
+  "name": "NotFoundError",
+  "message": "User was not found."
+}
+```
+
+There are set of prepared errors you can use:
+
+* HttpError
+* BadRequestError
+* ForbiddenError
+* InternalServerError
+* MethodNotAllowedError
+* NotAcceptableError
+* NotFoundError
+* UnauthorizedError
+
+You can also create and use your own errors by extending `HttpError` class.
 
 ## Using middlewares
 
@@ -640,9 +713,11 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
     ```typescript
     import "reflect-metadata";
     import {createExpressServer} from "routing-controllers";
-    import "./UserController";  // we need to "load" our controller before call createExpressServer. this is required
+    import {UserController} from "./UserController";  // we need to "load" our controller before call createExpressServer. this is required
     let compression = require("compression");
-    let app = createExpressServer(); // creates express app, registers all controller routes and returns you express app instance
+    let app = createExpressServer({
+       controllers: [UserController]
+    }); // creates express app, registers all controller routes and returns you express app instance
     app.use(compression());
     app.listen(3000); // run express application
     ```
@@ -653,14 +728,23 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 
 Here is example of creating middleware for express.js:
 
-1. To create your own middleware you need to create a class that implements a `MiddlewareInterface` interface and decorated
-with `@Middleware` decorator:
+1. There are two ways of creating middleware:
+
+    First, you can create a simple middleware function:
+    
+    ```typescript
+    export function loggingMiddleware(request: any, response: any, next?: (err?: any) => any): any {
+        console.log("do something...");
+        next();
+    }
+    ```
+    
+    Second you can create a class:
 
     ```typescript
-    import {Middleware, MiddlewareInterface} from "routing-controllers";
+    import {ExpressMiddlewareInterface} from "routing-controllers";
 
-    @Middleware()
-    export class MyMiddleware implements MiddlewareInterface {
+    export class MyMiddleware implements ExpressMiddlewareInterface { // interface implementation is optional
 
         use(request: any, response: any, next?: (err?: any) => any): any {
             console.log("do something...");
@@ -670,26 +754,16 @@ with `@Middleware` decorator:
     }
     ```
 
-    Here, we created our own middleware that prints `do something...` in the console.
-
-2. Second we need to load our middleware in `app.ts` before app bootstrap:
-
-    ```typescript
-    import "reflect-metadata";
-    import {createExpressServer} from "routing-controllers";
-    import "./UserController";
-    import "./MyMiddleware"; // here we load it
-    createExpressServer().listen(3000);
-    ```
-
-3. Now we can use our middleware:
+    Then you can them this way:
 
     ```typescript
     import {Controller, UseBefore} from "routing-controllers";
     import {MyMiddleware} from "./MyMiddleware";
+    import {loggingMiddleware} from "./loggingMiddleware";
 
     @Controller()
     @UseBefore(MyMiddleware)
+    @UseAfter(loggingMiddleware)
     export class UserController {
 
     }
@@ -700,28 +774,42 @@ with `@Middleware` decorator:
     ```typescript
     @Get("/users/:id")
     @UseBefore(MyMiddleware)
+    @UseAfter(loggingMiddleware)
     getOne(@Param("id") id: number) {
         // ...
     }
     ```
 
-    This way your middleware will be executed each time before controller action.
-    You can use `@UseAfter(MyMiddleware)` to make it execute after each controller action.
+    `@UseBefore` executes middleware before controller action.
+    `@UseAfter` executes middleware after each controller action.
 
 ### Creating your own koa middleware
 
 Here is example of creating middleware for koa.js:
 
-1. To create your own middleware you need to create a class that implements a `MiddlewareInterface` interface and decorated
-with `@Middleware` decorator:
+1. There are two ways of creating middleware:
+
+    First, you can create a simple middleware function:
+    
+    ```typescript
+    export function use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
+            console.log("do something before execution...");
+            return next().then(() => {
+                console.log("do something after execution");
+            }).catch(error => {
+                console.log("error handling is also here");
+            });
+        }
+    ```
+    
+    Second you can create a class:
 
     ```typescript
-    import {Middleware, MiddlewareInterface} from "routing-controllers";
+    import {KoaMiddlewareInterface} from "routing-controllers";
 
-    @Middleware()
-    export class MyMiddleware implements MiddlewareInterface {
+    export class MyMiddleware implements KoaMiddlewareInterface { // interface implementation is optional
 
-        use(context: any, next: (err: any) => Promise<any>): Promise<any> {
+        use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
             console.log("do something before execution...");
             return next().then(() => {
                 console.log("do something after execution");
@@ -733,26 +821,16 @@ with `@Middleware` decorator:
     }
     ```
 
-    Here, we created our own middleware that prints `do something...` in the console.
-
-2. Second we need to load our middleware in `app.ts` before app bootstrap:
-
-    ```typescript
-    import "reflect-metadata";
-    import {createKoaServer} from "routing-controllers";
-    import "./UserController";
-    import "./MyMiddleware"; // here we load it
-    createKoaServer().listen(3000);
-    ```
-
-3. Now we can use our middleware:
+    Then you can them this way:
 
     ```typescript
     import {Controller, UseBefore} from "routing-controllers";
     import {MyMiddleware} from "./MyMiddleware";
+    import {loggingMiddleware} from "./loggingMiddleware";
 
     @Controller()
     @UseBefore(MyMiddleware)
+    @UseAfter(loggingMiddleware)
     export class UserController {
 
     }
@@ -763,50 +841,60 @@ with `@Middleware` decorator:
     ```typescript
     @Get("/users/:id")
     @UseBefore(MyMiddleware)
+    @UseAfter(loggingMiddleware)
     getOne(@Param("id") id: number) {
         // ...
     }
     ```
 
-    This way your middleware will be executed each time before controller action.
-    You can use `@UseAfter(MyMiddleware)` to make it execute after each controller action.
+    `@UseBefore` executes middleware before controller action.
+    `@UseAfter` executes middleware after each controller action.
 
 ### Global middlewares
 
-Same way you created a middleware, you can create a global middleware:
+Global middlewares run before each request, always.
+To make your middleware global mark it with `@Middleware` decorator and specify if it runs after or before controllers actions.
 
 ```typescript
-import {MiddlewareGlobalBefore, MiddlewareInterface} from "routing-controllers";
+import {Middleware, ExpressMiddlewareInterface} from "routing-controllers";
 
-@MiddlewareGlobalBefore()
-export class CompressionMiddleware implements MiddlewareInterface {
+@Middleware({ type: "before" })
+export class LoggingMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next: (err: any) => any): void {
-        let compression = require("compression");
-        return compression()(request, response, next);
+        console.log("do something...");
+        next();
     }
 
 }
 ```
-In this example we simply delegate middleware to compression to use it globally.
-Global middleware runs before each request, always.
 
-You can make global middleware to run after controller action by using `@MiddlewareGlobalAfter` instead of `@MiddlewareGlobalBefore`.
- If you have issues with global middlewares run execution order you can set a priority: `@MiddlewareGlobalBefore({ priority: 1 })`.
- Higher priority means middleware being executed earlier.
+To enable this middleware specify it during routing-controllers initialization:
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer} from "routing-controllers";
+import {UserController} from "./UserController";
+import {LoggingMiddleware} from "./LoggingMiddleware";
+
+createExpressServer({
+   controllers: [UserController],
+   middlewares: [LoggingMiddleware],
+}).listen(3000);
+```
 
 ### Error handlers
 
 Error handlers are specific only to express.
-Error handlers work in pretty much the same way as middlewares, but implement `ErrorMiddlewareInterface` instead of `MiddlewareInterface`:
+Error handlers work same way as middlewares, but implement `ExpressErrorMiddlewareInterface`:
 
-1. Create a class that implements the `ErrorMiddlewareInterface` interface and is decorated with the `@MiddlewareGlobalAfter` decorator:
+1. Create a class that implements the `ErrorMiddlewareInterface` interface:
 
     ```typescript
-    import {ErrorMiddlewareInterface, MiddlewareGlobalAfter} from "routing-controllers";
+    import {Middleware, ExpressErrorMiddlewareInterface} from "routing-controllers";
 
-    @MiddlewareGlobalAfter()
-    export class CustomErrorHandler implements ErrorMiddlewareInterface {
+    @Middleware({ type: "after" })
+    export class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
 
         error(error: any, request: any, response: any, next: (err: any) => any) {
             console.log("do something...");
@@ -815,8 +903,9 @@ Error handlers work in pretty much the same way as middlewares, but implement `E
 
     }
     ```
+    
 Custom error handlers are invoked after the default error handler, so you won't be able to change response code or headers.
-To prevent this, you have to disable default error handler by specyfing `defaultErrorHandler` option in createExpressServer or useExpressServer:
+To prevent this, you have to disable default error handler by specifying `defaultErrorHandler` option in createExpressServer or useExpressServer:
 
 ```typescript
 createExpressServer({
@@ -824,99 +913,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-## Using interceptors
-
-Interceptors are used to change or replace the data returned to the client.
-You can create your own interceptor class or function and use to all or specific controller or controller action.
-It works pretty much the same as middlewares.
-
-### Interceptor function
-
-The easiest way is to use functions directly passed to `@UseInterceptor` of the action. 
-
-```typescript
-import {Get, Param, UseInterceptor} from "routing-controllers";
-
-// ...
-
-@Get("/users")
-@UseInterceptor(function(request: any, response: any, content: any) {
-    // here you have content returned by this action. you can replace something 
-    // in it and return a replaced result. replaced result will be returned to the user
-    return content.replace(/Mike/gi, "Michael");
-})
-getOne(@Param("id") id: number) {
-    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
-}
-```
-
-You can use `@UseInterceptor` per-action, on per-controller. 
-If its used per-controller then interceptor will apply to all controller actions.
-
-### Interceptor classes
-
-You can also create a class and use it with `@UseInterceptor` decorator:
-
-```typescript
-import {Interceptor, InterceptorInterface} from "routing-controllers";
-
-@Interceptor()
-export class NameCorrectionInterceptor implements InterceptorInterface {
-    
-    intercept(request: any, response: any, content: any) {
-        return content.replace(/Mike/gi, "Michael");
-    }
-    
-}
-```
-
-And use it in your controllers this way:
-
-```typescript
-import {Get, Param, UseInterceptor} from "routing-controllers";
-import {NameCorrectionInterceptor} from "./NameCorrectionInterceptor";
-
-// ...
-
-@Get("/users")
-@UseInterceptor(NameCorrectionInterceptor)
-getOne(@Param("id") id: number) {
-    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
-}
-```
-
-### Global interceptors
-
-You can create interceptors that will affect all controllers in your project by creating interceptor class
-and mark it with `@InterceptorGlobal` decorator:
-
-```typescript
-import {InterceptorGlobal, InterceptorInterface} from "routing-controllers";
-
-@InterceptorGlobal()
-export class NameCorrectionInterceptor implements InterceptorInterface {
-    
-    intercept(request: any, response: any, content: any) {
-        return content.replace(/Mike/gi, "Michael");
-    }
-    
-}
-```
-
-### Don't forget to load your middlewares, error handlers and interceptors
-
-Middlewares and error handlers should be loaded globally the same way as controllers, before app bootstrap:
-
-```typescript
-import "reflect-metadata";
-import {createExpressServer} from "routing-controllers";
-import "./UserController";
-import "./MyMiddleware"; // here we load it
-import "./CustomErrorHandler"; // here we load it
-import "./BadWordInterceptor"; // here we load it
-let app = createExpressServer();
-app.listen(3000);
-```
+### Loading middlewares and controllers from directories
 
 Also you can load middlewares from directories. Also you can use glob patterns:
 
@@ -967,7 +964,8 @@ export class UserController {
 }
 ```
 
-If `User` is an interface - then simple literal object will be created. If its a class - then instance of this will be created.
+If `User` is an interface - then simple literal object will be created. 
+If its a class - then instance of this class will be created.
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
@@ -979,23 +977,25 @@ If you want to disable it simply pass `useClassTransformer: false` to createExpr
 Sometimes parsing a json object into instance of some class is not enough. 
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
-It can be done easily thanks to integration with [class-validator][9]. All you need to do is simply specify a `enableValidation: true` option on application bootstrap:
+It can be done easily thanks to integration with [class-validator][9]. This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly e.g. by passing `validation: false` option on application bootstrap:
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
 
 createExpressServer({
-    enableValidation: true
+    validation: false
 }).listen(3000);
 ```
 
-If you don't want to turn on the validation globally for every parameter, you can do this locally by setting `validate: true` option in parameter decorator options object:
+If you want to turn on the validation only for some params, not globally for every parameter, you can do this locally by setting `validate: true` option in parameter decorator options object:
+
 ```typescript
 @Post("/login/")
 login(@Body({ validate: true }) user: User) {
 ```
 
-Now you need to define the class which type will be used in controller method params. Decorate the properties with appropriate validation decorators.
+Now you need to define the class which type will be used as type of controller's method param. 
+Decorate the properties with appropriate validation decorators.
 ```typescript
 export class User {
 
@@ -1010,6 +1010,7 @@ export class User {
 If you haven't used class-validator yet, you can learn how to use the decorators and handle more complex object validation [here][9].
 
 Now, if you have specified a class type, your action params will be not only an instance of that class (with the data sent by a user) but they will be validated too, so you don't have to worry about eg. incorrect e-mail or too short password and manual checks every property in controller method body.
+
 ```typescript
 @Controller()
 export class UserController {
@@ -1022,16 +1023,103 @@ export class UserController {
 
 }
 ```
-If the param doesn't satisfy the requirements defined by class-validator decorators, an error will be throwed and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
+If the param doesn't satisfy the requirements defined by class-validator decorators, 
+an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
 
-If you need special options for validation (groups, skiping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.) you can pass them as global config as `validationOptions ` in createExpressServer method or as a local setting for method parameter - `@Body({validationOptions: localOptions})`.
+If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
 This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
-This behaviour is **disabled** by default. If you want to enable it, you need to do it explicitly eg. by passing `enableValidation: true` to createExpressServer method.
 
-## Default error handling
+## Using authorization features
 
-Routing-controller comes with default error handling mechanism.
+Routing-controllers comes with two decorators helping you to organize authorization in your application.
+
+#### `@Authorized` decorator
+
+To make `@Authorized` decorator to work you need to setup special routing controllers options:
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer, ActionProperties} from "routing-controllers";
+
+createExpressServer({
+    authorizationChecker: async (actionProperties: ActionProperties, roles: string[]) => {
+        // here you can use request/response objects from actionProperties
+        // also if decorator defines roles it needs to access the action
+        // you can use them to provide granular access check
+        // checker must return either boolean (true or false)
+        // either promise that resolves a boolean value
+        // demo code:
+        const token = actionProperties.request.headers["authorization"];
+        
+        const user = await getEntityManager().findOneByToken(User, token);
+        if (user && !roles.length)
+            return true;
+        if (user && roles.find(role => user.roles.indexOf(role) !== -1))
+            return true;
+        
+        return false;
+    }
+}).listen(3000);
+```
+
+You can use `@Authorized` on controller actions:
+
+```typescript
+@JsonController()
+export class SomeController {
+
+    @Authorized()
+    @Post("/questions")
+    save(@Body() question: Question) {
+    }
+
+    @Authorized("POST_MODERATOR") // you can specify roles or array of roles
+    @Post("/posts")
+    save(@Body() post: Post) {
+    }
+
+}
+```
+
+#### `@CurrentUser` decorator
+
+To make `@CurrentUser` decorator to work you need to setup special routing controllers options:
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer, ActionProperties} from "routing-controllers";
+
+createExpressServer({
+    currentUserChecker: async (actionProperties: ActionProperties) => {
+        // here you can use request/response objects from actionProperties
+        // you need to provide a user object that will be injected in controller actions
+        // demo code:
+        const token = actionProperties.request.headers["authorization"];
+        return getEntityManager().findOneByToken(User, token);
+    }
+}).listen(3000);
+```
+
+You can use `@CurrentUser` on controller actions:
+
+```typescript
+@JsonController()
+export class QuestionController {
+
+    @Get("/questions")
+    all(@CurrentUser() user?: User, @Body() question: Question) {
+    }
+
+    @Post("/questions")
+    save(@CurrentUser({ required: true }) user: User, @Body() post: Post) {
+    }
+
+}
+```
+
+If you mark `@CurrentUser` as `required` and currentUserChecker logic will return empty result,
+ then routing-controllers will throw authorization required error.
 
 ## Using DI container
 
@@ -1052,7 +1140,6 @@ useContainer(Container);
 createExpressServer({
     controllers: [__dirname + "/controllers/*.js"],
     middlewares: [__dirname + "/middlewares/*.js"],
-    interceptors: [__dirname + "/interceptor/*.js"],
 }).listen(3000);
 ```
 
@@ -1070,77 +1157,108 @@ export class UsersController {
 }
 ```
 
+## Custom parameter decorators
+
+You can create your own parameter decorators. 
+Here is simple example how "session user" can be implemented using custom decorators:
+
+```typescript
+import {createParamDecorator} from "routing-controllers";
+
+export function UserFromSession(options?: { required?: boolean }) {
+    return createParamDecorator({
+        required: options && options.required ? true : false,
+        value: actionProperties => {
+            const token = actionProperties.request.headers["authorization"];
+            return database.findUserByToken(token);
+        }
+    });
+}
+```
+
+And use it in your controller:
+
+```typescript
+@JsonController()
+export class QuestionController {
+
+    @Post()
+    save(@Body() question: Question, @UserFromSession({ required: true }) user: User) {
+        // here you'll have user authorized and you can safely save your question
+        // in the case if user returned your undefined from the database and "required"
+        // parameter was set, routing-controllers will throw you ParameterRequired error
+    }        
+    
+    
+}
+```
+
 ## Decorators Reference
 
 #### Controller Decorators
 
 | Signature                            | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |--------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@Controller(baseRoute: string)`     | `@Controller("/users") class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                     |
-| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes. |
+| `@Controller(baseRoute: string)`     | `@Controller("/users") class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                      |
+| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes.  |
 
-#### Controller Method Decorators
+#### Controller Action Decorators
 
-| Signature                                                                    | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
-|------------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| `@Get(route: string|RegExp)`                                                 | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.get("/users", all)`             |
-| `@Post(route: string|RegExp)`                                                | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.post("/users", save)`           |
-| `@Put(route: string|RegExp)`                                                 | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.put("/users", update)`          |
-| `@Patch(route: string|RegExp)`                                               | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
-| `@Delete(route: string|RegExp)`                                              | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
-| `@Head(route: string|RegExp)`                                                | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Options(route: string|RegExp)`                                             | `@Options("/users/:id") head()`        | Methods marked with this decorator will register a request made with OPTIONS HTTP Method to a given route. In action options you can specify if action should response json or regular text response.             | `app.options("/users/:id", options)` |
-| `@Method(methodName: string, route: string|RegExp)`                          | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| Signature                                                      | Example                                | Description                                                                                                                                                                                                       | express.js analogue                  |
+|----------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| `@Get(route: string\|RegExp)`                                  | `@Get("/users") all()`                 | Methods marked with this decorator will register a request made with GET HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.get("/users", all)`             |
+| `@Post(route: string\|RegExp)`                                 | `@Post("/users") save()`               | Methods marked with this decorator will register a request made with POST HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.post("/users", save)`           |
+| `@Put(route: string\|RegExp)`                                  | `@Put("/users/:id") update()`          | Methods marked with this decorator will register a request made with PUT HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.put("/users", update)`          |
+| `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
+| `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
+| `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
+| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
-| Signature                                                          | Example                                          | Description                                                                                                                                                                                                                                                                  | express.js analogue                       |
-|--------------------------------------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `@Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
-| `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Reponse object to a controller action parameter value                                                                                                                                                                                                              | `function (request, response)`            |
-| `@Body(options?: ParamOptions)`                                    | `post(@Body() body: any)`                        | Injects a body to a controller action parameter value. In options you can specify if body should be parsed into a json object or not. Also you can specify there if body is required and action cannot work without body being specified.                                    | `request.body`                            |
-| `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if parameter is required and action cannot work with empty parameter.                             | `request.params.id`                       |
-| `@Session(objectName: string, options?: ParamOptions)`             | `get(@Session("user") user: User)`               | Injects an object from session to a controller action parameter value. In options you can specify there if parameter is not required and action can work with empty parameter.                             | `request.session.user`                       |
-| `@Session()`                                                       | `get(@Session() session: express.Session)`       | Injects a whole session object to a controller action parameter value. A session object is required and action cannot work with empty parameter.                             | `request.session`                       |
-| `@State(objectName: string, options?: ParamOptions)`             | `get(@State("user") user: User)`               | Injects an object from state to a controller action parameter value. In options you can specify there if parameter is not required and action can work with empty parameter.                             | `ctx.state.user`                       |
-| `@State()`                                                       | `get(@State() session: StateType)`       | Injects a whole state object to a controller action parameter value. A state object is required and action cannot work with empty parameter.                             | `ctx.state`                       |
-| `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter.          | `request.query.id`                        |
-| `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a parameter from response headers to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if query parameter is required and action cannot work with empty parameter. | `request.headers.token`                   |
-| `@UploadedFile(name: string, options?: { required?: boolean })`    | `post(@UploadedFile("files") file: any)`         | Injects a "file" from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                            | `request.file.file` (when using multer)   |
-| `@UploadedFiles(options?: ParamOptions)`                           | `post(@UploadedFiles() files: any[])`            | Injects all uploaded files from the response to a controller action parameter value. In parameter options you can specify if this is required parameter or not. parseJson option is ignored                                                                                  | `request.files` (when using multer)       |
-| `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if body parameter is required and action cannot work with empty parameter.                   | `request.body.name`                       |
-| `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter to a controller action parameter value. In options you can specify if parameter should be parsed into a json object or not. Also you can specify there if cookie parameter is required and action cannot work with empty parameter.               | `request.cookie("username")`              |
+| Signature                                                          | Example                                          | Description                                                                                                                             | express.js analogue                       |
+|--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `@Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object.                                                                                                               | `function (request, response)`            |
+| `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Response object.                                                                                                              | `function (request, response)`            |
+| `@Ctx()`                                                           | `getAll(@Ctx() context: Context)`                | Injects a Context object (koa-specific)                                                                                                 | `function (ctx)` (koa-analogue)           |
+| `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a router parameter.                                                                                                             | `request.params.id`                       |
+| `@Params()`                                                        | `get(@Params() params: any)`                     | Injects all request parameters.                                                                                                         | `request.params`                          |
+| `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter.                                                                                                       | `request.query.id`                        |
+| `@QueryParams(options?: ParamOptions)`                             | `get(@QueryParams() params: any)`                | Injects all query parameters.                                                                                                           | `request.query`                           |
+| `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a specific request headers.                                                                                                     | `request.headers.token`                   |
+| `@HeaderParams(options?: ParamOptions)`                            | `get(@HeaderParams() params: any)`               | Injects all request headers.                                                                                                            | `request.headers`                         |
+| `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter.                                                                                                             | `request.cookie("username")`              |
+| `@CookieParams(options?: ParamOptions)`                            | `get(@CookieParams() params: any)`               | Injects all cookies.                                                                                                                    | `request.cookies                          |
+| `@Session(name?: string)`                                          | `get(@Session("user") user: User)`               | Injects an object from session (or the whole session).                                                                                  | `request.session.user`                    |
+| `@State(name?: string)`                                            | `get(@State() session: StateType)`               | Injects an object from the state (or the whole state).                                                                                  | `ctx.state` (koa-analogue)                |
+| `@Body(options?: BodyOptions)`                                     | `post(@Body() body: any)`                        | Injects a body. In parameter options you can specify body parser middleware options.                                                    | `request.body`                            |
+| `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter.                                                                                                               | `request.body.name`                       |
+| `@UploadedFile(name: string, options?: UploadOptions)`             | `post(@UploadedFile("filename") file: any)`      | Injects uploaded file from the response. In parameter options you can specify underlying uploader middleware options.                   | `request.file.file` (using multer)        |
+| `@UploadedFiles(name: string, options?: UploadOptions)`            | `post(@UploadedFiles("filename") files: any[])`  | Injects all uploaded files from the response. In parameter options you can specify underlying uploader middleware options.              | `request.files` (using multer)            |
 
-#### Middleware and Interceptor Decorators
+#### Middleware Decorators
 
-| Signature                                                          | Example                                          | Description                                                                                                     |
-|--------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `@Middleware()`                                                    | `@Middleware() class SomeMiddleware`             | Registers a new middleware.                                                                                     |
-| `@MiddlewareGlobalBefore()`                                        | `@MiddlewareGlobalBefore() class SomeMiddleware` | Registers a middleware that runs globally before action execution.                                              |
-| `@MiddlewareGlobalAfter()`                                         | `@MiddlewareGlobalAfter() class SomeMiddleware`  | Registers a middleware that runs globally after action execution.                                               |
-| `@ErrorHandler()`                                                  | `@ErrorHandler() class SomeErrorHandler`         | Registers a new error handler.                                                                                  |
-| `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`              | Uses given middleware before action is being executed.                                                          |
-| `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`               | Uses given middleware after action is being executed.                                                           |
-| `@Interceptor()`                                                   | `@Interceptor(InterceptorMiddleware)`            | Registers a given class as an interceptor                                                                       |
-| `@InterceptorGlobal()`                                             | `@InterceptorGlobal(InterceptorMiddleware)`      | Registers a global interceptor.                                                                                 |
-| `@UseInterceptor()`                                                | `@UseInterceptor(InterceptorMiddleware)`         | Uses given interceptor for the given action or controller.                                                      |
+| Signature                                                          | Example                                                | Description                                                                                                     |
+|--------------------------------------------------------------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `@Middleware({ type: "before"\|"after" })`                         | `@Middleware({ type: "before" }) class SomeMiddleware` | Registers a new middleware.                                                                                     |
+| `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`                    | Uses given middleware before action is being executed.                                                          |
+| `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`                     | Uses given middleware after action is being executed.                                                           |
 
 #### Other Decorators
 
-| Signature                                                          | Example                                           | Description                                                                                                     |
-|--------------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `@JsonResponse()`                                                  | `@JsonResponse()` get()                           | Controller actions marked with this decorator will return a json response instead of default text/html.         |
-| `@TextResponse()`                                                  | `@TextResponse()` get()                           | Controller actions marked with this decorator will return a text/html response instead of default json.         |
-| `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                           | Allows to explicitly set HTTP code to be returned in the response.                                              |
-| `@EmptyResultCode(code: number)`                                   | `@EmptyResultCode(201)` post()                    | Sets a given HTTP code when controller action returned empty result (null or undefined).                        |
-| `@NullResultCode(code: number)`                                    | `@NullResultCode(201)` post()                     | Sets a given HTTP code when controller action returned null.                                                    |
-| `@UndefinedResultCode(code: number)`                               | `@UndefinedResultCode(201)` post()                | Sets a given HTTP code when controller action returned undefined.                                               |
-| `@ResponseClassTransformOptions(options: ClassTransformOptions)`   | `@ResponseClassTransformOptions({/*...*/})` get() | Sets options to be passed to class-transformer when it used for classToPlain a response result.                 |
-| `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-type returned in the response.                                            |
-| `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP Header returned in the response.                                              |
-| `@Location(url: string)`                                           | `@Location("http://github.com")` get()            | Allows to explicitly set HTTP Location.                                                                         |
-| `@Redirect(url: string)`                                           | `@Redirect("http://github.com")` get()            | Allows to explicitly set HTTP Redirect.                                                                         |
-| `@Render(template: string)`                                        | `@Render("user-list.html")` get()                 | Renders a given html when user accesses route.                                                                  |
+| Signature                                                          | Example                                                   | Description                                                                                                                                    |
+|--------------------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `@Authorized(roles?: string\|string[])`                            | `@Authorized("SUPER_ADMIN")` get()                        | Checks if user is authorized and has given roles on a given route. `currentUserChecker` should be defined in routing-controllers options.      |                                                              |
+| `@CurrentUser(options?: { required?: boolean })`                   | get(@CurrentUser({ required: true }) user: User)          | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers options.                                      |
+| `@Header(contentType: string)`                                     | `@Header("Cache-Control", "private")` get()               | Allows to explicitly set any HTTP header returned in the response.                                                                             |
+| `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                          | Allows to explicitly set HTTP Content-Type returned in the response.                                                                           |
+| `@Location(url: string)`                                           | `@Location("http://github.com")` get()                    | Allows to explicitly set HTTP Location header returned in the response.                                                                        |
+| `@Redirect(url: string)`                                           | `@Redirect("http://github.com")` get()                    | Allows to explicitly set HTTP Redirect header returned in the response.                                                                        |
+| `@HttpCode(code: number)`                                          | `@HttpCode(201)` post()                                   | Allows to explicitly set HTTP code to be returned in the response.                                                                             |
+| `@OnNull(codeOrError: number\|Error)`                              | `@OnNull(201)` post()                                     | Sets a given HTTP code when controller action returned null.                                                                                   |
+| `@OnUndefined(codeOrError: number\|Error)`                         | `@OnUndefined(201)` post()                                | Sets a given HTTP code when controller action returned undefined.                                                                              |
+| `@ResponseClassTransformOptions(options: ClassTransformOptions)`   | `@ResponseClassTransformOptions({/*...*/})` get()         | Sets options to be passed to class-transformer when it used for classToPlain a response result.                                                |
+| `@Render(template: string)`                                        | `@Render("user-list.html")` get()                         | Renders a given html template. Data returned by a controller serve as template variables.                                                      |
 
 ## Samples
 

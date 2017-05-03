@@ -1,8 +1,6 @@
-import {MiddlewareInterface} from "../../../../../src/middleware/MiddlewareInterface";
-import {Middleware} from "../../../../../src/decorator/decorators";
+import {ExpressMiddlewareInterface} from "../../../../../src/driver/express/ExpressMiddlewareInterface";
 
-@Middleware()
-export class BlogMiddleware implements MiddlewareInterface {
+export class BlogMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("logging request from blog middleware...");

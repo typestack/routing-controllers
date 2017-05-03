@@ -1,13 +1,10 @@
-import {MiddlewareInterface} from "../../../src/middleware/MiddlewareInterface";
-import {Middleware} from "../../../src/decorator/decorators";
+import {ExpressMiddlewareInterface} from "../../../src/driver/express/ExpressMiddlewareInterface";
 import * as session from "express-session";
 
 const convert = require("koa-convert");
 const KoaSession = require("koa-session");
 
-
-@Middleware()
-export class SessionMiddleware implements MiddlewareInterface {
+export class SessionMiddleware implements ExpressMiddlewareInterface {
     public use (requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
         if (next) {
             return this.expSession(requestOrContext, responseOrNext, next);

@@ -1,15 +1,11 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {
-    UseBefore,
-    UseAfter,
-    Middleware,
-    MiddlewareGlobalBefore,
-    MiddlewareGlobalAfter
-} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Middleware} from "../../src/decorator/Middleware";
+import {UseAfter} from "../../src/decorator/UseAfter";
+import {createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -35,10 +31,10 @@ describe("koa middlewares", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
-        @MiddlewareGlobalBefore()
-        class TestGlobalBeforeKoaMidleware implements MiddlewareInterface {
+        @Middleware({ type: "before" })
+        class TestGlobalBeforeKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useGlobalBefore = true;
@@ -48,8 +44,8 @@ describe("koa middlewares", () => {
 
         }
 
-        @MiddlewareGlobalAfter()
-        class TestGlobalAfterKoaMidleware implements MiddlewareInterface {
+        @Middleware({ type: "after" })
+        class TestGlobalAfterKoaMidleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useGlobalAfter = true;
@@ -59,8 +55,7 @@ describe("koa middlewares", () => {
 
         }
 
-        @Middleware()
-        class TestLoggerKoaMiddleware implements MiddlewareInterface {
+        class TestLoggerKoaMiddleware implements ExpressMiddlewareInterface {
 
             use(context: any, next?: Function): any {
                 useCustom = true;

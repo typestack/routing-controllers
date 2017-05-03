@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+import {JsonController} from "../../src/decorator/JsonController";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {Service, Container} from "typedi/index";
+import {Container, Service} from "typedi";
 import {useContainer} from "../../src/container";
+import {Get} from "../../src/decorator/Get";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -46,7 +46,7 @@ describe("container", () => {
 
             // reset metadata args storage
             useContainer(Container);
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @Service()
             @JsonController()
@@ -149,7 +149,7 @@ describe("container", () => {
 
             // reset metadata args storage
             useContainer(fakeContainer);
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class TestContainerController {
@@ -251,7 +251,7 @@ describe("container", () => {
 
             // reset metadata args storage
             useContainer(fakeContainer, { fallback: true });
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class TestContainerController {
@@ -383,7 +383,7 @@ describe("container", () => {
 
             // reset metadata args storage
             useContainer(fakeContainer, { fallback: true, fallbackOnErrors: true });
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class TestContainerController {

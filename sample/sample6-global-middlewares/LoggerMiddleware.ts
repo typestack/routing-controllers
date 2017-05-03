@@ -1,8 +1,8 @@
-import {MiddlewareGlobalBefore} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
-export class LoggerMiddleware implements MiddlewareInterface {
+@Middleware({ type: "before" })
+export class LoggerMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("logging request ...");

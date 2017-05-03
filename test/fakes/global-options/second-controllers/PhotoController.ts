@@ -1,5 +1,5 @@
-import {Controller} from "../../../../src/decorator/controllers";
-import {Get} from "../../../../src/decorator/methods";
+import {Controller} from "../../../../src/decorator/Controller";
+import {Get} from "../../../../src/decorator/Get";
 
 @Controller()
 export class PhotoController {

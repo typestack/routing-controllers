@@ -1,9 +1,14 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get, Post, Put, Patch, Delete, Head, Method} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Post} from "../../src/decorator/Post";
+import {Method} from "../../src/decorator/Method";
+import {Head} from "../../src/decorator/Head";
+import {Delete} from "../../src/decorator/Delete";
+import {Patch} from "../../src/decorator/Patch";
+import {Put} from "../../src/decorator/Put";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {TextResponse, JsonResponse} from "../../src/decorator/decorators";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -12,7 +17,7 @@ describe("controller methods", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
         @Controller()
         class UserController {
@@ -47,19 +52,6 @@ describe("controller methods", () => {
             @Method("delete", "/categories")
             getCategories() {
                 return "<html><body>Get categories</body></html>";
-            }
-            @Get("/categories-text")
-            @TextResponse()
-            getWithTextResponseType() {
-                return "<html><body>All categories</body></html>";
-            }
-            @Get("/categories-json")
-            @JsonResponse()
-            getWithTextResponseJson() {
-                return {
-                    id: 1,
-                    name: "People"
-                };
             }
             @Get("/users/:id")
             getUserById() {
@@ -160,23 +152,6 @@ describe("controller methods", () => {
             expect(response).to.have.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>Get categories</body></html>");
-        });
-    });
-
-    describe("custom response type (text)", () => {
-        assertRequest([3001, 3002], "get", "categories-text", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>All categories</body></html>");
-        });
-    });
-
-    describe("custom response type (json)", () => {
-        assertRequest([3001, 3002], "get", "categories-json", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body.id).to.be.equal(1);
-            expect(response.body.name).to.be.equal("People");
         });
     });
 

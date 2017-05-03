@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get, Post, Put, Patch, Delete} from "../../src/decorator/methods";
-import {Render} from "../../src/decorator/decorators";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {Render} from "../../src/decorator/Render";
 
 @Controller()
 export class UserController {

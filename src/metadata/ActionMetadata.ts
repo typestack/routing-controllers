@@ -1,14 +1,15 @@
 import {ParamMetadata} from "./ParamMetadata";
 import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
-import {ActionType} from "./types/ActionTypes";
+import {ActionType} from "./types/ActionType";
 import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import {ResponseHandlerTypes} from "./types/ResponsePropertyTypes";
 import {UseMetadata} from "./UseMetadata";
-import {ParamTypes} from "./types/ParamTypes";
 import {ClassTransformOptions} from "class-transformer";
-import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
+import {ActionProperties} from "../ActionProperties";
 
+/**
+ * Action metadata.
+ */
 export class ActionMetadata {
 
     // -------------------------------------------------------------------------
@@ -31,21 +32,6 @@ export class ActionMetadata {
     uses: UseMetadata[];
 
     /**
-     * Action's intercepts.
-     */
-    useInterceptors: UseInterceptorMetadata[];
-
-    /**
-     * Action's response handlers.
-     */
-    responseHandlers: ResponseHandlerMetadata[];
-
-    /**
-     * Route to be registered for the action.
-     */
-    route: string|RegExp;
-
-    /**
      * Class on which's method this action is attached.
      */
     target: Function;
@@ -61,31 +47,164 @@ export class ActionMetadata {
      */
     type: ActionType;
 
+    /**
+     * Route to be registered for the action.
+     */
+    route: string|RegExp;
+
+    /**
+     * Full route to this action (includes controller base route).
+     */
+    fullRoute: string|RegExp;
+
+    /**
+     * Indicates if this action uses Body.
+     */
+    isBodyUsed: boolean;
+
+    /**
+     * Indicates if this action uses Uploaded File.
+     */
+    isFileUsed: boolean;
+
+    /**
+     * Indicates if this action uses Uploaded Files.
+     */
+    isFilesUsed: boolean;
+
+    /**
+     * Indicates if controller of this action is json-typed.
+     */
+    isJsonTyped: boolean;
+
+    /**
+     * Indicates if this action uses Authorized decorator.
+     */
+    isAuthorizedUsed: boolean;
+
+    /**
+     * Class-transformer options for the action response content.
+     */
+    responseClassTransformOptions: ClassTransformOptions;
+
+    /**
+     * Http code to be used on undefined action returned content.
+     */
+    undefinedResultCode: number|Function;
+
+    /**
+     * Http code to be used on null action returned content.
+     */
+    nullResultCode: number|Function;
+
+    /**
+     * Http code to be set on successful response.
+     */
+    successHttpCode: number;
+
+    /**
+     * Specifies redirection url for this action.
+     */
+    redirect: string;
+
+    /**
+     * Rendered template to be used for this controller action.
+     */
+    renderedTemplate: string;
+
+    /**
+     * Response headers to be set.
+     */
+    headers: { [name: string]: any };
+
+    /**
+     * Extra options used by @Body decorator.
+     */
+    bodyExtraOptions: any;
+
+    /**
+     * Roles set by @Authorized decorator.
+     */
+    authorizedRoles: any[];
+
+    /**
+     * Params to be appended to the method call.
+     */
+    appendParams?: (actionProperties: ActionProperties) => any[];
+
+    /**
+     * Special function that will be called instead of orignal method of the target.
+     */
+    methodOverride?: (actionMetadata: ActionMetadata, actionProperties: ActionProperties, params: any[]) => Promise<any>|any;
+
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
     
     constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs) {
         this.controllerMetadata = controllerMetadata;
-        
-        if (args.route)
-            this.route = args.route;
-        if (args.target)
-            this.target = args.target;
-        if (args.method)
-            this.method = args.method;
-        if (args.type)
-            this.type = args.type;
+        this.route = args.route;
+        this.target = args.target;
+        this.method = args.method;
+        this.type = args.type;
+        this.appendParams = args.appendParams;
+        this.methodOverride = args.methodOverride;
     }
 
     // -------------------------------------------------------------------------
-    // Accessors
+    // Public Methods
     // -------------------------------------------------------------------------
 
-    get fullRoute(): string|RegExp {
+    /**
+     * Builds everything action metadata needs.
+     * Action metadata can be used only after its build.
+     */
+    build(responseHandlers: ResponseHandlerMetadata[]) {
+        const classTransformerResponseHandler = responseHandlers.find(handler => handler.type === "response-class-transform-options");
+        const undefinedResultHandler = responseHandlers.find(handler => handler.type === "on-undefined");
+        const nullResultHandler = responseHandlers.find(handler => handler.type === "on-null");
+        const successCodeHandler = responseHandlers.find(handler => handler.type === "success-code");
+        const redirectHandler = responseHandlers.find(handler => handler.type === "redirect");
+        const renderedTemplateHandler = responseHandlers.find(handler => handler.type === "rendered-template");
+        const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
+        const bodyParam = this.params.find(param => param.type === "body");
+
+        if (classTransformerResponseHandler)
+            this.responseClassTransformOptions = classTransformerResponseHandler.value;
+        if (undefinedResultHandler)
+            this.undefinedResultCode = undefinedResultHandler.value;
+        if (nullResultHandler)
+            this.nullResultCode = nullResultHandler.value;
+        if (successCodeHandler)
+            this.successHttpCode = successCodeHandler.value;
+        if (redirectHandler)
+            this.redirect = redirectHandler.value;
+        if (renderedTemplateHandler)
+            this.renderedTemplate = renderedTemplateHandler.value;
+
+        this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
+        this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
+        this.isFilesUsed = !!this.params.find(param => param.type === "files");
+        this.isFileUsed = !!this.params.find(param => param.type === "file");
+        this.isJsonTyped = this.controllerMetadata.type === "json";
+        this.fullRoute = this.buildFullRoute();
+        this.headers = this.buildHeaders(responseHandlers);
+
+        this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
+        this.authorizedRoles = this.controllerMetadata.authorizedRoles.concat(authorizedHandler ? authorizedHandler.value : []);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds full action route.
+     */
+    private buildFullRoute(): string|RegExp {
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
-                return ActionMetadata.appendBaseRouteToRegexpRoute(this.route as RegExp, this.controllerMetadata.route);
+                return ActionMetadata.appendBaseRoute(this.controllerMetadata.route, this.route);
             }
             return this.route;
         }
@@ -95,166 +214,51 @@ export class ActionMetadata {
         if (this.route && typeof this.route === "string") path += this.route;
         return path;
     }
-    
-    get isJsonTyped(): boolean {
-        if (this.jsonResponse)
-            return true;
-        if (this.textResponse)
-            return false;
-        return this.controllerMetadata.isJsonTyped;
-    }
-    
-    get contentTypeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.CONTENT_TYPE);
-    }
-    
-    get locationHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.LOCATION);
-    }
-    
-    get regirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.REDIRECT);
-    }
-    
-    get successCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.SUCCESS_CODE);
-    }
-    
-    get emptyResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.EMPTY_RESULT_CODE);
-    }
-    
-    get nullResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.NULL_RESULT_CODE);
-    }
-    
-    get undefinedResultHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.UNDEFINED_RESULT_CODE);
-    }
-    
-    get errorCodeHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.ERROR_CODE);
-    }
-    
-    get redirectHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.REDIRECT);
-    }
-    
-    get renderedTemplateHandler(): ResponseHandlerMetadata {
-        return this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RENDERED_TEMPLATE);
-    }
-    
-    get headerHandlers(): ResponseHandlerMetadata[] {
-        return this.responseHandlers.filter(handler => handler.type === ResponseHandlerTypes.HEADER);
-    }
 
-    get responseClassTransformOptions(): ClassTransformOptions {
-        const responseHandler = this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.RESPONSE_CLASS_TRANSFORM_OPTIONS);
-        if (responseHandler)
-            return responseHandler.value;
+    /**
+     * Builds action response headers.
+     */
+    private buildHeaders(responseHandlers: ResponseHandlerMetadata[]) {
+        const contentTypeHandler = responseHandlers.find(handler => handler.type === "content-type");
+        const locationHandler = responseHandlers.find(handler => handler.type === "location");
 
-        return undefined;
-    }
+        const headers: { [name: string]: string } = {};
+        if (locationHandler)
+            headers["Location"] = locationHandler.value;
 
-    get undefinedResultCode(): number {
-        if (this.undefinedResultHandler)
-            return this.undefinedResultHandler.value;
+        if (contentTypeHandler)
+            headers["Content-type"] = contentTypeHandler.value;
 
-        return undefined;
-    }
+        const headerHandlers = responseHandlers.filter(handler => handler.type === "header");
+        if (headerHandlers)
+            headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
 
-    get nullResultCode(): number {
-        if (this.nullResultHandler)
-            return this.nullResultHandler.value;
-        
-        return undefined;
-    }
-    
-    get emptyResultCode(): number {
-        if (this.emptyResultHandler)
-            return this.emptyResultHandler.value;
-        
-        return undefined;
-    }
-    
-    get successHttpCode(): number {
-        if (this.successCodeHandler)
-            return this.successCodeHandler.value;
-        
-        return undefined;
-    }
-    
-    get headers(): { [name: string]: any } {
-        const headers: { [name: string]: any } = {};
-        if (this.locationHandler)
-            headers["Location"] = this.locationHandler.value;
-        
-        if (this.contentTypeHandler)
-            headers["Content-type"] = this.contentTypeHandler.value;
-        
-        if (this.headerHandlers)
-            this.headerHandlers.map(handler => headers[handler.value] = handler.secondaryValue);
-        
         return headers;
     }
-    
-    get redirect() {
-        if (this.redirectHandler)
-            return this.redirectHandler.value;
 
-        return undefined;
-    }
-    
-    get renderedTemplate() {
-        if (this.renderedTemplateHandler)
-            return this.renderedTemplateHandler.value;
-
-        return undefined;
-    }
-    
-    get isCookiesUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.COOKIE);
-    }
-    
-    get isBodyUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.BODY ||  param.type === ParamTypes.BODY_PARAM);
-    }
-    
-    get isFilesUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILES);
-    }
-    
-    get isFileUsed() {
-        return !!this.params.find(param => param.type === ParamTypes.UPLOADED_FILE);
-    }
-
-    /**
-     * If set to true then response will be forced to json (serialized and application/json content-type will be used).
-     */
-    get jsonResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.JSON_RESPONSE);
-    }
-
-    /**
-     * If set to true then response will be forced to simple string text response.
-     */
-    get textResponse(): boolean {
-        return !!this.responseHandlers.find(handler => handler.type === ResponseHandlerTypes.TEXT_RESPONSE);
-    }
-    
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
-    executeAction(params: any[]) {
+    /**
+     * Calls action method.
+     * Action method is an action defined in a user controller.
+     */
+    callMethod(params: any[]) {
         return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
     }
 
     // -------------------------------------------------------------------------
     // Static Methods
     // -------------------------------------------------------------------------
-    
-    static appendBaseRouteToRegexpRoute(route: RegExp, baseRoute: string) {
+
+    /**
+     * Appends base route to a given regexp route.
+     */
+    static appendBaseRoute(baseRoute: string, route: RegExp|string) {
+        if (typeof route === "string")
+            return `${baseRoute}${route}`;
+
         if (!baseRoute || baseRoute === "") return route;
         const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
         return new RegExp(fullPath, route.flags);

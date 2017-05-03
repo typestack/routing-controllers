@@ -2,9 +2,10 @@ import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ActionCallbackOptions} from "../ActionCallbackOptions";
+import {ActionProperties} from "../ActionProperties";
 import {ClassTransformOptions} from "class-transformer";
-import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
+import {AuthorizationChecker} from "../AuthorizationChecker";
+import {CurrentUserChecker} from "../CurrentUserChecker";
 
 /**
  * Abstract layer to organize controllers integration with different http server implementations.
@@ -58,25 +59,31 @@ export interface Driver {
      */
     routePrefix: string;
 
-    bootstrap(): void;
-
     /**
-     * Registers given error handler in the driver.
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
      */
-    registerErrorHandler(middleware: MiddlewareMetadata): void;
+    authorizationChecker?: AuthorizationChecker;
 
     /**
-     * Registers middleware that run before controller actions.
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
+
+    /**
+     * Initializes the things driver needs before routes and middleware registration.
+     */
+    initialize(): void;
+
+    /**
+     * Registers given middleware.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void;
 
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata,
-                   middlewares: MiddlewareMetadata[],
-                   interceptors: InterceptorMetadata[],
-                   executeCallback: (options: ActionCallbackOptions) => any): void;
+    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void;
 
     /**
      * Registers all routes in the framework.
@@ -86,16 +93,16 @@ export interface Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionCallbackOptions, param: ParamMetadata): void;
+    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any;
 
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(error: any, action: ActionMetadata, options: ActionCallbackOptions): void;
+    handleError(error: any, action: ActionMetadata, options: ActionProperties): any;
 
     /**
      * Defines an algorithm of how to handle success result of executing controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: ActionCallbackOptions): void;
+    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void;
 
 }

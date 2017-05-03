@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
+import {JsonController} from "../../src/decorator/JsonController";
 import {createExpressServer} from "../../src/index";
-import {MiddlewareGlobalBefore, MiddlewareGlobalAfter} from "../../src/decorator/decorators";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {Get} from "../../src/decorator/Get";
+import {Middleware} from "../../src/decorator/Middleware";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 
 
 const chakram = require("chakram");
@@ -28,16 +28,16 @@ describe("custom express global before middleware error handling", () => {
     before(() => {
 
 
-        @MiddlewareGlobalBefore()
-        class GlobalBeforeMiddleware implements MiddlewareInterface {
+        @Middleware({ type: "before" })
+        class GlobalBeforeMiddleware implements ExpressMiddlewareInterface {
             use(request: any, response: any, next?: Function): any {
               console.log("GLOBAL BEFORE MIDDLEWARE CALLED");
               throw new CustomError();
             }
         }
 
-        @MiddlewareGlobalAfter()
-        class CustomErrorHandler implements ErrorMiddlewareInterface {
+        @Middleware({ type: "after" })
+        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 errorHandlerName = error.name;

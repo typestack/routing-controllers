@@ -1,5 +1,4 @@
-import "es6-shim";
-import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
+import {Gulpclass, MergedTask, SequenceTask, Task} from "gulpclass";
 
 const gulp = require("gulp");
 const del = require("del");
@@ -158,7 +157,7 @@ export class Gulpfile {
      */
     @Task()
     coveragePre() {
-        return gulp.src(["./build/es5/src/**/*.js"])
+        return gulp.src(["./build/compiled/src/**/*.js"])
             .pipe(istanbul())
             .pipe(istanbul.hookRequire());
     }
@@ -169,10 +168,13 @@ export class Gulpfile {
     @Task("coveragePost", ["coveragePre"])
     coveragePost() {
         chai.should();
-        chai.use(require("sinon-chai"));
-        chai.use(require("chai-as-promised"));
+        // chai.use(require("sinon-chai"));
+        // chai.use(require("chai-as-promised"));
 
-        return gulp.src(["./build/es5/test/functional/**/*.js"])
+        return gulp.src([
+            "./build/compiled/test/functional/**/*.js",
+            "./build/compiled/test/issues/**/*.js",
+        ])
             .pipe(mocha())
             .pipe(istanbul.writeReports());
     }

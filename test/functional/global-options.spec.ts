@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Post} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {Body} from "../../src/decorator/params";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Post} from "../../src/decorator/Post";
+import {Body} from "../../src/decorator/Body";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -26,7 +26,7 @@ describe("routing-controllers global options", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
         @JsonController()
         class TestUserController {
@@ -57,9 +57,9 @@ describe("routing-controllers global options", () => {
     describe("when useClassTransformer is set to true", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ useClassTransformer: true }).listen(3001, done));
+        before(done => expressApp = createExpressServer({ classTransformer: true }).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ useClassTransformer: true }).listen(3002, done));
+        before(done => koaApp = createKoaServer({ classTransformer: true }).listen(3002, done));
         after(done => koaApp.close(done));
 
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
@@ -71,9 +71,9 @@ describe("routing-controllers global options", () => {
     describe("when useClassTransformer is not set", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ useClassTransformer: false }).listen(3001, done));
+        before(done => expressApp = createExpressServer({ classTransformer: false }).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ useClassTransformer: false }).listen(3002, done));
+        before(done => koaApp = createKoaServer({ classTransformer: false }).listen(3002, done));
         after(done => koaApp.close(done));
     
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {

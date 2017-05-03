@@ -2,8 +2,11 @@ import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
-import {UseInterceptorMetadata} from "./UseInterceptorMetadata";
+import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 
+/**
+ * Controller metadata.
+ */
 export class ControllerMetadata {
 
     // -------------------------------------------------------------------------
@@ -36,33 +39,48 @@ export class ControllerMetadata {
     uses: UseMetadata[];
 
     /**
-     * Intercepts applied to a whole controller.
+     * Indicates if this action uses Authorized decorator.
      */
-    useInterceptors: UseInterceptorMetadata[];
+    isAuthorizedUsed: boolean;
+
+    /**
+     * Roles set by @Authorized decorator.
+     */
+    authorizedRoles: any[];
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
     
     constructor(args: ControllerMetadataArgs) {
-        if (args.target)
-            this.target = args.target;
-        if (args.route)
-            this.route = args.route;
-        if (args.type)
-            this.type = args.type;
+        this.target = args.target;
+        this.route = args.route;
+        this.type = args.type;
     }
 
     // -------------------------------------------------------------------------
     // Accessors
     // -------------------------------------------------------------------------
-    
-    get isJsonTyped() {
-        return this.type === "json";
-    }
 
+    /**
+     * Gets instance of the controller.
+     */
     get instance(): any {
         return getFromContainer(this.target);
     }
-    
+
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds everything controller metadata needs.
+     * Controller metadata should be used only after its build.
+     */
+    build(responseHandlers: ResponseHandlerMetadata[]) {
+        const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized" && !handler.method);
+        this.isAuthorizedUsed = !!authorizedHandler;
+        this.authorizedRoles = authorizedHandler ? authorizedHandler.value : [];
+    }
+
 }

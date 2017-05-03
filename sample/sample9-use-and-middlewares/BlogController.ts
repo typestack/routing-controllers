@@ -1,9 +1,9 @@
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {Param} from "../../src/decorator/params";
-import {UseBefore} from "../../src/decorator/decorators";
+import {JsonController} from "../../src/decorator/JsonController";
+import {Get} from "../../src/decorator/Get";
+import {Param} from "../../src/decorator/Param";
 import {CompressionMiddleware} from "./CompressionMiddleware";
 import {AllControllerActionsMiddleware} from "./AllControllerActionsMiddleware";
+import {UseBefore} from "../../src/decorator/UseBefore";
 
 @JsonController()
 @UseBefore(AllControllerActionsMiddleware)

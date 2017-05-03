@@ -1,7 +1,11 @@
 import {Request} from "express";
-import {Get, Post, Put, Patch, Delete} from "../../../src/decorator/methods";
-import {Req} from "../../../src/decorator/params";
-import {JsonController} from "../../../src/decorator/controllers";
+import {Get} from "../../../src/decorator/Get";
+import {Req} from "../../../src/index";
+import {Post} from "../../../src/decorator/Post";
+import {Put} from "../../../src/decorator/Put";
+import {Patch} from "../../../src/decorator/Patch";
+import {Delete} from "../../../src/decorator/Delete";
+import {JsonController} from "../../../src/decorator/JsonController";
 
 @JsonController()
 export class PostController {

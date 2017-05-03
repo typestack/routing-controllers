@@ -1,9 +1,9 @@
-import {MiddlewareGlobalBefore} from "../../../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../../../src/driver/express/ExpressMiddlewareInterface";
 import {defaultFakeService} from "../FakeService";
+import {Middleware} from "../../../../src/decorator/Middleware";
 
-@MiddlewareGlobalBefore()
-export class FileMiddleware implements MiddlewareInterface {
+@Middleware({ type: "before" })
+export class FileMiddleware implements ExpressMiddlewareInterface {
 
     use(context: any, next?: (err?: any) => Promise<any>): Promise<any> {
         defaultFakeService.fileMiddleware();

@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
-import {Render} from "../../src/decorator/decorators";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
+import {Render} from "../../src/decorator/Render";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -12,7 +12,7 @@ describe("template rendering", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
         @Controller()
         class RenderController {

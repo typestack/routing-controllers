@@ -1,15 +1,11 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {
-    UseBefore,
-    UseAfter,
-    Middleware,
-    MiddlewareGlobalBefore,
-    MiddlewareGlobalAfter
-} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
+import {UseBefore} from "../../src/decorator/UseBefore";
+import {Middleware} from "../../src/decorator/Middleware";
+import {UseAfter} from "../../src/decorator/UseAfter";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -35,10 +31,10 @@ describe("express middlewares", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
-        @MiddlewareGlobalBefore()
-        class TestGlobalBeforeMidleware implements MiddlewareInterface {
+        @Middleware({ type: "before" })
+        class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalBefore = true;
@@ -48,8 +44,8 @@ describe("express middlewares", () => {
 
         }
 
-        @MiddlewareGlobalAfter()
-        class TestGlobalAfterMidleware implements MiddlewareInterface {
+        @Middleware({ type: "after" })
+        class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalAfter = true;
@@ -59,8 +55,7 @@ describe("express middlewares", () => {
 
         }
 
-        @Middleware()
-        class TestLoggerMiddleware implements MiddlewareInterface {
+        class TestLoggerMiddleware implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useCustom = true;

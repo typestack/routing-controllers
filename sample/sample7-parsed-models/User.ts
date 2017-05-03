@@ -1,5 +1,5 @@
 import {Photo} from "./Photo";
-import {Type, Exclude} from "class-transformer";
+import {Exclude, Type} from "class-transformer";
 
 export class User {
     

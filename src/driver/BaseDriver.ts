@@ -1,6 +1,8 @@
 import {ValidatorOptions} from "class-validator";
 import {HttpError} from "../http-error/HttpError";
 import {ClassTransformOptions} from "class-transformer";
+import {CurrentUserChecker} from "../CurrentUserChecker";
+import {AuthorizationChecker} from "../AuthorizationChecker";
 
 /**
  * Base driver functionality for all other drivers.
@@ -11,7 +13,14 @@ export class BaseDriver {
     // Public Properties
     // -------------------------------------------------------------------------
 
+    /**
+     * Indicates if class-transformer should be used or not.
+     */
     useClassTransformer: boolean;
+
+    /**
+     * Indicates if class-validator should be used or not.
+     */
     enableValidation: boolean;
 
     /**
@@ -31,10 +40,36 @@ export class BaseDriver {
      */
     plainToClassTransformOptions: ClassTransformOptions;
 
+    /**
+     * Indicates if default routing-controllers error handler should be used or not.
+     */
     isDefaultErrorHandlingEnabled: boolean;
+
+    /**
+     * Indicates if routing-controllers should operate in development mode.
+     */
     developmentMode: boolean;
-    errorOverridingMap: { [key: string]: any };
+
+    /**
+     * Global application prefix.
+     */
     routePrefix: string = "";
+
+    /**
+     * Map of error overrides.
+     */
+    errorOverridingMap: { [key: string]: any };
+
+    /**
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
+     */
+    authorizationChecker?: AuthorizationChecker;
+
+    /**
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
 
     // -------------------------------------------------------------------------
     // Protected Methods
@@ -85,7 +120,7 @@ export class BaseDriver {
         return error;
     }
 
-    private merge(obj1: any, obj2: any): any {
+    protected merge(obj1: any, obj2: any): any {
         const result: any = {};
         for (let i in obj1) {
             if ((i in obj2) && (typeof obj1[i] === "object") && (i !== null)) {

@@ -1,14 +1,16 @@
-import {JsonController} from "../../src/decorator/controllers";
-import {Get, Post} from "../../src/decorator/methods";
-import {QueryParam, Body} from "../../src/decorator/params";
+import {JsonController} from "../../src/decorator/JsonController";
 import {UserFilter} from "./UserFilter";
 import {User} from "./User";
+import {Get} from "../../src/decorator/Get";
+import {Post} from "../../src/decorator/Post";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {Body} from "../../src/decorator/Body";
 
 @JsonController()
 export class UserController {
 
     @Get("/users")
-    getAll(@QueryParam("filter", { required: true, parseJson: true }) filter: UserFilter) {
+    getAll(@QueryParam("filter", { required: true, parse: true }) filter: UserFilter) {
         return filter.hasKeyword() ? "filter has long keyword" : "filter keyword is missing or too short";
     }
 

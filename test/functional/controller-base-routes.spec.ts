@@ -1,14 +1,14 @@
 import "reflect-metadata";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage, createKoaServer} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
 const expect = require("chakram").expect;
 
 describe("controller > base routes functionality", () => {
     before(() => {
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
         @Controller("/posts")
         class PostController {

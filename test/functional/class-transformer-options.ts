@@ -1,17 +1,13 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {
-    createExpressServer,
-    defaultMetadataArgsStorage,
-    createKoaServer,
-    RoutingControllersOptions
-} from "../../src/index";
-import {QueryParam} from "../../src/decorator/params";
+import {JsonController} from "../../src/decorator/JsonController";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
-import {ResponseClassTransformOptions} from "../../src/decorator/decorators";
+import {Get} from "../../src/decorator/Get";
+import {QueryParam} from "../../src/decorator/QueryParam";
+import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
+import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -44,7 +40,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class UserController {
@@ -92,7 +88,7 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
@@ -146,14 +142,14 @@ describe("class transformer options", () => {
         });
 
         before(() => {
-            defaultMetadataArgsStorage().reset();
+            getMetadataArgsStorage().reset();
 
             @JsonController()
             class ClassTransformUserController {
 
                 @Get("/user")
                 @ResponseClassTransformOptions({ excludePrefixes: ["_"] })
-                getUsers(@QueryParam("filter", { classTransformOptions: { excludePrefixes: ["__"] } }) filter: UserFilter): any {
+                getUsers(@QueryParam("filter", { transform: { excludePrefixes: ["__"] } }) filter: UserFilter): any {
                     requestFilter = filter;
                     const user = new UserModel();
                     user.id = 1;

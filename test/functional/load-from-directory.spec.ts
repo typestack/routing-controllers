@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, defaultMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {Controller} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
 import {defaultFakeService} from "../fakes/global-options/FakeService";
+import {Controller} from "../../src/decorator/Controller";
+import {Get} from "../../src/decorator/Get";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -11,7 +11,7 @@ describe("controllers and middlewares bulk loading from directories", () => {
 
     describe("loading all controllers from the given directories", () => {
 
-        before(() => defaultMetadataArgsStorage().reset());
+        before(() => getMetadataArgsStorage().reset());
 
         const serverOptions = {
             controllers: [
@@ -48,7 +48,7 @@ describe("controllers and middlewares bulk loading from directories", () => {
 
     describe("loading all express middlewares and error handlers from the given directories", () => {
 
-        before(() => defaultMetadataArgsStorage().reset());
+        before(() => getMetadataArgsStorage().reset());
 
         before(() => {
             @Controller()
@@ -100,7 +100,7 @@ describe("controllers and middlewares bulk loading from directories", () => {
 
     describe("loading all koa middlewares from the given directories", () => {
 
-        before(() => defaultMetadataArgsStorage().reset());
+        before(() => getMetadataArgsStorage().reset());
 
         before(() => {
             @Controller()

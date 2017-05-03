@@ -1,8 +1,8 @@
-import {MiddlewareGlobalAfter} from "../../../../../src/decorator/decorators";
-import {ErrorMiddlewareInterface} from "../../../../../src/middleware/ErrorMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "../../../../../src/driver/express/ExpressErrorMiddlewareInterface";
+import {Middleware} from "../../../../../src/decorator/Middleware";
 
-@MiddlewareGlobalAfter()
-export class PostErrorHandler implements ErrorMiddlewareInterface {
+@Middleware({ type: "after" })
+export class PostErrorHandler implements ExpressErrorMiddlewareInterface {
 
     error(error: any, request: any, response: any, next?: Function): void {
         console.log("Error handled on post handler: ", error);

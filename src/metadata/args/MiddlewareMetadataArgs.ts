@@ -11,7 +11,7 @@ export interface MiddlewareMetadataArgs {
     /**
      * Indicates if this middleware is global, thous applied to all routes.
      */
-    isGlobal: boolean;
+    global: boolean;
 
     /**
      * Execution priority of the middleware.
@@ -21,6 +21,6 @@ export interface MiddlewareMetadataArgs {
     /**
      * Indicates if middleware must be executed after routing action is executed.
      */
-    afterAction: boolean;
+    type: "before"|"after";
 
 }

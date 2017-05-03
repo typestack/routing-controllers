@@ -1,4 +1,6 @@
-import {ActionType} from "../types/ActionTypes";
+import {ActionType} from "../types/ActionType";
+import {ActionProperties} from "../../ActionProperties";
+import {ActionMetadata} from "../ActionMetadata";
 
 /**
  * Action metadata used to storage information about registered action.
@@ -25,5 +27,15 @@ export interface ActionMetadataArgs {
      * class.
      */
     type: ActionType;
+
+    /**
+     * Params to be appended to the method call.
+     */
+    appendParams?: (actionProperties: ActionProperties) => any[];
+
+    /**
+     * Special function that will be called instead of orignal method of the target.
+     */
+    methodOverride?: (actionMetadata: ActionMetadata, actionProperties: ActionProperties, params: any[]) => Promise<any>|any;
     
 }

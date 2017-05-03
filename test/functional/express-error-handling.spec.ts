@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import {JsonController} from "../../src/decorator/controllers";
-import {Get} from "../../src/decorator/methods";
-import {createExpressServer, defaultMetadataArgsStorage} from "../../src/index";
-import {MiddlewareGlobalAfter, UseBefore, UseAfter, Middleware} from "../../src/decorator/decorators";
-import {ErrorMiddlewareInterface} from "../../src/middleware/ErrorMiddlewareInterface";
+import {JsonController} from "../../src/decorator/JsonController";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
+import {Get} from "../../src/decorator/Get";
+import {Middleware} from "../../src/decorator/Middleware";
+import {UseAfter} from "../../src/decorator/UseAfter";
+import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -21,10 +22,10 @@ describe("express error handling", () => {
     before(() => {
 
         // reset metadata args storage
-        defaultMetadataArgsStorage().reset();
+        getMetadataArgsStorage().reset();
 
-        @MiddlewareGlobalAfter()
-        class AllErrorsHandler implements ErrorMiddlewareInterface {
+        @Middleware({ type: "after" })
+        class AllErrorsHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandlerCalled = true;
@@ -34,8 +35,7 @@ describe("express error handling", () => {
 
         }
 
-        @Middleware()
-        class SpecificErrorHandler implements ErrorMiddlewareInterface {
+        class SpecificErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandledSpecifically = true;
@@ -45,8 +45,7 @@ describe("express error handling", () => {
 
         }
 
-        @Middleware()
-        class SoftErrorHandler implements ErrorMiddlewareInterface {
+        class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 console.log("ERROR WAS IGNORED: ", error);

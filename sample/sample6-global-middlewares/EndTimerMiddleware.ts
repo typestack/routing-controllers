@@ -1,8 +1,8 @@
-import {MiddlewareGlobalAfter} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {Middleware} from "../../src/decorator/Middleware";
 
-@MiddlewareGlobalAfter()
-export class EndTimerMiddleware implements MiddlewareInterface {
+@Middleware({ type: "after" })
+export class EndTimerMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("timer is ended.");

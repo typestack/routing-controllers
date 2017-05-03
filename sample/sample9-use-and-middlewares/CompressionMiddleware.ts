@@ -1,8 +1,6 @@
-import {Middleware} from "../../src/decorator/decorators";
-import {MiddlewareInterface} from "../../src/middleware/MiddlewareInterface";
+import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 
-@Middleware()
-export class CompressionMiddleware implements MiddlewareInterface {
+export class CompressionMiddleware implements ExpressMiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("hello compression ...");

@@ -1,5 +1,7 @@
 import {ClassTransformOptions} from "class-transformer";
 import {ValidatorOptions} from "class-validator";
+import {AuthorizationChecker} from "./AuthorizationChecker";
+import {CurrentUserChecker} from "./CurrentUserChecker";
 
 /**
  * Routing controller initialization options.
@@ -7,55 +9,24 @@ import {ValidatorOptions} from "class-validator";
 export interface RoutingControllersOptions {
 
     /**
-     * List of directories from where to "require" all your controllers.
+     * Global route prefix, for example '/api'.
      */
-    controllers?: string[];
+    routePrefix?: string;
 
     /**
-     * List of directories from where to "require" all your middlewares.
+     * List of controllers to register in the framework or directories from where to import all your controllers.
      */
-    middlewares?: string[];
+    controllers?: Function[]|string[];
 
     /**
-     * List of directories from where to "require" all your interceptors.
+     * List of middlewares to register in the framework or directories from where to import all your middlewares.
      */
-    interceptors?: string[];
+    middlewares?: Function[]|string[];
 
     /**
-     * List of directories from where to "require" all your controllers.
-     *
-     * @deprecated Use controllers instead.
+     * Indicates if class-transformer should be used to perform serialization / deserialization.
      */
-    controllerDirs?: string[];
-
-    /**
-     * List of directories from where to "require" all your middlewares.
-     *
-     * @deprecated Use middlewares instead.
-     */
-    middlewareDirs?: string[];
-
-    /**
-     * List of directories from where to "require" all your interceptors.
-     *
-     * @deprecated Use interceptors instead.
-     */
-    interceptorDirs?: string[];
-
-    /**
-     * Indicates if constructor-utils should be used to perform serialization / deserialization.
-     */
-    useClassTransformer?: boolean;
-
-    /**
-     * Indicates if class-validator should be used to auto validate objects injected into params.
-     */
-    enableValidation?: boolean;
-
-    /**
-     * Global class-validator options passed during validate operation.
-     */
-    validationOptions?: ValidatorOptions;
+    classTransformer?: boolean;
 
     /**
      * Global class transformer options passed to class-transformer during classToPlain operation.
@@ -70,23 +41,37 @@ export interface RoutingControllersOptions {
     plainToClassTransformOptions?: ClassTransformOptions;
 
     /**
-     * Indicates if development mode is enabled. By default its enabled if your NODE_ENV is not equal to "production".
+     * Indicates if class-validator should be used to auto validate objects injected into params.
+     * You can also directly pass validator options to enable validator with a given options.
      */
-    developmentMode?: boolean;
+    validation?: boolean|ValidatorOptions;
 
     /**
-     * Indicates if default routing-controller's error handler is enabled or not. By default its enabled.
+     * Indicates if development mode is enabled.
+     * By default its enabled if your NODE_ENV is not equal to "production".
+     */
+    development?: boolean;
+
+    /**
+     * Indicates if default routing-controller's error handler is enabled or not.
+     * Enabled by default.
      */
     defaultErrorHandler?: boolean;
 
     /**
      * Map of error overrides.
      */
-    errorOverridingMap?: Object;
-    
+    errorOverridingMap?: { [key: string]: any };
+
     /**
-     * Route prefix. eg '/api'
+     * Special function used to check user authorization roles per request.
+     * Must return true or promise with boolean true resolved for authorization to succeed.
      */
-    routePrefix?: string;
+    authorizationChecker?: AuthorizationChecker;
+
+    /**
+     * Special function used to get currently authorized user.
+     */
+    currentUserChecker?: CurrentUserChecker;
     
 }
