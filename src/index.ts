@@ -71,6 +71,7 @@ export * from "./metadata-builder/MetadataArgsStorage";
 export * from "./RoutingControllersOptions";
 export * from "./CustomParameterDecorator";
 export * from "./RoleChecker";
+export * from "./ActionProperties";
 
 // -------------------------------------------------------------------------
 // Main Functions
