@@ -88,7 +88,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     Optionally you can also install their typings:
 
-    `npm install @types/express @types/body-parser @types/multer --save`
+    `npm install @types/express @types/body-parser @types/multer --save-dev`
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
@@ -96,7 +96,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     Optionally you can also install their typings:
 
-    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
+    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save-dev`
     
 4. Its important to set these options in `tsconfig.json` file of your project:
 
