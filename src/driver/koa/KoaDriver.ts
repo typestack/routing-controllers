@@ -18,7 +18,7 @@ const cookie = require("cookie");
  * Integration with koa framework.
  */
 export class KoaDriver extends BaseDriver implements Driver {
-    
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -153,7 +153,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             case "session":
                 if (param.name)
-                    return context.session[param.name]; 
+                    return context.session[param.name];
                 return context.session;
 
             case "state":
@@ -318,7 +318,19 @@ export class KoaDriver extends BaseDriver implements Driver {
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewareFunctions.push(function(context: any, next: (err?: any) => Promise<any>) {
-                    return (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
+                    try {
+                        const useResult = (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
+                        if (isPromiseLike(useResult)) {
+                            useResult.catch((error: any) => {
+                                this.handleError(error, undefined, { context, next });
+                                return error;
+                            });
+                        }
+
+                        return useResult;
+                    } catch(error) {
+                        this.handleError(error, undefined, { context, next });
+                    }
                 });
 
             } else {

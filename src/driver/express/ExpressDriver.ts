@@ -150,7 +150,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
      */
     registerRoutes() {
     }
-    
+
     /**
      * Gets param from the request.
      */
@@ -289,7 +289,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
+    handleError(error: any, action: ActionMetadata | undefined, options: ActionProperties): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
@@ -330,7 +330,19 @@ export class ExpressDriver extends BaseDriver implements Driver {
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewareFunctions.push(function (request: any, response: any, next: (err: any) => any) {
-                    return (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
+                    try {
+                        const useResult = (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
+                        if (isPromiseLike(useResult)) {
+                            useResult.catch((error: any) => {
+                                this.handleError(error, undefined, { request, response, next });
+                                return error;
+                            });
+                        }
+
+                        return useResult;
+                    } catch (error) {
+                        this.handleError(error, undefined, { request, response, next });
+                    }
                 });
 
             } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
