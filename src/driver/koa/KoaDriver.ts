@@ -322,14 +322,14 @@ export class KoaDriver extends BaseDriver implements Driver {
                         const useResult = (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
                         if (isPromiseLike(useResult)) {
                             useResult.catch((error: any) => {
-                                this.handleError(error, undefined, { context, next });
+                                this.handleError(error, undefined, { request: context.req, response: context.res, context, next });
                                 return error;
                             });
                         }
 
                         return useResult;
                     } catch(error) {
-                        this.handleError(error, undefined, { context, next });
+                        this.handleError(error, undefined, { request: context.request, response: context.response, context, next });
                     }
                 });
 
