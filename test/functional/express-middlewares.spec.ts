@@ -1,3 +1,5 @@
+import { NotAcceptableError } from './../../src/http-error/NotAcceptableError';
+import { ExpressErrorMiddlewareInterface } from './../../src/driver/express/ExpressErrorMiddlewareInterface';
 import "reflect-metadata";
 import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
 import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
@@ -14,6 +16,8 @@ describe("express middlewares", () => {
     let useBefore: boolean,
         useAfter: boolean,
         useCustom: boolean,
+        useCustomWithError: boolean,
+        useGlobalBeforeWithError: boolean,
         useGlobalBefore: boolean,
         useGlobalAfter: boolean,
         useCallOrder: string,
@@ -23,11 +27,13 @@ describe("express middlewares", () => {
         useBefore = false;
         useAfter = undefined;
         useCustom = undefined;
+        useCustomWithError = undefined;
+        useGlobalBeforeWithError = undefined;
         useGlobalBefore = undefined;
         useGlobalAfter = undefined;
         useCallOrder = undefined;
     });
-    
+
     before(() => {
 
         // reset metadata args storage
@@ -43,6 +49,15 @@ describe("express middlewares", () => {
             }
 
         }
+
+        // @Middleware({ type: "before" })
+        // class TestGlobalBeforeMidlewareWhichThrows implements ExpressMiddlewareInterface {
+
+        //     use(request: any, response: any, next?: Function): any {
+        //         throw new Error('useGlobalBeforeWithError');
+        //     }
+
+        // }
 
         @Middleware({ type: "after" })
         class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
@@ -60,6 +75,14 @@ describe("express middlewares", () => {
             use(request: any, response: any, next?: Function): any {
                 useCustom = true;
                 next();
+            }
+
+        }
+
+        class TestCustomMiddlewareWhichThrows implements ExpressMiddlewareInterface {
+
+            use(request: any, response: any, next?: Function): any {
+                throw new NotAcceptableError('TestCustomMiddlewareWhichThrows');
             }
 
         }
@@ -116,7 +139,12 @@ describe("express middlewares", () => {
                 useCallOrder = "setFromController";
                 return "1234";
             }
-            
+
+            @Get("/customMiddlewareWichThrows")
+            @UseBefore(TestCustomMiddlewareWhichThrows)
+            customMiddlewareWichThrows() {
+                return "1234";
+            }
         }
     });
 
@@ -172,6 +200,14 @@ describe("express middlewares", () => {
                 expect(useAfter).to.be.equal(true);
                 expect(useCallOrder).to.be.equal("setFromUseAfter");
                 expect(response).to.have.status(200);
+            });
+    });
+
+    it("should handle errors in custom middlewares", () => {
+        return chakram
+            .get("http://127.0.0.1:3001/customMiddlewareWichThrows")
+            .then((response: any) => {
+                expect(response).to.have.status(406);
             });
     });
 
