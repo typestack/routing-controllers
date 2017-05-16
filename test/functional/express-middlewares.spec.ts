@@ -50,15 +50,6 @@ describe("express middlewares", () => {
 
         }
 
-        // @Middleware({ type: "before" })
-        // class TestGlobalBeforeMidlewareWhichThrows implements ExpressMiddlewareInterface {
-
-        //     use(request: any, response: any, next?: Function): any {
-        //         throw new Error('useGlobalBeforeWithError');
-        //     }
-
-        // }
-
         @Middleware({ type: "after" })
         class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
 
