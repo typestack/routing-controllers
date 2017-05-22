@@ -379,7 +379,7 @@ saveUser(@Body() user: User) {
 
 If you specify a class type to parameter that is decorated with `@Body()`,
 routing-controllers will use [class-transformer][4] to create instance of the given class type from the data received in request body.
-To disable this behaviour you need to specify a `{ useClassTransformer: false }` in RoutingControllerOptions when creating a server.
+To disable this behaviour you need to specify a `{ classTransformer: false }` in RoutingControllerOptions when creating a server.
 
 #### Inject request body parameters
 
@@ -1017,14 +1017,14 @@ export class NameCorrectionInterceptor implements InterceptorInterface {
 
 When user sends a json object and you are parsing it, sometimes you want to parse it into object of some class, instead of parsing it into simple literal object.
 You have ability to do this using [class-transformer][4].
-To use it simply specify a `useClassTransformer: true` option on application bootstrap:
+To use it simply specify a `classTransformer: true` option on application bootstrap:
 
 ```typescript
 import "reflect-metadata";
 import {createExpressServer} from "routing-controllers";
 
 createExpressServer({
-    useClassTransformer: true
+    classTransformer: true
 }).listen(3000);
 ```
 
@@ -1057,7 +1057,7 @@ If its a class - then instance of this class will be created.
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `useClassTransformer: false` to createExpressServer method.
+If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
 
 ## Auto validating action params
 
