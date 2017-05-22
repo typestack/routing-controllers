@@ -1,10 +1,10 @@
 import {Action} from "../Action";
-import {ForbiddenError} from "../http-error/ForbiddenError";
+import {UnauthorizedError} from "../http-error/UnauthorizedError";
 
 /**
- * Thrown when route is guarded by @Authorize decorator.
+ * Thrown when route is guarded by @Authorized decorator.
  */
-export class AccessDeniedError extends ForbiddenError {
+export class AccessDeniedError extends UnauthorizedError {
 
     name = "AccessDeniedError";
 
