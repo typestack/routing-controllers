@@ -1,10 +1,10 @@
 import {Action} from "../Action";
-import {ForbiddenError} from "../http-error/ForbiddenError";
+import {UnauthorizedError} from "../http-error/UnauthorizedError";
 
 /**
  * Thrown when authorization is required thought @CurrentUser decorator.
  */
-export class AuthorizationRequiredError extends ForbiddenError {
+export class AuthorizationRequiredError extends UnauthorizedError {
 
     name = "AuthorizationRequiredError";
 
