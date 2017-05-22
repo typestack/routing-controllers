@@ -24,6 +24,11 @@ export interface RoutingControllersOptions {
     middlewares?: Function[]|string[];
 
     /**
+     * List of interceptors to register in the framework or directories from where to import all your interceptors.
+     */
+    interceptors?: Function[]|string[];
+
+    /**
      * Indicates if class-transformer should be used to perform serialization / deserialization.
      */
     classTransformer?: boolean;

@@ -1,9 +1,13 @@
 import {ActionParameterHandler} from "./ActionParameterHandler";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {ActionMetadata} from "./metadata/ActionMetadata";
-import {ActionProperties} from "./ActionProperties";
+import {Action} from "./Action";
 import {Driver} from "./driver/Driver";
 import {isPromiseLike} from "./util/isPromiseLike";
+import {runInSequence} from "./util/runInSequence";
+import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
+import {getFromContainer} from "./container";
+import {InterceptorInterface} from "./InterceptorInterface";
 
 /**
  * Registers controllers and middlewares in the given server framework.
@@ -23,6 +27,11 @@ export class RoutingControllers {
      * Used to build metadata objects for controllers and middlewares.
      */
     private metadataBuilder: MetadataBuilder;
+
+    /**
+     * Global interceptors run on each controller action.
+     */
+    private interceptors: InterceptorMetadata[] = [];
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -46,14 +55,31 @@ export class RoutingControllers {
     }
 
     /**
+     * Registers all given interceptors.
+     */
+    registerInterceptors(classes?: Function[]): this {
+        const interceptors = this.metadataBuilder
+            .buildInterceptorMetadata(classes)
+            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
+            .reverse();
+        this.interceptors.push(...interceptors);
+        return this;
+    }
+
+    /**
      * Registers all given controllers and actions from those controllers.
      */
     registerControllers(classes?: Function[]): this {
         const controllers = this.metadataBuilder.buildControllerMetadata(classes);
         controllers.forEach(controller => {
-            controller.actions.forEach(action => {
-                this.driver.registerAction(action, (actionProperties: ActionProperties) => {
-                    return this.executeAction(action, actionProperties);
+            controller.actions.forEach(actionMetadata => {
+                const interceptorFns = this.prepareInterceptors([
+                    ...this.interceptors,
+                    ...actionMetadata.controllerMetadata.interceptors,
+                    ...actionMetadata.interceptors
+                ]);
+                this.driver.registerAction(actionMetadata, (action: Action) => {
+                    return this.executeAction(actionMetadata, action, interceptorFns);
                 });
             });
         });
@@ -82,43 +108,76 @@ export class RoutingControllers {
     /**
      * Executes given controller action.
      */
-    protected executeAction(action: ActionMetadata, actionProperties: ActionProperties) {
+    protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
 
         // compute all parameters
-        const paramsPromises = action.params
+        const paramsPromises = actionMetadata.params
             .sort((param1, param2) => param1.index - param2.index)
-            .map(param => this.parameterHandler.handle(actionProperties, param));
+            .map(param => this.parameterHandler.handle(action, param));
 
         // after all parameters are computed
         return Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
-            const allParams = action.appendParams ? action.appendParams(actionProperties).concat(params) : params;
-            const result = action.methodOverride ? action.methodOverride(action, actionProperties, allParams) : action.callMethod(allParams);
-            return this.handleCallMethodResult(result, action, actionProperties);
+            const allParams = actionMetadata.appendParams ? actionMetadata.appendParams(action).concat(params) : params;
+            const result = actionMetadata.methodOverride ? actionMetadata.methodOverride(actionMetadata, action, allParams) : actionMetadata.callMethod(allParams);
+            return this.handleCallMethodResult(result, actionMetadata, action, interceptorFns);
 
         }).catch(error => {
 
             // otherwise simply handle error without action execution
-            return this.driver.handleError(error, action, actionProperties);
+            return this.driver.handleError(error, actionMetadata, action);
         });
     }
 
     /**
      * Handles result of the action method execution.
      */
-    protected handleCallMethodResult(result: any, action: ActionMetadata, options: ActionProperties): any {
+    protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: Function[]): any {
         if (isPromiseLike(result)) {
             return result
                 .then((data: any) => {
-                    return this.handleCallMethodResult(data, action, options);
+                    return this.handleCallMethodResult(data, action, options, interceptorFns);
                 })
                 .catch((error: any) => {
                     return this.driver.handleError(error, action, options);
                 });
         } else {
-            return this.driver.handleSuccess(result, action, options);
+
+            if (interceptorFns) {
+                const awaitPromise = runInSequence(interceptorFns, interceptorFn => {
+                    const interceptedResult = interceptorFn(options, result);
+                    if (isPromiseLike(interceptedResult)) {
+                        return interceptedResult.then((resultFromPromise: any) => {
+                            result = resultFromPromise;
+                        });
+                    } else {
+                        result = interceptedResult;
+                        return Promise.resolve();
+                    }
+                });
+
+                return awaitPromise
+                    .then(() => this.driver.handleSuccess(result, action, options))
+                    .catch(error => this.driver.handleError(error, action, options));
+            } else {
+                return this.driver.handleSuccess(result, action, options);
+            }
         }
     }
+    /**
+     * Creates interceptors from the given "use interceptors".
+     */
+    protected prepareInterceptors(uses: InterceptorMetadata[]): Function[] {
+        return uses.map(use => {
+            if (use.interceptor.prototype && use.interceptor.prototype.intercept) { // if this is function instance of InterceptorInterface
+                return function (action: Action, result: any) {
+                    return (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
+                };
+            }
+            return use.interceptor;
+        });
+    }
+
 
 }

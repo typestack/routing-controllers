@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import {createExpressServer} from "../../src/index";
 import {QuestionController} from "./QuestionController";
-import {ActionProperties} from "../../src/ActionProperties";
+import {Action} from "../../src/Action";
 
 createExpressServer({
     controllers: [QuestionController],
-    authorizationChecker: async (actionProperties: ActionProperties, roles?: string[]) => {
+    authorizationChecker: async (action: Action, roles?: string[]) => {
         // perform queries based on token from request headers
-        // const token = actionProperties.request.headers["authorization"];
+        // const token = action.request.headers["authorization"];
         // return database.findUserByToken(token).roles.in(roles);
         return false;
     }

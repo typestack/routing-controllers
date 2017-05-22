@@ -1,6 +1,6 @@
 import {BadRequestError} from "../http-error/BadRequestError";
 import {ParamMetadata} from "../metadata/ParamMetadata";
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
 
 /**
  * Thrown when parameter is required, but was missing in a user request.
@@ -9,7 +9,7 @@ export class ParamRequiredError extends BadRequestError {
 
     name = "ParamRequiredError";
 
-    constructor(actionProperties: ActionProperties, param: ParamMetadata) {
+    constructor(action: Action, param: ParamMetadata) {
         super();
         Object.setPrototypeOf(this, ParamRequiredError.prototype);
 
@@ -51,7 +51,7 @@ export class ParamRequiredError extends BadRequestError {
                 paramName = "Parameter is";
         }
 
-        const uri = actionProperties.request.method + " " + actionProperties.request.url; // todo: check it it works in koa
+        const uri = action.request.method + " " + action.request.url; // todo: check it it works in koa
         this.message = `${paramName} required for request on ${uri}`;
     }
 

@@ -4,6 +4,8 @@ import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
 import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
 import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
 import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
+import {UseInterceptorMetadataArgs} from "../metadata/args/UseInterceptorMetadataArgs";
+import {InterceptorMetadataArgs} from "../metadata/args/InterceptorMetadataArgs";
 
 /**
  * Storage all metadatas read from decorators.
@@ -25,9 +27,19 @@ export class MetadataArgsStorage {
     middlewares: MiddlewareMetadataArgs[] = [];
 
     /**
+     * Registered interceptor metadata args.
+     */
+    interceptors: InterceptorMetadataArgs[] = [];
+
+    /**
      * Registered "use middleware" metadata args.
      */
     uses: UseMetadataArgs[] = [];
+
+    /**
+     * Registered "use interceptor" metadata args.
+     */
+    useInterceptors: UseInterceptorMetadataArgs[] = [];
 
     /**
      * Registered action metadata args.
@@ -51,8 +63,17 @@ export class MetadataArgsStorage {
     /**
      * Filters registered middlewares by a given classes.
      */
-    findMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
+    filterMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
         return this.middlewares.filter(ctrl => {
+            return classes.filter(cls => ctrl.target === cls).length > 0;
+        });
+    }
+
+    /**
+     * Filters registered interceptors by a given classes.
+     */
+    filterInterceptorMetadatasForClasses(classes: Function[]): InterceptorMetadataArgs[] {
+        return this.interceptors.filter(ctrl => {
             return classes.filter(cls => ctrl.target === cls).length > 0;
         });
     }
@@ -60,7 +81,7 @@ export class MetadataArgsStorage {
     /**
      * Filters registered controllers by a given classes.
      */
-    findControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
+    filterControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
         return this.controllers.filter(ctrl => {
             return classes.filter(cls => ctrl.target === cls).length > 0;
         });
@@ -69,15 +90,24 @@ export class MetadataArgsStorage {
     /**
      * Filters registered actions by a given classes.
      */
-    findActionsWithTarget(target: Function): ActionMetadataArgs[] {
+    filterActionsWithTarget(target: Function): ActionMetadataArgs[] {
         return this.actions.filter(action => action.target === target);
     }
 
     /**
      * Filters registered "use middlewares" by a given target class and method name.
      */
-    findUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
+    filterUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
         return this.uses.filter(use => {
+            return use.target === target && use.method === methodName;
+        });
+    }
+
+    /**
+     * Filters registered "use interceptors" by a given target class and method name.
+     */
+    filterInterceptorUsesWithTargetAndMethod(target: Function, methodName: string): UseInterceptorMetadataArgs[] {
+        return this.useInterceptors.filter(use => {
             return use.target === target && use.method === methodName;
         });
     }
@@ -85,7 +115,7 @@ export class MetadataArgsStorage {
     /**
      * Filters parameters by a given classes.
      */
-    findParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
+    filterParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
         return this.params.filter(param => {
             return param.object.constructor === target && param.method === methodName;
         });
@@ -94,7 +124,7 @@ export class MetadataArgsStorage {
     /**
      * Filters response handlers by a given class.
      */
-    findResponseHandlersWithTarget(target: Function): ResponseHandlerMetadataArgs[] {
+    filterResponseHandlersWithTarget(target: Function): ResponseHandlerMetadataArgs[] {
         return this.responseHandlers.filter(property => {
             return property.target === target;
         });
@@ -103,7 +133,7 @@ export class MetadataArgsStorage {
     /**
      * Filters response handlers by a given classes.
      */
-    findResponseHandlersWithTargetAndMethod(target: Function, methodName: string): ResponseHandlerMetadataArgs[] {
+    filterResponseHandlersWithTargetAndMethod(target: Function, methodName: string): ResponseHandlerMetadataArgs[] {
         return this.responseHandlers.filter(property => {
             return property.target === target && property.method === methodName;
         });
@@ -115,7 +145,9 @@ export class MetadataArgsStorage {
     reset() {
         this.controllers = [];
         this.middlewares = [];
+        this.interceptors = [];
         this.uses = [];
+        this.useInterceptors = [];
         this.actions = [];
         this.params = [];
         this.responseHandlers = [];

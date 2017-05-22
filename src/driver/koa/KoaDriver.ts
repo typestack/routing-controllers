@@ -1,4 +1,4 @@
-import {ActionProperties} from "../../ActionProperties";
+import {Action} from "../../Action";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {BaseDriver} from "../BaseDriver";
 import {Driver} from "../Driver";
@@ -55,38 +55,38 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void {
+    registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
-        if (action.isFileUsed || action.isFilesUsed) {
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
             const multer = this.loadMulter();
-            action.params
+            actionMetadata.params
                 .filter(param => param.type === "file")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
                 });
-            action.params
+            actionMetadata.params
                 .filter(param => param.type === "files")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
         }
 
-        if (action.isAuthorizedUsed) {
+        if (actionMetadata.isAuthorizedUsed) {
             defaultMiddlewares.push((context: any, next: Function) => {
                 if (!this.authorizationChecker)
                     throw new AuthorizationCheckerNotDefinedError();
 
-                const actionProperties = { request: context.request, response: context.response, context, next };
-                const checkResult = action.authorizedRoles instanceof Function ?
-                    getFromContainer<RoleChecker>(action.authorizedRoles).check(actionProperties) :
-                    this.authorizationChecker(actionProperties, action.authorizedRoles);
+                const action: Action = { request: context.request, response: context.response, context, next };
+                const checkResult = actionMetadata.authorizedRoles instanceof Function ?
+                    getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
+                    this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
                 if (isPromiseLike(checkResult)) {
                     return checkResult.then(result => {
                         if (!result) {
-                            return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                            return this.handleError(new AccessDeniedError(action), actionMetadata, action);
 
                         } else {
                             return next();
@@ -94,7 +94,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                     });
                 } else {
                     if (!checkResult) {
-                        return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                        return this.handleError(new AccessDeniedError(action), actionMetadata, action);
                     } else {
                         return next();
                     }
@@ -103,19 +103,19 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
 
         // user used middlewares
-        const uses = action.controllerMetadata.uses.concat(action.uses);
+        const uses = actionMetadata.controllerMetadata.uses.concat(actionMetadata.uses);
         const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
         const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
 
         // prepare route and route handler function
-        const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
+        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = (context: any, next: () => Promise<any>) => {
-            const options: ActionProperties = { request: context.request, response: context.response, context, next };
+            const options: Action = { request: context.request, response: context.response, context, next };
             return executeCallback(options);
         };
 
         // finally register action in koa
-        this.router[action.type.toLowerCase()](...[
+        this.router[actionMetadata.type.toLowerCase()](...[
             route,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
@@ -135,7 +135,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any {
+    getParamFromRequest(actionOptions: Action, param: ParamMetadata): any {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {
@@ -193,7 +193,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Handles result of successfully executed controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void {
+    handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // check if we need to transform result and do it
         if (this.useClassTransformer && result && result instanceof Object) {
@@ -271,7 +271,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
+    handleError(error: any, action: ActionMetadata|undefined, options: Action): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
             console.log("ERROR: ", error);

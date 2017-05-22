@@ -1,7 +1,7 @@
-import {ActionProperties} from "./ActionProperties";
+import {Action} from "./Action";
 
 export interface RoleChecker {
 
-    check(actionProperties: ActionProperties): boolean|Promise<boolean>;
+    check(action: Action): boolean|Promise<boolean>;
 
 }

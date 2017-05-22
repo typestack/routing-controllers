@@ -1,6 +1,6 @@
 import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
-import {ActionProperties} from "./ActionProperties";
+import {Action} from "./Action";
 import {BadRequestError} from "./http-error/BadRequestError";
 import {Driver} from "./driver/Driver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
@@ -29,23 +29,23 @@ export class ActionParameterHandler {
     /**
      * Handles action parameter.
      */
-    handle(actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
+    handle(action: Action, param: ParamMetadata): Promise<any>|any {
 
         if (param.type === "request")
-            return actionProperties.request;
+            return action.request;
 
         if (param.type === "response")
-            return actionProperties.response;
+            return action.response;
 
         if (param.type === "context")
-            return actionProperties.context;
+            return action.context;
 
         // get parameter value from request and normalize it
-        const value = this.normalizeParamValue(this.driver.getParamFromRequest(actionProperties, param), param);
+        const value = this.normalizeParamValue(this.driver.getParamFromRequest(action, param), param);
         if (isPromiseLike(value))
-            return value.then(value => this.handleValue(value, actionProperties, param));
+            return value.then(value => this.handleValue(value, action, param));
 
-        return this.handleValue(value, actionProperties, param);
+        return this.handleValue(value, action, param);
     }
 
     // -------------------------------------------------------------------------
@@ -55,18 +55,18 @@ export class ActionParameterHandler {
     /**
      * Handles non-promise value.
      */
-    protected handleValue(value: any, actionProperties: ActionProperties, param: ParamMetadata): Promise<any>|any {
+    protected handleValue(value: any, action: Action, param: ParamMetadata): Promise<any>|any {
 
         // if transform function is given for this param then apply it
         if (param.transform)
-            value = param.transform(actionProperties, value);
+            value = param.transform(action, value);
 
         // if its current-user decorator then get its value
         if (param.type === "current-user") {
             if (!this.driver.currentUserChecker)
                 throw new CurrentUserCheckerNotDefinedError();
 
-            value = this.driver.currentUserChecker(actionProperties);
+            value = this.driver.currentUserChecker(action);
         }
 
         // check cases when parameter is required but its empty and throw errors in this case
@@ -75,25 +75,25 @@ export class ActionParameterHandler {
             const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
 
             if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
-                return Promise.reject(new ParamRequiredError(actionProperties, param));
+                return Promise.reject(new ParamRequiredError(action, param));
 
             } else if (param.type === "current-user") { // current user has a special check as well
 
                 if (isPromiseLike(value)) {
                     return value.then(currentUser => {
                         if (!currentUser)
-                            return Promise.reject(new AuthorizationRequiredError(actionProperties));
+                            return Promise.reject(new AuthorizationRequiredError(action));
 
                         return currentUser;
                     });
 
                 } else {
                     if (!value)
-                        return Promise.reject(new AuthorizationRequiredError(actionProperties));
+                        return Promise.reject(new AuthorizationRequiredError(action));
                 }
 
             } else if (param.name && isValueEmpty) { // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
-                return Promise.reject(new ParamRequiredError(actionProperties, param));
+                return Promise.reject(new ParamRequiredError(action, param));
             }
         }
 

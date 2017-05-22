@@ -1,5 +1,5 @@
 import {ActionType} from "../types/ActionType";
-import {ActionProperties} from "../../ActionProperties";
+import {Action} from "../../Action";
 import {ActionMetadata} from "../ActionMetadata";
 
 /**
@@ -31,11 +31,11 @@ export interface ActionMetadataArgs {
     /**
      * Params to be appended to the method call.
      */
-    appendParams?: (actionProperties: ActionProperties) => any[];
+    appendParams?: (action: Action) => any[];
 
     /**
      * Special function that will be called instead of orignal method of the target.
      */
-    methodOverride?: (actionMetadata: ActionMetadata, actionProperties: ActionProperties, params: any[]) => Promise<any>|any;
+    methodOverride?: (actionMetadata: ActionMetadata, action: Action, params: any[]) => Promise<any>|any;
     
 }

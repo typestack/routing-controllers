@@ -3,6 +3,7 @@ import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
+import {InterceptorMetadata} from "./InterceptorMetadata";
 
 /**
  * Controller metadata.
@@ -37,6 +38,11 @@ export class ControllerMetadata {
      * Middleware "use"-s applied to a whole controller.
      */
     uses: UseMetadata[];
+
+    /**
+     * Middleware "use"-s applied to a whole controller.
+     */
+    interceptors: InterceptorMetadata[];
 
     /**
      * Indicates if this action uses Authorized decorator.

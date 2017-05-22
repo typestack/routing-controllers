@@ -104,7 +104,7 @@ describe("action parameters", () => {
 
             @Post("/session/")
             @UseBefore(SessionMiddleware)
-            addToSession(@Session() session: Express.Session) {
+            addToSession(@Session() session: any) {
                 session["testElement"] = "@Session test";
                 session["fakeObject"] = {
                     name: "fake",
@@ -125,6 +125,20 @@ describe("action parameters", () => {
             notUseSession(@Session("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
+            }
+
+            @Get("/session-param-empty/")
+            @UseBefore(SessionMiddleware)
+            loadEmptyParamFromSession(@Session("empty", { required: false }) emptyElement: string) {
+                sessionTestElement = emptyElement;
+                return `<html><body>${emptyElement === undefined}</body></html>`;
+            }
+
+            @Get("/session-param-empty-error/")
+            @UseBefore(SessionMiddleware)
+            errorOnLoadEmptyParamFromSession(@Session("empty") emptyElement: string) {
+                sessionTestElement = emptyElement;
+                return `<html><body>${emptyElement === undefined}</body></html>`;
             }
 
             @Get("/state")
@@ -351,6 +365,23 @@ describe("action parameters", () => {
                 expect(response.body).to.be.equal("<html><body>@Session test</body></html>");
                 expect(sessionTestElement).to.be.equal("@Session test");
             });
+        });
+    });
+
+    describe("@Session(param) should allow to inject empty property", () => {
+        assertRequest([3001, 3002], "get", "session-param-empty", response => {
+            console.log(response.body);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>true</body></html>");
+            expect(sessionTestElement).to.be.undefined;
+        });
+    });
+
+    describe("@Session(param) should throw required error when param is empty", () => {
+        assertRequest([3001, 3002], "get", "session-param-empty-error", response => {
+            expect(response).to.be.status(400);
+            // there should be a test for "ParamRequiredError" but chakram is the worst testing framework ever!!!
         });
     });
 
