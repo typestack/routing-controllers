@@ -424,11 +424,14 @@ To inject a session value, use `@Session` decorator:
 savePost(@Session("user") user: User, @Body() post: Post) {
 }
 ```
+If you want to inject the main session object, use `@Session()` without any parameters.
 
-If you want to inject all session parameters use `@Session()` without any parameters.
+The parameter marked with `@Session` decorator is required by default. If your action param is optional, you have to mark it as not required:
+```ts
+action(@Session("user", { required: false }) user: User)
+```
 
-Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, 
-so firstly you have to install it manually to use `@Session` decorator.
+Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
 
 #### Inject state object
 
