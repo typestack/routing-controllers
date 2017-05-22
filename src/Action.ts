@@ -1,7 +1,7 @@
 /**
  * Controller action properties.
  */
-export interface ActionProperties {
+export interface Action {
 
     /**
      * Action Request object.

@@ -3,7 +3,7 @@ import {ActionMetadata} from "./ActionMetadata";
 import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
 import {ParamType} from "./types/ParamType";
 import {ClassTransformOptions} from "class-transformer";
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
 
 /**
  * Action Parameter metadata.
@@ -77,7 +77,7 @@ export class ParamMetadata {
     /**
      * Transforms the value.
      */
-    transform: (actionProperties: ActionProperties, value?: any) => Promise<any>|any;
+    transform: (action: Action, value?: any) => Promise<any>|any;
 
     /**
      * Additional parameter options.

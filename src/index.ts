@@ -28,6 +28,7 @@ export * from "./decorator/Header";
 export * from "./decorator/HeaderParam";
 export * from "./decorator/HeaderParams";
 export * from "./decorator/HttpCode";
+export * from "./decorator/Interceptor";
 export * from "./decorator/JsonController";
 export * from "./decorator/Location";
 export * from "./decorator/Method";
@@ -52,6 +53,7 @@ export * from "./decorator/UploadedFile";
 export * from "./decorator/UploadedFiles";
 export * from "./decorator/UseAfter";
 export * from "./decorator/UseBefore";
+export * from "./decorator/UseInterceptor";
 
 export * from "./decorator-options/BodyOptions";
 export * from "./decorator-options/ParamOptions";
@@ -74,7 +76,8 @@ export * from "./metadata-builder/MetadataArgsStorage";
 export * from "./RoutingControllersOptions";
 export * from "./CustomParameterDecorator";
 export * from "./RoleChecker";
-export * from "./ActionProperties";
+export * from "./Action";
+export * from "./InterceptorInterface";
 
 // -------------------------------------------------------------------------
 // Main Functions
@@ -143,7 +146,12 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
         const middlewareDirs = (options.middlewares as any[]).filter(controller => typeof controller === "string");
         middlewareClasses.push(...importClassesFromDirectories(middlewareDirs));
     }
-    if (options && options.middlewares && options.middlewares.length)
+    let interceptorClasses: Function[];
+    if (options && options.interceptors && options.interceptors.length) {
+        interceptorClasses = (options.interceptors as any[]).filter(controller => controller instanceof Function);
+        const interceptorDirs = (options.interceptors as any[]).filter(controller => typeof controller === "string");
+        interceptorClasses.push(...importClassesFromDirectories(interceptorDirs));
+    }
 
     if (options && options.development !== undefined) {
         driver.developmentMode = options.development;
@@ -190,6 +198,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     // next create a controller executor
     new RoutingControllers(driver)
         .initialize()
+        .registerInterceptors(interceptorClasses)
         .registerMiddlewares("before")
         .registerControllers(controllerClasses)
         .registerMiddlewares("after", middlewareClasses); // todo: register only for loaded controllers?

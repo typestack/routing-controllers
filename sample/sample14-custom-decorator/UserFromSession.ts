@@ -7,9 +7,9 @@ import {User} from "./User";
 export function UserFromSession(options?: { required?: boolean }) {
     return createParamDecorator({
         required: options && options.required ? true : false,
-        value: actionProperties => {
+        value: action => {
             // perform queries based on token from request headers
-            // const token = actionProperties.request.headers["authorization"];
+            // const token = action.request.headers["authorization"];
             // return database.findUserByToken(token);
             return new User(1, "Johny", "Cage");
         }

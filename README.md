@@ -48,6 +48,10 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     + [Global middlewares](#global-middlewares)
     + [Error handlers](#error-handlers)
     + [Loading middlewares and controllers from directories](#loading-middlewares-and-controllers-from-directories)
+  * [Using interceptors](#using-interceptors)
+    + [Interceptor function](#interceptor-function)
+    + [Interceptor classes](#interceptor-classes)
+    + [Global interceptors](#global-interceptors)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
   * [Auto validating action params](#auto-validating-action-params)
   * [Using authorization features](#using-authorization-features)
@@ -913,7 +917,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-### Loading middlewares and controllers from directories
+### Loading middlewares, interceptors and controllers from directories
 
 Also you can load middlewares from directories. Also you can use glob patterns:
 
@@ -923,7 +927,87 @@ import {createExpressServer} from "routing-controllers";
 createExpressServer({
     controllers: [__dirname + "/controllers/**/*.js"],
     middlewares: [__dirname + "/middlewares/**/*.js"]
+    interceptors: [__dirname + "/interceptors/**/*.js"]
 }).listen(3000);
+```
+
+## Using interceptors
+
+Interceptors are used to change or replace the data returned to the client.
+You can create your own interceptor class or function and use to all or specific controller or controller action.
+It works pretty much the same as middlewares.
+
+### Interceptor function
+
+The easiest way is to use functions directly passed to `@UseInterceptor` of the action. 
+
+```typescript
+import {Get, Param, UseInterceptor} from "routing-controllers";
+
+// ...
+
+@Get("/users")
+@UseInterceptor(function(action: Action, content: any) {
+    // here you have content returned by this action. you can replace something 
+    // in it and return a replaced result. replaced result will be returned to the user
+    return content.replace(/Mike/gi, "Michael");
+})
+getOne(@Param("id") id: number) {
+    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
+}
+```
+
+You can use `@UseInterceptor` per-action, on per-controller. 
+If its used per-controller then interceptor will apply to all controller actions.
+
+### Interceptor classes
+
+You can also create a class and use it with `@UseInterceptor` decorator:
+
+```typescript
+import {Interceptor, InterceptorInterface, Action} from "routing-controllers";
+
+@Interceptor()
+export class NameCorrectionInterceptor implements InterceptorInterface {
+    
+    intercept(action: Action, content: any) {
+        return content.replace(/Mike/gi, "Michael");
+    }
+    
+}
+```
+
+And use it in your controllers this way:
+
+```typescript
+import {Get, Param, UseInterceptor} from "routing-controllers";
+import {NameCorrectionInterceptor} from "./NameCorrectionInterceptor";
+
+// ...
+
+@Get("/users")
+@UseInterceptor(NameCorrectionInterceptor)
+getOne(@Param("id") id: number) {
+    return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
+}
+```
+
+### Global interceptors
+
+You can create interceptors that will affect all controllers in your project by creating interceptor class
+and mark it with `@Interceptor` decorator:
+
+```typescript
+import {Interceptor, InterceptorInterface, Action} from "routing-controllers";
+
+@Interceptor()
+export class NameCorrectionInterceptor implements InterceptorInterface {
+    
+    intercept(action: Action, content: any) {
+        return content.replace(/Mike/gi, "Michael");
+    }
+    
+}
 ```
 
 ## Creating instances of classes from action params
@@ -1040,17 +1124,17 @@ To make `@Authorized` decorator to work you need to setup special routing contro
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer, ActionProperties} from "routing-controllers";
+import {createExpressServer, Action} from "routing-controllers";
 
 createExpressServer({
-    authorizationChecker: async (actionProperties: ActionProperties, roles: string[]) => {
-        // here you can use request/response objects from actionProperties
+    authorizationChecker: async (action: Action, roles: string[]) => {
+        // here you can use request/response objects from action
         // also if decorator defines roles it needs to access the action
         // you can use them to provide granular access check
         // checker must return either boolean (true or false)
         // either promise that resolves a boolean value
         // demo code:
-        const token = actionProperties.request.headers["authorization"];
+        const token = action.request.headers["authorization"];
         
         const user = await getEntityManager().findOneByToken(User, token);
         if (user && !roles.length)
@@ -1088,14 +1172,14 @@ To make `@CurrentUser` decorator to work you need to setup special routing contr
 
 ```typescript
 import "reflect-metadata";
-import {createExpressServer, ActionProperties} from "routing-controllers";
+import {createExpressServer, Action} from "routing-controllers";
 
 createExpressServer({
-    currentUserChecker: async (actionProperties: ActionProperties) => {
-        // here you can use request/response objects from actionProperties
+    currentUserChecker: async (action: Action) => {
+        // here you can use request/response objects from action
         // you need to provide a user object that will be injected in controller actions
         // demo code:
-        const token = actionProperties.request.headers["authorization"];
+        const token = action.request.headers["authorization"];
         return getEntityManager().findOneByToken(User, token);
     }
 }).listen(3000);
@@ -1140,6 +1224,7 @@ useContainer(Container);
 createExpressServer({
     controllers: [__dirname + "/controllers/*.js"],
     middlewares: [__dirname + "/middlewares/*.js"],
+    interceptors: [__dirname + "/interceptors/*.js"],
 }).listen(3000);
 ```
 
@@ -1168,8 +1253,8 @@ import {createParamDecorator} from "routing-controllers";
 export function UserFromSession(options?: { required?: boolean }) {
     return createParamDecorator({
         required: options && options.required ? true : false,
-        value: actionProperties => {
-            const token = actionProperties.request.headers["authorization"];
+        value: action => {
+            const token = action.request.headers["authorization"];
             return database.findUserByToken(token);
         }
     });
@@ -1236,13 +1321,15 @@ export class QuestionController {
 | `@UploadedFile(name: string, options?: UploadOptions)`             | `post(@UploadedFile("filename") file: any)`      | Injects uploaded file from the response. In parameter options you can specify underlying uploader middleware options.                   | `request.file.file` (using multer)        |
 | `@UploadedFiles(name: string, options?: UploadOptions)`            | `post(@UploadedFiles("filename") files: any[])`  | Injects all uploaded files from the response. In parameter options you can specify underlying uploader middleware options.              | `request.files` (using multer)            |
 
-#### Middleware Decorators
+#### Middleware and Interceptor Decorators
 
 | Signature                                                          | Example                                                | Description                                                                                                     |
 |--------------------------------------------------------------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `@Middleware({ type: "before"\|"after" })`                         | `@Middleware({ type: "before" }) class SomeMiddleware` | Registers a new middleware.                                                                                     |
+| `@Middleware({ type: "before"\|"after" })`                         | `@Middleware({ type: "before" }) class SomeMiddleware` | Registers a global middleware.                                                                                  |
 | `@UseBefore()`                                                     | `@UseBefore(CompressionMiddleware)`                    | Uses given middleware before action is being executed.                                                          |
 | `@UseAfter()`                                                      | `@UseAfter(CompressionMiddleware)`                     | Uses given middleware after action is being executed.                                                           |
+| `@Interceptor()`                                                   | `@Interceptor() class SomeInterceptor`                 | Registers a global interceptor.                                                                                 |
+| `@UseInterceptor()`                                                | `@UseInterceptor(BadWordsInterceptor)`                 | Intercepts result of the given controller/action and replaces some values of it.                                |
 
 #### Other Decorators
 

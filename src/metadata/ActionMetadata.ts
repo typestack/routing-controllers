@@ -5,7 +5,8 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {UseMetadata} from "./UseMetadata";
 import {ClassTransformOptions} from "class-transformer";
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
+import {InterceptorMetadata} from "./InterceptorMetadata";
 
 /**
  * Action metadata.
@@ -30,6 +31,11 @@ export class ActionMetadata {
      * Action's use metadatas.
      */
     uses: UseMetadata[];
+
+    /**
+     * Action's use interceptors.
+     */
+    interceptors: InterceptorMetadata[];
 
     /**
      * Class on which's method this action is attached.
@@ -130,12 +136,12 @@ export class ActionMetadata {
     /**
      * Params to be appended to the method call.
      */
-    appendParams?: (actionProperties: ActionProperties) => any[];
+    appendParams?: (action: Action) => any[];
 
     /**
      * Special function that will be called instead of orignal method of the target.
      */
-    methodOverride?: (actionMetadata: ActionMetadata, actionProperties: ActionProperties, params: any[]) => Promise<any>|any;
+    methodOverride?: (actionMetadata: ActionMetadata, action: Action, params: any[]) => Promise<any>|any;
 
     // -------------------------------------------------------------------------
     // Constructor

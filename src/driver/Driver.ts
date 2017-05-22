@@ -2,7 +2,7 @@ import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
 import {ClassTransformOptions} from "class-transformer";
 import {AuthorizationChecker} from "../AuthorizationChecker";
 import {CurrentUserChecker} from "../CurrentUserChecker";
@@ -83,7 +83,7 @@ export interface Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void;
+    registerAction(action: ActionMetadata, executeCallback: (options: Action) => any): void;
 
     /**
      * Registers all routes in the framework.
@@ -93,16 +93,16 @@ export interface Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: ActionProperties, param: ParamMetadata): any;
+    getParamFromRequest(actionOptions: Action, param: ParamMetadata): any;
 
     /**
      * Defines an algorithm of how to handle error during executing controller action.
      */
-    handleError(error: any, action: ActionMetadata, options: ActionProperties): any;
+    handleError(error: any, action: ActionMetadata, options: Action): any;
 
     /**
      * Defines an algorithm of how to handle success result of executing controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void;
+    handleSuccess(result: any, action: ActionMetadata, options: Action): void;
 
 }

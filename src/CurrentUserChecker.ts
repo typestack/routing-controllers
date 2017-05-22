@@ -1,6 +1,6 @@
-import {ActionProperties} from "./ActionProperties";
+import {Action} from "./Action";
 
 /**
  * Special function used to get currently authorized user.
  */
-export type CurrentUserChecker = (actionProperties: ActionProperties) => Promise<any>|any;
+export type CurrentUserChecker = (action: Action) => Promise<any>|any;

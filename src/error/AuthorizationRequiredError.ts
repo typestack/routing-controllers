@@ -1,4 +1,4 @@
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
 import {ForbiddenError} from "../http-error/ForbiddenError";
 
 /**
@@ -8,10 +8,10 @@ export class AuthorizationRequiredError extends ForbiddenError {
 
     name = "AuthorizationRequiredError";
 
-    constructor(actionProperties: ActionProperties) {
+    constructor(action: Action) {
         super();
         Object.setPrototypeOf(this, AuthorizationRequiredError.prototype);
-        const uri = actionProperties.request.method + " " + actionProperties.request.url; // todo: check it it works in koa
+        const uri = action.request.method + " " + action.request.url; // todo: check it it works in koa
         this.message = `Authorization is required for request on ${uri}`;
     }
 

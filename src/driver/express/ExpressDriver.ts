@@ -1,7 +1,7 @@
 import {UseMetadata} from "../../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
-import {ActionProperties} from "../../ActionProperties";
+import {Action} from "../../Action";
 import {classToPlain} from "class-transformer";
 import {Driver} from "../Driver";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
@@ -73,42 +73,42 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Registers action in the driver.
      */
-    registerAction(action: ActionMetadata, executeCallback: (options: ActionProperties) => any): void {
+    registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
-        if (action.isBodyUsed) {
-            if (action.isJsonTyped) {
-                defaultMiddlewares.push(this.loadBodyParser().json(action.bodyExtraOptions));
+        if (actionMetadata.isBodyUsed) {
+            if (actionMetadata.isJsonTyped) {
+                defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
             } else {
-                defaultMiddlewares.push(this.loadBodyParser().text(action.bodyExtraOptions));
+                defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
             }
         }
-        if (action.isFileUsed || action.isFilesUsed) {
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
             const multer = this.loadMulter();
-            action.params
+            actionMetadata.params
                 .filter(param => param.type === "file")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
                 });
-            action.params
+            actionMetadata.params
                 .filter(param => param.type === "files")
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
         }
 
-        if (action.isAuthorizedUsed) {
+        if (actionMetadata.isAuthorizedUsed) {
             defaultMiddlewares.push((request: any, response: any, next: Function) => {
                 if (!this.authorizationChecker)
                     throw new AuthorizationCheckerNotDefinedError();
 
-                const actionProperties = { request, response, next };
-                const checkResult = this.authorizationChecker(actionProperties, action.authorizedRoles);
+                const action: Action = { request, response, next };
+                const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
                 if (isPromiseLike(checkResult)) {
                     checkResult.then(result => {
                         if (!result) {
-                            return this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                            return this.handleError(new AccessDeniedError(action), actionMetadata, action);
 
                         } else {
                             next();
@@ -116,7 +116,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                     });
                 } else {
                     if (!checkResult) {
-                        this.handleError(new AccessDeniedError(actionProperties), action, actionProperties);
+                        this.handleError(new AccessDeniedError(action), actionMetadata, action);
                     } else {
                         next();
                     }
@@ -125,18 +125,18 @@ export class ExpressDriver extends BaseDriver implements Driver {
         }
 
         // user used middlewares
-        const uses = action.controllerMetadata.uses.concat(action.uses);
+        const uses = [...actionMetadata.controllerMetadata.uses, ...actionMetadata.uses];
         const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
         const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
 
         // prepare route and route handler function
-        const route = ActionMetadata.appendBaseRoute(this.routePrefix, action.fullRoute);
+        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
             return executeCallback({ request, response, next });
         };
 
         // finally register action in express
-        this.express[action.type.toLowerCase()](...[
+        this.express[actionMetadata.type.toLowerCase()](...[
             route,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
@@ -154,8 +154,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionProperties: ActionProperties, param: ParamMetadata): any {
-        const request: any = actionProperties.request;
+    getParamFromRequest(action: Action, param: ParamMetadata): any {
+        const request: any = action.request;
         switch (param.type) {
             case "body":
                 return request.body;
@@ -210,7 +210,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Handles result of successfully executed controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: ActionProperties): void {
+    handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // check if we need to transform result and do it
         if (this.useClassTransformer && result && result instanceof Object) {
@@ -289,7 +289,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: ActionProperties): any {
+    handleError(error: any, action: ActionMetadata|undefined, options: Action): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 

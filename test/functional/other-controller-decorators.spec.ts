@@ -12,7 +12,7 @@ import {Redirect} from "../../src/decorator/Redirect";
 import {Location} from "../../src/decorator/Location";
 import {OnUndefined} from "../../src/decorator/OnUndefined";
 import {HttpError} from "../../src/http-error/HttpError";
-import {ActionProperties} from "../../src/ActionProperties";
+import {Action} from "../../src/Action";
 import {JsonController} from "../../src/decorator/JsonController";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -25,7 +25,7 @@ describe("other controller decorators", () => {
 
         class QuestionNotFoundError extends HttpError {
 
-            constructor(actionProperties: ActionProperties) {
+            constructor(action: Action) {
                 super(404, `Question was not found!`);
                 Object.setPrototypeOf(this, QuestionNotFoundError.prototype);
             }
@@ -181,21 +181,17 @@ describe("other controller decorators", () => {
     describe("should return custom error message and code when @OnUndefined is used with Error class", () => {
         assertRequest([3001, 3002], "get", "questions/1", response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.be.eql("Question");
+            expect(response.body).to.be.equal("Question");
         });
         assertRequest([3001, 3002], "get", "questions/2", response => {
             expect(response).to.have.status(404);
-            expect(response.body).to.be.eql({
-                name: "QuestionNotFoundError",
-                message: "Question was not found!"
-            });
+            expect(response.body.name).to.be.equal("QuestionNotFoundError");
+            expect(response.body.message).to.be.equal("Question was not found!");
         });
         assertRequest([3001, 3002], "get", "questions/3", response => {
             expect(response).to.have.status(404); // because of null
-            expect(response.body).to.be.eql({
-                name: "QuestionNotFoundError",
-                message: "Question was not found!"
-            });
+            expect(response.body.name).to.be.equal("QuestionNotFoundError");
+            expect(response.body.message).to.be.equal("Question was not found!");
         });
     });
 

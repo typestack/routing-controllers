@@ -1,4 +1,4 @@
-import {ActionProperties} from "../ActionProperties";
+import {Action} from "../Action";
 import {ForbiddenError} from "../http-error/ForbiddenError";
 
 /**
@@ -8,10 +8,10 @@ export class AccessDeniedError extends ForbiddenError {
 
     name = "AccessDeniedError";
 
-    constructor(actionProperties: ActionProperties) {
+    constructor(action: Action) {
         super();
         Object.setPrototypeOf(this, AccessDeniedError.prototype);
-        const uri = actionProperties.request.method + " " + actionProperties.request.url; // todo: check it it works in koa
+        const uri = action.request.method + " " + action.request.url; // todo: check it it works in koa
         this.message = `Access is denied for request on ${uri}`;
     }
 
