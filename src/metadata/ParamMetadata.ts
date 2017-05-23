@@ -114,7 +114,7 @@ export class ParamMetadata {
         this.transform = args.transform;
         this.classTransform = args.classTransform;
         this.validate = args.validate;
-        this.targetType = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method)[args.index];
+        this.targetType = args.explicitType ? args.explicitType : (Reflect as any).getMetadata("design:paramtypes", args.object, args.method)[args.index];
 
         if (this.targetType) {
             if (this.targetType instanceof Function && this.targetType.name) {

@@ -16,6 +16,7 @@ export function Body(options?: BodyOptions): Function {
             required: options ? options.required : false,
             classTransform: options ? options.transform : undefined,
             validate: options ? options.validate : undefined,
+            explicitType: options ? options.type : undefined,
             extraOptions: options ? options.options : undefined
         });
     };

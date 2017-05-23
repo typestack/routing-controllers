@@ -16,6 +16,7 @@ export function HeaderParam(name: string, options?: ParamOptions): Function {
             parse: options ? options.parse : false,
             required: options ? options.required : false,
             classTransform: options ? options.transform : undefined,
+            explicitType: options ? options.type : undefined,
             validate: options ? options.validate : undefined
         });
     };

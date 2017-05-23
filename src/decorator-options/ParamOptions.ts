@@ -28,5 +28,10 @@ export interface ParamOptions {
      * If validation options are given then class-validator will perform validation with given options.
      */
     validate?: boolean|ValidatorOptions;
+
+    /**
+     * Explicitly set type which should be used for param to perform transformation.
+     */
+    type?: any;
     
 }

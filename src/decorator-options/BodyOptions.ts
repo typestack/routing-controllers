@@ -31,5 +31,10 @@ export interface BodyOptions {
      * Extra options to be passed to body-parser middleware.
      */
     options?: any;
+
+    /**
+     * Explicitly set type which should be used for Body to perform transformation.
+     */
+    type?: any;
     
 }

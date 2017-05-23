@@ -63,4 +63,9 @@ export interface ParamMetadataArgs {
      */
     validate?: boolean|ValidatorOptions;
 
+    /**
+     * Explicitly set type which should be used for Body to perform transformation.
+     */
+    explicitType?: any;
+
 }

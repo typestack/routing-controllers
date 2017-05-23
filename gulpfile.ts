@@ -193,4 +193,5 @@ export class Gulpfile {
     tests() {
         return ["compile", "coveragePost", "coverageRemap", "tslint"];
     }
+
 }

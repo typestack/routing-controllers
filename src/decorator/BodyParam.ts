@@ -15,6 +15,7 @@ export function BodyParam(name: string, options?: ParamOptions): Function {
             name: name,
             parse: options ? options.parse : false,
             required: options ? options.required : false,
+            explicitType: options ? options.type : undefined,
             classTransform: options ? options.transform : undefined,
             validate: options ? options.validate : undefined
         });

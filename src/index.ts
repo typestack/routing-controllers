@@ -72,6 +72,13 @@ export * from "./driver/express/ExpressMiddlewareInterface";
 export * from "./driver/express/ExpressErrorMiddlewareInterface";
 export * from "./driver/koa/KoaMiddlewareInterface";
 export * from "./metadata-builder/MetadataArgsStorage";
+export * from "./metadata/ActionMetadata";
+export * from "./metadata/ControllerMetadata";
+export * from "./metadata/InterceptorMetadata";
+export * from "./metadata/MiddlewareMetadata";
+export * from "./metadata/ParamMetadata";
+export * from "./metadata/ResponseHandleMetadata";
+export * from "./metadata/UseMetadata";
 
 export * from "./RoutingControllersOptions";
 export * from "./CustomParameterDecorator";
