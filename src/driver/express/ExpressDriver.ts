@@ -37,7 +37,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
      */
     initialize() {
         if (this.cors) {
-            const cors = require("kcors");
+            const cors = require("cors");
             if (this.cors === true) {
                 this.express.use(cors());
             } else {
