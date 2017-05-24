@@ -202,6 +202,8 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     if (options.authorizationChecker !== undefined)
         driver.authorizationChecker = options.authorizationChecker;
 
+    driver.cors = options.cors;
+
     // next create a controller executor
     new RoutingControllers(driver)
         .initialize()

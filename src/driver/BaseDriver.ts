@@ -56,6 +56,12 @@ export class BaseDriver {
     routePrefix: string = "";
 
     /**
+     * Indicates if cors are enabled.
+     * This requires installation of additional module (cors for express and kcors for koa).
+     */
+    cors?: boolean|Object;
+
+    /**
      * Map of error overrides.
      */
     errorOverridingMap: { [key: string]: any };

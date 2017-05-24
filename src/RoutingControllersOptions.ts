@@ -9,6 +9,12 @@ import {CurrentUserChecker} from "./CurrentUserChecker";
 export interface RoutingControllersOptions {
 
     /**
+     * Indicates if cors are enabled.
+     * This requires installation of additional module (cors for express and kcors for koa).
+     */
+    cors?: boolean|Object;
+
+    /**
      * Global route prefix, for example '/api'.
      */
     routePrefix?: string;

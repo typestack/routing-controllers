@@ -60,6 +60,12 @@ export interface Driver {
     routePrefix: string;
 
     /**
+     * Indicates if cors are enabled.
+     * This requires installation of additional module (cors for express and kcors for koa).
+     */
+    cors?: boolean|Object;
+
+    /**
      * Special function used to check user authorization roles per request.
      * Must return true or promise with boolean true resolved for authorization to succeed.
      */
