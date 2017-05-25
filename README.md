@@ -40,6 +40,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Set custom headers](#set-custom-headers)
       - [Render templates](#render-templates)
       - [Throw HTTP errors](#throw-http-errors)
+      - [Enable CORS](#enable-cors)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -666,6 +667,43 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 You can also create and use your own errors by extending `HttpError` class.
+
+#### Enable CORS
+
+Since CORS is a future that is used almost in any web-api application, 
+you can enable it in routing-controllers options.
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer} from "routing-controllers";
+import {UserController} from "./UserController";
+
+const app = createExpressServer({
+    cors: true,
+    controllers: [UserController]
+});
+
+app.listen(3000);
+```
+
+To use cors you need to install its module.
+For express its `npm i cors`, for koa its `npm i kcors`.
+You can pass cors options as well:
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer} from "routing-controllers";
+import {UserController} from "./UserController";
+
+const app = createExpressServer({
+    cors: {
+        // options from cors documentation
+    },
+    controllers: [UserController]
+});
+
+app.listen(3000);
+```
 
 ## Using middlewares
 
