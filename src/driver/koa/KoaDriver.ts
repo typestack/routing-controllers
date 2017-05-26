@@ -151,7 +151,11 @@ export class KoaDriver extends BaseDriver implements Driver {
                 return request.body;
 
             case "body-param":
-                return request.body[param.name];
+                let value = request.body[param.name];
+                if (value == null && context.req.body != null) {
+                    value = context.req.body[param.name];
+                }
+                return value;
 
             case "param":
                 return context.params[param.name];
