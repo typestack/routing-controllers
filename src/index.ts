@@ -20,6 +20,7 @@ export * from "./decorator/ContentType";
 export * from "./decorator/Controller";
 export * from "./decorator/CookieParam";
 export * from "./decorator/CookieParams";
+export * from "./decorator/Ctx";
 export * from "./decorator/CurrentUser";
 export * from "./decorator/Delete";
 export * from "./decorator/Get";
