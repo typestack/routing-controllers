@@ -540,6 +540,29 @@ getUsers() {
 }
 ```
 
+You can override the Redirect header by returning a string value:
+
+```ts
+@Get("/users")
+@Redirect("http://github.com")
+getUsers() {
+    return "https://www.google.com";
+}
+```
+
+You can use template to generate the Redirect header:
+
+```ts
+@Get("/users")
+@Redirect("http://github.com/:owner/:repo")
+getUsers() {
+    return {
+        owner: "pleerock",
+        repo: "routing-controllers"
+    };
+}
+```
+
 #### Set custom HTTP code
 
 You can explicitly set a returned HTTP code for any action:
