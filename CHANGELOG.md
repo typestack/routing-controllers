@@ -22,6 +22,7 @@ and `@Middleware({ type: "after" })`
 * enabled validation by default
 * multiple bug fixes
 * codebase refactoring
+* removed `JsonResponse` and `TextResponse` decorators
 
 **0.6.10**
 
