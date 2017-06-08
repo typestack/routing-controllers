@@ -56,12 +56,12 @@ export class ActionMetadata {
     /**
      * Route to be registered for the action.
      */
-    route: string|RegExp;
+    route: string | RegExp;
 
     /**
      * Full route to this action (includes controller base route).
      */
-    fullRoute: string|RegExp;
+    fullRoute: string | RegExp;
 
     /**
      * Indicates if this action uses Body.
@@ -96,12 +96,12 @@ export class ActionMetadata {
     /**
      * Http code to be used on undefined action returned content.
      */
-    undefinedResultCode: number|Function;
+    undefinedResultCode: number | Function;
 
     /**
      * Http code to be used on null action returned content.
      */
-    nullResultCode: number|Function;
+    nullResultCode: number | Function;
 
     /**
      * Http code to be set on successful response.
@@ -141,12 +141,12 @@ export class ActionMetadata {
     /**
      * Special function that will be called instead of orignal method of the target.
      */
-    methodOverride?: (actionMetadata: ActionMetadata, action: Action, params: any[]) => Promise<any>|any;
+    methodOverride?: (actionMetadata: ActionMetadata, action: Action, params: any[]) => Promise<any> | any;
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    
+
     constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs) {
         this.controllerMetadata = controllerMetadata;
         this.route = args.route;
@@ -197,7 +197,7 @@ export class ActionMetadata {
         this.headers = this.buildHeaders(responseHandlers);
 
         this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
-        this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat(authorizedHandler ? authorizedHandler.value : []);
+        this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat(authorizedHandler && authorizedHandler.value ? authorizedHandler.value : []);
     }
 
     // -------------------------------------------------------------------------
@@ -207,7 +207,7 @@ export class ActionMetadata {
     /**
      * Builds full action route.
      */
-    private buildFullRoute(): string|RegExp {
+    private buildFullRoute(): string | RegExp {
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
                 return ActionMetadata.appendBaseRoute(this.controllerMetadata.route, this.route);
@@ -261,7 +261,7 @@ export class ActionMetadata {
     /**
      * Appends base route to a given regexp route.
      */
-    static appendBaseRoute(baseRoute: string, route: RegExp|string) {
+    static appendBaseRoute(baseRoute: string, route: RegExp | string) {
         if (typeof route === "string")
             return `${baseRoute}${route}`;
 
@@ -269,5 +269,5 @@ export class ActionMetadata {
         const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
         return new RegExp(fullPath, route.flags);
     }
-    
+
 }
