@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
   "private": true,
-  "version": "0.7.0-alpha.14",
+  "version": "0.7.0",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -31,7 +31,8 @@
     "class-validator": "^0.7.0",
     "cookie": "^0.3.1",
     "glob": "^7.0.5",
-    "reflect-metadata": "^0.1.10"
+    "reflect-metadata": "^0.1.10",
+    "template-url": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.35",

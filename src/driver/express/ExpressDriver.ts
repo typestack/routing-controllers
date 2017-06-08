@@ -13,6 +13,7 @@ import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationChec
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 const cookie = require("cookie");
+const templateUrl = require("template-url");
 
 /**
  * Integration with express framework.
@@ -66,13 +67,13 @@ export class ExpressDriver extends BaseDriver implements Driver {
                     const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                     if (isPromiseLike(useResult)) {
                         useResult.catch((error: any) => {
-                            this.handleError(error, undefined, { request, response, next });
+                            this.handleError(error, undefined, {request, response, next});
                             return error;
                         });
                     }
 
                 } catch (error) {
-                    this.handleError(error, undefined, { request, response, next });
+                    this.handleError(error, undefined, {request, response, next});
                 }
             });
         }
@@ -111,7 +112,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 if (!this.authorizationChecker)
                     throw new AuthorizationCheckerNotDefinedError();
 
-                const action: Action = { request, response, next };
+                const action: Action = {request, response, next};
                 const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
                 if (isPromiseLike(checkResult)) {
                     checkResult.then(result => {
@@ -140,7 +141,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
-            return executeCallback({ request, response, next });
+            return executeCallback({request, response, next});
         };
 
         // finally register action in express
@@ -249,7 +250,14 @@ export class ExpressDriver extends BaseDriver implements Driver {
         });
 
         if (action.redirect) { // if redirect is set then do it
-            options.response.redirect(action.redirect);
+            if (typeof result === "string") {
+                options.response.redirect(result);
+            } else if (result instanceof Object) {
+                options.response.redirect(templateUrl(action.redirect, result));
+            } else {
+                options.response.redirect(action.redirect);
+            }
+
             options.next();
 
         } else if (action.renderedTemplate) { // if template is set then render it
@@ -297,7 +305,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata|undefined, options: Action): any {
+    handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
 
@@ -342,14 +350,14 @@ export class ExpressDriver extends BaseDriver implements Driver {
                         const useResult = (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
                         if (isPromiseLike(useResult)) {
                             useResult.catch((error: any) => {
-                                this.handleError(error, undefined, { request, response, next });
+                                this.handleError(error, undefined, {request, response, next});
                                 return error;
                             });
                         }
 
                         return useResult;
                     } catch (error) {
-                        this.handleError(error, undefined, { request, response, next });
+                        this.handleError(error, undefined, {request, response, next});
                     }
                 });
 

@@ -4,7 +4,6 @@
 
 * some routing-controllers options has been changed and renamed
 * returned validation error value signature has changed
-* removed `Interceptor` functionality
 * controllers and middlewares now can be specified in routing-controllers options
 * `MiddlewareInterface` was removed and instead `ExpressMiddlewareInterface` or `KoaMiddlewareInterface` should be used
 * `ExpressErrorMiddlewareInterface` was renamed into `ErrorMiddlewareInterface`
@@ -22,6 +21,7 @@ and `@Middleware({ type: "after" })`
 * enabled validation by default
 * multiple bug fixes
 * codebase refactoring
+* removed `JsonResponse` and `TextResponse` decorators
 
 **0.6.10**
 
