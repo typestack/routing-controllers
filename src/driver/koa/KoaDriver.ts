@@ -12,6 +12,7 @@ import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {RoleChecker} from "../../RoleChecker";
+import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -95,7 +96,9 @@ export class KoaDriver extends BaseDriver implements Driver {
                 if (isPromiseLike(checkResult)) {
                     return checkResult.then(result => {
                         if (!result) {
-                            return this.handleError(new AccessDeniedError(action), actionMetadata, action);
+                            return this.handleError((actionMetadata.authorizedRoles.length === 0
+                                    ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
+                                , actionMetadata, action);
 
                         } else {
                             return next();
@@ -103,7 +106,9 @@ export class KoaDriver extends BaseDriver implements Driver {
                     });
                 } else {
                     if (!checkResult) {
-                        return this.handleError(new AccessDeniedError(action), actionMetadata, action);
+                        return this.handleError((actionMetadata.authorizedRoles.length === 0
+                                ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
+                            , actionMetadata, action);
                     } else {
                         return next();
                     }

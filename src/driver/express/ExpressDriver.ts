@@ -12,6 +12,7 @@ import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
+import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -117,7 +118,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 if (isPromiseLike(checkResult)) {
                     checkResult.then(result => {
                         if (!result) {
-                            return this.handleError(new AccessDeniedError(action), actionMetadata, action);
+                            return this.handleError((actionMetadata.authorizedRoles.length === 0
+                                    ? new AuthorizationRequiredError(action) : new AccessDeniedError(action)),
+                                actionMetadata, action);
 
                         } else {
                             next();
@@ -125,7 +128,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
                     });
                 } else {
                     if (!checkResult) {
-                        this.handleError(new AccessDeniedError(action), actionMetadata, action);
+                        this.handleError((actionMetadata.authorizedRoles.length === 0
+                                ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
+                            , actionMetadata, action);
                     } else {
                         next();
                     }
