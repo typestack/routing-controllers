@@ -93,25 +93,23 @@ export class KoaDriver extends BaseDriver implements Driver {
                     getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
                     this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
-                if (isPromiseLike(checkResult)) {
-                    return checkResult.then(result => {
-                        if (!result) {
-                            return this.handleError((actionMetadata.authorizedRoles.length === 0
-                                    ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
-                                , actionMetadata, action);
+                const handleError = (result: any) => {
+                    if (!result) {
+                        return this.handleError((
+                                actionMetadata.authorizedRoles.length === 0
+                                    ? new AuthorizationRequiredError(action)
+                                    : new AccessDeniedError(action)),
+                            actionMetadata, action);
 
-                        } else {
-                            return next();
-                        }
-                    });
-                } else {
-                    if (!checkResult) {
-                        return this.handleError((actionMetadata.authorizedRoles.length === 0
-                                ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
-                            , actionMetadata, action);
                     } else {
-                        return next();
+                        next();
                     }
+                };
+
+                if (isPromiseLike(checkResult)) {
+                    checkResult.then(result => handleError(result));
+                } else {
+                    return handleError(checkResult);
                 }
             });
         }

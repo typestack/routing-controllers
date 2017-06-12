@@ -115,25 +115,24 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
                 const action: Action = {request, response, next};
                 const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
-                if (isPromiseLike(checkResult)) {
-                    checkResult.then(result => {
-                        if (!result) {
-                            return this.handleError((actionMetadata.authorizedRoles.length === 0
-                                    ? new AuthorizationRequiredError(action) : new AccessDeniedError(action)),
-                                actionMetadata, action);
 
-                        } else {
-                            next();
-                        }
-                    });
-                } else {
-                    if (!checkResult) {
-                        this.handleError((actionMetadata.authorizedRoles.length === 0
-                                ? new AuthorizationRequiredError(action) : new AccessDeniedError(action))
-                            , actionMetadata, action);
+                const handleError = (result: any) => {
+                    if (!result) {
+                        return this.handleError((
+                                actionMetadata.authorizedRoles.length === 0
+                                    ? new AuthorizationRequiredError(action)
+                                    : new AccessDeniedError(action)),
+                            actionMetadata, action);
+
                     } else {
                         next();
                     }
+                };
+
+                if (isPromiseLike(checkResult)) {
+                    checkResult.then(result => handleError(result));
+                } else {
+                    return handleError(checkResult);
                 }
             });
         }
