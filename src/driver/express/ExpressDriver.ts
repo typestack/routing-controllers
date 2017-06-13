@@ -118,12 +118,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
                 const handleError = (result: any) => {
                     if (!result) {
-                        return this.handleError((
-                                actionMetadata.authorizedRoles.length === 0
-                                    ? new AuthorizationRequiredError(action)
-                                    : new AccessDeniedError(action)),
-                            actionMetadata, action);
-
+                        let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                        return this.handleError(error, actionMetadata, action);
                     } else {
                         next();
                     }
@@ -132,7 +128,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 if (isPromiseLike(checkResult)) {
                     checkResult.then(result => handleError(result));
                 } else {
-                    return handleError(checkResult);
+                    handleError(checkResult);
                 }
             });
         }
