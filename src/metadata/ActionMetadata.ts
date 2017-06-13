@@ -262,11 +262,15 @@ export class ActionMetadata {
      * Appends base route to a given regexp route.
      */
     static appendBaseRoute(baseRoute: string, route: RegExp|string) {
+        const prefix = `${baseRoute.length > 0 && baseRoute.indexOf("/") < 0 ? "/" : ""}${baseRoute}`;
+
         if (typeof route === "string")
-            return `${baseRoute}${route}`;
+            return `${prefix}${route}`;
 
         if (!baseRoute || baseRoute === "") return route;
-        const fullPath = baseRoute.replace("\/", "\\\\/") + route.toString().substr(1);
+
+        const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
+        
         return new RegExp(fullPath, route.flags);
     }
     
