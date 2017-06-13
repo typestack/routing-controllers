@@ -222,7 +222,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // check if we need to transform result and do it
-        if (this.useClassTransformer && result && result instanceof Object) {
+        if (this.useClassTransformer && result && result instanceof Object && result.pipe instanceof Function) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
         }
@@ -234,11 +234,11 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
             options.response.status(action.undefinedResultCode);
 
-        } else if (action.nullResultCode && result === null) {
+        } else if (result === null) {
             if (action.nullResultCode instanceof Function)
                 throw new (action.nullResultCode as any)(options);
 
-            options.response.status(action.nullResultCode);
+            options.response.status(action.nullResultCode || 204);
 
         } else if (action.successHttpCode) {
             options.response.status(action.successHttpCode);
@@ -258,12 +258,12 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.response.redirect(action.redirect);
             }
 
-            options.next();
+            return options.next();
 
         } else if (action.renderedTemplate) { // if template is set then render it
             const renderOptions = result && result instanceof Object ? result : {};
 
-            this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
+            return this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
                     return options.next(err);
 
@@ -276,30 +276,17 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.next();
             });
 
-        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
-            if (result === null || (result === undefined && action.undefinedResultCode)) {
-                if (result === null && !action.nullResultCode) {
-                    options.response.status(204);
-                }
-
-                if (action.isJsonTyped) {
-                    options.response.json();
-                } else {
-                    options.response.send();
-                }
-                options.next();
-            } else {
-                if (action.isJsonTyped) {
-                    options.response.json(result);
-                } else {
-                    options.response.send(result);
-                }
-                options.next();
-            }
-
-        } else {
-            options.next();
         }
+        if (result === null)
+            result = undefined;
+        if (result && result.pipe instanceof Function) {
+            return result.pipe(options.response);
+        } else if (action.isJsonTyped) {
+            options.response.json(result);
+        } else {
+            options.response.send(result);
+        }
+        options.next();
     }
 
     /**
