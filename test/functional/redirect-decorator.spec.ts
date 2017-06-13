@@ -4,6 +4,7 @@ import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../.
 import {assertRequest} from "./test-utils";
 import {Redirect} from "../../src/decorator/Redirect";
 import {JsonController} from "../../src/decorator/JsonController";
+import {Param} from "../../src/decorator/Param";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -14,18 +15,31 @@ describe("dynamic redirect", function () {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
+        @JsonController("/users")
+        class TestController {
+
+            @Get("/:id")
+            async getOne(@Param("id") id: string) {
+                return {
+                    login: id
+                };
+            }
+
+
+        }
+
         @JsonController()
         class RedirectController {
 
             @Get("/template")
-            @Redirect("https://api.github.com/users/:owner")
+            @Redirect("/users/:owner")
             template() {
                 // console.log("/template");
                 return {owner: "pleerock", repo: "routing-controllers"};
             }
 
             @Get("/original")
-            @Redirect("https://api.github.com/users/pleerock")
+            @Redirect("/users/pleerock")
             original() {
                 // console.log("/original");
             }
@@ -34,7 +48,7 @@ describe("dynamic redirect", function () {
             @Redirect("https://api.github.com")
             override() {
                 // console.log("/override");
-                return "https://api.github.com/users/pleerock";
+                return "/users/pleerock";
             }
 
         }
@@ -54,36 +68,22 @@ describe("dynamic redirect", function () {
     });
     after(done => koaApp.close(done));
 
-    this.timeout(5000); // 2000ms timeout
-
     describe("using template", () => {
-        assertRequest([3001, 3002], "get", "template", {
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-            }
-        }, response => {
+        assertRequest([3001, 3002], "get", "template", response => {
             expect(response).to.have.status(200);
             expect(response.body).has.property("login", "pleerock");
         });
     });
 
     describe("using override", () => {
-        assertRequest([3001, 3002], "get", "override", {
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-            }
-        }, response => {
+        assertRequest([3001, 3002], "get", "override", response => {
             expect(response).to.have.status(200);
             expect(response.body).has.property("login", "pleerock");
         });
     });
 
     describe("using original", () => {
-        assertRequest([3001, 3002], "get", "original", {
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-            }
-        }, response => {
+        assertRequest([3001, 3002], "get", "original", response => {
             expect(response).to.have.status(200);
             expect(response.body).has.property("login", "pleerock");
         });

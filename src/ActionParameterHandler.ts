@@ -125,6 +125,13 @@ export class ActionParameterHandler {
 
                 return !!value;
 
+            case "date":
+                const parsedDate = new Date(value);
+                if (isNaN(parsedDate.getTime())) {
+                    return Promise.reject(new BadRequestError(`${param.name} is invalid! It can't be parsed to date.`));
+                }
+                return parsedDate;
+
             default:
                 if (value && (param.parse || param.isTargetObject)) {
                     value = this.parseValue(value, param);

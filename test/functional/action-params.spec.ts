@@ -285,6 +285,11 @@ describe("action parameters", () => {
                 return body;
             }
 
+            @Get("/posts-after")
+            getPhotosAfter(@QueryParam("from", { required: true }) from: Date): any {
+                return from.toISOString();
+            }
+
             @Post("/users")
             postUser(@BodyParam("name") name: string,
                      @BodyParam("age") age: number,
@@ -428,6 +433,21 @@ describe("action parameters", () => {
         });
         assertRequest([3001, 3002], "get", "photos-with-required/?limit", response => {
             expect(response).to.be.status(400);
+        });
+    });
+
+    describe("for @QueryParam when the type is Date then it should be parsed", () => {
+        assertRequest([3001, 3002], "get", "posts-after/?from=2017-01-01T00:00:00Z", response => {
+            expect(response).to.be.status(200);
+            expect(response.body).to.be.equal("2017-01-01T00:00:00.000Z");
+        });
+    });
+
+    describe("for @QueryParam when the type is Date and it is invalid then the response should be a BadRequest error", () => {
+        assertRequest([3001, 3002], "get", "posts-after/?from=InvalidDate", response => {
+            expect(response).to.be.status(400);
+            expect(response.body.name).to.be.equals("BadRequestError");
+            expect(response.body.message).to.be.equals("from is invalid! It can't be parsed to date.");
         });
     });
 
