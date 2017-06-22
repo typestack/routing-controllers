@@ -101,7 +101,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     Optionally you can also install their typings:
 
     `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
-    
+
 4. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
@@ -110,7 +110,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
         "experimentalDecorators": true
     }
     ```
-    
+
 ## Example of usage
 
 1. Create a file `UserController.ts`
@@ -157,12 +157,12 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     import "reflect-metadata"; // this shim is required
     import {createExpressServer} from "routing-controllers";
     import {UserController} from "./UserController";
- 
+
     // creates express app, registers all controller routes and returns you express app instance
     const app = createExpressServer({
        controllers: [UserController] // we specify controllers we want to use
     });
- 
+
     // run express application on port 3000
     app.listen(3000);
     ```
@@ -176,10 +176,10 @@ If you open `http://localhost:3000/users/1` you will see `This action returns us
 
 #### Working with json
 
-If you are designing a REST API where your endpoints always receive and return JSON then 
-you can use `@JsonController` decorator instead of `@Controller`. 
+If you are designing a REST API where your endpoints always receive and return JSON then
+you can use `@JsonController` decorator instead of `@Controller`.
 This will guarantee you that data returned by your controller actions always be transformed to JSON
-and `Content-Type` header will be always set to `application/json`. 
+and `Content-Type` header will be always set to `application/json`.
 It will also guarantee `application/json` header is understood from the requests and the body parsed as JSON:
 
 ```typescript
@@ -281,7 +281,7 @@ export class UserController {
 
 > note: koa users can also use `@Ctx() context` to inject koa's Context object.
 
-#### Pre-configure express/koa 
+#### Pre-configure express/koa
 
 If you have, or if you want to create and configure express app separately,
 you can use `useExpressServer` instead of `createExpressServer` function:
@@ -650,12 +650,12 @@ getOne() {
 ```
 
 To use rendering ability make sure to configure express / koa properly.
-To use rendering ability with Koa you will need to use a rendering 3rd party such as [koa-views](https://github.com/queckezz/koa-views/), 
+To use rendering ability with Koa you will need to use a rendering 3rd party such as [koa-views](https://github.com/queckezz/koa-views/),
 koa-views is the only render middleware that has been tested.
 
 #### Throw HTTP errors
 
-If you want to return errors with specific error codes, there is an easy way: 
+If you want to return errors with specific error codes, there is an easy way:
 
 ```typescript
 @Get("/users/:id")
@@ -664,7 +664,7 @@ getOne(@Param("id") id: number) {
     const user = this.userRepository.findOneById(id);
     if (!user)
         throw new NotFoundError(`User was not found.`); // message is optional
-        
+
     return user;
 }
 ```
@@ -693,7 +693,7 @@ You can also create and use your own errors by extending `HttpError` class.
 
 #### Enable CORS
 
-Since CORS is a future that is used almost in any web-api application, 
+Since CORS is a future that is used almost in any web-api application,
 you can enable it in routing-controllers options.
 
 ```typescript
@@ -798,14 +798,14 @@ Here is example of creating middleware for express.js:
 1. There are two ways of creating middleware:
 
     First, you can create a simple middleware function:
-    
+
     ```typescript
     export function loggingMiddleware(request: any, response: any, next?: (err?: any) => any): any {
         console.log("do something...");
         next();
     }
     ```
-    
+
     Second you can create a class:
 
     ```typescript
@@ -857,7 +857,7 @@ Here is example of creating middleware for koa.js:
 1. There are two ways of creating middleware:
 
     First, you can create a simple middleware function:
-    
+
     ```typescript
     export function use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
             console.log("do something before execution...");
@@ -868,7 +868,7 @@ Here is example of creating middleware for koa.js:
             });
         }
     ```
-    
+
     Second you can create a class:
 
     ```typescript
@@ -970,7 +970,7 @@ Error handlers work same way as middlewares, but implement `ExpressErrorMiddlewa
 
     }
     ```
-    
+
 Custom error handlers are invoked after the default error handler, so you won't be able to change response code or headers.
 To prevent this, you have to disable default error handler by specifying `defaultErrorHandler` option in createExpressServer or useExpressServer:
 
@@ -1002,7 +1002,7 @@ It works pretty much the same as middlewares.
 
 ### Interceptor function
 
-The easiest way is to use functions directly passed to `@UseInterceptor` of the action. 
+The easiest way is to use functions directly passed to `@UseInterceptor` of the action.
 
 ```typescript
 import {Get, Param, UseInterceptor} from "routing-controllers";
@@ -1011,7 +1011,7 @@ import {Get, Param, UseInterceptor} from "routing-controllers";
 
 @Get("/users")
 @UseInterceptor(function(action: Action, content: any) {
-    // here you have content returned by this action. you can replace something 
+    // here you have content returned by this action. you can replace something
     // in it and return a replaced result. replaced result will be returned to the user
     return content.replace(/Mike/gi, "Michael");
 })
@@ -1020,7 +1020,7 @@ getOne(@Param("id") id: number) {
 }
 ```
 
-You can use `@UseInterceptor` per-action, on per-controller. 
+You can use `@UseInterceptor` per-action, on per-controller.
 If its used per-controller then interceptor will apply to all controller actions.
 
 ### Interceptor classes
@@ -1030,13 +1030,12 @@ You can also create a class and use it with `@UseInterceptor` decorator:
 ```typescript
 import {Interceptor, InterceptorInterface, Action} from "routing-controllers";
 
-@Interceptor()
 export class NameCorrectionInterceptor implements InterceptorInterface {
-    
+
     intercept(action: Action, content: any) {
         return content.replace(/Mike/gi, "Michael");
     }
-    
+
 }
 ```
 
@@ -1065,11 +1064,11 @@ import {Interceptor, InterceptorInterface, Action} from "routing-controllers";
 
 @Interceptor()
 export class NameCorrectionInterceptor implements InterceptorInterface {
-    
+
     intercept(action: Action, content: any) {
         return content.replace(/Mike/gi, "Michael");
     }
-    
+
 }
 ```
 
@@ -1111,7 +1110,7 @@ export class UserController {
 }
 ```
 
-If `User` is an interface - then simple literal object will be created. 
+If `User` is an interface - then simple literal object will be created.
 If its a class - then instance of this class will be created.
 
 This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
@@ -1121,7 +1120,7 @@ If you want to disable it simply pass `classTransformer: false` to createExpress
 
 ## Auto validating action params
 
-Sometimes parsing a json object into instance of some class is not enough. 
+Sometimes parsing a json object into instance of some class is not enough.
 E.g. `class-transformer` doesn't check whether the property's types are correct, so you can get runtime error if you rely on TypeScript type safe. Also you may want to validate the object to check e.g. whether the password string is long enough or entered e-mail is correct.
 
 It can be done easily thanks to integration with [class-validator][9]. This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly e.g. by passing `validation: false` option on application bootstrap:
@@ -1141,7 +1140,7 @@ If you want to turn on the validation only for some params, not globally for eve
 login(@Body({ validate: true }) user: User) {
 ```
 
-Now you need to define the class which type will be used as type of controller's method param. 
+Now you need to define the class which type will be used as type of controller's method param.
 Decorate the properties with appropriate validation decorators.
 ```typescript
 export class User {
@@ -1170,7 +1169,7 @@ export class UserController {
 
 }
 ```
-If the param doesn't satisfy the requirements defined by class-validator decorators, 
+If the param doesn't satisfy the requirements defined by class-validator decorators,
 an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
 
 If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
@@ -1198,13 +1197,13 @@ createExpressServer({
         // either promise that resolves a boolean value
         // demo code:
         const token = action.request.headers["authorization"];
-        
+
         const user = await getEntityManager().findOneByToken(User, token);
         if (user && !roles.length)
             return true;
         if (user && roles.find(role => user.roles.indexOf(role) !== -1))
             return true;
-        
+
         return false;
     }
 }).listen(3000);
@@ -1307,7 +1306,7 @@ export class UsersController {
 
 ## Custom parameter decorators
 
-You can create your own parameter decorators. 
+You can create your own parameter decorators.
 Here is simple example how "session user" can be implemented using custom decorators:
 
 ```typescript
@@ -1335,9 +1334,9 @@ export class QuestionController {
         // here you'll have user authorized and you can safely save your question
         // in the case if user returned your undefined from the database and "required"
         // parameter was set, routing-controllers will throw you ParameterRequired error
-    }        
-    
-    
+    }
+
+
 }
 ```
 
