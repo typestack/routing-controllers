@@ -10,7 +10,7 @@ export function Middleware(options: { type: "after"|"before", priority?: number 
             target: target,
             type: options && options.type ? options.type : "before",
             global: true,
-            priority: options && options.priority !== undefined ? options.priority : undefined
+            priority: options && options.priority !== undefined ? options.priority : 0
         });
     };
 }
