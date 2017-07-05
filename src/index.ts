@@ -6,6 +6,7 @@ import {Driver} from "./driver/Driver";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {CustomParameterDecorator} from "./CustomParameterDecorator";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+import {ValidationOptions} from "class-validator";
 
 // -------------------------------------------------------------------------
 // Main exports
@@ -182,7 +183,7 @@ function createExecutor(driver: Driver, options: RoutingControllersOptions): voi
     if (options.validation !== undefined) {
         driver.enableValidation = !!options.validation;
         if (options.validation instanceof Object)
-            driver.validationOptions = options.validation;
+            driver.validationOptions = options.validation as ValidationOptions;
 
     } else {
         driver.enableValidation = true;
