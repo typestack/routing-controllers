@@ -1,5 +1,5 @@
-import {getMetadataArgsStorage} from "../index";
 import {ParamOptions} from "../decorator-options/ParamOptions";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects a request's cookie value to the controller action parameter.
@@ -14,7 +14,7 @@ export function CookieParam(name: string, options?: ParamOptions) {
             index: index,
             name: name,
             parse: options ? options.parse : false,
-            required: options ? options.required : false,
+            required: options ? options.required : undefined,
             explicitType: options ? options.type : undefined,
             classTransform: options ? options.transform : undefined,
             validate: options ? options.validate : undefined

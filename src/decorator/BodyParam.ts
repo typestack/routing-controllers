@@ -1,5 +1,5 @@
-import {getMetadataArgsStorage} from "../index";
 import {ParamOptions} from "../decorator-options/ParamOptions";
+import {getMetadataArgsStorage} from "../index";
 
 /**
  * Takes partial data of the request body.
@@ -14,7 +14,7 @@ export function BodyParam(name: string, options?: ParamOptions): Function {
             index: index,
             name: name,
             parse: options ? options.parse : false,
-            required: options ? options.required : false,
+            required: options ? options.required : undefined,
             explicitType: options ? options.type : undefined,
             classTransform: options ? options.transform : undefined,
             validate: options ? options.validate : undefined
