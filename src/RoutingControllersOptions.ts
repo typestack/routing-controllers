@@ -91,12 +91,12 @@ export interface RoutingControllersOptions {
      */
     defaults?: {
         /**
-         * If set, all null response will return specified status code by default
+         * If set, all null responses will return specified status code by default
          */
         nullResultCode?: number;
 
         /**
-         * If set, all undefined response will return specified status code by default
+         * If set, all undefined responses will return specified status code by default
          */
         undefinedResultCode?: number;
 

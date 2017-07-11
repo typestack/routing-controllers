@@ -30,7 +30,7 @@ export function Session(optionsOrObjectName?: ParamOptions|string, paramOptions?
             index: index,
             name: propertyName,
             parse: false, // it makes no sense for Session object to be parsed as json
-            required: options.required,
+            required: options.required !== undefined ? options.required : true,
             classTransform: options.transform,
             validate: options.validate !== undefined ? options.validate : false,
         });
