@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
+import { createExpressServer, getMetadataArgsStorage, createKoaServer } from '../../src/index';
 import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
@@ -10,10 +10,11 @@ import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
 import {ExpressErrorMiddlewareInterface} from "./../../src/driver/express/ExpressErrorMiddlewareInterface";
 import { QueryParam } from '../../src/decorator/QueryParam';
 import { OnUndefined } from '../../src/decorator/OnUndefined';
+import { assertRequest } from './test-utils';
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("express middlewares", () => {
+describe("defaults", () => {
 
     before(() => {
 
@@ -54,8 +55,9 @@ describe("express middlewares", () => {
 
     let defaultUndefinedResultCode = 204;
     let defaultNullResultCode = 404;
-    let app: any;
-    before(done => app = createExpressServer({
+    let expressApp: any;
+    let kuaApp: any;
+    before(done => expressApp = createExpressServer({
         defaults: {
             nullResultCode: defaultNullResultCode,
             undefinedResultCode: defaultUndefinedResultCode,
@@ -64,36 +66,52 @@ describe("express middlewares", () => {
             }
         }
     }).listen(3001, done));
-    after(done => app.close(done));
+    before(done => kuaApp = createKoaServer({
+        defaults: {
+            nullResultCode: defaultNullResultCode,
+            undefinedResultCode: defaultUndefinedResultCode,
+            paramOptions: {
+                required: true
+            }
+        }
+    }).listen(3002, done));
+    after(done => expressApp.close(done));
+    after(done => kuaApp.close(done));
 
-    it("should return undefinedResultCode from defaults config for void function", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/voidfunc");
-        expect(res).to.have.status(defaultUndefinedResultCode);
+    it("should return undefinedResultCode from defaults config for void function", () => {
+        assertRequest([3001, 3002], 'get', 'voidfunc', res => {
+            expect(res).to.have.status(defaultUndefinedResultCode);
+        });
     });
 
-    it("should return undefinedResultCode from defaults config for promise void function", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/promisevoidfunc");
-        expect(res).to.have.status(defaultUndefinedResultCode);
+    it("should return undefinedResultCode from defaults config for promise void function", () => {
+        assertRequest([3001, 3002], 'get', 'promisevoidfunc', res => {
+            expect(res).to.have.status(defaultUndefinedResultCode);
+        });
     });
 
-    it("should return 400 from required paramOptions", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/paramfunc");
-        expect(res).to.have.status(400);
+    it("should return 400 from required paramOptions", () => {
+        assertRequest([3001, 3002], 'get', 'paramfunc', res => {
+            expect(res).to.have.status(400);
+        });
     });
 
-    it("should return nullResultCode from defaults config", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/nullfunc");
-        expect(res).to.have.status(defaultNullResultCode);
+    it("should return nullResultCode from defaults config", () => {
+        assertRequest([3001, 3002], 'get', 'nullfunc', res => {
+            expect(res).to.have.status(defaultNullResultCode);
+        });
     });
 
-    it("should return status code from OnUndefined annotation", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/overridefunc");
-        expect(res).to.have.status(404);
+    it("should return status code from OnUndefined annotation", () => {
+        assertRequest([3001, 3002], 'get', 'overridefunc', res => {
+            expect(res).to.have.status(404);
+        });
     });
 
-    it("should mark arg optional from QueryParam annotation", async () => {
-        let res = await chakram.get("http://127.0.0.1:3001/overrideparamfunc");
-        expect(res).to.have.status(200);
+    it("should mark arg optional from QueryParam annotation", () => {
+        assertRequest([3001, 3002], 'get', 'overrideparamfunc', res => {
+            expect(res).to.have.status(200);
+        });
     });
 
 });
