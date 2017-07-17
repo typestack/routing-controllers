@@ -88,6 +88,11 @@ export * from "./RoleChecker";
 export * from "./Action";
 export * from "./InterceptorInterface";
 
+export * from "./driver/Driver";
+export * from "./driver/BaseDriver";
+export * from "./driver/express/ExpressDriver";
+export * from "./driver/koa/KoaDriver";
+
 // -------------------------------------------------------------------------
 // Main Functions
 // -------------------------------------------------------------------------
@@ -140,7 +145,7 @@ export function createKoaServer(options?: RoutingControllersOptions): any {
 /**
  * Registers all loaded actions in your express application.
  */
-function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
+export function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
 
     // import all controllers and middlewares and error handlers (new way)
     let controllerClasses: Function[];
