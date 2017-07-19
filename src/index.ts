@@ -51,6 +51,7 @@ export * from "./decorator/Res";
 export * from "./decorator/ResponseClassTransformOptions";
 export * from "./decorator/Session";
 export * from "./decorator/State";
+export * from "./decorator/Terminates";
 export * from "./decorator/UploadedFile";
 export * from "./decorator/UploadedFiles";
 export * from "./decorator/UseAfter";

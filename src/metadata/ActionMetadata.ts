@@ -119,6 +119,11 @@ export class ActionMetadata {
     renderedTemplate: string;
 
     /**
+     * Whether this action terminates or falls through to the next
+     */
+    terminates: boolean;
+
+    /**
      * Response headers to be set.
      */
     headers: { [name: string]: any };
@@ -173,6 +178,7 @@ export class ActionMetadata {
         const redirectHandler = responseHandlers.find(handler => handler.type === "redirect");
         const renderedTemplateHandler = responseHandlers.find(handler => handler.type === "rendered-template");
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
+        const terminatesHandler = responseHandlers.find(handler => handler.type === "terminates");
         const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
@@ -187,6 +193,8 @@ export class ActionMetadata {
             this.redirect = redirectHandler.value;
         if (renderedTemplateHandler)
             this.renderedTemplate = renderedTemplateHandler.value;
+        if (terminatesHandler)
+            this.terminates = true;
 
         this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
