@@ -258,7 +258,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.response.redirect(action.redirect);
             }
 
-            options.next();
+            if (!action.terminates)
+                options.next();
 
         } else if (action.renderedTemplate) { // if template is set then render it
             const renderOptions = result && result instanceof Object ? result : {};
@@ -272,8 +273,10 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
                 } else if (html) {
                     options.response.send(html);
+                } else {
+                    if (!action.terminates)
+                        options.next();
                 }
-                options.next();
             });
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
@@ -287,18 +290,23 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 } else {
                     options.response.send();
                 }
-                options.next();
+                
+                if (!action.terminates)
+                    options.next();
             } else {
                 if (action.isJsonTyped) {
                     options.response.json(result);
                 } else {
                     options.response.send(result);
                 }
-                options.next();
+                
+                if (!action.terminates)
+                    options.next();
             }
 
         } else {
-            options.next();
+            if (!action.terminates)
+                options.next();
         }
     }
 
