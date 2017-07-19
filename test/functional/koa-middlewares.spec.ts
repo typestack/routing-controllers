@@ -136,7 +136,7 @@ describe("koa middlewares", () => {
     });
 
     let app: any;
-    before(done => app = createKoaServer().listen(3001, done));
+    before(done => app = createKoaServer({ automaticFallthrough: true }).listen(3001, done));
     after(done => app.close(done));
 
     it("should call a global middlewares", () => {

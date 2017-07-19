@@ -140,7 +140,7 @@ describe("express middlewares", () => {
     });
 
     let app: any;
-    before(done => app = createExpressServer().listen(3001, done));
+    before(done => app = createExpressServer({ automaticFallthrough: true }).listen(3001, done));
     after(done => app.close(done));
 
     it("should call a global middlewares", () => {

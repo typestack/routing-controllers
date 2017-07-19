@@ -109,6 +109,11 @@ export class ActionMetadata {
     successHttpCode: number;
 
     /**
+     * Specifies if this action should fall through to future handlers or middleware or not.
+     */
+    fallthrough: boolean;
+
+    /**
      * Specifies redirection url for this action.
      */
     redirect: string;
@@ -173,6 +178,7 @@ export class ActionMetadata {
         const redirectHandler = responseHandlers.find(handler => handler.type === "redirect");
         const renderedTemplateHandler = responseHandlers.find(handler => handler.type === "rendered-template");
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
+        const fallthroughHandler = responseHandlers.find(handler => handler.type === "fallthrough");
         const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
@@ -187,6 +193,8 @@ export class ActionMetadata {
             this.redirect = redirectHandler.value;
         if (renderedTemplateHandler)
             this.renderedTemplate = renderedTemplateHandler.value;
+        if (fallthroughHandler)
+            this.fallthrough = true;
 
         this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
