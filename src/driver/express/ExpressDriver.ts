@@ -263,7 +263,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         } else if (action.renderedTemplate) { // if template is set then render it
             const renderOptions = result && result instanceof Object ? result : {};
 
-            this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
+            options.response.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
                     return options.next(err);
 
