@@ -1,16 +1,20 @@
-import {ControllerMetadata} from "../metadata/ControllerMetadata";
 import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ParamMetadata} from "../metadata/ParamMetadata";
-import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
+import {ControllerMetadata} from "../metadata/ControllerMetadata";
+import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+import { ParamMetadataArgs } from "../metadata/args/ParamMetadataArgs";
+import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
+import { RoutingControllersOptions } from "../RoutingControllersOptions";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {getMetadataArgsStorage} from "../index";
-import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
 
 /**
  * Builds metadata from the given metadata arguments.
  */
 export class MetadataBuilder {
+
+    constructor(private options: RoutingControllersOptions) { }
 
     // -------------------------------------------------------------------------
     // Public Methods
@@ -83,7 +87,7 @@ export class MetadataBuilder {
         return getMetadataArgsStorage()
             .filterActionsWithTarget(controller.target)
             .map(actionArgs => {
-                const action = new ActionMetadata(controller, actionArgs);
+                const action = new ActionMetadata(controller, actionArgs, this.options);
                 action.params = this.createParams(action);
                 action.uses = this.createActionUses(action);
                 action.interceptors = this.createActionInterceptorUses(action);
@@ -98,7 +102,21 @@ export class MetadataBuilder {
     protected createParams(action: ActionMetadata): ParamMetadata[] {
         return getMetadataArgsStorage()
             .filterParamsWithTargetAndMethod(action.target, action.method)
-            .map(paramArgs => new ParamMetadata(action, paramArgs));
+            .map(paramArgs => new ParamMetadata(action, this.decorateDefaultParamOptions(paramArgs)));
+    }
+
+    /**
+     * Decorate paramArgs with default settings
+     */
+    private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
+        let options = this.options.defaults && this.options.defaults.paramOptions;
+        if (!options)
+            return paramArgs;
+        
+        if (paramArgs.required === undefined)
+            paramArgs.required = options.required || false;
+
+        return paramArgs;
     }
 
     /**

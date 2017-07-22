@@ -1,12 +1,12 @@
-import {importClassesFromDirectories} from "./util/importClassesFromDirectories";
-import {RoutingControllers} from "./RoutingControllers";
+import {CustomParameterDecorator} from "./CustomParameterDecorator";
+import {Driver} from "./driver/Driver";
 import {ExpressDriver} from "./driver/express/ExpressDriver";
 import {KoaDriver} from "./driver/koa/KoaDriver";
-import {Driver} from "./driver/Driver";
-import {RoutingControllersOptions} from "./RoutingControllersOptions";
-import {CustomParameterDecorator} from "./CustomParameterDecorator";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+import {RoutingControllers} from "./RoutingControllers";
+import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {ValidationOptions} from "class-validator";
+import {importClassesFromDirectories} from "./util/importClassesFromDirectories";
 
 // -------------------------------------------------------------------------
 // Main exports
@@ -212,7 +212,7 @@ export function createExecutor(driver: Driver, options: RoutingControllersOption
     driver.cors = options.cors;
 
     // next create a controller executor
-    new RoutingControllers(driver)
+    new RoutingControllers(driver, options)
         .initialize()
         .registerInterceptors(interceptorClasses)
         .registerMiddlewares("before")

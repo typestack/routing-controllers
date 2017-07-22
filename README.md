@@ -41,6 +41,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Render templates](#render-templates)
       - [Throw HTTP errors](#throw-http-errors)
       - [Enable CORS](#enable-cors)
+      - [Default settings](#default-settings)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -723,6 +724,34 @@ const app = createExpressServer({
         // options from cors documentation
     },
     controllers: [UserController]
+});
+
+app.listen(3000);
+```
+
+#### Default settings
+
+You can override default status code in routing-controllers options. 
+
+```typescript
+import "reflect-metadata";
+import {createExpressServer} from "routing-controllers";
+import {UserController} from "./UserController";
+
+const app = createExpressServer({
+    defaults: {
+
+        //with this option, null will return 404 by default
+        nullResultCode: 404,
+
+        //with this option, void or Promise<void> will return 204 by default 
+        undefinedResultCode: 204,
+        
+        paramOptions: {
+            //with this option, argument will be required by default
+            required: true
+        }
+    }
 });
 
 app.listen(3000);

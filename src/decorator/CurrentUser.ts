@@ -12,7 +12,7 @@ export function CurrentUser(options?: { required?: boolean }) {
             method: methodName,
             index: index,
             parse: false,
-            required: options ? options.required : false
+            required: options ? options.required : undefined
         });
     };
 }

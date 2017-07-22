@@ -1,12 +1,13 @@
-import {ParamMetadata} from "./ParamMetadata";
+import {Action} from "../Action";
 import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
 import {ActionType} from "./types/ActionType";
-import {ControllerMetadata} from "./ControllerMetadata";
-import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import {UseMetadata} from "./UseMetadata";
 import {ClassTransformOptions} from "class-transformer";
-import {Action} from "../Action";
+import {ControllerMetadata} from "./ControllerMetadata";
 import {InterceptorMetadata} from "./InterceptorMetadata";
+import {ParamMetadata} from "./ParamMetadata";
+import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
+import { RoutingControllersOptions } from "../RoutingControllersOptions";
+import {UseMetadata} from "./UseMetadata";
 
 /**
  * Action metadata.
@@ -147,7 +148,7 @@ export class ActionMetadata {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs) {
+    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs, private options: RoutingControllersOptions) {
         this.controllerMetadata = controllerMetadata;
         this.route = args.route;
         this.target = args.target;
@@ -177,10 +178,15 @@ export class ActionMetadata {
 
         if (classTransformerResponseHandler)
             this.responseClassTransformOptions = classTransformerResponseHandler.value;
-        if (undefinedResultHandler)
-            this.undefinedResultCode = undefinedResultHandler.value;
-        if (nullResultHandler)
-            this.nullResultCode = nullResultHandler.value;
+        
+        this.undefinedResultCode = undefinedResultHandler
+            ? undefinedResultHandler.value
+            : this.options.defaults && this.options.defaults.undefinedResultCode;
+        
+        this.nullResultCode = nullResultHandler
+            ? nullResultHandler.value
+            : this.options.defaults && this.options.defaults.nullResultCode;
+        
         if (successCodeHandler)
             this.successHttpCode = successCodeHandler.value;
         if (redirectHandler)

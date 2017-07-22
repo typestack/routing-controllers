@@ -13,7 +13,7 @@ export function Body(options?: BodyOptions): Function {
             method: methodName,
             index: index,
             parse: false,
-            required: options ? options.required : false,
+            required: options ? options.required : undefined,
             classTransform: options ? options.transform : undefined,
             validate: options ? options.validate : undefined,
             explicitType: options ? options.type : undefined,

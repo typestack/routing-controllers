@@ -1,13 +1,14 @@
-import {ActionParameterHandler} from "./ActionParameterHandler";
-import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
-import {ActionMetadata} from "./metadata/ActionMetadata";
 import {Action} from "./Action";
+import {ActionMetadata} from "./metadata/ActionMetadata";
+import {ActionParameterHandler} from "./ActionParameterHandler";
 import {Driver} from "./driver/Driver";
+import {InterceptorInterface} from "./InterceptorInterface";
+import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
+import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
+import { RoutingControllersOptions } from "./RoutingControllersOptions";
+import {getFromContainer} from "./container";
 import {isPromiseLike} from "./util/isPromiseLike";
 import {runInSequence} from "./util/runInSequence";
-import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
-import {getFromContainer} from "./container";
-import {InterceptorInterface} from "./InterceptorInterface";
 
 /**
  * Registers controllers and middlewares in the given server framework.
@@ -37,9 +38,9 @@ export class RoutingControllers {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private driver: Driver) {
+    constructor(private driver: Driver, private options: RoutingControllersOptions) {
         this.parameterHandler = new ActionParameterHandler(driver);
-        this.metadataBuilder = new MetadataBuilder();
+        this.metadataBuilder = new MetadataBuilder(options);
     }
 
     // -------------------------------------------------------------------------
