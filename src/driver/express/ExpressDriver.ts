@@ -13,6 +13,7 @@ import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationChec
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
+import { NotFoundError } from "../../index";
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -228,19 +229,24 @@ export class ExpressDriver extends BaseDriver implements Driver {
         }
 
         // set http status code
-        if (action.undefinedResultCode && result === undefined) {
-            if (action.undefinedResultCode instanceof Function)
-                throw new (action.undefinedResultCode as any)(options);
-
-            options.response.status(action.undefinedResultCode);
-
-        } else if (action.nullResultCode && result === null) {
-            if (action.nullResultCode instanceof Function)
-                throw new (action.nullResultCode as any)(options);
-
-            options.response.status(action.nullResultCode);
-
-        } else if (action.successHttpCode) {
+        if (result === undefined) {
+            if (action.undefinedResultCode) {
+                if (action.undefinedResultCode instanceof Function) {
+                    throw new (action.undefinedResultCode as any)(options);
+                }
+            }
+        } 
+        else if (result === null) {
+            if (action.nullResultCode) {
+                if (action.nullResultCode instanceof Function) {
+                    throw new (action.nullResultCode as any)(options);
+                }
+                options.response.status(action.nullResultCode);
+            } else {
+                options.response.status(204);
+            }
+        }
+        else if (action.successHttpCode) {
             options.response.status(action.successHttpCode);
         }
 
@@ -259,8 +265,8 @@ export class ExpressDriver extends BaseDriver implements Driver {
             }
 
             options.next();
-
-        } else if (action.renderedTemplate) { // if template is set then render it
+        }
+        else if (action.renderedTemplate) { // if template is set then render it
             const renderOptions = result && result instanceof Object ? result : {};
 
             this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
@@ -275,29 +281,28 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 }
                 options.next();
             });
-
-        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
-            if (result === null || (result === undefined && action.undefinedResultCode)) {
-                if (result === null && !action.nullResultCode) {
-                    options.response.status(204);
-                }
-
-                if (action.isJsonTyped) {
-                    options.response.json();
-                } else {
-                    options.response.send();
-                }
-                options.next();
+        } 
+        else if (result != null) { // send regular result
+            if (action.isJsonTyped) {
+                options.response.json(result);
             } else {
-                if (action.isJsonTyped) {
-                    options.response.json(result);
-                } else {
-                    options.response.send(result);
-                }
-                options.next();
+                options.response.send(result);
             }
-
-        } else {
+            options.next();
+        }
+        else if (result === undefined) {
+            const notFoundError = new NotFoundError();
+            if (action.undefinedResultCode) {
+                notFoundError.httpCode = action.undefinedResultCode as number;
+            }
+            throw notFoundError;
+        }
+        else { // send null/undefined response
+            if (action.isJsonTyped) {
+                options.response.json(null);
+            } else {
+                options.response.send(null);
+            }
             options.next();
         }
     }
