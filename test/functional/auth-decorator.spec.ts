@@ -9,6 +9,67 @@ import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
+describe("Controller responds with value when Authorization succeeds", function () {
+
+    before(() => {
+
+        // reset metadata args storage
+        getMetadataArgsStorage().reset();
+
+        @JsonController()
+        class AuthController {
+
+            @Authorized()
+            @Get("/auth1")
+            auth1() {
+                return { test: "auth1" };
+            }
+
+            @Authorized(["role1"])
+            @Get("/auth2")
+            auth2() {
+                return { test: "auth2" };
+            }
+
+        }
+    });
+
+    const serverOptions: RoutingControllersOptions = {
+        authorizationChecker: async (action: Action, roles?: string[]) => {
+            return true;
+        }
+    };
+
+    let expressApp: any;
+    before(done => {
+        const server = createExpressServer(serverOptions);
+        expressApp = server.listen(3001, done);
+    });
+    after(done => expressApp.close(done));
+
+    let koaApp: any;
+    before(done => {
+        const server = createKoaServer(serverOptions);
+        koaApp = server.listen(3002, done);
+    });
+    after(done => koaApp.close(done));
+
+    describe("without roles", () => {
+        assertRequest([3001, 3002], "get", "auth1", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth1" });
+        });
+    });
+
+    describe("with roles", () => {
+        assertRequest([3001, 3002], "get", "auth2", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth2" });
+        });
+    });
+
+});
+
 describe("Authorized Decorators Http Status Code", function () {
 
     before(() => {
