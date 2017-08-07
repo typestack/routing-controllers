@@ -103,7 +103,7 @@ export class KoaDriver extends BaseDriver implements Driver {
                 };
 
                 if (isPromiseLike(checkResult)) {
-                    checkResult.then(result => handleError(result));
+                    return checkResult.then(result => handleError(result));
                 } else {
                     handleError(checkResult);
                 }
