@@ -211,12 +211,10 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
 
         // set http status code
-        if (action.undefinedResultCode && result === undefined) {
-            if (action.undefinedResultCode instanceof Function) {
-                throw new (action.undefinedResultCode as any)(options);
-            }
+        if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
+            throw new (action.undefinedResultCode as any)(options);
         } 
-        else if (action.nullResultCode && result === null) {
+        else if (result === null && action.nullResultCode) {
             if (action.nullResultCode instanceof Function) {
                 throw new (action.nullResultCode as any)(options);
             }
@@ -240,7 +238,7 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             return options.next();
 
-        } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
+        } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
 
             this.koa.use(async function (ctx: any, next: any) {
@@ -248,8 +246,8 @@ export class KoaDriver extends BaseDriver implements Driver {
             });
 
             return options.next();
-
-        } else if (result != null) { // send regular result
+        }
+        else if (result != null) { // send regular result
             if (result instanceof Object) {
                 options.response.body = result;
             } else {
@@ -258,7 +256,14 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             return options.next();
         }
-        else { // send null/undefined response
+        else if (result === undefined) { // throw NotFoundError on undefined response
+            const notFoundError = new NotFoundError();
+            if (action.undefinedResultCode) {
+                notFoundError.httpCode = action.undefinedResultCode as number;
+            }
+            throw notFoundError;
+        }
+        else { // send null response
             if (action.isJsonTyped) {
                 options.response.body = null;
             } else {
@@ -267,18 +272,10 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             // Setting `null` as a `response.body` means to koa that there is no content to return
             // so we must reset the status codes here.
-            if (result === null) {
-                if (action.nullResultCode) {
-                    options.response.status = action.nullResultCode;
-                } else {
-                    options.response.status = 204;
-                }
-            } else if (result === undefined) {
-                const notFoundError = new NotFoundError();
-                if (action.undefinedResultCode) {
-                    notFoundError.httpCode = action.undefinedResultCode as number;
-                }
-                throw notFoundError;
+            if (action.nullResultCode) {
+                options.response.status = action.nullResultCode;
+            } else {
+                options.response.status = 204;
             }
 
             return options.next();

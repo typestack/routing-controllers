@@ -223,18 +223,14 @@ export class ExpressDriver extends BaseDriver implements Driver {
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // check if we need to transform result and do it
-        if (this.useClassTransformer && result && result instanceof Object) {
+        if (result && result instanceof Object && this.useClassTransformer) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
         }
 
         // set http status code
-        if (result === undefined) {
-            if (action.undefinedResultCode) {
-                if (action.undefinedResultCode instanceof Function) {
-                    throw new (action.undefinedResultCode as any)(options);
-                }
-            }
+        if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
+            throw new (action.undefinedResultCode as any)(options);
         } 
         else if (result === null) {
             if (action.nullResultCode) {
@@ -290,14 +286,14 @@ export class ExpressDriver extends BaseDriver implements Driver {
             }
             options.next();
         }
-        else if (result === undefined) {
+        else if (result === undefined) { // throw NotFoundError on undefined response
             const notFoundError = new NotFoundError();
             if (action.undefinedResultCode) {
                 notFoundError.httpCode = action.undefinedResultCode as number;
             }
             throw notFoundError;
         }
-        else { // send null/undefined response
+        else { // send null response
             if (action.isJsonTyped) {
                 options.response.json(null);
             } else {
