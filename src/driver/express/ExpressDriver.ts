@@ -278,14 +278,6 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 options.next();
             });
         } 
-        else if (result != null) { // send regular result
-            if (action.isJsonTyped) {
-                options.response.json(result);
-            } else {
-                options.response.send(result);
-            }
-            options.next();
-        }
         else if (result === undefined) { // throw NotFoundError on undefined response
             const notFoundError = new NotFoundError();
             if (action.undefinedResultCode) {
@@ -293,11 +285,19 @@ export class ExpressDriver extends BaseDriver implements Driver {
             }
             throw notFoundError;
         }
-        else { // send null response
+        else if (result === null) { // send null response
             if (action.isJsonTyped) {
                 options.response.json(null);
             } else {
                 options.response.send(null);
+            }
+            options.next();
+        }
+        else { // send regular result
+            if (action.isJsonTyped) {
+                options.response.json(result);
+            } else {
+                options.response.send(result);
             }
             options.next();
         }

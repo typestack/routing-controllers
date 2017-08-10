@@ -247,15 +247,6 @@ export class KoaDriver extends BaseDriver implements Driver {
 
             return options.next();
         }
-        else if (result != null) { // send regular result
-            if (result instanceof Object) {
-                options.response.body = result;
-            } else {
-                options.response.body = result;
-            }
-
-            return options.next();
-        }
         else if (result === undefined) { // throw NotFoundError on undefined response
             const notFoundError = new NotFoundError();
             if (action.undefinedResultCode) {
@@ -263,19 +254,28 @@ export class KoaDriver extends BaseDriver implements Driver {
             }
             throw notFoundError;
         }
-        else { // send null response
+        else if (result === null) { // send null response
             if (action.isJsonTyped) {
                 options.response.body = null;
             } else {
                 options.response.body = null;
             }
-
+            
             // Setting `null` as a `response.body` means to koa that there is no content to return
             // so we must reset the status codes here.
             if (action.nullResultCode) {
                 options.response.status = action.nullResultCode;
             } else {
                 options.response.status = 204;
+            }
+            
+            return options.next();
+        }
+        else { // send regular result
+            if (result instanceof Object) {
+                options.response.body = result;
+            } else {
+                options.response.body = result;
             }
 
             return options.next();
