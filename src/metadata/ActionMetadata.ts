@@ -257,7 +257,8 @@ export class ActionMetadata {
      * Action method is an action defined in a user controller.
      */
     callMethod(params: any[]) {
-        return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
+        const controllerInstance = this.controllerMetadata.instance;
+        return controllerInstance[this.method].apply(controllerInstance, params);
     }
 
     // -------------------------------------------------------------------------
