@@ -34,20 +34,17 @@ describe("dynamic redirect", function () {
             @Get("/template")
             @Redirect("/users/:owner")
             template() {
-                // console.log("/template");
                 return {owner: "pleerock", repo: "routing-controllers"};
             }
 
             @Get("/original")
             @Redirect("/users/pleerock")
             original() {
-                // console.log("/original");
             }
 
             @Get("/override")
             @Redirect("https://api.github.com")
             override() {
-                // console.log("/override");
                 return "/users/pleerock";
             }
 

@@ -39,7 +39,7 @@ describe("action parameters", () => {
     let uploadedFilesFirstName: string;
     let uploadedFilesSecondName: string;
     let requestReq: any, requestRes: any;
-    
+
     beforeEach(() => {
         paramUserId = undefined;
         paramFirstId = undefined;
@@ -375,7 +375,6 @@ describe("action parameters", () => {
 
     describe("@Session(param) should allow to inject empty property", () => {
         assertRequest([3001, 3002], "get", "session-param-empty", response => {
-            console.log(response.body);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>true</body></html>");
@@ -829,7 +828,7 @@ describe("action parameters", () => {
         assertRequest([3001, 3002], "post", "photos-with-required", undefined, {}, response => {
             expect(response).to.be.status(400);
         });
-        
+
     });
 
 });

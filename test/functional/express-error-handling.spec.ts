@@ -18,7 +18,7 @@ describe("express error handling", () => {
         errorHandlerCalled = undefined;
         errorHandledSpecifically = undefined;
     });
-    
+
     before(() => {
 
         // reset metadata args storage
@@ -29,7 +29,7 @@ describe("express error handling", () => {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandlerCalled = true;
-                console.log("ERROR HANDLED GLOBALLY: ", error);
+                // ERROR HANDLED GLOBALLY
                 next(error);
             }
 
@@ -39,7 +39,7 @@ describe("express error handling", () => {
 
             error(error: any, request: any, response: any, next?: Function): any {
                 errorHandledSpecifically = true;
-                console.log("ERROR HANDLED SPECIFICALLY: ", error);
+                // ERROR HANDLED SPECIFICALLY
                 next(error);
             }
 
@@ -48,9 +48,9 @@ describe("express error handling", () => {
         class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
-                console.log("ERROR WAS IGNORED: ", error);
-                next();
-            }
+                                                                                   // ERROR WAS IGNORED
+                                                                                   next();
+                                                                                 }
 
         }
 
@@ -96,7 +96,7 @@ describe("express error handling", () => {
             photos() {
                 return "1234";
             }
-            
+
         }
     });
 
