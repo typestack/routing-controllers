@@ -48,9 +48,9 @@ describe("express error handling", () => {
         class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
 
             error(error: any, request: any, response: any, next?: Function): any {
-                                                                                   // ERROR WAS IGNORED
-                                                                                   next();
-                                                                                 }
+                // ERROR WAS IGNORED
+                next();
+            }
 
         }
 
