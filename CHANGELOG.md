@@ -1,5 +1,10 @@
 # Changelog and release notes
 
+**0.7.2**
+- FIXED: Using `@Authorization` decorator with Koa caused 404 responses (ref #240)
+
+**0.7.1**
+
 **0.7.0** *[BREAKING CHANGES]*
 
 * some routing-controllers options has been changed and renamed

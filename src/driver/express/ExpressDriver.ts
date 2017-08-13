@@ -127,7 +127,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 };
 
                 if (isPromiseLike(checkResult)) {
-                    checkResult.then(result => handleError(result));
+                    checkResult
+                        .then(result => handleError(result))
+                        .catch(error => this.handleError(error, actionMetadata, action));
                 } else {
                     handleError(checkResult);
                 }

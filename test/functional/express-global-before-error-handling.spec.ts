@@ -31,7 +31,6 @@ describe("custom express global before middleware error handling", () => {
         @Middleware({ type: "before" })
         class GlobalBeforeMiddleware implements ExpressMiddlewareInterface {
             use(request: any, response: any, next?: Function): any {
-              console.log("GLOBAL BEFORE MIDDLEWARE CALLED");
               throw new CustomError();
             }
         }

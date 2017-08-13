@@ -104,7 +104,9 @@ export class KoaDriver extends BaseDriver implements Driver {
                 };
 
                 if (isPromiseLike(checkResult)) {
-                    checkResult.then(result => handleError(result));
+                    return checkResult
+                        .then(result => handleError(result))
+                        .catch(error => this.handleError(error, actionMetadata, action));
                 } else {
                     handleError(checkResult);
                 }
@@ -285,7 +287,7 @@ export class KoaDriver extends BaseDriver implements Driver {
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
+    handleError(error: any, action: ActionMetadata | undefined, options: Action) {
         return new Promise((resolve, reject) => {
             if (this.isDefaultErrorHandlingEnabled) {
                 // set http status
