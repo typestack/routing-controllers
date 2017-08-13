@@ -69,26 +69,13 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
-        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
-            const multer = this.loadMulter();
-            actionMetadata.params
-                .filter(param => param.type === "file")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
-                });
-            actionMetadata.params
-                .filter(param => param.type === "files")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });
-        }
 
         if (actionMetadata.isAuthorizedUsed) {
             defaultMiddlewares.push((context: any, next: Function) => {
                 if (!this.authorizationChecker)
                     throw new AuthorizationCheckerNotDefinedError();
 
-                const action: Action = {request: context.request, response: context.response, context, next};
+                const action: Action = { request: context.request, response: context.response, context, next };
                 const checkResult = actionMetadata.authorizedRoles instanceof Function ?
                     getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
                     this.authorizationChecker(action, actionMetadata.authorizedRoles);
@@ -108,6 +95,20 @@ export class KoaDriver extends BaseDriver implements Driver {
                     handleError(checkResult);
                 }
             });
+        }
+
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
+            const multer = this.loadMulter();
+            actionMetadata.params
+                .filter(param => param.type === "file")
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            actionMetadata.params
+                .filter(param => param.type === "files")
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
         }
 
         // user used middlewares

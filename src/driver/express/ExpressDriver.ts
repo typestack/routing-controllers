@@ -87,6 +87,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
+
         if (actionMetadata.isBodyUsed) {
             if (actionMetadata.isJsonTyped) {
                 defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
@@ -94,26 +95,13 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
             }
         }
-        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
-            const multer = this.loadMulter();
-            actionMetadata.params
-                .filter(param => param.type === "file")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
-                });
-            actionMetadata.params
-                .filter(param => param.type === "files")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });
-        }
 
         if (actionMetadata.isAuthorizedUsed) {
             defaultMiddlewares.push((request: any, response: any, next: Function) => {
                 if (!this.authorizationChecker)
                     throw new AuthorizationCheckerNotDefinedError();
 
-                const action: Action = {request, response, next};
+                const action: Action = { request, response, next };
                 const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
                 const handleError = (result: any) => {
@@ -133,6 +121,20 @@ export class ExpressDriver extends BaseDriver implements Driver {
                     handleError(checkResult);
                 }
             });
+        }
+
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
+            const multer = this.loadMulter();
+            actionMetadata.params
+                .filter(param => param.type === "file")
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            actionMetadata.params
+                .filter(param => param.type === "files")
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
         }
 
         // user used middlewares
