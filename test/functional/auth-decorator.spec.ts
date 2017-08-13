@@ -128,3 +128,49 @@ describe("Authorized Decorators Http Status Code", function () {
     });
 
 });
+
+describe("Authorization checker allows to throw", function() {
+  before(() => {
+    // reset metadata args storage
+    getMetadataArgsStorage().reset();
+
+    @JsonController()
+    class AuthController {
+      @Authorized()
+      @Get("/auth1")
+      auth1() {
+        return { test: "auth1" };
+      }
+
+    }
+  });
+
+  const serverOptions: RoutingControllersOptions = {
+    authorizationChecker: async (action: Action, roles?: string[]) => {
+      throw new Error('Custom Error');
+    }
+  };
+
+  let expressApp: any;
+  before(done => {
+    const server = createExpressServer(serverOptions);
+    expressApp = server.listen(3001, done);
+  });
+  after(done => expressApp.close(done));
+
+  let koaApp: any;
+  before(done => {
+    const server = createKoaServer(serverOptions);
+    koaApp = server.listen(3002, done);
+  });
+  after(done => koaApp.close(done));
+
+  describe("custom errors", () => {
+    assertRequest([3001, 3002], "get", "auth1", response => {
+      expect(response).to.have.status(500);
+      expect(response.body).to.have.property("name", "Error");
+      expect(response.body).to.have.property("message", "Custom Error");
+
+    });
+  });
+});

@@ -90,7 +90,9 @@ export class KoaDriver extends BaseDriver implements Driver {
                 };
 
                 if (isPromiseLike(checkResult)) {
-                    return checkResult.then(result => handleError(result));
+                    return checkResult
+                        .then(result => handleError(result))
+                        .catch(error => this.handleError(error, actionMetadata, action));
                 } else {
                     handleError(checkResult);
                 }
@@ -290,12 +292,10 @@ export class KoaDriver extends BaseDriver implements Driver {
     handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
         if (this.isDefaultErrorHandlingEnabled) {
             const response: any = options.response;
-            console.log("ERROR: ", error);
 
             // set http status
             // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
             if (error.httpCode) {
-                console.log("setting status code: ", error.httpCode);
                 options.context.status = error.httpCode;
                 response.status = error.httpCode;
             } else {
