@@ -215,7 +215,7 @@ export function createExecutor(driver: Driver, options: RoutingControllersOption
     new RoutingControllers(driver, options)
         .initialize()
         .registerInterceptors(interceptorClasses)
-        .registerMiddlewares("before")
+        .registerMiddlewares("before", middlewareClasses)
         .registerControllers(controllerClasses)
         .registerMiddlewares("after", middlewareClasses); // todo: register only for loaded controllers?
 }
