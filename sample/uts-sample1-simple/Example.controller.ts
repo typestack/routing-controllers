@@ -1,4 +1,4 @@
-import { JsonController, Get } from "routing-controllers";
+import { JsonController, Get } from "../../src";
 
 @JsonController("/")
 export class ExampleController {
