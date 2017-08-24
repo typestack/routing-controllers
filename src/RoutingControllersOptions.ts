@@ -23,17 +23,17 @@ export interface RoutingControllersOptions {
     /**
      * List of controllers to register in the framework or directories from where to import all your controllers.
      */
-    controllers?: Function[]|string[];
+    controllers?: (Function|string)[];
 
     /**
      * List of middlewares to register in the framework or directories from where to import all your middlewares.
      */
-    middlewares?: Function[]|string[];
+    middlewares?: (Function|string)[];
 
     /**
      * List of interceptors to register in the framework or directories from where to import all your interceptors.
      */
-    interceptors?: Function[]|string[];
+    interceptors?: (Function|string)[];
 
     /**
      * Indicates if class-transformer should be used to perform serialization / deserialization.
