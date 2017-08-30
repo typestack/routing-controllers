@@ -18,6 +18,8 @@ export class SessionMiddleware implements ExpressMiddlewareInterface {
 
     private expSession = session({
         secret: "19majkel94_helps_pleerock",
+        resave: false,
+        saveUninitialized: true,
     });
 
     private koaSession: any;
