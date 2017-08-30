@@ -240,6 +240,18 @@ describe("action parameters", () => {
                 return `<html><body>${uploadedFileName}</body></html>`;
             }
 
+            @Post("/files-with-body")
+            postFileWithBody(@UploadedFile("myfile") file: any, @Body() body: any): any {
+                uploadedFileName = file.originalname;
+                return `<html><body>${uploadedFileName} - ${JSON.stringify(body)}</body></html>`;
+            }
+
+            @Post("/files-with-body-param")
+            postFileWithBodyParam(@UploadedFile("myfile") file: any, @BodyParam("p1") p1: string): any {
+                uploadedFileName = file.originalname;
+                return `<html><body>${uploadedFileName} - ${p1}</body></html>`;
+            }
+
             @Post("/files-with-limit")
             postFileWithLimit(@UploadedFile("myfile", { options: { limits: { fileSize: 2 } } }) file: any): any {
                 return `<html><body>${file.originalname}</body></html>`;
@@ -679,6 +691,49 @@ describe("action parameters", () => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>hello-world.txt</body></html>");
+        });
+    });
+
+    describe("@UploadedFile with @Body should return both the file and the body", () => {
+        const requestOptions = {
+            formData: {
+                myfile: {
+                    value: "hello world",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                },
+                anotherField: "hi",
+                andOther: "hello",
+            }
+        };
+
+        assertRequest([3001, 3002], "post", "files-with-body", undefined, requestOptions, response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal(`<html><body>hello-world.txt - {"anotherField":"hi","andOther":"hello"}</body></html>`);
+        });
+    });
+
+    describe("@UploadedFile with @BodyParam should return both the file and the body param", () => {
+        const requestOptions = {
+            formData: {
+                myfile: {
+                    value: "hello world",
+                    options: {
+                        filename: "hello-world.txt",
+                        contentType: "image/text"
+                    }
+                },
+                p1: "hi, i'm a param",
+            }
+        };
+
+        assertRequest([3001, 3002], "post", "files-with-body-param", undefined, requestOptions, response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>hello-world.txt - hi, i'm a param</body></html>");
         });
     });
 
