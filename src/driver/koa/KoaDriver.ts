@@ -111,6 +111,8 @@ export class KoaDriver extends BaseDriver implements Driver {
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
+
+            defaultMiddlewares.push(this.fixMulterRequestAssignment);
         }
 
         // user used middlewares
@@ -411,4 +413,21 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * This middleware fixes a bug on koa-multer implementation.
+     *
+     * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
+     */
+    private async fixMulterRequestAssignment(ctx: any, next: Function) {
+        if ("request" in ctx) {
+            if (ctx.req.body) ctx.request.body = ctx.req.body;
+            if (ctx.req.file) ctx.request.file = ctx.req.file;
+            if (ctx.req.files) {
+                ctx.request.files = ctx.req.files;
+                ctx.files = ctx.req.files;
+            }
+        }
+
+        return await next();
+    }
 }
