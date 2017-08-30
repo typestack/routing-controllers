@@ -200,8 +200,8 @@ describe("parameters auto-validation", () => {
                 _firstName: "Umed",
                 _lastName: "Khudoiberdiev"
             });
-            requestFilter.should.be.instanceOf(UserFilter);
-            requestFilter.should.be.eql({
+            expect(requestFilter).to.be.instanceOf(UserFilter);
+            expect(requestFilter).to.be.eql({
                 keyword: "Umedi",
                 __somethingPrivate: "blablabla",
             });

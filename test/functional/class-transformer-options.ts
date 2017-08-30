@@ -72,8 +72,8 @@ describe("class transformer options", () => {
                 _lastName: "Khudoiberdiev",
                 name: "Umed Khudoiberdiev"
             });
-            requestFilter.should.be.instanceOf(UserFilter);
-            requestFilter.should.be.eql({
+            expect(requestFilter).to.be.instanceOf(UserFilter);
+            expect(requestFilter).to.be.eql({
                 keyword: "Um",
                 __somethingPrivate: "blablabla",
             });
@@ -127,8 +127,8 @@ describe("class transformer options", () => {
                 id: 1,
                 name: "Umed Khudoiberdiev"
             });
-            requestFilter.should.be.instanceOf(UserFilter);
-            requestFilter.should.be.eql({
+            expect(requestFilter).to.be.instanceOf(UserFilter);
+            expect(requestFilter).to.be.eql({
                 keyword: "Um"
             });
         });
@@ -173,8 +173,8 @@ describe("class transformer options", () => {
                 id: 1,
                 name: "Umed Khudoiberdiev"
             });
-            requestFilter.should.be.instanceOf(UserFilter);
-            requestFilter.should.be.eql({
+            expect(requestFilter).to.be.instanceOf(UserFilter);
+            expect(requestFilter).to.be.eql({
                 keyword: "Um"
             });
         });
