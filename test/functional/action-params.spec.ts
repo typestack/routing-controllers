@@ -336,7 +336,7 @@ describe("action parameters", () => {
 
     describe("@Param should give a param from route", () => {
         assertRequest([3001, 3002], "get", "users/1", response => {
-            paramUserId.should.be.equal(1);
+            expect(paramUserId).to.be.equal(1);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>1</body></html>");
@@ -345,8 +345,8 @@ describe("action parameters", () => {
 
     describe("multiple @Param should give a proper values from route", () => {
         assertRequest([3001, 3002], "get", "users/23/photos/32", response => {
-            paramFirstId.should.be.equal(23);
-            paramSecondId.should.be.equal(32);
+            expect(paramFirstId).to.be.equal(23);
+            expect(paramSecondId).to.be.equal(32);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>23,32</body></html>");
@@ -411,10 +411,10 @@ describe("action parameters", () => {
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {
-            queryParamSortBy.should.be.equal("name");
-            queryParamCount.should.be.equal("2");
-            queryParamLimit.should.be.equal(10);
-            queryParamShowAll.should.be.equal(true);
+            expect(queryParamSortBy).to.be.equal("name");
+            expect(queryParamCount).to.be.equal("2");
+            expect(queryParamLimit).to.be.equal(10);
+            expect(queryParamShowAll).to.be.equal(true);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -422,7 +422,7 @@ describe("action parameters", () => {
 
     describe("for @QueryParam when required is params must be provided and they should not be empty", () => {
         assertRequest([3001, 3002], "get", "photos-with-required/?limit=0", response => {
-            queryParamLimit.should.be.equal(0);
+            expect(queryParamLimit).to.be.equal(0);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>0</body></html>");
@@ -452,7 +452,7 @@ describe("action parameters", () => {
 
     describe("for @QueryParam when parseJson flag is used query param must be converted to object", () => {
         assertRequest([3001, 3002], "get", "photos-with-json/?filter={\"keyword\": \"name\", \"limit\": 5}", response => {
-            queryParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(queryParamFilter).to.be.eql({ keyword: "name", limit: 5 });
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -467,9 +467,9 @@ describe("action parameters", () => {
             }
         };
         assertRequest([3001, 3002], "get", "posts", requestOptions, response => {
-            headerParamToken.should.be.equal("31ds31das231sad12");
-            headerParamCount.should.be.equal(20);
-            headerParamShowAll.should.be.equal(false);
+            expect(headerParamToken).to.be.equal("31ds31das231sad12");
+            expect(headerParamCount).to.be.equal(20);
+            expect(headerParamShowAll).to.be.equal(false);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -487,7 +487,7 @@ describe("action parameters", () => {
             }
         };
         assertRequest([3001, 3002], "get", "posts-with-required", validRequestOptions, response => {
-            headerParamLimit.should.be.equal(0);
+            expect(headerParamLimit).to.be.equal(0);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -506,7 +506,7 @@ describe("action parameters", () => {
             }
         };
         assertRequest([3001, 3002], "get", "posts-with-json", requestOptions, response => {
-            headerParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(headerParamFilter).to.be.eql({ keyword: "name", limit: 5 });
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -524,9 +524,9 @@ describe("action parameters", () => {
             jar: jar
         };
         assertRequest([3001, 3002], "get", "questions", requestOptions, response => {
-            cookieParamToken.should.be.equal("31ds31das231sad12");
-            cookieParamCount.should.be.equal(20);
-            cookieParamShowAll.should.be.equal(false);
+            expect(cookieParamToken).to.be.equal("31ds31das231sad12");
+            expect(cookieParamCount).to.be.equal(20);
+            expect(cookieParamShowAll).to.be.equal(false);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -542,7 +542,7 @@ describe("action parameters", () => {
         const invalidRequestOptions = { jar: request.jar() };
 
         assertRequest([3001, 3002], "get", "questions-with-required", validRequestOptions, response => {
-            cookieParamLimit.should.be.equal(20);
+            expect(cookieParamLimit).to.be.equal(20);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -560,7 +560,7 @@ describe("action parameters", () => {
         const requestOptions = { jar: jar };
 
         assertRequest([3001, 3002], "get", "questions-with-json", requestOptions, response => {
-            cookieParamFilter.should.be.eql({ keyword: "name", limit: 5 });
+            expect(cookieParamFilter).to.be.eql({ keyword: "name", limit: 5 });
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -576,7 +576,7 @@ describe("action parameters", () => {
 
         // todo: koa @Body with text bug. uncomment after fix https://github.com/koajs/bodyparser/issues/52
         assertRequest([3001/*, 3002*/], "post", "questions", "hello", requestOptions, response => {
-            body.should.be.equal("hello");
+            expect(body).to.be.equal("hello");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -592,7 +592,7 @@ describe("action parameters", () => {
         };
 
         assertRequest([3001/*, 3002*/], "post", "questions-with-required", "0", requestOptions, response => {
-            body.should.be.equal("0");
+            expect(body).to.be.equal("0");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
         });
@@ -608,7 +608,7 @@ describe("action parameters", () => {
 
     describe("@Body should provide a json object for json-typed controllers and actions", () => {
         assertRequest([3001, 3002], "post", "posts", { hello: "world" }, response => {
-            body.should.be.eql({ hello: "world" });
+            expect(body).to.be.eql({ hello: "world" });
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "application/json; charset=utf-8");
             expect(response.body).to.be.eql(body); // should we allow to return a text body for json controllers?
@@ -626,9 +626,9 @@ describe("action parameters", () => {
 
     describe("@BodyParam should provide a json object for json-typed controllers and actions", () => {
         assertRequest([3001, 3002], "post", "users", { name: "johny", age: 27, isActive: true }, response => {
-            bodyParamName.should.be.eql("johny");
-            bodyParamAge.should.be.eql(27);
-            bodyParamIsActive.should.be.eql(true);
+            expect(bodyParamName).to.be.eql("johny");
+            expect(bodyParamAge).to.be.eql(27);
+            expect(bodyParamIsActive).to.be.eql(true);
             expect(response).to.be.status(204);
         });
     });
@@ -675,7 +675,7 @@ describe("action parameters", () => {
         };
 
         assertRequest([3001, 3002], "post", "files", undefined, requestOptions, response => {
-            // uploadedFileName.should.be.eql("hello-world.txt");
+            // expect(uploadedFileName).to.be.eql("hello-world.txt");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>hello-world.txt</body></html>");
@@ -757,8 +757,8 @@ describe("action parameters", () => {
         };
 
         assertRequest([3001, 3002], "post", "photos", undefined, requestOptions, response => {
-            uploadedFilesFirstName.should.be.eql("me.jpg");
-            uploadedFilesSecondName.should.be.eql("she.jpg");
+            expect(uploadedFilesFirstName).to.be.eql("me.jpg");
+            expect(uploadedFilesSecondName).to.be.eql("she.jpg");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>me.jpg she.jpg</body></html>");
