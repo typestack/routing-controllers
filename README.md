@@ -367,6 +367,37 @@ getUsers(@QueryParam("limit") limit: number) {
 ```
 
 If you want to inject all query parameters use `@QueryParams()` decorator.
+The bigest benefit of this approach is that you can perform validation of the params.
+
+```typescript
+enum Roles {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest",
+}
+
+class GetUsersQuery {
+
+    @IsPositive()
+    limit: number;
+
+    @IsAlpha()
+    city: string;
+
+    @IsEnum(Roles)
+    role: string;
+
+    @IsBoolean()
+    isActive: boolean;
+
+}
+
+@Get("/users")
+getUsers(@QueryParams() query: GetUsersQuery) {
+    // here you can access query.role, query.limit
+    // and others valid query parameters
+}
+```
 
 #### Inject request body
 
