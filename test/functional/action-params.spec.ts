@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import { createExpressServer, createKoaServer, getMetadataArgsStorage, QueryParams } from "../../src/index";
 
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
@@ -22,6 +22,7 @@ import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
 import {ContentType} from "../../src/decorator/ContentType";
 import {JsonController} from "../../src/decorator/JsonController";
+import { IsString, IsBoolean, Min, MaxLength } from "class-validator";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -31,6 +32,7 @@ describe("action parameters", () => {
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let sessionTestElement: string;
     let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;
+    let queryParams1: {[key: string]: any}, queryParams2: {[key: string]: any};
     let headerParamToken: string, headerParamCount: number, headerParamLimit: number, headerParamShowAll: boolean, headerParamFilter: any;
     let cookieParamToken: string, cookieParamCount: number, cookieParamLimit: number, cookieParamShowAll: boolean, cookieParamFilter: any;
     let body: string;
@@ -50,6 +52,8 @@ describe("action parameters", () => {
         queryParamLimit = undefined;
         queryParamShowAll = undefined;
         queryParamFilter = undefined;
+        queryParams1 = undefined;
+        queryParams2 = undefined;
         headerParamToken = undefined;
         headerParamCount = undefined;
         headerParamShowAll = undefined;
@@ -77,6 +81,22 @@ describe("action parameters", () => {
 
         const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
+
+        class QueryClass {
+
+            @MaxLength(5)
+            sortBy: string;
+
+            @IsString()
+            count: string;
+
+            @Min(5)
+            limit: number;
+
+            @IsBoolean()
+            showAll: boolean;
+
+        }
 
         @Controller()
         class UserActionParamsController {
@@ -163,6 +183,18 @@ describe("action parameters", () => {
                 queryParamCount = count;
                 queryParamLimit = limit;
                 queryParamShowAll = showAll;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params")
+            getPhotosWithQuery(@QueryParams() query: QueryClass) {
+                queryParams1 = query;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params-no-validate")
+            getPhotosWithQueryAndNoValidation(@QueryParams({ validate: false }) query: QueryClass) {
+                queryParams2 = query;
                 return `<html><body>hello</body></html>`;
             }
 
@@ -417,6 +449,28 @@ describe("action parameters", () => {
             expect(queryParamShowAll).to.be.equal(true);
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+    });
+
+    describe("@QueryParams should give a proper values from request query parameters", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll=true", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams1.sortBy).to.be.equal("name");
+            expect(queryParams1.count).to.be.equal("2");
+            expect(queryParams1.limit).to.be.equal(10);
+            expect(queryParams1.showAll).to.be.equal(true);
+        });
+    });
+
+    describe("@QueryParams should not validate request query parameters when it's turned off in validator options", () => {
+        assertRequest([3001, 3002], "get", "photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams2.sortBy).to.be.equal("verylongtext");
+            expect(queryParams2.count).to.be.equal("2");
+            expect(queryParams2.limit).to.be.equal(1);
+            expect(queryParams2.showAll).to.be.equal(true);
         });
     });
 
