@@ -110,9 +110,11 @@ export class ActionParameterHandler {
         // map @QueryParams object properties from string to basic types (normalize)
         if (param.type === "queries" && typeof value === "object") {
             Object.keys(value).map(key => {
-                const type = Reflect.getMetadata("design:type", param.targetType.prototype, key);
-                const typeString = typeof type();
-                value[key] = this.normalizeValue(value[key], typeString);
+                const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                if (ParamType) {
+                    const typeString = typeof ParamType(); // reflected type is always constructor-like (?)
+                    value[key] = this.normalizeValue(value[key], typeString);
+                }
             });
         }
 
