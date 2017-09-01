@@ -102,7 +102,7 @@ export class ParamMetadata {
 
     constructor(actionMetadata: ActionMetadata, args: ParamMetadataArgs) {
         this.actionMetadata = actionMetadata;
-        
+
         this.target = args.object.constructor;
         this.method = args.method;
         this.extraOptions = args.extraOptions;
@@ -114,7 +114,14 @@ export class ParamMetadata {
         this.transform = args.transform;
         this.classTransform = args.classTransform;
         this.validate = args.validate;
-        this.targetType = args.explicitType ? args.explicitType : (Reflect as any).getMetadata("design:paramtypes", args.object, args.method)[args.index];
+        if (args.explicitType) {
+			this.targetType = args.explicitType
+		} else {
+			const metadata = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method);
+			if (typeof metadata != "undefined") {
+				this.targetType = metadata[args.index];
+			}
+		}
 
         if (this.targetType) {
             if (this.targetType instanceof Function && this.targetType.name) {
