@@ -47,7 +47,7 @@ export class ParamMetadata {
     /**
      * Parameter target type.
      */
-    targetType: any;
+    targetType?: any;
 
     /**
      * Parameter target type's name in lowercase.
@@ -114,14 +114,15 @@ export class ParamMetadata {
         this.transform = args.transform;
         this.classTransform = args.classTransform;
         this.validate = args.validate;
+        
         if (args.explicitType) {
-			this.targetType = args.explicitType
-		} else {
-			const metadata = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method);
-			if (typeof metadata != "undefined") {
-				this.targetType = metadata[args.index];
-			}
-		}
+            this.targetType = args.explicitType;
+        } else {
+            const ParamTypes = Reflect.getMetadata("design:paramtypes", args.object, args.method);
+            if (typeof ParamTypes !== "undefined") {
+                this.targetType = ParamTypes[args.index];
+            }
+        }
 
         if (this.targetType) {
             if (this.targetType instanceof Function && this.targetType.name) {
