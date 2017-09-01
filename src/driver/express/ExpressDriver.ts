@@ -226,7 +226,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // check if we need to transform result and do it
-        if (this.useClassTransformer && result && result instanceof Object) {
+        if (this.useClassTransformer && result && result instanceof Object && !(result.pipe instanceof Function)) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
             result = classToPlain(result, options);
         }
@@ -293,7 +293,9 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 }
                 options.next();
             } else {
-                if (action.isJsonTyped) {
+                if (result.pipe instanceof Function) {
+                    return result.pipe(options.response);
+                } else if (action.isJsonTyped) {
                     options.response.json(result);
                 } else {
                     options.response.send(result);
