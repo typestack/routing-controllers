@@ -245,7 +245,10 @@ export class KoaDriver extends BaseDriver implements Driver {
                 options.response.redirect(action.redirect);
             }
 
-            return options.next();
+            if (this.automaticFallthrough || action.fallthrough)
+                return options.next();
+            else
+                return;
 
         } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
@@ -254,7 +257,10 @@ export class KoaDriver extends BaseDriver implements Driver {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
 
-            return options.next();
+            if (this.automaticFallthrough || action.fallthrough)
+                return options.next();
+            else
+                return;
 
         } else if (result !== undefined || action.undefinedResultCode) { // send regular result
             if (result === null || (result === undefined && action.undefinedResultCode)) {
@@ -273,18 +279,27 @@ export class KoaDriver extends BaseDriver implements Driver {
                     options.response.status = action.undefinedResultCode;
                 }
 
-                return options.next();
+                if (this.automaticFallthrough || action.fallthrough)
+                    return options.next();
+                else
+                    return;
             } else {
                 if (result instanceof Object) {
                     options.response.body = result;
                 } else {
                     options.response.body = result;
                 }
-                return options.next();
+                if (this.automaticFallthrough || action.fallthrough)
+                    return options.next();
+                else
+                    return;
             }
 
         } else {
-            return options.next();
+            if(action.fallthrough)
+                return options.next();
+            else
+                return;
         }
     }
 

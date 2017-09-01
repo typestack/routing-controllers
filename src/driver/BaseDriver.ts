@@ -56,6 +56,11 @@ export class BaseDriver {
     routePrefix: string = "";
 
     /**
+     * Enable automatic fallthrough from action handlers to future actions or middleware
+     */
+    automaticFallthrough: boolean;
+
+    /**
      * Indicates if cors are enabled.
      * This requires installation of additional module (cors for express and kcors for koa).
      */

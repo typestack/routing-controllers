@@ -21,6 +21,11 @@ export interface RoutingControllersOptions {
     routePrefix?: string;
 
     /**
+     * Enable automatic fallthrough from action handlers to future actions or middleware
+     */
+    automaticFallthrough?: boolean;
+
+    /**
      * List of controllers to register in the framework or directories from where to import all your controllers.
      */
     controllers?: Function[]|string[];

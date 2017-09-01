@@ -11,4 +11,5 @@ export type ResponseHandlerType = "success-code"
     |"on-null"
     |"on-undefined"
     |"response-class-transform-options"
-    |"authorized";
+    |"authorized"
+    |"fallthrough";

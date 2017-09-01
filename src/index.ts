@@ -24,6 +24,7 @@ export * from "./decorator/CookieParams";
 export * from "./decorator/Ctx";
 export * from "./decorator/CurrentUser";
 export * from "./decorator/Delete";
+export * from "./decorator/Fallthrough";
 export * from "./decorator/Get";
 export * from "./decorator/Head";
 export * from "./decorator/Header";
@@ -177,6 +178,12 @@ export function createExecutor(driver: Driver, options: RoutingControllersOption
         driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
     } else {
         driver.isDefaultErrorHandlingEnabled = true;
+    }
+
+    if (options.automaticFallthrough !== undefined) {
+        driver.automaticFallthrough = options.automaticFallthrough;
+    } else {
+        driver.automaticFallthrough = false;
     }
 
     if (options.classTransformer !== undefined) {
