@@ -2,7 +2,7 @@ import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
 import {Action} from "./Action";
 import {BadRequestError} from "./http-error/BadRequestError";
-import {Driver} from "./driver/Driver";
+import {BaseDriver} from "./driver/BaseDriver";
 import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
 import {ParamMetadata} from "./metadata/ParamMetadata";
 import {ParamRequiredError} from "./error/ParamRequiredError";
@@ -13,13 +13,13 @@ import {isPromiseLike} from "./util/isPromiseLike";
 /**
  * Handles action parameter.
  */
-export class ActionParameterHandler {
+export class ActionParameterHandler<T extends BaseDriver> {
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private driver: Driver) {
+    constructor(private driver: T) {
     }
 
     // -------------------------------------------------------------------------
