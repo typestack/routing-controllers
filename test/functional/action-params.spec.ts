@@ -687,7 +687,7 @@ describe("action parameters", () => {
         };
 
         assertRequest([3001, 3002], "post", "files", undefined, requestOptions, response => {
-            // expect(uploadedFileName).to.be.eql("hello-world.txt");
+            expect(uploadedFileName).to.be.eql("hello-world.txt");
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>hello-world.txt</body></html>");

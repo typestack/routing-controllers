@@ -177,7 +177,13 @@ export class ActionParameterHandler {
      * Perform class-validation if enabled.
      */
     protected validateValue(value: any, paramMetadata: ParamMetadata): Promise<any>|any {
-        if (paramMetadata.validate || (this.driver.enableValidation && paramMetadata.validate !== false)) {
+        const isValidationEnabled = (paramMetadata.validate instanceof Object || paramMetadata.validate === true)
+            || (this.driver.enableValidation === true && paramMetadata.validate !== false);
+        const shouldValidate = paramMetadata.targetType
+            && (paramMetadata.targetType !== Object)
+            && (value instanceof paramMetadata.targetType);
+
+        if (isValidationEnabled && shouldValidate) {
             const options = paramMetadata.validate instanceof Object ? paramMetadata.validate : this.driver.validationOptions;
             return validate(value, options)
                 .then(() => value)
