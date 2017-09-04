@@ -28,6 +28,7 @@ export class ExpressDriver extends BaseDriver {
     constructor(public express?: any) {
         super();
         this.loadExpress();
+        this.app = this.express;
     }
 
     // -------------------------------------------------------------------------

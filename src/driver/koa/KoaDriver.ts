@@ -29,6 +29,7 @@ export class KoaDriver extends BaseDriver {
         super();
         this.loadKoa();
         this.loadRouter();
+        this.app = this.koa;
     }
 
     // -------------------------------------------------------------------------

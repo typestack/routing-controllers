@@ -20,6 +20,11 @@ export abstract class BaseDriver {
     // -------------------------------------------------------------------------
 
     /**
+     * Reference to the underlying framework app object.
+     */
+    app: any;
+
+    /**
      * Indicates if class-transformer should be used or not.
      */
     useClassTransformer: boolean;
