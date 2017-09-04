@@ -3,7 +3,6 @@ import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {Action} from "../../Action";
 import {classToPlain} from "class-transformer";
-import {Driver} from "../Driver";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {BaseDriver} from "../BaseDriver";
 import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
@@ -20,7 +19,7 @@ const templateUrl = require("template-url");
 /**
  * Integration with express framework.
  */
-export class ExpressDriver extends BaseDriver implements Driver {
+export class ExpressDriver extends BaseDriver {
 
     // -------------------------------------------------------------------------
     // Constructor

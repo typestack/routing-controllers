@@ -1,5 +1,4 @@
 import {CustomParameterDecorator} from "./CustomParameterDecorator";
-import {Driver} from "./driver/Driver";
 import {ExpressDriver} from "./driver/express/ExpressDriver";
 import {KoaDriver} from "./driver/koa/KoaDriver";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
@@ -88,7 +87,6 @@ export * from "./RoleChecker";
 export * from "./Action";
 export * from "./InterceptorInterface";
 
-export * from "./driver/Driver";
 export * from "./driver/BaseDriver";
 export * from "./driver/express/ExpressDriver";
 export * from "./driver/koa/KoaDriver";

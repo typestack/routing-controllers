@@ -1,13 +1,19 @@
 import {ValidatorOptions} from "class-validator";
-import {HttpError} from "../http-error/HttpError";
 import {ClassTransformOptions} from "class-transformer";
+
+import {HttpError} from "../http-error/HttpError";
 import {CurrentUserChecker} from "../CurrentUserChecker";
 import {AuthorizationChecker} from "../AuthorizationChecker";
+import {ActionMetadata} from "../metadata/ActionMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {Action} from "../Action";
 
 /**
  * Base driver functionality for all other drivers.
+ * Abstract layer to organize controllers integration with different http server implementations.
  */
-export class BaseDriver {
+export abstract class BaseDriver {
 
     // -------------------------------------------------------------------------
     // Public Properties
@@ -76,6 +82,41 @@ export class BaseDriver {
      * Special function used to get currently authorized user.
      */
     currentUserChecker?: CurrentUserChecker;
+
+    /**
+     * Initializes the things driver needs before routes and middleware registration.
+     */
+    abstract initialize(): void;
+    
+    /**
+     * Registers given middleware.
+     */
+    abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+
+    /**
+     * Registers action in the driver.
+     */
+    abstract registerAction(action: ActionMetadata, executeCallback: (options: Action) => any): void;
+
+    /**
+     * Registers all routes in the framework.
+     */
+    abstract registerRoutes(): void;
+
+    /**
+     * Gets param from the request.
+     */
+    abstract getParamFromRequest(actionOptions: Action, param: ParamMetadata): any;
+
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     */
+    abstract handleError(error: any, action: ActionMetadata, options: Action): any;
+
+    /**
+     * Defines an algorithm of how to handle success result of executing controller action.
+     */
+    abstract handleSuccess(result: any, action: ActionMetadata, options: Action): void;
 
     // -------------------------------------------------------------------------
     // Protected Methods
