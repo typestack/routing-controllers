@@ -9,6 +9,12 @@
     "name": "Umed Khudoiberdiev",
     "email": "pleerock.me@gmail.com"
   },
+  "contributors": [
+    {
+      "name": "Michał Lytek",
+      "url": "https://github.com/19majkel94"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/pleerock/routing-controllers.git"

@@ -7,7 +7,7 @@ import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import { createExpressServer, createKoaServer, getMetadataArgsStorage, JsonController } from "../../src/index";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -80,6 +80,30 @@ describe("controller methods", () => {
                         fail("<html><body>cannot connect to a database</body></html>");
                     }, 500);
                 });
+            }
+        }
+
+        @JsonController("/return/json")
+        class ReturnJsonController {
+            @Get("/undefined")
+            returnUndefined(): undefined {
+                return undefined;
+            }
+            @Get("/null")
+            returnNull(): null {
+                return null;
+            }
+        }
+
+        @Controller("/return/normal")
+        class ReturnNormalController {
+            @Get("/undefined")
+            returnUndefined(): undefined {
+                return undefined;
+            }
+            @Get("/null")
+            returnNull(): null {
+                return null;
             }
         }
 
@@ -206,5 +230,37 @@ describe("controller methods", () => {
             expect(response.body).to.be.equal("<html><body>cannot connect to a database</body></html>");
         });
     });
+
+    describe("should respond with 204 No Content when null returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/normal/null", response => {
+            expect(response).to.have.status(204);
+            expect(response).to.not.have.header("content-type");
+            expect(response.body).to.not.exist;
+        });
+        assertRequest([3001, 3002], "get", "return/json/null", response => {
+            expect(response).to.have.status(204);
+            expect(response).to.not.have.header("content-type");
+            expect(response.body).to.not.exist;
+        });
+    });
+
+    describe("should respond with 404 Not Found text when undefined returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/normal/undefined", response => {
+            expect(response).to.have.status(404);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/text/);
+            });
+        });
+    });
+
+    describe("should respond with 404 Not Found JSON when undefined returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/json/undefined", response => {
+            expect(response).to.have.status(404);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/application\/json/);
+            });
+        });
+    });
+
 
 });
