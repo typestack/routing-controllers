@@ -235,7 +235,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         // set http status code
         if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
             throw new (action.undefinedResultCode as any)(options);
-        } 
+        }
         else if (result === null) {
             if (action.nullResultCode) {
                 if (action.nullResultCode instanceof Function) {
@@ -269,7 +269,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
         else if (action.renderedTemplate) { // if template is set then render it
             const renderOptions = result && result instanceof Object ? result : {};
 
-            this.express.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
+            options.response.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
                 if (err && action.isJsonTyped) {
                     return options.next(err);
 
@@ -281,7 +281,7 @@ export class ExpressDriver extends BaseDriver implements Driver {
                 }
                 options.next();
             });
-        } 
+        }
         else if (result === undefined) { // throw NotFoundError on undefined response
             const notFoundError = new NotFoundError();
             if (action.undefinedResultCode) {
