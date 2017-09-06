@@ -118,7 +118,7 @@ export class ParamMetadata {
         if (args.explicitType) {
             this.targetType = args.explicitType;
         } else {
-            const ParamTypes = Reflect.getMetadata("design:paramtypes", args.object, args.method);
+            const ParamTypes = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method);
             if (typeof ParamTypes !== "undefined") {
                 this.targetType = ParamTypes[args.index];
             }
