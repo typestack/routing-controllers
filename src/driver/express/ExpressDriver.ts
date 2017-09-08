@@ -105,7 +105,7 @@ export class ExpressDriver extends BaseDriver {
                 const action: Action = { request, response, next };
                 try {
                     const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
-    
+
                     const handleError = (result: any) => {
                         if (!result) {
                             let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
@@ -114,7 +114,7 @@ export class ExpressDriver extends BaseDriver {
                             next();
                         }
                     };
-    
+
                     if (isPromiseLike(checkResult)) {
                         checkResult
                             .then(result => handleError(result))
@@ -229,6 +229,12 @@ export class ExpressDriver extends BaseDriver {
      * Handles result of successfully executed controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
+
+        // if the action returned the response object itself, short-circuits
+        if (result && result === options.response) {
+            options.next();
+            return;
+        }
 
         // transform result if needed
         result = this.transformResult(result, action, options);

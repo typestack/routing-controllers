@@ -89,22 +89,24 @@ describe("action parameters", () => {
                 return "<html><body>hello</body></html>";
             }
 
-            @Get("/users/direct")
-            getUsersDirectExpress(@Res() response: any): any {
+            @Get("/users-direct")
+            getUsersDirect(@Res() response: any): any {
                 if (typeof response.send === "function")
-                    response.status(201).contentType("custom/x-sample").send("hi, I was written directly to the response");
+                    return response.status(201).contentType("custom/x-sample").send("hi, I was written directly to the response");
                 else {
                     response.status = 201;
-                    response.type = "custom/x-sample";
+                    response.type = "custom/x-sample; charset=utf-8";
                     response.body = "hi, I was written directly to the response";
+                    return response;
                 }
             }
 
-            @Get("/users/direct/ctx")
+            @Get("/users-direct/ctx")
             getUsersDirectKoa(@Ctx() ctx: any): any {
                 ctx.response.status = 201;
-                ctx.response.type = "custom/x-sample";
+                ctx.response.type = "custom/x-sample; charset=utf-8";
                 ctx.response.body = "hi, I was written directly to the response using Koa Ctx";
+                return ctx;
             }
 
             @Get("/users/:userId")
@@ -366,7 +368,7 @@ describe("action parameters", () => {
     });
 
     describe("writing directly to the response using @Res should work", () => {
-        assertRequest([3001, 3002], "get", "users/direct", response => {
+        assertRequest([3001, 3002], "get", "users-direct", response => {
             expect(response).to.be.status(201);
             expect(response.body).to.be.equal("hi, I was written directly to the response");
             expect(response).to.have.header("content-type", "custom/x-sample; charset=utf-8");
@@ -374,7 +376,7 @@ describe("action parameters", () => {
     });
 
     describe("writing directly to the response using @Ctx should work", () => {
-        assertRequest([3002], "get", "users/direct/ctx", response => {
+        assertRequest([3002], "get", "users-direct/ctx", response => {
             expect(response).to.be.status(201);
             expect(response.body).to.be.equal("hi, I was written directly to the response using Koa Ctx");
             expect(response).to.have.header("content-type", "custom/x-sample; charset=utf-8");
