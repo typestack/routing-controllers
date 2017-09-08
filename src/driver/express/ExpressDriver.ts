@@ -150,6 +150,14 @@ export class ExpressDriver extends BaseDriver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
+            // Express calls the "get" route automatically when we call the "head" route:
+            // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
+            // This causes a double action execution on our side, which results in an unhandled rejection,
+            // saying: "Can't set headers after they are sent".
+            // The following line skips action processing when the request method does not match the action method.
+            if (request.method.toLowerCase() !== actionMetadata.type)
+                return next();
+
             return executeCallback({request, response, next});
         };
 
