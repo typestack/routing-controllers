@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -9,6 +9,12 @@
     "name": "Umed Khudoiberdiev",
     "email": "pleerock.me@gmail.com"
   },
+  "contributors": [
+    {
+      "name": "Michał Lytek",
+      "url": "https://github.com/19majkel94"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/pleerock/routing-controllers.git"

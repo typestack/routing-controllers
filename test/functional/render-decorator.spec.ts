@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
+import {Res} from "../../src/decorator/Res";
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Render} from "../../src/decorator/Render";
@@ -24,7 +25,17 @@ describe("template rendering", () => {
                     name: "Routing-controllers"
                 };
             }
-            
+
+            @Get("/locals")
+            @Render("render-test-locals-spec.html")
+            locals(@Res() res: any) {
+                res.locals.myVariable = "my-variable";
+
+                return {
+                    name: "Routing-controllers"
+                };
+            }
+
         }
     });
 
@@ -57,6 +68,18 @@ describe("template rendering", () => {
             expect(response.body).to.contain("<html>");
             expect(response.body).to.contain("<body>");
             expect(response.body).to.contain("Routing-controllers");
+            expect(response.body).to.contain("</body>");
+            expect(response.body).to.contain("</html>");
+        });
+    });
+
+    describe("Express should render a template with given variables and locals variables", () => {
+        assertRequest([3001], "get", "locals", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.contain("<html>");
+            expect(response.body).to.contain("<body>");
+            expect(response.body).to.contain("Routing-controllers");
+            expect(response.body).to.contain("my-variable");
             expect(response.body).to.contain("</body>");
             expect(response.body).to.contain("</html>");
         });
