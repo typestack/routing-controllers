@@ -209,11 +209,8 @@ export class KoaDriver extends BaseDriver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
-        // check if we need to transform result and do it
-        if (this.useClassTransformer && result && result instanceof Object) {
-            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
-            result = classToPlain(result, options);
-        }
+        // transform result if needed
+        result = this.transformResult(result, action, options);
 
         // set http status code
         if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
