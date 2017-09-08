@@ -1,7 +1,6 @@
 import {Action} from "../../Action";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {BaseDriver} from "../BaseDriver";
-import {Driver} from "../Driver";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {UseMetadata} from "../../metadata/UseMetadata";
@@ -20,7 +19,7 @@ const templateUrl = require("template-url");
 /**
  * Integration with koa framework.
  */
-export class KoaDriver extends BaseDriver implements Driver {
+export class KoaDriver extends BaseDriver {
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -30,6 +29,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         super();
         this.loadKoa();
         this.loadRouter();
+        this.app = this.koa;
     }
 
     // -------------------------------------------------------------------------
