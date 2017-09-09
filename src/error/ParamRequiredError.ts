@@ -22,6 +22,10 @@ export class ParamRequiredError extends BadRequestError {
             case "body":
                 paramName = "Request body is";
                 break;
+                
+            case "body-param":
+                paramName = `Body parameter "${param.name}" is`;
+                break;
 
             case "query":
                 paramName = `Query parameter "${param.name}" is`;
