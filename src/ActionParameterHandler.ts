@@ -103,14 +103,59 @@ export class ActionParameterHandler<T extends BaseDriver> {
     /**
      * Normalizes parameter value.
      */
-    protected normalizeParamValue(value: any, param: ParamMetadata): Promise<any>|any {
+    protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
         if (value === null || value === undefined)
             return value;
 
+        // map @QueryParams object properties from string to basic types (normalize)
+        if (param.type === "queries" && typeof value === "object") {
+            Object.keys(value).map(key => {
+                const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                if (ParamType) {
+                    const typeString = typeof ParamType(); // reflected type is always constructor-like (?)
+                    value[key] = this.normalizeValue(value[key], typeString);
+                }
+            });
+        }
+
         switch (param.targetName) {
+
             case "number":
-                if (value === "") return undefined;
-                return +value;
+            case "string":
+            case "boolean":
+                return this.normalizeValue(value, param.targetName);
+
+            case "date":
+                const parsedDate = new Date(value);
+                if (isNaN(parsedDate.getTime())) {
+                    throw new BadRequestError(`${param.name} is invalid! It can't be parsed to date.`);
+                }
+                return parsedDate;
+
+            default:
+                if (value && (param.parse || param.isTargetObject)) {
+                    value = this.parseValue(value, param);
+                    value = this.transformValue(value, param);
+                    value = this.validateValue(value, param); // note this one can return promise
+                }
+                return value;
+        }
+    }
+
+    /**
+     * Normalizes string value to number or boolean.
+     */
+    protected normalizeValue(value: any, type: string) {
+        switch (type) {
+            case "number":
+                if (value === "")
+                    return undefined;
+                const valueNumber = Number(value);
+                // tslint:disable-next-line:triple-equals
+                if (valueNumber == value)
+                    return valueNumber;
+                else
+                    throw new BadRequestError(`${value} can't be parsed to number.`);
 
             case "string":
                 return value;
@@ -123,23 +168,11 @@ export class ActionParameterHandler<T extends BaseDriver> {
                     return false;
                 }
 
-                return !!value;
-
-            case "date":
-                const parsedDate = new Date(value);
-                if (isNaN(parsedDate.getTime())) {
-                    return Promise.reject(new BadRequestError(`${param.name} is invalid! It can't be parsed to date.`));
-                }
-                return parsedDate;
+                return Boolean(value);
 
             default:
-                if (value && (param.parse || param.isTargetObject)) {
-                    value = this.parseValue(value, param);
-                    value = this.transformValue(value, param);
-                    value = this.validateValue(value, param); // note this one can return promise
-                }
+                return value;
         }
-        return value;
     }
 
     /**
