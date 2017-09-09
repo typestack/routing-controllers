@@ -77,25 +77,29 @@ export class KoaDriver extends BaseDriver {
                     throw new AuthorizationCheckerNotDefinedError();
 
                 const action: Action = { request: context.request, response: context.response, context, next };
-                const checkResult = actionMetadata.authorizedRoles instanceof Function ?
-                    getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
-                    this.authorizationChecker(action, actionMetadata.authorizedRoles);
-
-                const handleError = (result: any) => {
-                    if (!result) {
-                        let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
-                        return this.handleError(error, actionMetadata, action);
+                try {
+                    const checkResult = actionMetadata.authorizedRoles instanceof Function ?
+                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
+                        this.authorizationChecker(action, actionMetadata.authorizedRoles);
+    
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            return this.handleError(error, actionMetadata, action);
+                        } else {
+                            return next();
+                        }
+                    };
+    
+                    if (isPromiseLike(checkResult)) {
+                        return checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.handleError(error, actionMetadata, action));
                     } else {
-                        next();
+                        return handleError(checkResult);
                     }
-                };
-
-                if (isPromiseLike(checkResult)) {
-                    return checkResult
-                        .then(result => handleError(result))
-                        .catch(error => this.handleError(error, actionMetadata, action));
-                } else {
-                    handleError(checkResult);
+                } catch (error) {
+                    return this.handleError(error, actionMetadata, action);
                 }
             });
         }
