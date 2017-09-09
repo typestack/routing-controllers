@@ -215,8 +215,7 @@ export class KoaDriver extends BaseDriver {
 
         // if the action returned the context or the response object itself, short-circuits
         if (result && (result === options.response || result === options.context)) {
-            options.next();
-            return;
+            return options.next();
         }
 
         // transform result if needed
