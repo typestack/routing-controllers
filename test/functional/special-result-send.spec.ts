@@ -7,7 +7,7 @@ import {assertRequest} from "./test-utils";
 import {InterceptorInterface} from "../../src/InterceptorInterface";
 import {Interceptor} from "../../src/decorator/Interceptor";
 import {UseInterceptor} from "../../src/decorator/UseInterceptor";
-import {Controller} from "../../src/decorator/Controller";
+import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
 import {Action} from "../../src/Action";
 import {ContentType} from "../../src/decorator/ContentType";
@@ -23,7 +23,7 @@ describe("special result value treatment", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Controller()
+        @JsonController()
         class HandledController {
 
             @Get("/stream")
@@ -31,11 +31,19 @@ describe("special result value treatment", () => {
             getStream() {
                 return createReadStream(path.resolve(__dirname, "../../../../test/resources/sample-text-file.txt"));
             }
-
+            
             @Get("/buffer")
+            @ContentType("application/octet-stream")
             getBuffer() {
                 return new Buffer(rawData);
             }
+            
+            @Get("/array")
+            @ContentType("application/octet-stream")
+            getUIntArray() {
+                return new Uint8Array(rawData);
+            }
+
         }
 
     });
@@ -56,11 +64,20 @@ describe("special result value treatment", () => {
         });
     });
 
-    describe("should send raw binary data", () => {
+    describe("should send raw binary data from Buffer", () => {
         assertRequest([3001, 3002], "get", "buffer", response => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "application/octet-stream");
             expect(response.body).to.be.equal(new Buffer(rawData).toString());
         });
     });
+
+    describe("should send raw binary data from UIntArray", () => {
+        assertRequest([3001, 3002], "get", "array", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "application/octet-stream");
+            expect(response.body).to.be.equal(Buffer.from(rawData).toString());
+        });
+    });
+
 });

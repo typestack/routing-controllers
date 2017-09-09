@@ -223,12 +223,7 @@ export class KoaDriver extends BaseDriver {
         } else if (action.successHttpCode) {
             options.response.status = action.successHttpCode;
         }
-
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            options.response.set(name, action.headers[name]);
-        });
-
+        
         if (action.redirect) { // if redirect is set then do it
             if (typeof result === "string") {
                 options.response.redirect(result);
@@ -237,17 +232,12 @@ export class KoaDriver extends BaseDriver {
             } else {
                 options.response.redirect(action.redirect);
             }
-
-            return options.next();
-
         } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
-
+            
             this.koa.use(async function (ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
-
-            return options.next();
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
             const notFoundError = new NotFoundError();
@@ -270,8 +260,9 @@ export class KoaDriver extends BaseDriver {
             } else {
                 options.response.status = 204;
             }
-            
-            return options.next();
+        }
+        else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
+            options.response.body = Buffer.from(result as any);
         }
         else { // send regular result
             if (result instanceof Object) {
@@ -279,9 +270,14 @@ export class KoaDriver extends BaseDriver {
             } else {
                 options.response.body = result;
             }
-
-            return options.next();
         }
+        
+        // apply http headers
+        Object.keys(action.headers).forEach(name => {
+            options.response.set(name, action.headers[name]);
+        });
+
+        return options.next();
     }
 
     /**

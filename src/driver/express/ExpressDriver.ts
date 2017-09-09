@@ -294,8 +294,11 @@ export class ExpressDriver extends BaseDriver {
             }
             options.next();
         }
-        else if (result instanceof Buffer) {
-            options.response.send(result);
+        else if (result instanceof Buffer) { // check if it's binary data (Buffer)
+            options.response.end(result, "binary");
+        }
+        else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
+            options.response.end(Buffer.from(result as any), "binary");
         }
         else if (result.pipe instanceof Function) {
             result.pipe(options.response);

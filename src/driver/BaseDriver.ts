@@ -132,11 +132,11 @@ export abstract class BaseDriver {
         const shouldTransform = (this.useClassTransformer && result != null) // transform only if enabled and value exist
             && result instanceof Object // don't transform primitive types (string/number/boolean)
             && !(
-                result instanceof Buffer // don't transform binary data
+                result instanceof Uint8Array // don't transform binary data
                 ||
                 result.pipe instanceof Function // don't transform streams
             );
-
+            
         // transform result if needed
         if (shouldTransform) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
