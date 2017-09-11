@@ -385,7 +385,7 @@ class GetUsersQuery {
     city: string;
 
     @IsEnum(Roles)
-    role: string;
+    role: Roles;
 
     @IsBoolean()
     isActive: boolean;
