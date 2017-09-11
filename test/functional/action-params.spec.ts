@@ -461,7 +461,7 @@ describe("action parameters", () => {
 
     // todo: enable koa test when #227 fixed
     describe("@QueryParams should give a proper values from request query parameters", () => {
-        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll=true", response => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll", response => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(queryParams1.sortBy).to.be.equal("name");
@@ -530,8 +530,7 @@ describe("action parameters", () => {
     describe("for @QueryParam when the type is Date and it is invalid then the response should be a BadRequest error", () => {
         assertRequest([3001, 3002], "get", "posts-after/?from=InvalidDate", response => {
             expect(response).to.be.status(400);
-            expect(response.body.name).to.be.equals("BadRequestError");
-            expect(response.body.message).to.be.equals("from is invalid! It can't be parsed to date.");
+            expect(response.body.name).to.be.equals("ParamNormalizationError");
         });
     });
 

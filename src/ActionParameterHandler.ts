@@ -43,6 +43,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
 
         // get parameter value from request and normalize it
         const value = this.normalizeParamValue(this.driver.getParamFromRequest(action, param), param);
+
         if (isPromiseLike(value))
             return value.then(value => this.handleValue(value, action, param));
 
@@ -73,7 +74,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
             const isValueEmpty = value === null || value === undefined || value === "";
-            const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
+            const isValueEmptyObject = typeof value === "object" && Object.keys(value).length === 0;
 
             if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
                 return Promise.reject(new ParamRequiredError(action, param));
@@ -108,39 +109,40 @@ export class ActionParameterHandler<T extends BaseDriver> {
         if (value === null || value === undefined)
             return value;
 
-        // map @QueryParams object properties from string to basic types (normalize)
-        if (param.type === "queries" && typeof value === "object") {
+        // if param value is an object and param type match, normalize its string properties
+        if (typeof value === "object" && ["queries", "headers", "params", "cookies"].indexOf(param.type) !== -1) {
             Object.keys(value).map(key => {
-                const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
-                if (ParamType) {
-                    const typeString = typeof ParamType(); // reflected type is always constructor-like (?)
-                    value[key] = this.normalizeValue(value[key], typeString);
+                const keyValue = (value as any)[key];
+                if (typeof keyValue === "string") {
+                    const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                    if (ParamType) {
+                        const typeString = ParamType.name.toLowerCase(); // reflected type is always constructor-like (?)
+                        (value as any)[key] = this.normalizeStringValue(keyValue, param.name, typeString);
+                    }
                 }
             });
         }
-
-        switch (param.targetName) {
-
-            case "number":
-            case "string":
-            case "boolean":
-                return this.normalizeValue(value, param.targetName);
-
-            case "date":
-                const parsedDate = new Date(value);
-                if (isNaN(parsedDate.getTime())) {
-                    throw new BadRequestError(`${param.name} is invalid! It can't be parsed to date.`);
-                }
-                return parsedDate;
-
-            default:
-                if (value && (param.parse || param.isTargetObject)) {
-                    value = this.parseValue(value, param);
-                    value = this.transformValue(value, param);
-                    value = this.validateValue(value, param); // note this one can return promise
-                }
-                return value;
+        // if value is a string, normalize it to demand type
+        else if (typeof value === "string") {
+            switch (param.targetName) {
+                case "number":
+                case "string":
+                case "boolean":
+                case "date":
+                    return this.normalizeStringValue(value, param.name, param.targetName);
+            }
         }
+
+        // if target type is not primitive, transform and validate it
+        if ((["number", "string", "boolean"].indexOf(param.targetName) === -1)
+            && (param.parse || param.isTargetObject)
+        ) {
+            value = this.parseValue(value, param);
+            value = this.transformValue(value, param);
+            value = this.validateValue(value, param); // note this one can return promise
+        }
+
+        return value;
     }
 
     /**
@@ -168,7 +170,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 } else {
                     throw new ParamNormalizationError(value, parameterName, parameterType);
                 }
-
+                
             case "date":
                 const parsedDate = new Date(value);
                 if (Number.isNaN(parsedDate.getTime())) {
