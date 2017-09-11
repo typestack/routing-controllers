@@ -9,6 +9,7 @@ import {ParamRequiredError} from "./error/ParamRequiredError";
 import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
 import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
 import {isPromiseLike} from "./util/isPromiseLike";
+import { ParamNormalizationError } from "./error/ParamNormalizationError";
 
 /**
  * Handles action parameter.
@@ -145,31 +146,37 @@ export class ActionParameterHandler<T extends BaseDriver> {
     /**
      * Normalizes string value to number or boolean.
      */
-    protected normalizeValue(value: any, type: string) {
-        switch (type) {
+    protected normalizeStringValue(value: string, parameterName: string, parameterType: string) {
+        switch (parameterType) {
             case "number":
-                if (value === "")
-                    return undefined;
-                const valueNumber = Number(value);
-                // tslint:disable-next-line:triple-equals
-                if (valueNumber == value)
-                    return valueNumber;
-                else
-                    throw new BadRequestError(`${value} can't be parsed to number.`);
-
-            case "string":
-                return value;
-
-            case "boolean":
-                if (value === "true" || value === "1") {
-                    return true;
-
-                } else if (value === "false" || value === "0") {
-                    return false;
+                if (value === "") {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
                 }
 
-                return Boolean(value);
+                const valueNumber = +value;
+                if (valueNumber === NaN) {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                }
 
+                return valueNumber;
+
+            case "boolean":
+                if (value === "true" || value === "1" || value === "") {
+                    return true;
+                } else if (value === "false" || value === "0") {
+                    return false;
+                } else {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                }
+
+            case "date":
+                const parsedDate = new Date(value);
+                if (Number.isNaN(parsedDate.getTime())) {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                }
+                return parsedDate;
+                
+            case "string":
             default:
                 return value;
         }
