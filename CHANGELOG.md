@@ -1,5 +1,13 @@
 # Changelog and release notes
 
+### 0.8.0
+
+- rename `@Param` and `@Params` decorators to `@PathParam` and `@PathParams` (#289)
+- restore/introduce `@QueryParams()` and `@PathParams()` missing decorators options (they are needed for validation purposes) (#289)
+- normalize param object properties (for "queries", "headers", "params" and "cookies") - now you can easily validate query/path params using `class-validator` (#289)
+- enhance params normalization - converting from string to primitive types is now more strict and can throw ParamNormalizationError,
+e.g. when number is expected but the invalid string (NaN) has been received  (#289)
+
 ### 0.7.2
 
 - FIXED: Using `@Authorization` decorator with Koa caused 404 responses (ref [#240](https://github.com/pleerock/routing-controllers/pull/240))
