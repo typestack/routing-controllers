@@ -128,7 +128,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
         }
 
         @Get("/users/:id")
-        getOne(@Param("id") id: number) {
+        getOne(@PathParam("id") id: number) {
            return "This action returns user #" + id;
         }
 
@@ -138,12 +138,12 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
         }
 
         @Put("/users/:id")
-        put(@Param("id") id: number, @Body() user: any) {
+        put(@PathParam("id") id: number, @Body() user: any) {
            return "Updating a user...";
         }
 
         @Delete("/users/:id")
-        remove(@Param("id") id: number) {
+        remove(@PathParam("id") id: number) {
            return "Removing user...";
         }
 
@@ -195,7 +195,7 @@ export class UserController {
     }
 
     @Get("/users/:id")
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
        return userRepository.findById(id);
     }
 
@@ -222,7 +222,7 @@ export class UserController {
     }
 
     @Get("/users/:id")
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
        return userRepository.findById(id);
     }
 
@@ -232,12 +232,12 @@ export class UserController {
     }
 
     @Put("/users/:id")
-    put(@Param("id") id: number, @Body() user: User) {
+    put(@PathParam("id") id: number, @Body() user: User) {
        return userRepository.updateById(id, user);
     }
 
     @Delete("/users/:id")
-    remove(@Param("id") id: number) {
+    remove(@PathParam("id") id: number) {
        return userRepository.removeById(id);
     }
 
@@ -346,15 +346,15 @@ export class UserController {
 
 #### Inject routing parameters
 
-You can use `@Param` decorator to inject parameters in your controller actions:
+You can use `@PathParam` decorator to inject parameters in your controller actions:
 
 ```typescript
 @Get("/users/:id")
-getOne(@Param("id") id: number) { // id will be automatically casted to "number" because it has type number
+getOne(@PathParam("id") id: number) { // id will be automatically casted to "number" because it has type number
 }
 ```
 
-If you want to inject all parameters use `@Params()` decorator.
+If you want to inject all parameters use `@PathParams()` decorator.
 
 #### Inject query parameters
 
@@ -615,7 +615,7 @@ To prevent this if you need to specify what status code you want to return using
 ```typescript
 @Delete("/users/:id")
 @OnUndefined(204)
-async remove(@Param("id") id: number): Promise<void> {
+async remove(@PathParam("id") id: number): Promise<void> {
     return userRepository.removeById(id);
 }
 ```
@@ -627,7 +627,7 @@ This action will return 404 in the case if user was not found, and regular 200 i
 ```typescript
 @Get("/users/:id")
 @OnUndefined(404)
-getOne(@Param("id") id: number) {
+getOne(@PathParam("id") id: number) {
     return userRepository.findOneById(id);
 }
 ```
@@ -647,7 +647,7 @@ export class UserNotFoundError extends HttpError {
 ```typescript
 @Get("/users/:id")
 @OnUndefined(UserNotFoundError)
-saveUser(@Param("id") id: number) {
+saveUser(@PathParam("id") id: number) {
     return userRepository.findOneById(id);
 }
 ```
@@ -661,7 +661,7 @@ You can set any custom header in a response:
 ```typescript
 @Get("/users/:id")
 @Header("Cache-Control", "none")
-getOne(@Param("id") id: number) {
+getOne(@PathParam("id") id: number) {
     // ...
 }
 ```
@@ -691,7 +691,7 @@ If you want to return errors with specific error codes, there is an easy way:
 
 ```typescript
 @Get("/users/:id")
-getOne(@Param("id") id: number) {
+getOne(@PathParam("id") id: number) {
 
     const user = this.userRepository.findOneById(id);
     if (!user)
@@ -810,7 +810,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 
     @Get("/users/:id")
     @UseBefore(compression())
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
         // ...
     }
     ```
@@ -902,7 +902,7 @@ Here is example of creating middleware for express.js:
     @Get("/users/:id")
     @UseBefore(MyMiddleware)
     @UseAfter(loggingMiddleware)
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
         // ...
     }
     ```
@@ -969,7 +969,7 @@ Here is example of creating middleware for koa.js:
     @Get("/users/:id")
     @UseBefore(MyMiddleware)
     @UseAfter(loggingMiddleware)
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
         // ...
     }
     ```
@@ -1075,7 +1075,7 @@ import {Get, Param, UseInterceptor} from "routing-controllers";
     // in it and return a replaced result. replaced result will be returned to the user
     return content.replace(/Mike/gi, "Michael");
 })
-getOne(@Param("id") id: number) {
+getOne(@PathParam("id") id: number) {
     return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
 }
 ```
@@ -1109,7 +1109,7 @@ import {NameCorrectionInterceptor} from "./NameCorrectionInterceptor";
 
 @Get("/users")
 @UseInterceptor(NameCorrectionInterceptor)
-getOne(@Param("id") id: number) {
+getOne(@PathParam("id") id: number) {
     return "Hello, I am Mike!"; // client will get a "Hello, I am Michael!" response.
 }
 ```
@@ -1173,7 +1173,7 @@ export class UserController {
 If `User` is an interface - then simple literal object will be created.
 If its a class - then instance of this class will be created.
 
-This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
+This technique works not only with `@Body`, but also with `@PathParam`, `@QueryParam`, `@BodyParam` and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
 If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
@@ -1234,7 +1234,7 @@ an error will be thrown and captured by routing-controller, so the client will r
 
 If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
-This technique works not only with `@Body` but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
+This technique works not only with `@Body` but also with `@PathParam`, `@QueryParam`, `@BodyParam` and other decorators.
 
 ## Using authorization features
 
@@ -1428,8 +1428,8 @@ export class QuestionController {
 | `@Req()`                                                           | `getAll(@Req() request: Request)`                | Injects a Request object.                                                                                                               | `function (request, response)`            |
 | `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Response object.                                                                                                              | `function (request, response)`            |
 | `@Ctx()`                                                           | `getAll(@Ctx() context: Context)`                | Injects a Context object (koa-specific)                                                                                                 | `function (ctx)` (koa-analogue)           |
-| `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a router parameter.                                                                                                             | `request.params.id`                       |
-| `@Params()`                                                        | `get(@Params() params: any)`                     | Injects all request parameters.                                                                                                         | `request.params`                          |
+| `@PathParam(name: string, options?: ParamOptions)`                     | `get(@PathParam("id") id: number)`                   | Injects a router parameter.                                                                                                             | `request.params.id`                       |
+| `@PathParams()`                                                        | `get(@PathParams() params: any)`                     | Injects all request parameters.                                                                                                         | `request.params`                          |
 | `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter.                                                                                                       | `request.query.id`                        |
 | `@QueryParams()`                                                   | `get(@QueryParams() params: any)`                | Injects all query parameters.                                                                                                           | `request.query`                           |
 | `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a specific request headers.                                                                                                     | `request.headers.token`                   |

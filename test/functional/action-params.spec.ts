@@ -8,7 +8,7 @@ import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Req} from "../../src/decorator/Req";
 import {Res} from "../../src/decorator/Res";
-import {Param} from "../../src/decorator/Param";
+import {PathParam} from "../../src/decorator/PathParam";
 import {Post} from "../../src/decorator/Post";
 import {UseBefore} from "../../src/decorator/UseBefore";
 import {Session} from "../../src/decorator/Session";
@@ -108,14 +108,14 @@ describe("action parameters", () => {
             }
 
             @Get("/users/:userId")
-            getUser(@Param("userId") userId: number) {
+            getUser(@PathParam("userId") userId: number) {
                 paramUserId = userId;
                 return `<html><body>${userId}</body></html>`;
             }
 
             @Get("/users/:firstId/photos/:secondId")
-            getUserPhoto(@Param("firstId") firstId: number,
-                         @Param("secondId") secondId: number) {
+            getUserPhoto(@PathParam("firstId") firstId: number,
+                         @PathParam("secondId") secondId: number) {
                 paramFirstId = firstId;
                 paramSecondId = secondId;
                 return `<html><body>${firstId},${secondId}</body></html>`;
@@ -383,7 +383,7 @@ describe("action parameters", () => {
         });
     });
 
-    describe("@Param should give a param from route", () => {
+    describe("@PathParam should give a param from route", () => {
         assertRequest([3001, 3002], "get", "users/1", response => {
             expect(paramUserId).to.be.equal(1);
             expect(response).to.be.status(200);
@@ -392,7 +392,7 @@ describe("action parameters", () => {
         });
     });
 
-    describe("multiple @Param should give a proper values from route", () => {
+    describe("multiple @PathParam should give a proper values from route", () => {
         assertRequest([3001, 3002], "get", "users/23/photos/32", response => {
             expect(paramFirstId).to.be.equal(23);
             expect(paramSecondId).to.be.equal(32);
