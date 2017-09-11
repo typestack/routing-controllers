@@ -103,23 +103,27 @@ export class ExpressDriver extends BaseDriver {
                     throw new AuthorizationCheckerNotDefinedError();
 
                 const action: Action = { request, response, next };
-                const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
-
-                const handleError = (result: any) => {
-                    if (!result) {
-                        let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
-                        return this.handleError(error, actionMetadata, action);
+                try {
+                    const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
+    
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            this.handleError(error, actionMetadata, action);
+                        } else {
+                            next();
+                        }
+                    };
+    
+                    if (isPromiseLike(checkResult)) {
+                        checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.handleError(error, actionMetadata, action));
                     } else {
-                        next();
+                        handleError(checkResult);
                     }
-                };
-
-                if (isPromiseLike(checkResult)) {
-                    checkResult
-                        .then(result => handleError(result))
-                        .catch(error => this.handleError(error, actionMetadata, action));
-                } else {
-                    handleError(checkResult);
+                } catch (error) {
+                    this.handleError(error, actionMetadata, action);
                 }
             });
         }

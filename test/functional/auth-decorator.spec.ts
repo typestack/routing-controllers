@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {Get} from "../../src/decorator/Get";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import { createExpressServer, createKoaServer, getMetadataArgsStorage, NotAcceptableError } from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Authorized} from "../../src/decorator/Authorized";
@@ -9,7 +9,7 @@ import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
-describe("Controller responds with value when Authorization succeeds", function () {
+describe("Controller responds with value when Authorization succeeds (async)", function () {
 
     before(() => {
 
@@ -36,6 +36,67 @@ describe("Controller responds with value when Authorization succeeds", function 
 
     const serverOptions: RoutingControllersOptions = {
         authorizationChecker: async (action: Action, roles?: string[]) => {
+            return true;
+        }
+    };
+
+    let expressApp: any;
+    before(done => {
+        const server = createExpressServer(serverOptions);
+        expressApp = server.listen(3001, done);
+    });
+    after(done => expressApp.close(done));
+
+    let koaApp: any;
+    before(done => {
+        const server = createKoaServer(serverOptions);
+        koaApp = server.listen(3002, done);
+    });
+    after(done => koaApp.close(done));
+
+    describe("without roles", () => {
+        assertRequest([3001, 3002], "get", "auth1", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth1" });
+        });
+    });
+
+    describe("with roles", () => {
+        assertRequest([3001, 3002], "get", "auth2", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth2" });
+        });
+    });
+
+});
+
+describe("Controller responds with value when Authorization succeeds (sync)", function () {
+    
+    before(() => {
+
+        // reset metadata args storage
+        getMetadataArgsStorage().reset();
+
+        @JsonController()
+        class AuthController {
+
+            @Authorized()
+            @Get("/auth1")
+            auth1() {
+                return { test: "auth1" };
+            }
+
+            @Authorized(["role1"])
+            @Get("/auth2")
+            auth2() {
+                return { test: "auth2" };
+            }
+
+        }
+    });
+
+    const serverOptions: RoutingControllersOptions = {
+        authorizationChecker: (action: Action, roles?: string[]) => {
             return true;
         }
     };
@@ -129,48 +190,90 @@ describe("Authorized Decorators Http Status Code", function () {
 
 });
 
-describe("Authorization checker allows to throw", function() {
-  before(() => {
-    // reset metadata args storage
-    getMetadataArgsStorage().reset();
+describe("Authorization checker allows to throw (async)", function() {
+    before(() => {
+        // reset metadata args storage
+        getMetadataArgsStorage().reset();
 
-    @JsonController()
-    class AuthController {
-      @Authorized()
-      @Get("/auth1")
-      auth1() {
-        return { test: "auth1" };
-      }
-
-    }
-  });
-
-  const serverOptions: RoutingControllersOptions = {
-    authorizationChecker: async (action: Action, roles?: string[]) => {
-      throw new Error('Custom Error');
-    }
-  };
-
-  let expressApp: any;
-  before(done => {
-    const server = createExpressServer(serverOptions);
-    expressApp = server.listen(3001, done);
-  });
-  after(done => expressApp.close(done));
-
-  let koaApp: any;
-  before(done => {
-    const server = createKoaServer(serverOptions);
-    koaApp = server.listen(3002, done);
-  });
-  after(done => koaApp.close(done));
-
-  describe("custom errors", () => {
-    assertRequest([3001, 3002], "get", "auth1", response => {
-      expect(response).to.have.status(500);
-      expect(response.body).to.have.property("name", "Error");
-      expect(response.body).to.have.property("message", "Custom Error");
-
+        @JsonController()
+        class AuthController {
+            @Authorized()
+            @Get("/auth1")
+            auth1() {
+                return { test: "auth1" };
+            }
+        }
     });
-  });
+
+    const serverOptions: RoutingControllersOptions = {
+        authorizationChecker: async (action: Action, roles?: string[]) => {
+            throw new NotAcceptableError("Custom Error");
+        },
+    };
+
+    let expressApp: any;
+    before(done => {
+        const server = createExpressServer(serverOptions);
+        expressApp = server.listen(3001, done);
+    });
+    after(done => expressApp.close(done));
+
+    let koaApp: any;
+    before(done => {
+        const server = createKoaServer(serverOptions);
+        koaApp = server.listen(3002, done);
+    });
+    after(done => koaApp.close(done));
+
+    describe("custom errors", () => {
+        assertRequest([3001, 3002], "get", "auth1", response => {
+            expect(response).to.have.status(406);
+            expect(response.body).to.have.property("name", "NotAcceptableError");
+            expect(response.body).to.have.property("message", "Custom Error");
+        });
+    });
+});
+
+describe("Authorization checker allows to throw (sync)", function() {
+    before(() => {
+        // reset metadata args storage
+        getMetadataArgsStorage().reset();
+
+        @JsonController()
+        class AuthController {
+            @Authorized()
+            @Get("/auth1")
+            auth1() {
+                return { test: "auth1" };
+            }
+        }
+    });
+
+    const serverOptions: RoutingControllersOptions = {
+        authorizationChecker: (action: Action, roles?: string[]) => {
+            throw new NotAcceptableError("Custom Error");
+        },
+    };
+
+    let expressApp: any;
+    before(done => {
+        const server = createExpressServer(serverOptions);
+        expressApp = server.listen(3001, done);
+    });
+    after(done => expressApp.close(done));
+
+    let koaApp: any;
+    before(done => {
+        const server = createKoaServer(serverOptions);
+        koaApp = server.listen(3002, done);
+    });
+    after(done => koaApp.close(done));
+
+    describe("custom errors", () => {
+        assertRequest([3001, 3002], "get", "auth1", response => {
+            expect(response).to.have.status(406);
+            expect(response.body).to.have.property("name", "NotAcceptableError");
+            expect(response.body).to.have.property("message", "Custom Error");
+        });
+    });
 });
