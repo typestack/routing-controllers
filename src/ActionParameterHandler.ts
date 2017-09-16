@@ -110,7 +110,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
             return value;
 
         // if param value is an object and param type match, normalize its string properties
-        if (typeof value === "object" && ["queries", "headers", "path-params", "cookies"].indexOf(param.type) !== -1) {
+        if (typeof value === "object" && ["queries", "headers", "path-params", "cookies"].some(paramType => paramType === param.type)) {
             Object.keys(value).map(key => {
                 const keyValue = (value as any)[key];
                 if (typeof keyValue === "string") {
@@ -122,7 +122,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 }
             });
         }
-        // if value is a string, normalize it to demand type
+        // if value is a string, normalize it to demanded type
         else if (typeof value === "string") {
             switch (param.targetName) {
                 case "number":
