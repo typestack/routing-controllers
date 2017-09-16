@@ -1,5 +1,5 @@
 import {ValidatorOptions} from "class-validator";
-import {ClassTransformOptions} from "class-transformer";
+import {ClassTransformOptions, classToPlain} from "class-transformer";
 
 import {HttpError} from "../http-error/HttpError";
 import {CurrentUserChecker} from "../CurrentUserChecker";
@@ -126,6 +126,25 @@ export abstract class BaseDriver {
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
+
+    protected transformResult(result: any, action: ActionMetadata, options: Action): any {
+        // check if we need to transform result
+        const shouldTransform = (this.useClassTransformer && result != null) // transform only if enabled and value exist
+            && result instanceof Object // don't transform primitive types (string/number/boolean)
+            && !(
+                result instanceof Uint8Array // don't transform binary data
+                ||
+                result.pipe instanceof Function // don't transform streams
+            );
+            
+        // transform result if needed
+        if (shouldTransform) {
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
+        }
+
+        return result;
+    }
 
     protected processJsonError(error: any) {
         if (!this.isDefaultErrorHandlingEnabled)

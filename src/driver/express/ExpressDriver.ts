@@ -230,11 +230,8 @@ export class ExpressDriver extends BaseDriver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
-        // check if we need to transform result and do it
-        if (result && result instanceof Object && this.useClassTransformer) {
-            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
-            result = classToPlain(result, options);
-        }
+        // transform result if needed
+        result = this.transformResult(result, action, options);
 
         // set http status code
         if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
@@ -300,6 +297,15 @@ export class ExpressDriver extends BaseDriver {
                 options.response.send(null);
             }
             options.next();
+        }
+        else if (result instanceof Buffer) { // check if it's binary data (Buffer)
+            options.response.end(result, "binary");
+        }
+        else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
+            options.response.end(Buffer.from(result as any), "binary");
+        }
+        else if (result.pipe instanceof Function) {
+            result.pipe(options.response);
         }
         else { // send regular result
             if (action.isJsonTyped) {

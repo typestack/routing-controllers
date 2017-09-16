@@ -412,7 +412,7 @@ describe("action parameters", () => {
         });
         assertRequest([3002], "get", "state", response => {
             expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
+            expect(response).to.have.header("content-type", "application/json");
             expect(response.body.username).to.be.equal("pleerock");
         });
         assertRequest([3002], "get", "state/username", response => {
