@@ -1,19 +1,20 @@
 import "reflect-metadata";
 
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-
+import {IsString, IsBoolean, Min, MaxLength} from "class-validator";
+import {getMetadataArgsStorage, createExpressServer, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Req} from "../../src/decorator/Req";
 import {Res} from "../../src/decorator/Res";
-import {Param} from "../../src/decorator/Param";
+import {PathParam} from "../../src/decorator/PathParam";
 import {Post} from "../../src/decorator/Post";
 import {UseBefore} from "../../src/decorator/UseBefore";
 import {Session} from "../../src/decorator/Session";
 import {State} from "../../src/decorator/State";
 import {QueryParam} from "../../src/decorator/QueryParam";
+import {QueryParams} from "../../src/decorator/QueryParams";
 import {HeaderParam} from "../../src/decorator/HeaderParam";
 import {CookieParam} from "../../src/decorator/CookieParam";
 import {Body} from "../../src/decorator/Body";
@@ -31,6 +32,7 @@ describe("action parameters", () => {
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let sessionTestElement: string;
     let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;
+    let queryParams1: {[key: string]: any}, queryParams2: {[key: string]: any}, queryParams3: {[key: string]: any};
     let headerParamToken: string, headerParamCount: number, headerParamLimit: number, headerParamShowAll: boolean, headerParamFilter: any;
     let cookieParamToken: string, cookieParamCount: number, cookieParamLimit: number, cookieParamShowAll: boolean, cookieParamFilter: any;
     let body: string;
@@ -50,6 +52,9 @@ describe("action parameters", () => {
         queryParamLimit = undefined;
         queryParamShowAll = undefined;
         queryParamFilter = undefined;
+        queryParams1 = undefined;
+        queryParams2 = undefined;
+        queryParams3 = undefined;
         headerParamToken = undefined;
         headerParamCount = undefined;
         headerParamShowAll = undefined;
@@ -78,6 +83,20 @@ describe("action parameters", () => {
         const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
 
+        class QueryClass {
+            @MaxLength(5)
+            sortBy?: string;
+
+            @IsString()
+            count?: string;
+
+            @Min(5)
+            limit?: number;
+
+            @IsBoolean()
+            showAll: boolean = true;
+        }
+
         @Controller()
         class UserActionParamsController {
 
@@ -89,14 +108,14 @@ describe("action parameters", () => {
             }
 
             @Get("/users/:userId")
-            getUser(@Param("userId") userId: number) {
+            getUser(@PathParam("userId") userId: number) {
                 paramUserId = userId;
                 return `<html><body>${userId}</body></html>`;
             }
 
             @Get("/users/:firstId/photos/:secondId")
-            getUserPhoto(@Param("firstId") firstId: number,
-                         @Param("secondId") secondId: number) {
+            getUserPhoto(@PathParam("firstId") firstId: number,
+                         @PathParam("secondId") secondId: number) {
                 paramFirstId = firstId;
                 paramSecondId = secondId;
                 return `<html><body>${firstId},${secondId}</body></html>`;
@@ -163,6 +182,24 @@ describe("action parameters", () => {
                 queryParamCount = count;
                 queryParamLimit = limit;
                 queryParamShowAll = showAll;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params")
+            getPhotosWithQuery(@QueryParams() query: QueryClass) {
+                queryParams1 = query;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params-no-validate")
+            getPhotosWithQueryAndNoValidation(@QueryParams({ validate: false }) query: QueryClass) {
+                queryParams2 = query;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params-optional")
+            getPhotosWithOptionalQuery(@QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass) {
+                queryParams3 = query;
                 return `<html><body>hello</body></html>`;
             }
 
@@ -346,7 +383,7 @@ describe("action parameters", () => {
         });
     });
 
-    describe("@Param should give a param from route", () => {
+    describe("@PathParam should give a param from route", () => {
         assertRequest([3001, 3002], "get", "users/1", response => {
             expect(paramUserId).to.be.equal(1);
             expect(response).to.be.status(200);
@@ -355,7 +392,7 @@ describe("action parameters", () => {
         });
     });
 
-    describe("multiple @Param should give a proper values from route", () => {
+    describe("multiple @PathParam should give a proper values from route", () => {
         assertRequest([3001, 3002], "get", "users/23/photos/32", response => {
             expect(paramFirstId).to.be.equal(23);
             expect(paramSecondId).to.be.equal(32);
@@ -422,6 +459,40 @@ describe("action parameters", () => {
         });
     });
 
+    // todo: enable koa test when #227 fixed
+    describe("@QueryParams should give a proper values from request query parameters", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams1.sortBy).to.be.equal("name");
+            expect(queryParams1.count).to.be.equal("2");
+            expect(queryParams1.limit).to.be.equal(10);
+            expect(queryParams1.showAll).to.be.equal(true);
+        });
+    });
+
+    describe("@QueryParams should not validate request query parameters when it's turned off in validator options", () => {
+        assertRequest([3001, 3002], "get", "photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams2.sortBy).to.be.equal("verylongtext");
+            expect(queryParams2.count).to.be.equal("2");
+            expect(queryParams2.limit).to.be.equal(1);
+            expect(queryParams2.showAll).to.be.equal(true);
+        });
+    });
+
+    // todo: enable koa test when #227 fixed
+    describe("@QueryParams should give a proper values from request query parameters", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params-optional?sortBy=name&limit=10", response => {
+            expect(queryParams3.sortBy).to.be.equal("name");
+            expect(queryParams3.count).to.be.equal(undefined);
+            expect(queryParams3.limit).to.be.equal(10);
+            expect(queryParams3.showAll).to.be.equal(true);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+    });
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {
@@ -459,8 +530,7 @@ describe("action parameters", () => {
     describe("for @QueryParam when the type is Date and it is invalid then the response should be a BadRequest error", () => {
         assertRequest([3001, 3002], "get", "posts-after/?from=InvalidDate", response => {
             expect(response).to.be.status(400);
-            expect(response.body.name).to.be.equals("BadRequestError");
-            expect(response.body.message).to.be.equals("from is invalid! It can't be parsed to date.");
+            expect(response.body.name).to.be.equals("ParamNormalizationError");
         });
     });
 

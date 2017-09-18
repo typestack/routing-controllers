@@ -5,7 +5,7 @@ import {Put} from "../../src/decorator/Put";
 import {Patch} from "../../src/decorator/Patch";
 import {Delete} from "../../src/decorator/Delete";
 import {QueryParam} from "../../src/decorator/QueryParam";
-import {Param} from "../../src/decorator/Param";
+import {PathParam} from "../../src/decorator/PathParam";
 import {Body} from "../../src/decorator/Body";
 
 export interface BlogFilter {
@@ -26,7 +26,7 @@ export class BlogController {
     }
 
     @Get("/blogs/:id")
-    getOne(@Param("id") id: number, @QueryParam("name") name: string) {
+    getOne(@PathParam("id") id: number, @QueryParam("name") name: string) {
         return { id: id, name: name };
     }
 
@@ -36,17 +36,17 @@ export class BlogController {
     }
 
     @Put("/blogs/:id")
-    put(@Param("id") id: number) {
+    put(@PathParam("id") id: number) {
         return "Blog #" + id + " has been putted!";
     }
 
     @Patch("/blogs/:id")
-    patch(@Param("id") id: number) {
+    patch(@PathParam("id") id: number) {
         return "Blog #" + id + " has been patched!";
     }
 
     @Delete("/blogs/:id")
-    remove(@Param("id") id: number) {
+    remove(@PathParam("id") id: number) {
         return "Blog #" + id + " has been removed!";
     }
 

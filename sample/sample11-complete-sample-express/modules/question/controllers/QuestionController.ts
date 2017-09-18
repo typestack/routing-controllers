@@ -1,7 +1,7 @@
 import {Request} from "express";
 import {JsonController} from "../../../../../src/decorator/JsonController";
 import {Get} from "../../../../../src/decorator/Get";
-import {Param} from "../../../../../src/decorator/Param";
+import {PathParam} from "../../../../../src/decorator/PathParam";
 import {Post} from "../../../../../src/decorator/Post";
 import {Req} from "../../../../../src/decorator/Req";
 import {Put} from "../../../../../src/decorator/Put";
@@ -20,7 +20,7 @@ export class QuestionController {
     }
 
     @Get("/questions/:id")
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
         if (!id)
             return Promise.reject(new Error("No id is specified"));
         

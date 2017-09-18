@@ -15,8 +15,8 @@ export class ParamRequiredError extends BadRequestError {
 
         let paramName: string;
         switch (param.type) {
-            case "param":
-                paramName = `Parameter "${param.name}" is`;
+            case "path-param":
+                paramName = `Path parameter "${param.name}" is`;
                 break;
 
             case "body":

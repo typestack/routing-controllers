@@ -163,10 +163,10 @@ export class KoaDriver extends BaseDriver {
             case "body-param":
                 return request.body[param.name];
 
-            case "param":
+            case "path-param":
                 return context.params[param.name];
 
-            case "params":
+            case "path-params":
                 return context.params;
 
             case "session":

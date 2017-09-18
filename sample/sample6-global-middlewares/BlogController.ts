@@ -1,7 +1,7 @@
 import {ForbiddenError} from "../../src/http-error/ForbiddenError";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {Param} from "../../src/decorator/Param";
+import {PathParam} from "../../src/decorator/PathParam";
 import {ContentType} from "../../src/decorator/ContentType";
 
 @Controller()
@@ -19,7 +19,7 @@ export class BlogController {
 
     @Get("/blogs/:id")
     @ContentType("application/json")
-    getOne(@Param("id") id: number) {
+    getOne(@PathParam("id") id: number) {
         if (!id)
             throw new ForbiddenError();
 

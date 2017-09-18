@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {Param} from "../../src/decorator/Param";
+import {PathParam} from "../../src/decorator/PathParam";
 import {Post} from "../../src/decorator/Post";
 import {createExpressServer, createKoaServer, getMetadataArgsStorage, OnNull} from "../../src/index";
 import {assertRequest} from "./test-utils";
@@ -49,7 +49,7 @@ describe("other controller decorators", () => {
 
             @Get("/posts/:id")
             @OnNull(404)
-            getPost(@Param("id") id: number) {
+            getPost(@PathParam("id") id: number) {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Post");
@@ -68,7 +68,7 @@ describe("other controller decorators", () => {
 
             @Get("/photos/:id")
             @OnUndefined(201)
-            getPhoto(@Param("id") id: number) {
+            getPhoto(@PathParam("id") id: number) {
                 if (id === 4) {
                     return undefined;
                 }
@@ -127,7 +127,7 @@ describe("other controller decorators", () => {
 
             @Get("/questions/:id")
             @OnUndefined(QuestionNotFoundError)
-            getPosts(@Param("id") id: number) {
+            getPosts(@PathParam("id") id: number) {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Question");

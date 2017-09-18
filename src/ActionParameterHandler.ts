@@ -9,6 +9,7 @@ import {ParamRequiredError} from "./error/ParamRequiredError";
 import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
 import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
 import {isPromiseLike} from "./util/isPromiseLike";
+import { ParamNormalizationError } from "./error/ParamNormalizationError";
 
 /**
  * Handles action parameter.
@@ -42,6 +43,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
 
         // get parameter value from request and normalize it
         const value = this.normalizeParamValue(this.driver.getParamFromRequest(action, param), param);
+
         if (isPromiseLike(value))
             return value.then(value => this.handleValue(value, action, param));
 
@@ -72,7 +74,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
             const isValueEmpty = value === null || value === undefined || value === "";
-            const isValueEmptyObject = value instanceof Object && Object.keys(value).length === 0;
+            const isValueEmptyObject = typeof value === "object" && Object.keys(value).length === 0;
 
             if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
                 return Promise.reject(new ParamRequiredError(action, param));
@@ -103,43 +105,83 @@ export class ActionParameterHandler<T extends BaseDriver> {
     /**
      * Normalizes parameter value.
      */
-    protected normalizeParamValue(value: any, param: ParamMetadata): Promise<any>|any {
+    protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
         if (value === null || value === undefined)
             return value;
 
-        switch (param.targetName) {
-            case "number":
-                if (value === "") return undefined;
-                return +value;
+        // if param value is an object and param type match, normalize its string properties
+        if (typeof value === "object" && ["queries", "headers", "path-params", "cookies"].some(paramType => paramType === param.type)) {
+            Object.keys(value).map(key => {
+                const keyValue = (value as any)[key];
+                if (typeof keyValue === "string") {
+                    const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                    if (ParamType) {
+                        const typeString = ParamType.name.toLowerCase(); // reflected type is always constructor-like (?)
+                        (value as any)[key] = this.normalizeStringValue(keyValue, param.name, typeString);
+                    }
+                }
+            });
+        }
+        // if value is a string, normalize it to demanded type
+        else if (typeof value === "string") {
+            switch (param.targetName) {
+                case "number":
+                case "string":
+                case "boolean":
+                case "date":
+                    return this.normalizeStringValue(value, param.name, param.targetName);
+            }
+        }
 
-            case "string":
-                return value;
+        // if target type is not primitive, transform and validate it
+        if ((["number", "string", "boolean"].indexOf(param.targetName) === -1)
+            && (param.parse || param.isTargetObject)
+        ) {
+            value = this.parseValue(value, param);
+            value = this.transformValue(value, param);
+            value = this.validateValue(value, param); // note this one can return promise
+        }
+
+        return value;
+    }
+
+    /**
+     * Normalizes string value to number or boolean.
+     */
+    protected normalizeStringValue(value: string, parameterName: string, parameterType: string) {
+        switch (parameterType) {
+            case "number":
+                if (value === "") {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                }
+
+                const valueNumber = +value;
+                if (valueNumber === NaN) {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                }
+
+                return valueNumber;
 
             case "boolean":
-                if (value === "true" || value === "1") {
+                if (value === "true" || value === "1" || value === "") {
                     return true;
-
                 } else if (value === "false" || value === "0") {
                     return false;
+                } else {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
                 }
-
-                return !!value;
-
+                
             case "date":
                 const parsedDate = new Date(value);
-                if (isNaN(parsedDate.getTime())) {
-                    return Promise.reject(new BadRequestError(`${param.name} is invalid! It can't be parsed to date.`));
+                if (Number.isNaN(parsedDate.getTime())) {
+                    throw new ParamNormalizationError(value, parameterName, parameterType);
                 }
                 return parsedDate;
-
+                
+            case "string":
             default:
-                if (value && (param.parse || param.isTargetObject)) {
-                    value = this.parseValue(value, param);
-                    value = this.transformValue(value, param);
-                    value = this.validateValue(value, param); // note this one can return promise
-                }
+                return value;
         }
-        return value;
     }
 
     /**
