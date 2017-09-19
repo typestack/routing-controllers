@@ -130,7 +130,12 @@ describe("controller methods", () => {
 
             @Get("/text-plain-error")
             @ContentType("text/plain")
-            error(): never {
+            textError(): never {
+                throw new UnauthorizedError();
+            }
+
+            @Get("/json-error")
+            jsonError(): never {
                 throw new UnauthorizedError();
             }
         }
@@ -316,9 +321,20 @@ describe("controller methods", () => {
             expect(response).to.have.header("content-type", (contentType: string) => {
                 expect(contentType).to.match(/text\/plain/);
             });
+            expect(typeof response.body).to.equals("string");
             expect(response.body).to.match(/UnauthorizedError.HttpError/);
         });
     });
 
+    describe("should respond with 401 and aplication/json when UnauthorizedError throwed in standard json controller's method", () => {
+        assertRequest([3001, 3002], "get", "json-controller/json-error", response => {
+            expect(response).to.have.status(401);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/application\/json/);
+            });
+            expect(typeof response.body).to.equals("object");
+            expect(response.body.name).to.equals("UnauthorizedError");
+        });
+    });
 
 });
