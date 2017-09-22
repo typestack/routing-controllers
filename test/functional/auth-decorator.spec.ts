@@ -9,6 +9,8 @@ import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
+const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
+
 describe("Controller responds with value when Authorization succeeds (async)", function () {
 
     before(() => {
@@ -31,11 +33,19 @@ describe("Controller responds with value when Authorization succeeds (async)", f
                 return { test: "auth2" };
             }
 
+            @Authorized()
+            @Get("/auth3")
+            async auth3() {
+                await sleep(10);
+                return { test: "auth3" };
+            }
+
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
         authorizationChecker: async (action: Action, roles?: string[]) => {
+            await sleep(10);
             return true;
         }
     };
@@ -68,6 +78,13 @@ describe("Controller responds with value when Authorization succeeds (async)", f
         });
     });
 
+    describe("async", () => {
+        assertRequest([3001, 3002], "get", "auth3", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth3" });
+        });
+    });
+
 });
 
 describe("Controller responds with value when Authorization succeeds (sync)", function () {
@@ -90,6 +107,13 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
             @Get("/auth2")
             auth2() {
                 return { test: "auth2" };
+            }
+
+            @Authorized()
+            @Get("/auth3")
+            async auth3() {
+                await sleep(10);
+                return { test: "auth3" };
             }
 
         }
@@ -126,6 +150,13 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
         assertRequest([3001, 3002], "get", "auth2", response => {
             expect(response).to.have.status(200);
             expect(response.body).to.eql({ test: "auth2" });
+        });
+    });
+
+    describe("async", () => {
+        assertRequest([3001, 3002], "get", "auth3", response => {
+            expect(response).to.have.status(200);
+            expect(response.body).to.eql({ test: "auth3" });
         });
     });
 
