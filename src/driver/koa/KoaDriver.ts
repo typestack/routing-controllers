@@ -81,7 +81,7 @@ export class KoaDriver extends BaseDriver {
                     const checkResult = actionMetadata.authorizedRoles instanceof Function ?
                         getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
                         this.authorizationChecker(action, actionMetadata.authorizedRoles);
-    
+
                     const handleError = (result: any) => {
                         if (!result) {
                             let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
@@ -90,7 +90,7 @@ export class KoaDriver extends BaseDriver {
                             return next();
                         }
                     };
-    
+
                     if (isPromiseLike(checkResult)) {
                         return checkResult
                             .then(result => handleError(result))
@@ -213,6 +213,11 @@ export class KoaDriver extends BaseDriver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
+        // if the action returned the context or the response object itself, short-circuits
+        if (result && (result === options.response || result === options.context)) {
+            return options.next();
+        }
+
         // transform result if needed
         result = this.transformResult(result, action, options);
 
@@ -227,7 +232,7 @@ export class KoaDriver extends BaseDriver {
         } else if (action.successHttpCode) {
             options.response.status = action.successHttpCode;
         }
-        
+
         if (action.redirect) { // if redirect is set then do it
             if (typeof result === "string") {
                 options.response.redirect(result);
@@ -238,7 +243,7 @@ export class KoaDriver extends BaseDriver {
             }
         } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
-            
+
             this.koa.use(async function (ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
@@ -275,7 +280,7 @@ export class KoaDriver extends BaseDriver {
                 options.response.body = result;
             }
         }
-        
+
         // apply http headers
         Object.keys(action.headers).forEach(name => {
             options.response.set(name, action.headers[name]);
