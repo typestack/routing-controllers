@@ -1,5 +1,14 @@
 # Changelog and release notes
 
+### 0.7.3
+
+- FIXED: Directly calling response bug - #286
+- FIXED: Missing parameter in @BodyParam error message - #284
+- FIXED: Sync and async auth checker bug - #283
+- FIXED: Handling different content-type responses in JsonController - #277
+- ADDED: Support for returning Buffer and streams from action handler (controller's method) - #285
+- ADDED: Custom driver support - #276
+
 ### 0.7.2
 
 - FIXED: Using `@Authorization` decorator with Koa caused 404 responses (ref [#240](https://github.com/pleerock/routing-controllers/pull/240))
