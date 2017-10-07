@@ -4,7 +4,6 @@ import {BaseDriver} from "../BaseDriver";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {UseMetadata} from "../../metadata/UseMetadata";
-import {classToPlain} from "class-transformer";
 import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {AccessDeniedError} from "../../error/AccessDeniedError";
@@ -12,7 +11,8 @@ import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {RoleChecker} from "../../RoleChecker";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import { NotFoundError, HttpError } from "../../index";
+import {HttpError, NotFoundError} from "../../index";
+
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -249,11 +249,19 @@ export class KoaDriver extends BaseDriver {
             });
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
-            const notFoundError = new NotFoundError();
             if (action.undefinedResultCode) {
-                notFoundError.httpCode = action.undefinedResultCode as number;
+                options.response.httpCode = action.undefinedResultCode;
+
+                if (action.isJsonTyped) {
+                    options.response.json();
+                } else {
+                    options.response.send();
+                }
+                options.next();
+
+            } else {
+                throw new NotFoundError();
             }
-            throw notFoundError;
         }
         else if (result === null) { // send null response
             if (action.isJsonTyped) {

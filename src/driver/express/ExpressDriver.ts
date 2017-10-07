@@ -2,7 +2,6 @@ import {UseMetadata} from "../../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {Action} from "../../Action";
-import {classToPlain} from "class-transformer";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {BaseDriver} from "../BaseDriver";
 import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
@@ -12,7 +11,8 @@ import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationChec
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import { NotFoundError } from "../../index";
+import {NotFoundError} from "../../index";
+
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -298,11 +298,20 @@ export class ExpressDriver extends BaseDriver {
             });
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
-            const notFoundError = new NotFoundError();
+
             if (action.undefinedResultCode) {
-                notFoundError.httpCode = action.undefinedResultCode as number;
+                options.response.httpCode = action.undefinedResultCode;
+
+                if (action.isJsonTyped) {
+                    options.response.json();
+                } else {
+                    options.response.send();
+                }
+                options.next();
+
+            } else {
+                throw new NotFoundError();
             }
-            throw notFoundError;
         }
         else if (result === null) { // send null response
             if (action.isJsonTyped) {
