@@ -250,7 +250,7 @@ export class KoaDriver extends BaseDriver {
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
             if (action.undefinedResultCode) {
-                options.response.httpCode = action.undefinedResultCode;
+                options.response.status = action.undefinedResultCode;
 
                 if (action.isJsonTyped) {
                     options.response.json();
