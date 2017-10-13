@@ -248,8 +248,11 @@ export class ExpressDriver extends BaseDriver {
         result = this.transformResult(result, action, options);
 
         // set http status code
-        if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
-            throw new (action.undefinedResultCode as any)(options);
+        if (result === undefined && action.undefinedResultCode) {
+            if (action.undefinedResultCode instanceof Function) {
+                throw new (action.undefinedResultCode as any)(options);
+            }
+            options.response.status(action.undefinedResultCode);
         }
         else if (result === null) {
             if (action.nullResultCode) {
@@ -300,8 +303,6 @@ export class ExpressDriver extends BaseDriver {
         else if (result === undefined) { // throw NotFoundError on undefined response
 
             if (action.undefinedResultCode) {
-                options.response.status(action.undefinedResultCode);
-
                 if (action.isJsonTyped) {
                     options.response.json();
                 } else {
