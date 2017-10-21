@@ -9,7 +9,7 @@ import {ParamRequiredError} from "./error/ParamRequiredError";
 import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
 import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
 import {isPromiseLike} from "./util/isPromiseLike";
-import { ParamNormalizationError } from "./error/ParamNormalizationError";
+import { InvalidParamError } from "./error/ParamNormalizationError";
 
 /**
  * Handles action parameter.
@@ -152,12 +152,12 @@ export class ActionParameterHandler<T extends BaseDriver> {
         switch (parameterType) {
             case "number":
                 if (value === "") {
-                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                    throw new InvalidParamError(value, parameterName, parameterType);
                 }
 
                 const valueNumber = +value;
                 if (valueNumber === NaN) {
-                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                    throw new InvalidParamError(value, parameterName, parameterType);
                 }
 
                 return valueNumber;
@@ -168,13 +168,13 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 } else if (value === "false" || value === "0") {
                     return false;
                 } else {
-                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                    throw new InvalidParamError(value, parameterName, parameterType);
                 }
                 
             case "date":
                 const parsedDate = new Date(value);
                 if (Number.isNaN(parsedDate.getTime())) {
-                    throw new ParamNormalizationError(value, parameterName, parameterType);
+                    throw new InvalidParamError(value, parameterName, parameterType);
                 }
                 return parsedDate;
                 
