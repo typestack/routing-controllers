@@ -2,7 +2,6 @@ import {UseMetadata} from "../../metadata/UseMetadata";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {Action} from "../../Action";
-import {classToPlain} from "class-transformer";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {BaseDriver} from "../BaseDriver";
 import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
@@ -12,7 +11,8 @@ import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationChec
 import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import { NotFoundError } from "../../index";
+import {NotFoundError} from "../../index";
+
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -105,7 +105,7 @@ export class ExpressDriver extends BaseDriver {
                 const action: Action = { request, response, next };
                 try {
                     const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
-    
+
                     const handleError = (result: any) => {
                         if (!result) {
                             let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
@@ -114,7 +114,7 @@ export class ExpressDriver extends BaseDriver {
                             next();
                         }
                     };
-    
+
                     if (isPromiseLike(checkResult)) {
                         checkResult
                             .then(result => handleError(result))
@@ -150,6 +150,14 @@ export class ExpressDriver extends BaseDriver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
+            // Express calls the "get" route automatically when we call the "head" route:
+            // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
+            // This causes a double action execution on our side, which results in an unhandled rejection,
+            // saying: "Can't set headers after they are sent".
+            // The following line skips action processing when the request method does not match the action method.
+            if (request.method.toLowerCase() !== actionMetadata.type)
+                return next();
+
             return executeCallback({request, response, next});
         };
 
@@ -230,12 +238,21 @@ export class ExpressDriver extends BaseDriver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
+        // if the action returned the response object itself, short-circuits
+        if (result && result === options.response) {
+            options.next();
+            return;
+        }
+
         // transform result if needed
         result = this.transformResult(result, action, options);
 
         // set http status code
-        if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
-            throw new (action.undefinedResultCode as any)(options);
+        if (result === undefined && action.undefinedResultCode) {
+            if (action.undefinedResultCode instanceof Function) {
+                throw new (action.undefinedResultCode as any)(options);
+            }
+            options.response.status(action.undefinedResultCode);
         }
         else if (result === null) {
             if (action.nullResultCode) {
@@ -284,11 +301,18 @@ export class ExpressDriver extends BaseDriver {
             });
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
-            const notFoundError = new NotFoundError();
+
             if (action.undefinedResultCode) {
-                notFoundError.httpCode = action.undefinedResultCode as number;
+                if (action.isJsonTyped) {
+                    options.response.json();
+                } else {
+                    options.response.send();
+                }
+                options.next();
+
+            } else {
+                throw new NotFoundError();
             }
-            throw notFoundError;
         }
         else if (result === null) { // send null response
             if (action.isJsonTyped) {

@@ -246,7 +246,8 @@ export class UserController {
 
 #### Using Request and Response objects
 
-You can use framework's request and response objects this way:
+You can use framework's request and response objects directly. If you want to handle the response by yourself,
+just make sure you return the response object itself from the action.
 
 ```typescript
 import {Controller, Req, Res, Get} from "routing-controllers";
@@ -256,7 +257,7 @@ export class UserController {
 
     @Get("/users")
     getAll(@Req() request: any, @Res() response: any) {
-        response.send("Hello response!");
+        return response.send("Hello response!");
     }
 
 }
@@ -274,7 +275,7 @@ export class UserController {
 
     @Get("/users")
     getAll(@Req() request: Request, @Res() response: Response) {
-        response.send("Hello response!");
+        return response.send("Hello response!");
     }
 
 }

@@ -4,7 +4,6 @@ import {BaseDriver} from "../BaseDriver";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {UseMetadata} from "../../metadata/UseMetadata";
-import {classToPlain} from "class-transformer";
 import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {AccessDeniedError} from "../../error/AccessDeniedError";
@@ -12,7 +11,8 @@ import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {RoleChecker} from "../../RoleChecker";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import { NotFoundError, HttpError } from "../../index";
+import {HttpError, NotFoundError} from "../../index";
+
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
@@ -81,7 +81,7 @@ export class KoaDriver extends BaseDriver {
                     const checkResult = actionMetadata.authorizedRoles instanceof Function ?
                         getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
                         this.authorizationChecker(action, actionMetadata.authorizedRoles);
-    
+
                     const handleError = (result: any) => {
                         if (!result) {
                             let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
@@ -90,7 +90,7 @@ export class KoaDriver extends BaseDriver {
                             return next();
                         }
                     };
-    
+
                     if (isPromiseLike(checkResult)) {
                         return checkResult
                             .then(result => handleError(result))
@@ -213,21 +213,14 @@ export class KoaDriver extends BaseDriver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
+        // if the action returned the context or the response object itself, short-circuits
+        if (result && (result === options.response || result === options.context)) {
+            return options.next();
+        }
+
         // transform result if needed
         result = this.transformResult(result, action, options);
 
-        // set http status code
-        if (result === undefined && action.undefinedResultCode && action.undefinedResultCode instanceof Function) {
-            throw new (action.undefinedResultCode as any)(options);
-        } 
-        else if (result === null && action.nullResultCode) {
-            if (action.nullResultCode instanceof Function) {
-                throw new (action.nullResultCode as any)(options);
-            }
-        } else if (action.successHttpCode) {
-            options.response.status = action.successHttpCode;
-        }
-        
         if (action.redirect) { // if redirect is set then do it
             if (typeof result === "string") {
                 options.response.redirect(result);
@@ -238,32 +231,24 @@ export class KoaDriver extends BaseDriver {
             }
         } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
-            
+
             this.koa.use(async function (ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
-            const notFoundError = new NotFoundError();
-            if (action.undefinedResultCode) {
-                notFoundError.httpCode = action.undefinedResultCode as number;
+            if (action.undefinedResultCode instanceof Function) {
+                throw new (action.undefinedResultCode as any)(options);
+
+            } else if (!action.undefinedResultCode) {
+                throw new NotFoundError();
             }
-            throw notFoundError;
         }
         else if (result === null) { // send null response
-            if (action.isJsonTyped) {
-                options.response.body = null;
-            } else {
-                options.response.body = null;
-            }
-            
-            // Setting `null` as a `response.body` means to koa that there is no content to return
-            // so we must reset the status codes here.
-            if (action.nullResultCode) {
-                options.response.status = action.nullResultCode;
-            } else {
-                options.response.status = 204;
-            }
+            if (action.nullResultCode instanceof Function)
+                throw new (action.nullResultCode as any)(options);
+
+            options.response.body = null;
         }
         else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
             options.response.body = Buffer.from(result as any);
@@ -275,7 +260,22 @@ export class KoaDriver extends BaseDriver {
                 options.response.body = result;
             }
         }
-        
+
+        // set http status code
+        if (result === undefined && action.undefinedResultCode) {
+            console.log(action.undefinedResultCode);
+            options.response.status = action.undefinedResultCode;
+        }
+        else if (result === null && action.nullResultCode) {
+            options.response.status = action.nullResultCode;
+
+        } else if (action.successHttpCode) {
+            options.response.status = action.successHttpCode;
+
+        } else if (options.response.body === null) {
+            options.response.status = 204;
+        }
+
         // apply http headers
         Object.keys(action.headers).forEach(name => {
             options.response.set(name, action.headers[name]);
@@ -290,12 +290,6 @@ export class KoaDriver extends BaseDriver {
     handleError(error: any, action: ActionMetadata | undefined, options: Action) {
         return new Promise((resolve, reject) => {
             if (this.isDefaultErrorHandlingEnabled) {
-                // set http status
-                if (error instanceof HttpError && error.httpCode) {
-                    options.response.status = error.httpCode;
-                } else {
-                    options.response.status = 500;
-                }
 
                 // apply http headers
                 if (action) {
@@ -309,6 +303,13 @@ export class KoaDriver extends BaseDriver {
                     options.response.body = this.processJsonError(error);
                 } else {
                     options.response.body = this.processTextError(error);
+                }
+
+                // set http status
+                if (error instanceof HttpError && error.httpCode) {
+                    options.response.status = error.httpCode;
+                } else {
+                    options.response.status = 500;
                 }
 
                 return resolve();

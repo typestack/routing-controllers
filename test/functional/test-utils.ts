@@ -13,16 +13,37 @@ export function assertRequest(ports: number[],
 
     ports.forEach(port => {
 
-        it("asserting port " + port, () => {
-            if (args === 4) {
-                return chakram[method](`http://127.0.0.1:${port}/${route}`).then(dataOrCallback as Function);
-            } else if (args === 5) {
-                return chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any).then(dataOrRequestOptionsOrCallback as Function);
-            } else if (args === 6) {
-                return chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any, dataOrRequestOptionsOrCallback as any).then(maybeCallback);
+        it("asserting port " + port, async() => {
+            let unhandledRejection: Error = undefined;
+            const captureRejection = (e: Error) => { unhandledRejection = e; };
+            process.on("unhandledRejection", captureRejection);
+
+            try {
+                let r;
+                if (args === 4) {
+                    r = await chakram[method](`http://127.0.0.1:${port}/${route}`).then(dataOrCallback as Function);
+                }
+                else if (args === 5) {
+                    r = await chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any).then(dataOrRequestOptionsOrCallback as Function);
+                }
+                else if (args === 6) {
+                    r = await chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any, dataOrRequestOptionsOrCallback as any).then(maybeCallback);
+                }
+                else {
+                    throw new Error("No assertion has been performed");
+                }
+
+                if (unhandledRejection) {
+                    const e = new Error("There was an unhandled rejection while processing the request");
+                    e.stack += "\nCaused by: " + unhandledRejection.stack;
+                    throw e;
+                }
+
+                return r;
             }
-            
-            throw new Error("No assertion has been performed");
+            finally {
+                process.removeListener("unhandledRejection", captureRejection);
+            }
         });
         
     });

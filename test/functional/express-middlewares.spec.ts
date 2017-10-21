@@ -7,7 +7,7 @@ import {UseBefore} from "../../src/decorator/UseBefore";
 import {Middleware} from "../../src/decorator/Middleware";
 import {UseAfter} from "../../src/decorator/UseAfter";
 import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
-import {ExpressErrorMiddlewareInterface} from "./../../src/driver/express/ExpressErrorMiddlewareInterface";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -73,7 +73,7 @@ describe("express middlewares", () => {
         class TestCustomMiddlewareWhichThrows implements ExpressMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
-                throw new NotAcceptableError('TestCustomMiddlewareWhichThrows');
+                throw new NotAcceptableError("TestCustomMiddlewareWhichThrows");
             }
 
         }
