@@ -2,10 +2,11 @@
 
 ### 0.8.0
 
-- restore/introduce `@QueryParams()` and `@Params()` missing decorators options (they are needed for validation purposes) (#289)
-- normalize param object properties (for "queries", "headers", "params" and "cookies") - now you can easily validate query/path params using `class-validator` (#289)
+- extract generic `@Session()` deocorator into `@SessionParam()` and `@Session()`
+- restore/introduce `@QueryParams()` and `@Params()` missing decorators options (they are needed for validation purposes) - #289
+- normalize param object properties (for "queries", "headers", "params" and "cookies") - now you can easily validate query/path params using `class-validator` - #289
 - enhance params normalization - converting from string to primitive types is now more strict and can throw ParamNormalizationError,
-e.g. when number is expected but the invalid string (NaN) has been received  (#289)
+e.g. when number is expected but the invalid string (NaN) has been received - #289
 
 ### 0.7.3
 

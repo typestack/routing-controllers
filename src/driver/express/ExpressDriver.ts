@@ -195,10 +195,10 @@ export class ExpressDriver extends BaseDriver {
             case "params":
                 return request.params;
 
+            case "session-param":
+                return request.session[param.name];
+            
             case "session":
-                if (param.name)
-                    return request.session[param.name];
-
                 return request.session;
 
             case "state":

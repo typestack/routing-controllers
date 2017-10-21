@@ -13,6 +13,7 @@ import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
 import {UseBefore} from "../../src/decorator/UseBefore";
 import {Session} from "../../src/decorator/Session";
+import {SessionParam} from "../../src/decorator/SessionParam";
 import {State} from "../../src/decorator/State";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {QueryParams} from "../../src/decorator/QueryParams";
@@ -156,27 +157,27 @@ describe("action parameters", () => {
 
             @Get("/session/")
             @UseBefore(SessionMiddleware)
-            loadFromSession(@Session("testElement") testElement: string) {
+            loadFromSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/not-use-session/")
-            notUseSession(@Session("testElement") testElement: string) {
+            notUseSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/session-param-empty/")
             @UseBefore(SessionMiddleware)
-            loadEmptyParamFromSession(@Session("empty", { required: false }) emptyElement: string) {
+            loadEmptyParamFromSession(@SessionParam("empty", { required: false }) emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
             }
 
             @Get("/session-param-empty-error/")
             @UseBefore(SessionMiddleware)
-            errorOnLoadEmptyParamFromSession(@Session("empty") emptyElement: string) {
+            errorOnLoadEmptyParamFromSession(@SessionParam("empty") emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
             }
