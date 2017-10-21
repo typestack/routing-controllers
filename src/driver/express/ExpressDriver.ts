@@ -181,10 +181,10 @@ export class ExpressDriver extends BaseDriver {
             case "body-param":
                 return request.body[param.name];
 
-            case "path-param":
+            case "param":
                 return request.params[param.name];
 
-            case "path-params":
+            case "params":
                 return request.params;
 
             case "session":

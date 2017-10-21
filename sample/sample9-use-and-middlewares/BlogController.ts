@@ -1,6 +1,6 @@
 import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
-import {PathParam} from "../../src/decorator/PathParam";
+import {Param} from "../../src/decorator/Param";
 import {CompressionMiddleware} from "./CompressionMiddleware";
 import {AllControllerActionsMiddleware} from "./AllControllerActionsMiddleware";
 import {UseBefore} from "../../src/decorator/UseBefore";
@@ -24,7 +24,7 @@ export class BlogController {
     }
 
     @Get("/blogs/:id")
-    getOne(@PathParam("id") id: number) {
+    getOne(@Param("id") id: number) {
         return  { id: id, firstName: "First", secondName: "blog" };
     }
 

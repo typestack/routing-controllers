@@ -7,7 +7,7 @@ import {Post} from "../../src/decorator/Post";
 import {Put} from "../../src/decorator/Put";
 import {Patch} from "../../src/decorator/Patch";
 import {Delete} from "../../src/decorator/Delete";
-import {PathParam} from "../../src/decorator/PathParam";
+import {Param} from "../../src/decorator/Param";
 import {Session} from "../../src/decorator/Session";
 import {ContentType} from "../../src/decorator/ContentType";
 
@@ -36,7 +36,7 @@ export class UserController {
     }
 
     @Put("/users/:id")
-    put(@PathParam("id") id: number, @Session() session: Express.Session) {
+    put(@Param("id") id: number, @Session() session: Express.Session) {
         (session as any).user = { name: "test", number: id };
         return "User has been putted!";
     }

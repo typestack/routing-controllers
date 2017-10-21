@@ -4,7 +4,7 @@ import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../.
 import {assertRequest} from "./test-utils";
 import {Redirect} from "../../src/decorator/Redirect";
 import {JsonController} from "../../src/decorator/JsonController";
-import {PathParam} from "../../src/decorator/PathParam";
+import {Param} from "../../src/decorator/Param";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -19,7 +19,7 @@ describe("dynamic redirect", function () {
         class TestController {
 
             @Get("/:id")
-            async getOne(@PathParam("id") id: string) {
+            async getOne(@Param("id") id: string) {
                 return {
                     login: id
                 };
