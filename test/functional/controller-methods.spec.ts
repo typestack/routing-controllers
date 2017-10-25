@@ -7,7 +7,14 @@ import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {ContentType} from "../../src/decorator/ContentType";
+import {JsonController} from "../../src/decorator/JsonController";
+import {UnauthorizedError} from "../../src/http-error/UnauthorizedError";
+import {
+    createExpressServer,
+    createKoaServer,
+    getMetadataArgsStorage,
+} from "../../src/index";
 import {assertRequest} from "./test-utils";
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -80,6 +87,56 @@ describe("controller methods", () => {
                         fail("<html><body>cannot connect to a database</body></html>");
                     }, 500);
                 });
+            }
+        }
+
+        @JsonController("/return/json")
+        class ReturnJsonController {
+            @Get("/undefined")
+            returnUndefined(): undefined {
+                return undefined;
+            }
+            @Get("/null")
+            returnNull(): null {
+                return null;
+            }
+        }
+
+        @Controller("/return/normal")
+        class ReturnNormalController {
+            @Get("/undefined")
+            returnUndefined(): undefined {
+                return undefined;
+            }
+            @Get("/null")
+            returnNull(): null {
+                return null;
+            }
+        }
+
+        @JsonController("/json-controller")
+        class ContentTypeController {
+            @Get("/text-html")
+            @ContentType("text/html")
+            returnHtml(): string {
+                return "<html>Test</html>";
+            }
+
+            @Get("/text-plain")
+            @ContentType("text/plain")
+            returnString(): string {
+                return "Test";
+            }
+
+            @Get("/text-plain-error")
+            @ContentType("text/plain")
+            textError(): never {
+                throw new UnauthorizedError();
+            }
+
+            @Get("/json-error")
+            jsonError(): never {
+                throw new UnauthorizedError();
             }
         }
 
@@ -204,6 +261,79 @@ describe("controller methods", () => {
             expect(response).to.have.status(500);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.equal("<html><body>cannot connect to a database</body></html>");
+        });
+    });
+
+    describe("should respond with 204 No Content when null returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/normal/null", response => {
+            expect(response).to.have.status(204);
+            expect(response).to.not.have.header("content-type");
+            expect(response.body).to.not.exist;
+        });
+        assertRequest([3001, 3002], "get", "return/json/null", response => {
+            expect(response).to.have.status(204);
+            expect(response).to.not.have.header("content-type");
+            expect(response.body).to.not.exist;
+        });
+    });
+
+    describe("should respond with 404 Not Found text when undefined returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/normal/undefined", response => {
+            expect(response).to.have.status(404);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/text/);
+            });
+        });
+    });
+
+    describe("should respond with 404 Not Found JSON when undefined returned in action", () => {
+        assertRequest([3001, 3002], "get", "return/json/undefined", response => {
+            expect(response).to.have.status(404);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/application\/json/);
+            });
+        });
+    });
+
+    describe("should respond with 200 and text/html even in json controller's method", () => {
+        assertRequest([3001, 3002], "get", "json-controller/text-html", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/text\/html/);
+            });
+            expect(response.body).to.equals("<html>Test</html>");
+        });
+    });
+
+    describe("should respond with 200 and text/plain even in json controller's method", () => {
+        assertRequest([3001, 3002], "get", "json-controller/text-plain", response => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/text\/plain/);
+            });
+            expect(response.body).to.equals("Test");
+        });
+    });
+
+    describe("should respond with 401 and text/html when UnauthorizedError throwed even in json controller's method", () => {
+        assertRequest([3001, 3002], "get", "json-controller/text-plain-error", response => {
+            expect(response).to.have.status(401);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/text\/plain/);
+            });
+            expect(typeof response.body).to.equals("string");
+            expect(response.body).to.match(/UnauthorizedError.HttpError/);
+        });
+    });
+
+    describe("should respond with 401 and aplication/json when UnauthorizedError throwed in standard json controller's method", () => {
+        assertRequest([3001, 3002], "get", "json-controller/json-error", response => {
+            expect(response).to.have.status(401);
+            expect(response).to.have.header("content-type", (contentType: string) => {
+                expect(contentType).to.match(/application\/json/);
+            });
+            expect(typeof response.body).to.equals("object");
+            expect(response.body.name).to.equals("UnauthorizedError");
         });
     });
 

@@ -10,7 +10,7 @@ export function importClassesFromDirectories(directories: string[], formats = ["
             allLoaded.push(exported);
         } else if (exported instanceof Array) {
             exported.forEach((i: any) => loadFileClasses(i, allLoaded));
-        } else if (exported instanceof Object || typeof exported === 'object') {
+        } else if (exported instanceof Object || typeof exported === "object") {
             Object.keys(exported).forEach(key => loadFileClasses(exported[key], allLoaded));
         }
 

@@ -7,6 +7,7 @@ import {UseAfter} from "../../src/decorator/UseAfter";
 import {createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {KoaMiddlewareInterface} from "../../src/driver/koa/KoaMiddlewareInterface";
 import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -68,7 +69,7 @@ describe("koa middlewares", () => {
         class TestCustomMiddlewareWhichThrows implements KoaMiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
-                throw new NotAcceptableError('TestCustomMiddlewareWhichThrows');
+                throw new NotAcceptableError("TestCustomMiddlewareWhichThrows");
             }
 
         }

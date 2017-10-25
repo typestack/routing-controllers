@@ -174,6 +174,7 @@ export class ActionMetadata {
         const redirectHandler = responseHandlers.find(handler => handler.type === "redirect");
         const renderedTemplateHandler = responseHandlers.find(handler => handler.type === "rendered-template");
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
+        const contentTypeHandler = responseHandlers.find(handler => handler.type === "content-type");
         const bodyParam = this.params.find(param => param.type === "body");
 
         if (classTransformerResponseHandler)
@@ -198,7 +199,10 @@ export class ActionMetadata {
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
-        this.isJsonTyped = this.controllerMetadata.type === "json";
+        this.isJsonTyped = (contentTypeHandler !== undefined 
+            ? /json/.test(contentTypeHandler.value)
+            : this.controllerMetadata.type === "json"
+        );
         this.fullRoute = this.buildFullRoute();
         this.headers = this.buildHeaders(responseHandlers);
 
@@ -257,7 +261,8 @@ export class ActionMetadata {
      * Action method is an action defined in a user controller.
      */
     callMethod(params: any[]) {
-        return this.controllerMetadata.instance[this.method].apply(this.controllerMetadata.instance, params);
+        const controllerInstance = this.controllerMetadata.instance;
+        return controllerInstance[this.method].apply(controllerInstance, params);
     }
 
     // -------------------------------------------------------------------------

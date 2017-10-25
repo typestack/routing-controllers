@@ -1,11 +1,9 @@
 import {Action} from "../../Action";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {BaseDriver} from "../BaseDriver";
-import {Driver} from "../Driver";
 import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
 import {UseMetadata} from "../../metadata/UseMetadata";
-import {classToPlain} from "class-transformer";
 import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {AccessDeniedError} from "../../error/AccessDeniedError";
@@ -13,13 +11,15 @@ import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {RoleChecker} from "../../RoleChecker";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
+import {HttpError, NotFoundError} from "../../index";
+
 const cookie = require("cookie");
 const templateUrl = require("template-url");
 
 /**
  * Integration with koa framework.
  */
-export class KoaDriver extends BaseDriver implements Driver {
+export class KoaDriver extends BaseDriver {
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -29,6 +29,7 @@ export class KoaDriver extends BaseDriver implements Driver {
         super();
         this.loadKoa();
         this.loadRouter();
+        this.app = this.koa;
     }
 
     // -------------------------------------------------------------------------
@@ -69,6 +70,40 @@ export class KoaDriver extends BaseDriver implements Driver {
 
         // middlewares required for this action
         const defaultMiddlewares: any[] = [];
+
+        if (actionMetadata.isAuthorizedUsed) {
+            defaultMiddlewares.push((context: any, next: Function) => {
+                if (!this.authorizationChecker)
+                    throw new AuthorizationCheckerNotDefinedError();
+
+                const action: Action = { request: context.request, response: context.response, context, next };
+                try {
+                    const checkResult = actionMetadata.authorizedRoles instanceof Function ?
+                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
+                        this.authorizationChecker(action, actionMetadata.authorizedRoles);
+
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            return this.handleError(error, actionMetadata, action);
+                        } else {
+                            return next();
+                        }
+                    };
+
+                    if (isPromiseLike(checkResult)) {
+                        return checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.handleError(error, actionMetadata, action));
+                    } else {
+                        return handleError(checkResult);
+                    }
+                } catch (error) {
+                    return this.handleError(error, actionMetadata, action);
+                }
+            });
+        }
+
         if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
             const multer = this.loadMulter();
             actionMetadata.params
@@ -81,33 +116,8 @@ export class KoaDriver extends BaseDriver implements Driver {
                 .forEach(param => {
                     defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
                 });
-        }
 
-        if (actionMetadata.isAuthorizedUsed) {
-            defaultMiddlewares.push((context: any, next: Function) => {
-                if (!this.authorizationChecker)
-                    throw new AuthorizationCheckerNotDefinedError();
-
-                const action: Action = {request: context.request, response: context.response, context, next};
-                const checkResult = actionMetadata.authorizedRoles instanceof Function ?
-                    getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
-                    this.authorizationChecker(action, actionMetadata.authorizedRoles);
-
-                const handleError = (result: any) => {
-                    if (!result) {
-                        let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
-                        return this.handleError(error, actionMetadata, action);
-                    } else {
-                        next();
-                    }
-                };
-
-                if (isPromiseLike(checkResult)) {
-                    checkResult.then(result => handleError(result));
-                } else {
-                    handleError(checkResult);
-                }
-            });
+            defaultMiddlewares.push(this.fixMulterRequestAssignment);
         }
 
         // user used middlewares
@@ -203,33 +213,13 @@ export class KoaDriver extends BaseDriver implements Driver {
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
-        // check if we need to transform result and do it
-        if (this.useClassTransformer && result && result instanceof Object) {
-            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
-            result = classToPlain(result, options);
+        // if the action returned the context or the response object itself, short-circuits
+        if (result && (result === options.response || result === options.context)) {
+            return options.next();
         }
 
-        // set http status code
-        if (action.undefinedResultCode && result === undefined) {
-            if (action.undefinedResultCode instanceof Function)
-                throw new (action.undefinedResultCode as any)(options);
-
-            options.response.status = action.undefinedResultCode;
-
-        } else if (action.nullResultCode && result === null) {
-            if (action.nullResultCode instanceof Function)
-                throw new (action.nullResultCode as any)(options);
-
-            options.response.status = action.nullResultCode;
-
-        } else if (action.successHttpCode) {
-            options.response.status = action.successHttpCode;
-        }
-
-        // apply http headers
-        Object.keys(action.headers).forEach(name => {
-            options.response.set(name, action.headers[name]);
-        });
+        // transform result if needed
+        result = this.transformResult(result, action, options);
 
         if (action.redirect) { // if redirect is set then do it
             if (typeof result === "string") {
@@ -239,86 +229,93 @@ export class KoaDriver extends BaseDriver implements Driver {
             } else {
                 options.response.redirect(action.redirect);
             }
-
-            return options.next();
-
-        } else if (action.renderedTemplate) { // if template is set then render it // todo: not working in koa
+        } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
 
             this.koa.use(async function (ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
-
-            return options.next();
-
-        } else if (result !== undefined || action.undefinedResultCode) { // send regular result
-            if (result === null || (result === undefined && action.undefinedResultCode)) {
-
-                if (action.isJsonTyped) {
-                    options.response.body = null;
-                } else {
-                    options.response.body = null;
-                }
-
-                // todo: duplication. we make it here because after we set null to body koa seems overrides status
-                if (action.nullResultCode) {
-                    options.response.status = action.nullResultCode;
-
-                } else if (result === undefined && action.undefinedResultCode) {
-                    options.response.status = action.undefinedResultCode;
-                }
-
-                return options.next();
-            } else {
-                if (result instanceof Object) {
-                    options.response.body = result;
-                } else {
-                    options.response.body = result;
-                }
-                return options.next();
-            }
-
-        } else {
-            return options.next();
         }
+        else if (result === undefined) { // throw NotFoundError on undefined response
+            if (action.undefinedResultCode instanceof Function) {
+                throw new (action.undefinedResultCode as any)(options);
+
+            } else if (!action.undefinedResultCode) {
+                throw new NotFoundError();
+            }
+        }
+        else if (result === null) { // send null response
+            if (action.nullResultCode instanceof Function)
+                throw new (action.nullResultCode as any)(options);
+
+            options.response.body = null;
+        }
+        else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
+            options.response.body = Buffer.from(result as any);
+        }
+        else { // send regular result
+            if (result instanceof Object) {
+                options.response.body = result;
+            } else {
+                options.response.body = result;
+            }
+        }
+
+        // set http status code
+        if (result === undefined && action.undefinedResultCode) {
+            console.log(action.undefinedResultCode);
+            options.response.status = action.undefinedResultCode;
+        }
+        else if (result === null && action.nullResultCode) {
+            options.response.status = action.nullResultCode;
+
+        } else if (action.successHttpCode) {
+            options.response.status = action.successHttpCode;
+
+        } else if (options.response.body === null) {
+            options.response.status = 204;
+        }
+
+        // apply http headers
+        Object.keys(action.headers).forEach(name => {
+            options.response.set(name, action.headers[name]);
+        });
+
+        return options.next();
     }
 
     /**
      * Handles result of failed executed controller action.
      */
-    handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
-        if (this.isDefaultErrorHandlingEnabled) {
-            const response: any = options.response;
-            console.log("ERROR: ", error);
+    handleError(error: any, action: ActionMetadata | undefined, options: Action) {
+        return new Promise((resolve, reject) => {
+            if (this.isDefaultErrorHandlingEnabled) {
 
-            // set http status
-            // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
-            if (error.httpCode) {
-                console.log("setting status code: ", error.httpCode);
-                options.context.status = error.httpCode;
-                response.status = error.httpCode;
-            } else {
-                options.context.status = 500;
-                response.status = 500;
+                // apply http headers
+                if (action) {
+                    Object.keys(action.headers).forEach(name => {
+                        options.response.set(name, action.headers[name]);
+                    });
+                }
+
+                // send error content
+                if (action && action.isJsonTyped) {
+                    options.response.body = this.processJsonError(error);
+                } else {
+                    options.response.body = this.processTextError(error);
+                }
+
+                // set http status
+                if (error instanceof HttpError && error.httpCode) {
+                    options.response.status = error.httpCode;
+                } else {
+                    options.response.status = 500;
+                }
+
+                return resolve();
             }
-
-            // apply http headers
-            if (action) {
-                Object.keys(action.headers).forEach(name => {
-                    response.set(name, action.headers[name]);
-                });
-            }
-
-            // send error content
-            if (action && action.isJsonTyped) {
-                response.body = this.processJsonError(error);
-            } else {
-                response.body = this.processJsonError(error);
-            }
-
-            return Promise.resolve();
-        }
-        return Promise.reject(error);
+            return reject(error);
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -410,4 +407,21 @@ export class KoaDriver extends BaseDriver implements Driver {
         }
     }
 
+    /**
+     * This middleware fixes a bug on koa-multer implementation.
+     *
+     * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
+     */
+    private async fixMulterRequestAssignment(ctx: any, next: Function) {
+        if ("request" in ctx) {
+            if (ctx.req.body) ctx.request.body = ctx.req.body;
+            if (ctx.req.file) ctx.request.file = ctx.req.file;
+            if (ctx.req.files) {
+                ctx.request.files = ctx.req.files;
+                ctx.files = ctx.req.files;
+            }
+        }
+
+        return await next();
+    }
 }

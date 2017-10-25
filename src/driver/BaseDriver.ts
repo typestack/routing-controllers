@@ -1,17 +1,28 @@
 import {ValidatorOptions} from "class-validator";
+import {ClassTransformOptions, classToPlain} from "class-transformer";
+
 import {HttpError} from "../http-error/HttpError";
-import {ClassTransformOptions} from "class-transformer";
 import {CurrentUserChecker} from "../CurrentUserChecker";
 import {AuthorizationChecker} from "../AuthorizationChecker";
+import {ActionMetadata} from "../metadata/ActionMetadata";
+import {ParamMetadata} from "../metadata/ParamMetadata";
+import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
+import {Action} from "../Action";
 
 /**
  * Base driver functionality for all other drivers.
+ * Abstract layer to organize controllers integration with different http server implementations.
  */
-export class BaseDriver {
+export abstract class BaseDriver {
 
     // -------------------------------------------------------------------------
     // Public Properties
     // -------------------------------------------------------------------------
+
+    /**
+     * Reference to the underlying framework app object.
+     */
+    app: any;
 
     /**
      * Indicates if class-transformer should be used or not.
@@ -77,9 +88,63 @@ export class BaseDriver {
      */
     currentUserChecker?: CurrentUserChecker;
 
+    /**
+     * Initializes the things driver needs before routes and middleware registration.
+     */
+    abstract initialize(): void;
+    
+    /**
+     * Registers given middleware.
+     */
+    abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+
+    /**
+     * Registers action in the driver.
+     */
+    abstract registerAction(action: ActionMetadata, executeCallback: (options: Action) => any): void;
+
+    /**
+     * Registers all routes in the framework.
+     */
+    abstract registerRoutes(): void;
+
+    /**
+     * Gets param from the request.
+     */
+    abstract getParamFromRequest(actionOptions: Action, param: ParamMetadata): any;
+
+    /**
+     * Defines an algorithm of how to handle error during executing controller action.
+     */
+    abstract handleError(error: any, action: ActionMetadata, options: Action): any;
+
+    /**
+     * Defines an algorithm of how to handle success result of executing controller action.
+     */
+    abstract handleSuccess(result: any, action: ActionMetadata, options: Action): void;
+
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
+
+    protected transformResult(result: any, action: ActionMetadata, options: Action): any {
+        // check if we need to transform result
+        const shouldTransform = (this.useClassTransformer && result != null) // transform only if enabled and value exist
+            && result instanceof Object // don't transform primitive types (string/number/boolean)
+            && !(
+                result instanceof Uint8Array // don't transform binary data
+                ||
+                result.pipe instanceof Function // don't transform streams
+            );
+            
+        // transform result if needed
+        if (shouldTransform) {
+            const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
+            result = classToPlain(result, options);
+        }
+
+        return result;
+    }
 
     protected processJsonError(error: any) {
         if (!this.isDefaultErrorHandlingEnabled)

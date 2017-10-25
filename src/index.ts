@@ -1,5 +1,5 @@
 import {CustomParameterDecorator} from "./CustomParameterDecorator";
-import {Driver} from "./driver/Driver";
+import {BaseDriver} from "./driver/BaseDriver";
 import {ExpressDriver} from "./driver/express/ExpressDriver";
 import {KoaDriver} from "./driver/koa/KoaDriver";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
@@ -88,7 +88,6 @@ export * from "./RoleChecker";
 export * from "./Action";
 export * from "./InterceptorInterface";
 
-export * from "./driver/Driver";
 export * from "./driver/BaseDriver";
 export * from "./driver/express/ExpressDriver";
 export * from "./driver/koa/KoaDriver";
@@ -112,8 +111,8 @@ export function getMetadataArgsStorage(): MetadataArgsStorage {
  * Registers all loaded actions in your express application.
  */
 export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
-    createExecutor(new ExpressDriver(expressApp), options || {});
-    return expressApp;
+    const driver = new ExpressDriver(expressApp);
+    return createServer(driver, options);
 }
 
 /**
@@ -121,16 +120,15 @@ export function useExpressServer<T>(expressApp: T, options?: RoutingControllersO
  */
 export function createExpressServer(options?: RoutingControllersOptions): any {
     const driver = new ExpressDriver();
-    createExecutor(driver, options || {});
-    return driver.express;
+    return createServer(driver, options);
 }
 
 /**
  * Registers all loaded actions in your koa application.
  */
 export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions): T {
-    createExecutor(new KoaDriver(koaApp), options || {});
-    return koaApp;
+    const driver = new KoaDriver(koaApp);
+    return createServer(driver, options);
 }
 
 /**
@@ -138,14 +136,21 @@ export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions):
  */
 export function createKoaServer(options?: RoutingControllersOptions): any {
     const driver = new KoaDriver();
-    createExecutor(driver, options || {});
-    return driver.koa;
+    return createServer(driver, options);
+}
+
+/**
+ * Registers all loaded actions in your application using selected driver.
+ */
+export function createServer<T extends BaseDriver>(driver: T, options?: RoutingControllersOptions): any {
+    createExecutor(driver, options);
+    return driver.app;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
-export function createExecutor(driver: Driver, options: RoutingControllersOptions): void {
+export function createExecutor<T extends BaseDriver>(driver: T, options: RoutingControllersOptions = {}): void {
 
     // import all controllers and middlewares and error handlers (new way)
     let controllerClasses: Function[];
@@ -215,7 +220,7 @@ export function createExecutor(driver: Driver, options: RoutingControllersOption
     new RoutingControllers(driver, options)
         .initialize()
         .registerInterceptors(interceptorClasses)
-        .registerMiddlewares("before")
+        .registerMiddlewares("before", middlewareClasses)
         .registerControllers(controllerClasses)
         .registerMiddlewares("after", middlewareClasses); // todo: register only for loaded controllers?
 }

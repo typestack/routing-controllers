@@ -1,11 +1,11 @@
 import {Action} from "./Action";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionParameterHandler} from "./ActionParameterHandler";
-import {Driver} from "./driver/Driver";
+import {BaseDriver} from "./driver/BaseDriver";
 import {InterceptorInterface} from "./InterceptorInterface";
 import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
-import { RoutingControllersOptions } from "./RoutingControllersOptions";
+import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {getFromContainer} from "./container";
 import {isPromiseLike} from "./util/isPromiseLike";
 import {runInSequence} from "./util/runInSequence";
@@ -13,7 +13,7 @@ import {runInSequence} from "./util/runInSequence";
 /**
  * Registers controllers and middlewares in the given server framework.
  */
-export class RoutingControllers {
+export class RoutingControllers<T extends BaseDriver> {
 
     // -------------------------------------------------------------------------
     // Private properties
@@ -22,7 +22,7 @@ export class RoutingControllers {
     /**
      * Used to check and handle controller action parameters.
      */
-    private parameterHandler: ActionParameterHandler;
+    private parameterHandler: ActionParameterHandler<T>;
 
     /**
      * Used to build metadata objects for controllers and middlewares.
@@ -38,7 +38,7 @@ export class RoutingControllers {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(private driver: Driver, private options: RoutingControllersOptions) {
+    constructor(private driver: T, private options: RoutingControllersOptions) {
         this.parameterHandler = new ActionParameterHandler(driver);
         this.metadataBuilder = new MetadataBuilder(options);
     }
@@ -95,8 +95,7 @@ export class RoutingControllers {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
             .filter(middleware => middleware.global && middleware.type === type)
-            .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
-            .reverse()
+            .sort((middleware1, middleware2) => middleware2.priority - middleware1.priority)
             .forEach(middleware => this.driver.registerMiddleware(middleware));
 
         return this;
