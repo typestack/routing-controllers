@@ -153,9 +153,8 @@ export abstract class BaseDriver {
         let processedError: any = {};
         if (error instanceof Error) {
             const name = error.name && error.name !== "Error" ? error.name : error.constructor.name;
+            processedError.name = name;
 
-            if (error.name && (error.name !== "Error" || this.developmentMode || error.message)) // show name if specific defined, debug mode or error message is defined 
-                processedError.name = name;
             if (error.message)
                 processedError.message = error.message;
             if (error.stack && this.developmentMode)
