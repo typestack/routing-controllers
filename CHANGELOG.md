@@ -1,5 +1,17 @@
 # Changelog and release notes
 
+### 0.7.7 (to be released)
+- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed - #308
+
+### 0.7.6
+- fixed bugs with undefined result code behaviour
+
+### 0.7.5
+- fixed bugs with undefined result code behaviour
+
+### 0.7.4
+- fixed bugs with undefined result code behaviour
+
 ### 0.7.3
 
 - FIXED: Directly calling response bug - #286
