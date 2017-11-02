@@ -86,7 +86,7 @@ export class ControllerMetadata {
     build(responseHandlers: ResponseHandlerMetadata[]) {
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized" && !handler.method);
         this.isAuthorizedUsed = !!authorizedHandler;
-        this.authorizedRoles = authorizedHandler ? authorizedHandler.value : [];
+        this.authorizedRoles = [].concat((authorizedHandler && authorizedHandler.value) || []);
     }
 
 }

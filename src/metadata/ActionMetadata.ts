@@ -207,7 +207,7 @@ export class ActionMetadata {
         this.headers = this.buildHeaders(responseHandlers);
 
         this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
-        this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat(authorizedHandler && authorizedHandler.value ? authorizedHandler.value : []);
+        this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat((authorizedHandler && authorizedHandler.value) || []);
     }
 
     // -------------------------------------------------------------------------
