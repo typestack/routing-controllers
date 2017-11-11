@@ -4,11 +4,11 @@
 
 #### Features
 
-- feat(ErrorHandling): add support for custom toJSON method in errors (ref #325)
+- feat(ErrorHandling): add support for custom toJSON method in errors (ref [#325][#325])
 
 #### Fixes
 
-- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed (ref #308)
+- fixed inconsistent roles parameter in authorizationChecker (ref [#308][#308])
 
 ### 0.7.6
 
@@ -32,25 +32,23 @@
 
 #### Features
 
-- Support for returning Buffer and streams from action handler (controller's method) (ref #285)
-- Custom driver support (ref #276)
+- Support for returning Buffer and streams from action handler (controller's method) (ref [#285][#285])
+- Custom driver support (ref [#276][#276])
 
 #### Fixes
 
-- Directly calling response bug (ref #286)
-- Missing parameter in @BodyParam error message (ref #284)
-- Sync and async auth checker bug (ref #283)
-- Handling different content-type responses in JsonController (ref #277)
+- Directly calling response bug (ref [#286][#286])
+- Missing parameter in @BodyParam error message (ref [#284][#284])
+- Sync and async auth checker bug (ref (ref [#283][#283])
+- Handling different content-type responses in JsonController (ref [#277][#277])
 
 ### 0.7.2
 
 #### Fixes
 
-- Using `@Authorization` decorator with Koa caused 404 responses (ref #240)
-- Allow throwing custom errors in `authorizationChecker` (ref #233, ref #247)
-- check auth permissions before accepting files for upload (ref #251)
-
-### 0.7.1
+- Using `@Authorization` decorator with Koa caused 404 responses (ref [#240][#240])
+- Allow throwing custom errors in `authorizationChecker` (ref [#233][#233])
+- check auth permissions before accepting files for upload (ref [#251][#251])
 
 ### 0.7.0 [BREAKING CHANGES]
 
@@ -76,29 +74,55 @@
 
 ### 0.6.10
 
+#### Features
+
 - added integration with `class-transform-validator` for deserialization and auto validation request parameters
 
 ### 0.6.2
+
+#### Features
 
 - made interceptors to support promises
 
 ### 0.6.1
 
+#### Features
+
 - added interceptors support
 
 ### 0.6.0 [BREAKING CHANGES]
 
+#### Features
+
 - middleware and error handlers support
 - everything packed into "routing-controllers" main export
-- removed parseJson from @Body decorator
-- removed ActionOptions
-- removed responseType from action options and added @JsonResponse and @TextResponse decorators
 - added few more new decorators
+
+#### Fixes
+
 - fixed multiple issues with param decorators
 - fixed multiple bugs
 - refactored core
+
+#### Removals
+
+- removed `parseJson` from `@Body` decorator
+- removed `ActionOptions`
+- removed `responseType` from action options and added `@JsonResponse` and `@TextResponse` decorators
 
 ### 0.5.0
 
 - renamed package from `controllers.ts` to `routing-controllers`
 - added integration with `constructor-utils` for serialization and deserialization
+
+[#325]: https://github.com/pleerock/routing-controllers/pull/325
+[#308]: https://github.com/pleerock/routing-controllers/pull/308
+[#286]: https://github.com/pleerock/routing-controllers/pull/286
+[#285]: https://github.com/pleerock/routing-controllers/pull/285
+[#284]: https://github.com/pleerock/routing-controllers/pull/284
+[#283]: https://github.com/pleerock/routing-controllers/pull/283
+[#277]: https://github.com/pleerock/routing-controllers/pull/277
+[#276]: https://github.com/pleerock/routing-controllers/pull/276
+[#251]: https://github.com/pleerock/routing-controllers/pull/251
+[#240]: https://github.com/pleerock/routing-controllers/pull/240
+[#233]: https://github.com/pleerock/routing-controllers/pull/233
