@@ -4,11 +4,11 @@
 
 #### Features
 
-- feat(ErrorHandling): add support for custom toJSON method in errors (ref [#325](#325))
+- feat(ErrorHandling): add support for custom toJSON method in errors (ref #325)
 
 #### Fixes
 
-- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed (ref [#308](#308))
+- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed (ref #308)
 
 ### 0.7.6
 
@@ -32,23 +32,23 @@
 
 #### Features
 
-- Support for returning Buffer and streams from action handler (controller's method) (ref [#285](#285))
-- Custom driver support (ref [#276](#276))
+- Support for returning Buffer and streams from action handler (controller's method) (ref #285)
+- Custom driver support (ref #276)
 
 #### Fixes
 
-- Directly calling response bug (ref [#286](#286))
-- Missing parameter in @BodyParam error message (ref [#284](#284))
-- Sync and async auth checker bug (ref [#283](#283))
-- Handling different content-type responses in JsonController (ref [#277](#277))
+- Directly calling response bug (ref #286)
+- Missing parameter in @BodyParam error message (ref #284)
+- Sync and async auth checker bug (ref #283)
+- Handling different content-type responses in JsonController (ref #277)
 
 ### 0.7.2
 
 #### Fixes
 
-- Using `@Authorization` decorator with Koa caused 404 responses (ref [#240](#240))
-- Allow throwing custom errors in `authorizationChecker` (ref [#233](#233), ref [#247](#247))
-- check auth permissions before accepting files for upload (ref [#251](#240))
+- Using `@Authorization` decorator with Koa caused 404 responses (ref #240)
+- Allow throwing custom errors in `authorizationChecker` (ref #233, ref #247)
+- check auth permissions before accepting files for upload (ref #251)
 
 ### 0.7.1
 
