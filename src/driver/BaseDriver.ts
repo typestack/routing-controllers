@@ -150,6 +150,9 @@ export abstract class BaseDriver {
         if (!this.isDefaultErrorHandlingEnabled)
             return error;
 
+        if (typeof error.toJSON === "function")
+            return error.toJSON();
+        
         let processedError: any = {};
         if (error instanceof Error) {
             const name = error.name && error.name !== "Error" ? error.name : error.constructor.name;
