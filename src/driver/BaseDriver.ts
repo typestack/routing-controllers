@@ -150,12 +150,14 @@ export abstract class BaseDriver {
         if (!this.isDefaultErrorHandlingEnabled)
             return error;
 
+        if (typeof error.toJSON === "function")
+            return error.toJSON();
+        
         let processedError: any = {};
         if (error instanceof Error) {
             const name = error.name && error.name !== "Error" ? error.name : error.constructor.name;
+            processedError.name = name;
 
-            if (name && (this.developmentMode || error.message)) // show name only if in debug mode and if error message exist too
-                processedError.name = name;
             if (error.message)
                 processedError.message = error.message;
             if (error.stack && this.developmentMode)

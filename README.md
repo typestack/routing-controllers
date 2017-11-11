@@ -295,7 +295,9 @@ import {useExpressServer} from "routing-controllers";
 let express = require("express"); // or you can import it if you have installed typings
 let app = express(); // your created express server
 // app.use() // you can configure it the way you want
-useExpressServer(app); // register created express server in routing-controllers
+useExpressServer(app, { // register created express server in routing-controllers
+    controllers: [UserController] // and configure it the way you need (controllers, validation, etc.)
+});
 app.listen(3000); // run your express server
 ```
 
@@ -724,7 +726,30 @@ There are set of prepared errors you can use:
 * NotFoundError
 * UnauthorizedError
 
-You can also create and use your own errors by extending `HttpError` class.
+
+You can also create and use your own errors by extending `HttpError` class.  
+To define the data returned to the client, you could define a toJSON method in your error.
+
+```typescript
+class DbError extends HttpError {
+    public operationName: string;
+    public args: any[];
+
+    constructor(operationName: string, args: any[] = []) {
+        super(500);
+        Object.setPrototypeOf(this, DbError.prototype);
+        this.operationName = operationName;
+        this.args = args; // can be used for internal logging
+    }
+
+    toJSON() {
+        return {
+            status: this.httpCode,
+            failedOperation: this.operationName
+        }
+    }
+}
+``` 
 
 #### Enable CORS
 
