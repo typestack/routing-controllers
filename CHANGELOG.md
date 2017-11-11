@@ -1,32 +1,54 @@
 # Changelog and release notes
 
 ### 0.7.7 (to be released)
-- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed - #308
-- ErrorHandler: invoke class specific toJSON transformation - #325
+
+#### Features
+
+- feat(ErrorHandling): add support for custom toJSON method in errors (ref [#325](#325))
+
+#### Fixes
+
+- fixed inconsistent roles in authorizationChecker depending on where `@Authorized` decorator is placed (ref [#308](#308))
 
 ### 0.7.6
+
+#### Fixes
+
 - fixed bugs with undefined result code behaviour
 
 ### 0.7.5
+
+#### Fixes
+
 - fixed bugs with undefined result code behaviour
 
 ### 0.7.4
+
+#### Fixes
+
 - fixed bugs with undefined result code behaviour
 
 ### 0.7.3
 
-- FIXED: Directly calling response bug - #286
-- FIXED: Missing parameter in @BodyParam error message - #284
-- FIXED: Sync and async auth checker bug - #283
-- FIXED: Handling different content-type responses in JsonController - #277
-- ADDED: Support for returning Buffer and streams from action handler (controller's method) - #285
-- ADDED: Custom driver support - #276
+#### Features
+
+- Support for returning Buffer and streams from action handler (controller's method) (ref [#285](#285))
+- Custom driver support (ref [#276](#276))
+
+#### Fixes
+
+- Directly calling response bug (ref [#286](#286))
+- Missing parameter in @BodyParam error message (ref [#284](#284))
+- Sync and async auth checker bug (ref [#283](#283))
+- Handling different content-type responses in JsonController (ref [#277](#277))
 
 ### 0.7.2
 
-- FIXED: Using `@Authorization` decorator with Koa caused 404 responses (ref [#240](https://github.com/pleerock/routing-controllers/pull/240))
-- FIXED: Allow throwing custom errors in `authorizationChecker` (ref [#233](https://github.com/pleerock/routing-controllers/pull/233), ref [#247](https://github.com/pleerock/routing-controllers/pull/247))
-- FIXED: check auth permissions before accepting files for upload (ref [#251](https://github.com/pleerock/routing-controllers/pull/240))
+#### Fixes
+
+- Using `@Authorization` decorator with Koa caused 404 responses (ref [#240](#240))
+- Allow throwing custom errors in `authorizationChecker` (ref [#233](#233), ref [#247](#247))
+- check auth permissions before accepting files for upload (ref [#251](#240))
 
 ### 0.7.1
 
@@ -38,8 +60,7 @@
 - `MiddlewareInterface` was removed and instead `ExpressMiddlewareInterface` or `KoaMiddlewareInterface` should be used
 - `ExpressErrorMiddlewareInterface` was renamed into `ErrorMiddlewareInterface`
 - per-controller and per-action middlewares used in `@UseBefore` and `@UseAfter` now should not be marked with `@Middleware` decorator
-- `@MiddlewareGlobalBefore()` and `@MiddlewareGlobalAfter()` were removed and instead new signatures should be used: `@Middleware({ type: "before" })`
-and `@Middleware({ type: "after" })`
+- `@MiddlewareGlobalBefore()` and `@MiddlewareGlobalAfter()` were removed and instead new signatures should be used: `@Middleware({ type: "before" })` and `@Middleware({ type: "after" })`
 - named some decorator parameter names
 - added few new decorators to get all parameters like `@QueryParams`, `@Params`, `@HeaderParams` etc.
 - added `@Authorized` and `@CurrentUser` decorators
@@ -55,11 +76,11 @@ and `@Middleware({ type: "after" })`
 
 ### 0.6.10
 
-* added integration with `class-transform-validator` for deserialization and auto validation request parameters
+- added integration with `class-transform-validator` for deserialization and auto validation request parameters
 
 ### 0.6.2
 
-* made interceptors to support promises
+- made interceptors to support promises
 
 ### 0.6.1
 
