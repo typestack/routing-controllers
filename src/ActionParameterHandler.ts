@@ -112,12 +112,12 @@ export class ActionParameterHandler<T extends BaseDriver> {
         // if param value is an object and param type match, normalize its string properties
         if (typeof value === "object" && ["queries", "headers", "params", "cookies"].some(paramType => paramType === param.type)) {
             Object.keys(value).map(key => {
-                const keyValue = (value as any)[key];
+                const keyValue = value[key];
                 if (typeof keyValue === "string") {
-                    const ParamType = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                    const ParamType: Function|undefined = Reflect.getMetadata("design:type", param.targetType.prototype, key);
                     if (ParamType) {
-                        const typeString = ParamType.name.toLowerCase(); // reflected type is always constructor-like (?)
-                        (value as any)[key] = this.normalizeStringValue(keyValue, param.name, typeString);
+                        const typeString = ParamType.name.toLowerCase(); // reflected type is always constructor-like?
+                        value[key] = this.normalizeStringValue(keyValue, param.name, typeString);
                     }
                 }
             });
