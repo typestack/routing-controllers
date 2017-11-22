@@ -41,6 +41,12 @@ export interface RoutingControllersOptions {
     classTransformer?: boolean;
 
     /**
+     * Toggles class-transformer serialization for response values.
+     * Overwritten by a negative classTransformer value.
+     */
+    useResponseClassTransformer?: boolean;
+
+    /**
      * Global class transformer options passed to class-transformer during classToPlain operation.
      * This operation is being executed when server returns response to user.
      */
@@ -85,7 +91,7 @@ export interface RoutingControllersOptions {
      * Special function used to get currently authorized user.
      */
     currentUserChecker?: CurrentUserChecker;
-    
+
     /**
      * Default settings
      */

@@ -30,6 +30,12 @@ export abstract class BaseDriver {
     useClassTransformer: boolean;
 
     /**
+     * Toggles class-transformer serialization for response values.
+     * Overwritten by a negative classTransformer value.
+     */
+    useResponseClassTransformer: boolean;
+
+    /**
      * Indicates if class-validator should be used or not.
      */
     enableValidation: boolean;
@@ -44,7 +50,7 @@ export abstract class BaseDriver {
      * Global class-validator options passed during validate operation.
      */
     validationOptions: ValidatorOptions;
-    
+
     /**
      * Global class transformer options passed to class-transformer during plainToClass operation.
      * This operation is being executed when parsing user parameters.
@@ -92,7 +98,7 @@ export abstract class BaseDriver {
      * Initializes the things driver needs before routes and middleware registration.
      */
     abstract initialize(): void;
-    
+
     /**
      * Registers given middleware.
      */
@@ -129,14 +135,14 @@ export abstract class BaseDriver {
 
     protected transformResult(result: any, action: ActionMetadata, options: Action): any {
         // check if we need to transform result
-        const shouldTransform = (this.useClassTransformer && result != null) // transform only if enabled and value exist
+        const shouldTransform = (this.useClassTransformer && this.useResponseClassTransformer && result != null) // transform only if enabled and value exist
             && result instanceof Object // don't transform primitive types (string/number/boolean)
             && !(
                 result instanceof Uint8Array // don't transform binary data
                 ||
                 result.pipe instanceof Function // don't transform streams
             );
-            
+
         // transform result if needed
         if (shouldTransform) {
             const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
@@ -152,7 +158,7 @@ export abstract class BaseDriver {
 
         if (typeof error.toJSON === "function")
             return error.toJSON();
-        
+
         let processedError: any = {};
         if (error instanceof Error) {
             const name = error.name && error.name !== "Error" ? error.name : error.constructor.name;

@@ -509,6 +509,10 @@ If you specify a class type to parameter that is decorated with parameter decora
 routing-controllers will use [class-transformer][4] to create instance of that class type.
 More info about this feature is available [here](#creating-instances-of-classes-from-action-params).
 
+#### Disable response transformation
+
+By default response values are coerced to plain objects with [class-transformer](https://github.com/pleerock/class-transformer). When returning large objects or values with complex serialization logic (e.g. Mongoose documents) you might opt for the default `toJSON` handler instead. To disable response transformation simply pass `useResponseClassTransformer: false` to createExpressServer method.
+
 #### Set custom ContentType
 
 You can specify a custom ContentType header:
@@ -694,7 +698,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -716,7 +720,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -757,7 +761,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -770,9 +774,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true

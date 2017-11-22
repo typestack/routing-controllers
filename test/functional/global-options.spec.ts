@@ -10,8 +10,14 @@ const expect = chakram.expect;
 export class User {
     firstName: string;
     lastName: string;
-    getName(): string {
-        return this.firstName + " " + this.lastName;
+    password: string;
+
+    /**
+     * This method only gets called when class-transformer serialization for
+     * response values is disabled.
+     */
+    toJSON() {
+        return {firstName: this.firstName, lastName: this.lastName};
     }
 }
 
@@ -34,19 +40,23 @@ describe("routing-controllers global options", () => {
             @Post("/users")
             postUsers(@Body() user: User) {
                 initializedUser = user;
-                return "";
+                const ret = new User();
+                ret.firstName = user.firstName;
+                ret.lastName = user.lastName;
+                ret.password = "1234";
+                return ret;
             }
-            
+
             @Post(new RegExp("/(prefix|regex)/users"))
             postUsersWithRegex(@Body() user: User) {
                 initializedUser = user;
                 return "";
             }
-            
+
         }
     });
 
-    describe("useClassTransformer by default must be set to true", () => {
+    describe("useClassTransformer and useResponseClassTransformer by default must be set to true", () => {
 
         let expressApp: any, koaApp: any;
         before(done => expressApp = createExpressServer().listen(3001, done));
@@ -54,23 +64,25 @@ describe("routing-controllers global options", () => {
         before(done => koaApp = createKoaServer().listen(3002, done));
         after(done => koaApp.close(done));
 
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev", password: "1234" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
             expect(response).to.have.status(200);
+            expect(response.body.password).to.be.defined;
         });
     });
 
-    describe("when useClassTransformer is set to true", () => {
+    describe("when useClassTransformer and useResponseClassTransformer are set to true", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ classTransformer: true }).listen(3001, done));
+        before(done => expressApp = createExpressServer({ classTransformer: true, useResponseClassTransformer: true }).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ classTransformer: true }).listen(3002, done));
+        before(done => koaApp = createKoaServer({ classTransformer: true, useResponseClassTransformer: true }).listen(3002, done));
         after(done => koaApp.close(done));
 
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev", password: "1234" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
             expect(response).to.have.status(200);
+            expect(response.body.password).to.be.defined;
         });
     });
 
@@ -81,22 +93,38 @@ describe("routing-controllers global options", () => {
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer({ classTransformer: false }).listen(3002, done));
         after(done => koaApp.close(done));
-    
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev", password: "1234" }, response => {
             expect(initializedUser).not.to.be.instanceOf(User);
             expect(response).to.have.status(200);
+            expect(response.body.password).to.be.undefined;
+        });
+    });
+
+    describe("when useClassTransformer is set but useResponseClassTransformer is not", () => {
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer({ useResponseClassTransformer: false }).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer({ useResponseClassTransformer: false }).listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev", password: "1234" }, response => {
+            expect(initializedUser).to.be.instanceOf(User);
+            expect(response).to.have.status(200);
+            expect(response.body.password).to.be.undefined;
         });
     });
 
     describe("when routePrefix is used all controller routes should be appended by it", () => {
-    
+
         let apps: any[] = [];
         before(done => apps.push(createExpressServer({ routePrefix: "/api" }).listen(3001, done)));
         before(done => apps.push(createExpressServer({ routePrefix: "api" }).listen(3002, done)));
         before(done => apps.push(createKoaServer({ routePrefix: "/api" }).listen(3003, done)));
         before(done => apps.push(createKoaServer({ routePrefix: "api" }).listen(3004, done)));
         after(done => { apps.forEach(app => app.close()); done(); });
-    
+
         assertRequest([3001, 3002, 3003, 3004], "post", "api/users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
             expect(response).to.have.status(200);
