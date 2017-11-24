@@ -8,9 +8,6 @@ import {Get} from "../../src/decorator/Get";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
 import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
-import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
-import {Middleware} from "../../src/decorator/Middleware";
-import {KoaMiddlewareInterface} from "../../src/driver/koa/KoaMiddlewareInterface";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -238,44 +235,13 @@ describe("parameters auto-validation", () => {
         });
 
         const options: RoutingControllersOptions = {
-            validation: true,
-            defaultErrorHandler: false
+            validation: true
         };
 
         let expressApp: any, koaApp: any;
-        before(done => {
-
-            @Middleware({type: "after"})
-            class ExpressErrorHandler implements ExpressErrorMiddlewareInterface {
-
-                error(error: any, request: any, response: any, next: (err?: any) => any): void {
-                    response.statusCode = 400;
-                    response.send(error.paramName);
-                    next();
-                }
-            }
-
-            expressApp = createExpressServer(options)
-                .listen(3001, done);
-        });
+        before(done => expressApp = createExpressServer(options).listen(3001, done));
         after(done => expressApp.close(done));
-        before(done => {
-
-            @Middleware({type: "before"})
-            class KoaErrorHandler implements KoaMiddlewareInterface {
-
-                async use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
-                    try {
-                        await next();
-                    } catch (e) {
-                        context.body = e.paramName;
-                        context.status = 400;
-                    }
-                }
-            }
-
-            koaApp = createKoaServer(options).listen(3002, done);
-        });
+        before(done => koaApp = createKoaServer(options).listen(3002, done));
         after(done => koaApp.close(done));
 
         const invalidFilter = {
@@ -284,8 +250,7 @@ describe("parameters auto-validation", () => {
 
         assertRequest([3001, 3002], "get", `user?filter=${JSON.stringify(invalidFilter)}`, response => {
             expect(response).to.have.status(400);
-            expect(response.body).to.equal("filter");
+            expect(response.body.paramName).to.equal("filter");
         });
     });
-
 });
