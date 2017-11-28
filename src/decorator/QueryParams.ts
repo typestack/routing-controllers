@@ -12,6 +12,7 @@ export function QueryParams(options?: ParamOptions): Function {
             object: object,
             method: methodName,
             index: index,
+            name: "",
             parse: options ? options.parse : false,
             required: options ? options.required : undefined,
             classTransform: options ? options.transform : undefined,

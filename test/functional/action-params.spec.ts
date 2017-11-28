@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {IsString, IsBoolean, Min, MaxLength} from "class-validator";
+import {IsString, IsBoolean, Min, MaxLength, ValidateNested} from "class-validator";
 import {getMetadataArgsStorage, createExpressServer, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
@@ -85,6 +85,17 @@ describe("action parameters", () => {
         const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
 
+        class NestedQueryClass {
+            @Min(5)
+            num: number;
+
+            @IsString()
+            str: string;
+
+            @IsBoolean()
+            isFive: boolean;
+        }
+
         class QueryClass {
             @MaxLength(5)
             sortBy?: string;
@@ -97,6 +108,9 @@ describe("action parameters", () => {
 
             @IsBoolean()
             showAll: boolean = true;
+
+            @ValidateNested()
+            myObject: NestedQueryClass;
         }
 
         @Controller()
@@ -498,7 +512,7 @@ describe("action parameters", () => {
     });
 
     // todo: enable koa test when #227 fixed
-    describe("@QueryParams should give a proper values from request query parameters", () => {
+    describe("@QueryParams should give a proper values from request's query parameters", () => {
         assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll", response => {
             expect(response).to.be.status(200);
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
@@ -506,6 +520,20 @@ describe("action parameters", () => {
             expect(queryParams1.count).to.be.equal("2");
             expect(queryParams1.limit).to.be.equal(10);
             expect(queryParams1.showAll).to.be.equal(true);
+        });
+    });
+
+    describe("@QueryParams should give a proper values from request's query parameters with nested json", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams1.sortBy).to.be.equal("name");
+            expect(queryParams1.count).to.be.equal("2");
+            expect(queryParams1.limit).to.be.equal(10);
+            expect(queryParams1.showAll).to.be.equal(true);
+            expect(queryParams1.myObject.num).to.be.equal(5);
+            expect(queryParams1.myObject.str).to.be.equal("five");
+            expect(queryParams1.myObject.isFive).to.be.equal(true);
         });
     });
 
@@ -521,7 +549,7 @@ describe("action parameters", () => {
     });
 
     // todo: enable koa test when #227 fixed
-    describe("@QueryParams should give a proper values from request query parameters", () => {
+    describe("@QueryParams should give a proper values from request's optional query parameters", () => {
         assertRequest([3001, /*3002*/], "get", "photos-params-optional?sortBy=name&limit=10", response => {
             expect(queryParams3.sortBy).to.be.equal("name");
             expect(queryParams3.count).to.be.equal(undefined);

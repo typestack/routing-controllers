@@ -111,16 +111,21 @@ export class ActionParameterHandler<T extends BaseDriver> {
 
         // if param value is an object and param type match, normalize its string properties
         if (typeof value === "object" && ["queries", "headers", "params", "cookies"].some(paramType => paramType === param.type)) {
-            Object.keys(value).map(key => {
+            await Promise.all(Object.keys(value).map(async key => {
                 const keyValue = value[key];
                 if (typeof keyValue === "string") {
                     const ParamType: Function|undefined = Reflect.getMetadata("design:type", param.targetType.prototype, key);
                     if (ParamType) {
-                        const typeString = ParamType.name.toLowerCase(); // reflected type is always constructor-like?
-                        value[key] = this.normalizeStringValue(keyValue, param.name, typeString);
+                        const typeString = ParamType.name.toLowerCase();
+                        value[key] = await this.normalizeParamValue(keyValue, {
+                            ...param,
+                            name: key,
+                            targetType: ParamType,
+                            targetName: typeString,
+                        });
                     }
                 }
-            });
+            }));
         }
         // if value is a string, normalize it to demanded type
         else if (typeof value === "string") {
@@ -137,9 +142,9 @@ export class ActionParameterHandler<T extends BaseDriver> {
         if ((["number", "string", "boolean"].indexOf(param.targetName) === -1)
             && (param.parse || param.isTargetObject)
         ) {
-            value = this.parseValue(value, param);
-            value = this.transformValue(value, param);
-            value = this.validateValue(value, param); // note this one can return promise
+                value = this.parseValue(value, param);
+                value = this.transformValue(value, param);
+                value = await this.validateValue(value, param);
         }
 
         return value;
