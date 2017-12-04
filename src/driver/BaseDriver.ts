@@ -30,12 +30,6 @@ export abstract class BaseDriver {
     useClassTransformer: boolean;
 
     /**
-     * Toggles class-transformer serialization for response values.
-     * Overwritten by a negative classTransformer value.
-     */
-    useResponseClassTransformer: boolean;
-
-    /**
      * Indicates if class-validator should be used or not.
      */
     enableValidation: boolean;
@@ -135,7 +129,8 @@ export abstract class BaseDriver {
 
     protected transformResult(result: any, action: ActionMetadata, options: Action): any {
         // check if we need to transform result
-        const shouldTransform = (this.useClassTransformer && this.useResponseClassTransformer) // transform only if both general and response-specific transformation is enabled
+        const shouldTransform = this.useClassTransformer // transform only if class-transformer is enabled
+            && action.options.transformResponse !== false // don't transform if action response transform is disabled
             && result instanceof Object // don't transform primitive types (string/number/boolean)
             && !(
                 result instanceof Uint8Array // don't transform binary data

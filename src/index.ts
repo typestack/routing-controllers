@@ -190,12 +190,6 @@ export function createExecutor<T extends BaseDriver>(driver: T, options: Routing
         driver.useClassTransformer = true;
     }
 
-    if (options.useResponseClassTransformer !== undefined) {
-        driver.useResponseClassTransformer = options.useResponseClassTransformer;
-    } else {
-        driver.useResponseClassTransformer = true;
-    }
-
     if (options.validation !== undefined) {
         driver.enableValidation = !!options.validation;
         if (options.validation instanceof Object)

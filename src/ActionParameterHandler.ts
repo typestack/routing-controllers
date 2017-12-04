@@ -162,6 +162,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
      */
     protected transformValue(value: any, paramMetadata: ParamMetadata): any {
         if (this.driver.useClassTransformer &&
+            paramMetadata.actionMetadata.options.transformRequest !== false &&
             paramMetadata.targetType &&
             paramMetadata.targetType !== Object &&
             !(value instanceof paramMetadata.targetType)) {

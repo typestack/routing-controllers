@@ -6,7 +6,8 @@ import {ControllerMetadata} from "./ControllerMetadata";
 import {InterceptorMetadata} from "./InterceptorMetadata";
 import {ParamMetadata} from "./ParamMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import { RoutingControllersOptions } from "../RoutingControllersOptions";
+import {HandlerOptions} from "../decorator-options/HandlerOptions";
+import {RoutingControllersOptions} from "../RoutingControllersOptions";
 import {UseMetadata} from "./UseMetadata";
 
 /**
@@ -47,6 +48,11 @@ export class ActionMetadata {
      * Object's method that will be executed on this action.
      */
     method: string;
+
+    /**
+     * Action-specific options.
+     */
+    options: HandlerOptions;
 
     /**
      * Action type represents http method used for the registered route. Can be one of the value defined in ActionTypes
@@ -148,11 +154,12 @@ export class ActionMetadata {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs, private options: RoutingControllersOptions) {
+    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs, private globalOptions: RoutingControllersOptions) {
         this.controllerMetadata = controllerMetadata;
         this.route = args.route;
         this.target = args.target;
         this.method = args.method;
+        this.options = args.options;
         this.type = args.type;
         this.appendParams = args.appendParams;
         this.methodOverride = args.methodOverride;
@@ -179,15 +186,15 @@ export class ActionMetadata {
 
         if (classTransformerResponseHandler)
             this.responseClassTransformOptions = classTransformerResponseHandler.value;
-        
+
         this.undefinedResultCode = undefinedResultHandler
             ? undefinedResultHandler.value
-            : this.options.defaults && this.options.defaults.undefinedResultCode;
-        
+            : this.globalOptions.defaults && this.globalOptions.defaults.undefinedResultCode;
+
         this.nullResultCode = nullResultHandler
             ? nullResultHandler.value
-            : this.options.defaults && this.options.defaults.nullResultCode;
-        
+            : this.globalOptions.defaults && this.globalOptions.defaults.nullResultCode;
+
         if (successCodeHandler)
             this.successHttpCode = successCodeHandler.value;
         if (redirectHandler)
@@ -199,7 +206,7 @@ export class ActionMetadata {
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
-        this.isJsonTyped = (contentTypeHandler !== undefined 
+        this.isJsonTyped = (contentTypeHandler !== undefined
             ? /json/.test(contentTypeHandler.value)
             : this.controllerMetadata.type === "json"
         );
@@ -280,7 +287,7 @@ export class ActionMetadata {
         if (!baseRoute || baseRoute === "") return route;
 
         const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
-        
+
         return new RegExp(fullPath, route.flags);
     }
 
