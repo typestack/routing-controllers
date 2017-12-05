@@ -1,24 +1,21 @@
 import "reflect-metadata";
+import {Exclude, Expose} from "class-transformer";
+import {defaultMetadataStorage} from "class-transformer/storage";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Post} from "../../src/decorator/Post";
 import {Body} from "../../src/decorator/Body";
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-const chakram = require("chakram");
-const expect = chakram.expect;
-
-export class User {
-    firstName: string;
-    lastName: string;
-
-    toJSON() {
-        return {firstName: this.firstName}; // lastName is excluded when class-transformer is disabled
-    }
-}
+const expect = require("chakram").expect;
 
 describe("routing-controllers global options", () => {
 
-    let initializedUser: User;
+    let initializedUser: any;
+    let User: any;
+
+    after(() => {
+        defaultMetadataStorage.clear();
+    });
 
     beforeEach(() => {
         initializedUser = undefined;
@@ -29,11 +26,20 @@ describe("routing-controllers global options", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
+        @Exclude()
+        class UserModel {
+            @Expose()
+            firstName: string;
+
+            lastName: string;
+        }
+        User = UserModel;
+
         @JsonController()
         class TestUserController {
 
             @Post("/users")
-            postUsers(@Body() user: User) {
+            postUsers(@Body() user: UserModel) {
                 initializedUser = user;
                 const ret = new User();
                 ret.firstName = user.firstName;
@@ -42,7 +48,7 @@ describe("routing-controllers global options", () => {
             }
 
             @Post(new RegExp("/(prefix|regex)/users"))
-            postUsersWithRegex(@Body() user: User) {
+            postUsersWithRegex(@Body() user: UserModel) {
                 initializedUser = user;
                 return "";
             }
@@ -60,8 +66,9 @@ describe("routing-controllers global options", () => {
 
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.be.undefined;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.defined;
+            expect(response.body.lastName).to.be.undefined;
         });
     });
 
@@ -75,8 +82,9 @@ describe("routing-controllers global options", () => {
 
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.be.undefined;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.defined;
+            expect(response.body.lastName).to.be.undefined;
         });
     });
 
@@ -90,8 +98,9 @@ describe("routing-controllers global options", () => {
 
         assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).not.to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.exist;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.undefined;
+            expect(response.body.lastName).to.exist;
         });
     });
 

@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import {Exclude, Expose} from "class-transformer";
+import {defaultMetadataStorage} from "class-transformer/storage";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Post} from "../../src/decorator/Post";
 import {Body} from "../../src/decorator/Body";
@@ -6,26 +8,14 @@ import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../.
 import {assertRequest} from "./test-utils";
 const expect = require("chakram").expect;
 
-export class User {
-    firstName: string;
-    lastName: string;
-
-    toJSON() {
-        return {firstName: this.firstName}; // lastName is excluded when class-transformer is disabled
-    }
-}
-
 describe("action options", () => {
 
-    let initializedUser: User;
+    let initializedUser: any;
+    let User: any;
 
-    function handler(user: User) {
-        initializedUser = user;
-        const ret = new User();
-        ret.firstName = user.firstName;
-        ret.lastName = user.lastName || "default";
-        return ret;
-    }
+    after(() => {
+        defaultMetadataStorage.clear();
+    });
 
     beforeEach(() => {
         initializedUser = undefined;
@@ -36,13 +26,30 @@ describe("action options", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
+        @Exclude()
+        class UserModel {
+            @Expose()
+            firstName: string;
+
+            lastName: string;
+        }
+        User = UserModel;
+
+        function handler(user: UserModel) {
+            initializedUser = user;
+            const ret = new User();
+            ret.firstName = user.firstName;
+            ret.lastName = user.lastName || "default";
+            return ret;
+        }
+
         @JsonController("", {transformResponse: false})
-        class DefaultController {
+        class NoTransformResponseController {
             @Post("/default")
-            default(@Body() user: User) { return handler(user); }
+            default(@Body() user: UserModel) { return handler(user); }
 
             @Post("/override", {transformRequest: false, transformResponse: true})
-            transform(@Body() user: User) { return handler(user); }
+            transform(@Body() user: UserModel) { return handler(user); }
         }
     });
 
@@ -52,19 +59,21 @@ describe("action options", () => {
     before(done => koaApp = createKoaServer().listen(3002, done));
     after(done => koaApp.close(done));
 
-    describe("use controller options when action transform options are not set", () => {
+    it("should use controller options when action transform options are not set", () => {
         assertRequest([3001, 3002], "post", "default", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.be.undefined;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.defined;
+            expect(response.body.lastName).to.exist;
         });
     });
 
-    describe("override controller options when action transform options are set", () => {
+    it("should override controller options when action transform options are set", () => {
         assertRequest([3001, 3002], "post", "override", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).not.to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.exist;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.defined;
+            expect(response.body.lastName).to.be.undefined;
         });
     });
 });

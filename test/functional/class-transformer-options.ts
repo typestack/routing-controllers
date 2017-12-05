@@ -17,16 +17,20 @@ describe("class transformer options", () => {
         keyword: string;
     }
 
-    class UserModel {
-        id: number;
-        _firstName: string;
-        _lastName: string;
+    let UserModel: any;
+    before(() => {
+        class User {
+            id: number;
+            _firstName: string;
+            _lastName: string;
 
-        @Expose()
-        get name(): string {
-            return this._firstName + " " + this._lastName;
+            @Expose()
+            get name(): string {
+                return this._firstName + " " + this._lastName;
+            }
         }
-    }
+        UserModel = User;
+    });
 
     after(() => {
         defaultMetadataStorage.clear();
