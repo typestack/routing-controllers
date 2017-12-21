@@ -190,6 +190,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 .catch((validationErrors: ValidationError[]) => {
                     const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
                     error.errors = validationErrors;
+                    error.paramName = paramMetadata.name; 
                     throw error;
                 });
         }
