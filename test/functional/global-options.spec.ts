@@ -43,7 +43,7 @@ describe("routing-controllers global options", () => {
                 initializedUser = user;
                 const ret = new User();
                 ret.firstName = user.firstName;
-                ret.lastName = user.lastName || "default";
+                ret.lastName = user.lastName;
                 return ret;
             }
 

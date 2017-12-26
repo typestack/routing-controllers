@@ -46,10 +46,19 @@ describe("action options", () => {
         @JsonController("", {transformResponse: false})
         class NoTransformResponseController {
             @Post("/default")
-            default(@Body() user: UserModel) { return handler(user); }
+            default(@Body() user: UserModel) {
+                return handler(user);
+            }
 
-            @Post("/override", {transformRequest: false, transformResponse: true})
-            transform(@Body() user: UserModel) { return handler(user); }
+            @Post("/transformRequestOnly", {transformRequest: true, transformResponse: false})
+            transformRequestOnly(@Body() user: UserModel) {
+                return handler(user);
+            }
+
+            @Post("/transformResponseOnly", {transformRequest: false, transformResponse: true})
+            transformResponseOnly(@Body() user: UserModel) {
+                return handler(user);
+            }
         }
     });
 
@@ -64,12 +73,21 @@ describe("action options", () => {
             expect(initializedUser).to.be.instanceOf(User);
             expect(initializedUser.lastName).to.be.undefined;
             expect(response).to.have.status(200);
-            expect(response.body.lastName).to.exist;
+            expect(response.body.lastName).to.equal("default");
         });
     });
 
-    it("should override controller options when action transform options are set", () => {
-        assertRequest([3001, 3002], "post", "override", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+    it("should override controller options with action transformRequest option", () => {
+        assertRequest([3001, 3002], "post", "transformRequestOnly", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
+            expect(initializedUser).to.be.instanceOf(User);
+            expect(initializedUser.lastName).to.be.undefined;
+            expect(response).to.have.status(200);
+            expect(response.body.lastName).to.equal("default");
+        });
+    });
+
+    it("should override controller options with action transformResponse option", () => {
+        assertRequest([3001, 3002], "post", "transformResponseOnly", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
             expect(initializedUser).not.to.be.instanceOf(User);
             expect(initializedUser.lastName).to.exist;
             expect(response).to.have.status(200);
