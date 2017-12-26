@@ -1490,7 +1490,7 @@ of usage.
 
 ## Release notes
 
-See information about breaking changes and release notes [here](https://github.com/pleerock/routing-controllers/tree/master/doc/release-notes.md).
+See information about breaking changes and release notes [here](CHANGELOG.md).
 
 [1]: http://expressjs.com/
 [2]: http://koajs.com/
