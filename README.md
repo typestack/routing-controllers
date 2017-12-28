@@ -785,13 +785,13 @@ app.listen(3000);
 
 ## Using middlewares
 
-You can use any exist express / koa middleware, or create your own.
+You can use any existing express / koa middleware, or create your own.
 To create your middlewares there is a `@Middleware` decorator,
 and to use already exist middlewares there are `@UseBefore` and `@UseAfter` decorators.
 
-### Use exist middleware
+### Use existing middleware
 
-There are multiple ways to use middlewares.
+There are multiple ways to use middleware.
 For example, lets try to use [compression](https://github.com/expressjs/compression) middleware:
 
 1. Install compression middleware: `npm install compression`
@@ -876,7 +876,7 @@ Here is example of creating middleware for express.js:
     }
     ```
 
-    Then you can them this way:
+    Then you can use them this way:
 
     ```typescript
     import {Controller, UseBefore} from "routing-controllers";
@@ -991,7 +991,7 @@ export class LoggingMiddleware implements ExpressMiddlewareInterface {
 }
 ```
 
-To enable this middleware specify it during routing-controllers initialization:
+To enable this middleware, specify it during routing-controllers initialization:
 
 ```typescript
 import "reflect-metadata";
@@ -1168,7 +1168,7 @@ export class UserController {
 If `User` is an interface - then simple literal object will be created.
 If its a class - then instance of this class will be created.
 
-This technique works not only with `@Body`, but also with `@Param`, `@QueryParam`, `@BodyParam` and other decorators.
+This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
 If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
