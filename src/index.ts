@@ -45,6 +45,7 @@ export * from "./decorator/Put";
 export * from "./decorator/QueryParam";
 export * from "./decorator/QueryParams";
 export * from "./decorator/Redirect";
+export * from "./decorator/RedirectOrRender";
 export * from "./decorator/Render";
 export * from "./decorator/Req";
 export * from "./decorator/Res";
