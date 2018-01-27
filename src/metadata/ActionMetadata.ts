@@ -119,6 +119,8 @@ export class ActionMetadata {
      */
     renderedTemplate: string;
 
+    renderOrRedirect: string;
+
     /**
      * Response headers to be set.
      */
@@ -176,6 +178,7 @@ export class ActionMetadata {
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized");
         const contentTypeHandler = responseHandlers.find(handler => handler.type === "content-type");
         const bodyParam = this.params.find(param => param.type === "body");
+        const renderOrRedirect = responseHandlers.find(handler => handler.type === "render-or-redirect");
 
         if (classTransformerResponseHandler)
             this.responseClassTransformOptions = classTransformerResponseHandler.value;
@@ -194,6 +197,8 @@ export class ActionMetadata {
             this.redirect = redirectHandler.value;
         if (renderedTemplateHandler)
             this.renderedTemplate = renderedTemplateHandler.value;
+        if (renderOrRedirect)
+            this.renderOrRedirect = renderOrRedirect.value;
 
         this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");

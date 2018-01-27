@@ -272,7 +272,6 @@ export class ExpressDriver extends BaseDriver {
         Object.keys(action.headers).forEach(name => {
             options.response.header(name, action.headers[name]);
         });
-
         if (action.redirect) { // if redirect is set then do it
             if (typeof result === "string") {
                 options.response.redirect(result);
@@ -282,6 +281,15 @@ export class ExpressDriver extends BaseDriver {
                 options.response.redirect(action.redirect);
             }
 
+            options.next();
+        }
+        else if (action.renderOrRedirect) {
+            if (typeof result === "string") {
+                options.response.redirect(result);
+            } else if (typeof result === "object") {
+                options.response.render(action.renderOrRedirect, result);
+            }
+            
             options.next();
         }
         else if (action.renderedTemplate) { // if template is set then render it
