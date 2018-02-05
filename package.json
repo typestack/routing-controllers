@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "class-transformer": "~0.1.6",
-    "class-validator": "^0.7.0",
+    "class-validator": "^0.8.1",
     "cookie": "^0.3.1",
     "glob": "^7.0.5",
     "reflect-metadata": "^0.1.10",
