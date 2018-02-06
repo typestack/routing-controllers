@@ -1,7 +1,7 @@
 import {HttpError} from "./HttpError";
 
 /**
- * Exception for todo HTTP error.
+ * Exception for 405 HTTP error.
  */
 export class MethodNotAllowedError extends HttpError {
     name = "MethodNotAllowedError";

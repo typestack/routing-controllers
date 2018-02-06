@@ -1,4 +1,4 @@
-import {UseInterceptorMetadataArgs} from "./args/UseInterceptorMetadataArgs";
+import {UseInterceptorMetadataArgs} from "../metadata-args/UseInterceptorMetadataArgs";
 
 /**
  * "Use interceptor" metadata.

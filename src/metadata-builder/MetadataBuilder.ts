@@ -1,74 +1,94 @@
 import {ActionMetadata} from "../metadata/ActionMetadata";
 import {ControllerMetadata} from "../metadata/ControllerMetadata";
-import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
 import {ParamMetadata} from "../metadata/ParamMetadata";
-import { ParamMetadataArgs } from "../metadata/args/ParamMetadataArgs";
+import {ParamMetadataArgs} from "../metadata-args/ParamMetadataArgs";
 import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
-import { RoutingControllersOptions } from "../RoutingControllersOptions";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {getMetadataArgsStorage} from "../index";
+import {Utils} from "../Utils";
+import {TypeStackFramework} from "../TypeStackFramework";
+import {Container} from "typedi";
+import {InterceptorInterface} from "../interface/InterceptorInterface";
+import {Action} from "../Action";
+import {MiddlewareInterface} from "../interface/MiddlewareInterface";
+import {ErrorMiddlewareInterface} from "../interface/ErrorMiddlewareInterface";
+import {NextFunction, Request, Response} from "express";
+import {AccessDeniedError} from "../error/AccessDeniedError";
+import * as bodyParser from "body-parser";
+import * as multer from "multer";
+import {AuthorizationCheckerNotDefinedError} from "../error/AuthorizationCheckerNotDefinedError";
+import {AuthorizationRequiredError} from "../error/AuthorizationRequiredError";
+import {ErrorRequestHandler, RequestHandlerParams} from "express-serve-static-core";
+import * as cors from "cors";
 
 /**
  * Builds metadata from the given metadata arguments.
  */
 export class MetadataBuilder {
 
-    constructor(private options: RoutingControllersOptions) { }
-
     // -------------------------------------------------------------------------
-    // Public Methods
+    // Constructor
     // -------------------------------------------------------------------------
 
-    /**
-     * Builds controller metadata from a registered controller metadata args.
-     */
-    buildControllerMetadata(classes?: Function[]) {
-        return this.createControllers(classes);
+    constructor(private framework: TypeStackFramework) {
+        this.buildControllerMetadata();
+        this.registerDefaultMiddlewares();
+        this.registerMiddlewares();
     }
-
-    /**
-     * Builds middleware metadata from a registered middleware metadata args.
-     */
-    buildMiddlewareMetadata(classes?: Function[]): MiddlewareMetadata[] {
-        return this.createMiddlewares(classes);
-    }
-
-    /**
-     * Builds interceptor metadata from a registered interceptor metadata args.
-     */
-    buildInterceptorMetadata(classes?: Function[]): InterceptorMetadata[] {
-        return this.createInterceptors(classes);
-    }
-
     // -------------------------------------------------------------------------
     // Protected Methods
     // -------------------------------------------------------------------------
 
+
     /**
-     * Creates middleware metadatas.
+     * Registers default middlewares used by the framework.
      */
-    protected createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
-        const middlewares = !classes ? getMetadataArgsStorage().middlewares : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
-        return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
+    protected registerDefaultMiddlewares() {
+        if (this.framework.options.cors) // register CORS if it was enabled
+            this.framework.application.use(this.framework.options.cors === true ? cors() : cors(this.framework.options.cors));
     }
 
     /**
-     * Creates interceptor metadatas.
+     * Registers global middlewares defined in the options.
      */
-    protected createInterceptors(classes?: Function[]): InterceptorMetadata[] {
-        const interceptors = !classes ? getMetadataArgsStorage().interceptors : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
-        return interceptors.map(interceptorArgs => new InterceptorMetadata({
-            target: interceptorArgs.target,
-            method: undefined,
-            interceptor: interceptorArgs.target
-        }));
+    protected registerMiddlewares() {
+        if (!this.framework.options.middlewares || !this.framework.options.middlewares.length)
+            return;
+
+        this.framework.options.middlewares.forEach(middleware => {
+            const instance: ErrorMiddlewareInterface & MiddlewareInterface = Container.has(middleware as any) ? Container.get(middleware as any) : undefined;
+
+            // if its an error handler then register it with proper signature in express
+            if (instance && instance.error) {
+                this.framework.application.use(((error, request, response, next) => instance.error(error, request, response, next)) as ErrorRequestHandler);
+
+            } else if (instance && instance.use) { // if its a regular middleware then register it as express middleware
+                this.framework.application.use((request, response, next) => {
+                    const action: Action = { request, response, next };
+                    try {
+                        const useResult = instance.use(request, response, next);
+                        if (Utils.isPromiseLike(useResult)) {
+                            useResult.catch(error => {
+                                this.framework.onError(action, error);
+                                return error;
+                            });
+                        }
+
+                    } catch (error) {
+                        this.framework.onError(action, error);
+                    }
+                });
+            } else {
+                this.framework.application.use(middleware as RequestHandlerParams);
+            }
+        });
     }
 
     /**
-     * Creates controller metadatas.
+     * Builds controller metadata from a registered controller metadata args.
      */
-    protected createControllers(classes?: Function[]): ControllerMetadata[] {
+    protected buildControllerMetadata() {
+        const classes = this.buildControllerClasses();
         const controllers = !classes ? getMetadataArgsStorage().controllers : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
@@ -77,7 +97,150 @@ export class MetadataBuilder {
             controller.uses = this.createControllerUses(controller);
             controller.interceptors = this.createControllerInterceptorUses(controller);
             return controller;
+        }).forEach(controller => {
+            controller.actions.forEach(actionMetadata => {
+
+                actionMetadata.interceptorFns = this.prepareInterceptors([
+                    ...this.framework.options.interceptors || [],
+                    ...actionMetadata.controllerMetadata.interceptors,
+                    ...actionMetadata.interceptors
+                ]);
+
+                // user used middlewares
+                actionMetadata.useFns = this.prepareMiddlewares([...actionMetadata.controllerMetadata.uses, ...actionMetadata.uses]);
+
+                actionMetadata.middlewareFns = this.buildActionMiddlewares(actionMetadata);
+                this.framework.registerAction(actionMetadata);
+            });
         });
+    }
+
+    protected buildActionMiddlewares(actionMetadata: ActionMetadata): Function[] {
+
+        // middlewares required for this action
+        const middlewareFns: Function[] = [];
+
+        // include body-parser middleware
+        if (actionMetadata.isBodyUsed) {
+            if (actionMetadata.isJsonTyped) {
+                middlewareFns.push(bodyParser.json(actionMetadata.bodyExtraOptions));
+            } else {
+                middlewareFns.push(bodyParser.text(actionMetadata.bodyExtraOptions));
+            }
+        }
+
+        // include authorization middleware
+        if (actionMetadata.isAuthorizedUsed) {
+            middlewareFns.push((request: Request, response: Response, next: NextFunction) => {
+                if (!this.framework.options.authorizationChecker) // todo: extract this check, make it during metadata validation
+                    throw new AuthorizationCheckerNotDefinedError();
+
+                const action: Action = { request, response, next, metadata: actionMetadata };
+                try {
+                    const checkResult = this.framework.options.authorizationChecker(action, actionMetadata.authorizedRoles);
+
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            this.framework.onError(action, error);
+                        } else {
+                            next();
+                        }
+                    };
+
+                    if (Utils.isPromiseLike(checkResult)) {
+                        checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.framework.onError(action, error));
+                    } else {
+                        handleError(checkResult);
+                    }
+                } catch (error) {
+                    this.framework.onError(action, error);
+                }
+            });
+        }
+
+        // add multer middleware if files decorators were used
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
+            actionMetadata.params
+                .filter(param => param.type === "file")
+                .forEach(param => {
+                    middlewareFns.push(multer(param.extraOptions).single(param.name));
+                });
+            actionMetadata.params
+                .filter(param => param.type === "files")
+                .forEach(param => {
+                    middlewareFns.push(multer(param.extraOptions).array(param.name));
+                });
+        }
+
+        return middlewareFns;
+    }
+
+    /**
+     * Creates interceptors from the given "use interceptors".
+     */
+    protected prepareInterceptors(interceptors: Function[]): Function[] {
+        return interceptors.map(interceptor => {
+            const instance: InterceptorInterface|undefined = Container.has(interceptor as any) ? Container.get(interceptor as any) : undefined;
+            if (instance && instance.intercept)
+                return (action: Action, result: any) => instance.intercept(action, result);
+
+            return interceptor;
+        });
+    }
+
+    /**
+     * Creates middlewares from the given "use"-s.
+     */
+    protected prepareMiddlewares(uses: UseMetadata[]) {
+        const middlewareFunctions: Function[] = [];
+        uses.forEach(use => {
+            if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
+                middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
+                    try {
+                        const useResult = Container.get<MiddlewareInterface>(use.middleware).use(request, response, next);
+                        if (Utils.isPromiseLike(useResult)) {
+                            useResult.catch((error: any) => {
+                                this.framework.onError({ request, response, next }, error);
+                                return error;
+                            });
+                        }
+
+                        return useResult;
+                    } catch (error) {
+                        this.framework.onError({ request, response, next }, error);
+                    }
+                });
+
+            } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
+                middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                    return Container.get<ErrorMiddlewareInterface>(use.middleware).error(error, request, response, next);
+                });
+
+            } else {
+                middlewareFunctions.push(use.middleware);
+            }
+        });
+        return middlewareFunctions;
+    }
+
+    /**
+     *
+     */
+    protected buildControllerClasses() {
+        const classes: Function[] = [];
+        if (this.framework.options && this.framework.options.controllers && this.framework.options.controllers.length) {
+            this.framework.options.controllers.forEach(controller => {
+                if (typeof controller === "string") {
+                    classes.push(...Utils.importClassesFromDirectories([controller]));
+                } else {
+                    classes.push(controller);
+                }
+            });
+        }
+        return classes;
     }
 
     /**
@@ -87,7 +250,7 @@ export class MetadataBuilder {
         return getMetadataArgsStorage()
             .filterActionsWithTarget(controller.target)
             .map(actionArgs => {
-                const action = new ActionMetadata(controller, actionArgs, this.options);
+                const action = new ActionMetadata(controller, actionArgs, this.framework.options);
                 action.params = this.createParams(action);
                 action.uses = this.createActionUses(action);
                 action.interceptors = this.createActionInterceptorUses(action);
@@ -109,7 +272,7 @@ export class MetadataBuilder {
      * Decorate paramArgs with default settings
      */
     private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
-        let options = this.options.defaults && this.options.defaults.paramOptions;
+        let options = this.framework.options.defaults && this.framework.options.defaults.paramOptions;
         if (!options)
             return paramArgs;
         
@@ -149,10 +312,10 @@ export class MetadataBuilder {
     /**
      * Creates use interceptors for actions.
      */
-    protected createActionInterceptorUses(action: ActionMetadata): InterceptorMetadata[] {
+    protected createActionInterceptorUses(action: ActionMetadata): Function[] {
         return getMetadataArgsStorage()
             .filterInterceptorUsesWithTargetAndMethod(action.target, action.method)
-            .map(useArgs => new InterceptorMetadata(useArgs));
+            .map(useArgs => useArgs.interceptor);
     }
 
     /**
@@ -167,10 +330,10 @@ export class MetadataBuilder {
     /**
      * Creates use interceptors for controllers.
      */
-    protected createControllerInterceptorUses(controller: ControllerMetadata): InterceptorMetadata[] {
+    protected createControllerInterceptorUses(controller: ControllerMetadata): Function[] {
         return getMetadataArgsStorage()
             .filterInterceptorUsesWithTargetAndMethod(controller.target, undefined)
-            .map(useArgs => new InterceptorMetadata(useArgs));
+            .map(useArgs => useArgs.interceptor);
     }
 
 }

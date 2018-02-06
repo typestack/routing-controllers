@@ -3,7 +3,7 @@ import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage, OnNull} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage, OnNull} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {HttpCode} from "../../src/decorator/HttpCode";
 import {ContentType} from "../../src/decorator/ContentType";
@@ -14,6 +14,7 @@ import {OnUndefined} from "../../src/decorator/OnUndefined";
 import {HttpError} from "../../src/http-error/HttpError";
 import {Action} from "../../src/Action";
 import {JsonController} from "../../src/decorator/JsonController";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -142,7 +143,7 @@ describe("other controller decorators", () => {
     });
 
     let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
+    before(done => expressApp = bootstrap().listen(3001, done));
     after(done => expressApp.close(done));
     before(done => koaApp = createKoaServer().listen(3002, done));
     after(done => koaApp.close(done));

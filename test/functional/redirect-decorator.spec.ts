@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import {Get} from "../../src/decorator/Get";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Redirect} from "../../src/decorator/Redirect";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Param} from "../../src/decorator/Param";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -53,7 +54,7 @@ describe("dynamic redirect", function () {
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer();
+        const server = bootstrap();
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));

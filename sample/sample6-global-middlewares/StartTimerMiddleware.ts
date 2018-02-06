@@ -1,8 +1,6 @@
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
-import {Middleware} from "../../src/decorator/Middleware";
+import {MiddlewareInterface} from "../../src/interface/MiddlewareInterface";
 
-@Middleware({ type: "before" })
-export class StartTimerMiddleware implements ExpressMiddlewareInterface {
+export class StartTimerMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("timer is started.");

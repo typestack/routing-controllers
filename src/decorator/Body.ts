@@ -2,8 +2,8 @@ import {BodyOptions} from "../decorator-options/BodyOptions";
 import {getMetadataArgsStorage} from "../index";
 
 /**
- * Allows to inject a request body value to the controller action parameter.
- * Must be applied on a controller action parameter.
+ * Injects a value from the request body.
+ * Can be used in controller actions or in request maps.
  */
 export function Body(options?: BodyOptions): Function {
     return function (object: Object, methodName: string, index: number) {

@@ -1,13 +1,9 @@
 import "reflect-metadata";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {bootstrap, getMetadataArgsStorage} from "../../src/index";
+import {MiddlewareInterface} from "../../src/interface/MiddlewareInterface";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {UseBefore} from "../../src/decorator/UseBefore";
-import {Middleware} from "../../src/decorator/Middleware";
-import {UseAfter} from "../../src/decorator/UseAfter";
-import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
-import {ExpressErrorMiddlewareInterface} from "./../../src/driver/express/ExpressErrorMiddlewareInterface";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -27,8 +23,7 @@ describe("order of middlewares", () => {
             // reset metadata args storage
             getMetadataArgsStorage().reset();
     
-            @Middleware({ type: "after" })
-            class ThirdAfterMiddleware implements ExpressMiddlewareInterface {
+            class ThirdAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(3);
@@ -37,8 +32,7 @@ describe("order of middlewares", () => {
                 
             }
             
-            @Middleware({ type: "after" })
-            class FirstAfterMiddleware implements ExpressMiddlewareInterface {
+            class FirstAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(1);
@@ -46,9 +40,8 @@ describe("order of middlewares", () => {
                 }
                 
             }
-    
-            @Middleware({ type: "after" })
-            class SecondAfterMiddleware implements ExpressMiddlewareInterface {
+
+            class SecondAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(2);
@@ -67,7 +60,7 @@ describe("order of middlewares", () => {
     
             }
     
-            app = createExpressServer({
+            app = bootstrap({
                 middlewares: [FirstAfterMiddleware, SecondAfterMiddleware, ThirdAfterMiddleware]
             }).listen(3001, done);
         });
@@ -101,8 +94,7 @@ describe("order of middlewares", () => {
             // reset metadata args storage
             getMetadataArgsStorage().reset();
     
-            @Middleware({ type: "after", priority: 0 })
-            class ThirdAfterMiddleware implements ExpressMiddlewareInterface {
+            class ThirdAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(3);
@@ -111,8 +103,7 @@ describe("order of middlewares", () => {
                 
             }
             
-            @Middleware({ type: "after", priority: 8 })
-            class FirstAfterMiddleware implements ExpressMiddlewareInterface {
+            class FirstAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(1);
@@ -121,8 +112,7 @@ describe("order of middlewares", () => {
                 
             }
     
-            @Middleware({ type: "after", priority: 4 })
-            class SecondAfterMiddleware implements ExpressMiddlewareInterface {
+            class SecondAfterMiddleware implements MiddlewareInterface {
             
                 use(request: any, response: any, next: (err?: any) => any) {
                     middlewaresOrder.push(2);
@@ -141,7 +131,7 @@ describe("order of middlewares", () => {
     
             }
     
-            app = createExpressServer({
+            app = bootstrap({
                 middlewares: [SecondAfterMiddleware, ThirdAfterMiddleware, FirstAfterMiddleware]
             }).listen(3001, done);
         });

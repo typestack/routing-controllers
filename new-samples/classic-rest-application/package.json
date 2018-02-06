@@ -1,0 +1,16 @@
+{
+  "name": "classic-rest-application",
+  "private": true,
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "author": {
+    "name": "Umed Khudoiberdiev",
+    "email": "pleerock.me@gmail.com"
+  },
+  "dependencies": {
+  },
+  "scripts": {
+  }
+}

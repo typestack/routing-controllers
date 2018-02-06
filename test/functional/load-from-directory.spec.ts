@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {defaultFakeService} from "../fakes/global-options/FakeService";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -20,7 +21,7 @@ describe("controllers and middlewares bulk loading from directories", () => {
             ]
         };
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(serverOptions).listen(3001, done));
+        before(done => expressApp = bootstrap(serverOptions).listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer(serverOptions).listen(3002, done));
         after(done => koaApp.close(done));
@@ -73,7 +74,7 @@ describe("controllers and middlewares bulk loading from directories", () => {
             ],
         };
         let expressApp: any;
-        before(done => expressApp = createExpressServer(serverOptions).listen(3001, done));
+        before(done => expressApp = bootstrap(serverOptions).listen(3001, done));
         after(done => expressApp.close(done));
 
         beforeEach(() => defaultFakeService.reset());

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createExpressServer} from "../../src/index";
+import {bootstrap} from "../../src/index";
 import "./BlogController";
 import "./CompressionMiddleware";
 import "./LoggerMiddleware";
@@ -12,7 +12,8 @@ import "./AllErrorsHandler"; // same as: require("./BlogController");
 // same as: require("./EndTimerMiddleware");
 // same as: require("./AllErrorsHandler");
 
-const app = createExpressServer(); // register controller actions in express app
-app.listen(3001); // run express app
+const app = bootstrap({
+    port: 3001
+}); // register controller actions in express app
 
 console.log("Express server is running on port 3001. Open http://localhost:3001/blogs/");

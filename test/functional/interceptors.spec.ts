@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
-import {InterceptorInterface} from "../../src/InterceptorInterface";
-import {Interceptor} from "../../src/decorator/Interceptor";
-import {UseInterceptor} from "../../src/decorator/UseInterceptor";
+import {InterceptorInterface} from "../../src/interface/InterceptorInterface";
+import {Intercept} from "../../src/decorator/Intercept";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Action} from "../../src/Action";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -17,7 +17,6 @@ describe("interceptor", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Interceptor()
         class NumbersInterceptor implements InterceptorInterface {
             intercept(action: Action, result: any): any {
                 return result.replace(/[0-9]/gi, "");
@@ -47,11 +46,11 @@ describe("interceptor", () => {
         }
 
         @Controller()
-        @UseInterceptor(ByeWordInterceptor)
+        @Intercept(ByeWordInterceptor)
         class HandledController {
 
             @Get("/users")
-            @UseInterceptor((action: Action, result: any) => {
+            @Intercept((action: Action, result: any) => {
                 return result.replace(/hello/gi, "hello world");
             })
             getUsers(): any {
@@ -59,7 +58,7 @@ describe("interceptor", () => {
             }
 
             @Get("/posts")
-            @UseInterceptor(BadWordsInterceptor)
+            @Intercept(BadWordsInterceptor)
             posts(): any {
                 return "<html><body>this post contains damn bad words</body></html>";
             }
@@ -75,7 +74,7 @@ describe("interceptor", () => {
             }
 
             @Get("/photos")
-            @UseInterceptor(AsyncInterceptor)
+            @Intercept(AsyncInterceptor)
             photos(): any {
                 return "<html><body>hello world</body></html>";
             }
@@ -85,7 +84,7 @@ describe("interceptor", () => {
     });
 
     let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
+    before(done => expressApp = bootstrap().listen(3001, done));
     after(done => expressApp.close(done));
     before(done => koaApp = createKoaServer().listen(3002, done));
     after(done => koaApp.close(done));

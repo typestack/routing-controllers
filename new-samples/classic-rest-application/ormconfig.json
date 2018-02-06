@@ -1,0 +1,28 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "test",
+  "password": "test",
+  "database": "yakdu",
+  "synchronize": true,
+  "logging": ["error"],
+  "entities": [
+    "build/compiled/src/modules/medical/body-state/entity/{*.ts,*.js}",
+    "build/compiled/src/modules/medical/**/entity/{*.ts,*.js}",
+    "build/compiled/src/modules/**/entity/{*.ts,*.js}"
+  ],
+  "subscribers": [
+    "build/compiled/src/modules/social/**/subscriber/{*.ts,*.js}",
+    "build/compiled/src/modules/human/**/subscriber/{*.ts,*.js}",
+    "build/compiled/src/modules/widget/**/subscriber/{*.ts,*.js}",
+    "build/compiled/src/modules/general/**/subscriber/{*.ts,*.js}",
+    "build/compiled/src/modules/**/subscriber/{*.ts,*.js}"
+  ],
+  "migrations": [
+    "build/compiled/src/migrations/{*.ts,*.js}"
+  ],
+  "cli": {
+    "migrationsDir": "src/migrations"
+  }
+}

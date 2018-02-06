@@ -85,25 +85,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     import "reflect-metadata";
     ```
 
-3. Install framework:
-
-    **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
-
-    `npm install express body-parser multer --save`
-
-    Optionally you can also install their typings:
-
-    `npm install @types/express @types/body-parser @types/multer --save`
-
-    **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
-
-    `npm install koa koa-router koa-bodyparser koa-multer --save`
-
-    Optionally you can also install their typings:
-
-    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
-
-4. Its important to set these options in `tsconfig.json` file of your project:
+3. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
     {

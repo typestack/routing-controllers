@@ -1,0 +1,30 @@
+# Windows
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# OSX
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# PhpStorm
+
+.idea/
+
+# Project
+
+.tmp/
+build/
+uploads/
+node_modules/
+/config/parameters.json
+/ormconfig.json
+npm-debug.log

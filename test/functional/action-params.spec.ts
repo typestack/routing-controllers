@@ -1,19 +1,16 @@
 import "reflect-metadata";
 
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, getMetadataArgsStorage} from "../../src/index";
 
 import {assertRequest} from "./test-utils";
-import {User} from "../fakes/global-options/User";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {Ctx} from "../../src/decorator/Ctx";
 import {Req} from "../../src/decorator/Req";
 import {Res} from "../../src/decorator/Res";
 import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
-import {UseBefore} from "../../src/decorator/UseBefore";
+import {Use} from "../../src/decorator/Use";
 import {Session} from "../../src/decorator/Session";
-import {State} from "../../src/decorator/State";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {HeaderParam} from "../../src/decorator/HeaderParam";
 import {CookieParam} from "../../src/decorator/CookieParam";
@@ -21,8 +18,8 @@ import {Body} from "../../src/decorator/Body";
 import {BodyParam} from "../../src/decorator/BodyParam";
 import {UploadedFile} from "../../src/decorator/UploadedFile";
 import {UploadedFiles} from "../../src/decorator/UploadedFiles";
-import {ContentType} from "../../src/decorator/ContentType";
 import {JsonController} from "../../src/decorator/JsonController";
+import {SessionParam} from "../../src/decorator/SessionParam";
 
 const chakram = require("chakram");
 const expect = chakram.expect;
@@ -76,7 +73,6 @@ describe("action parameters", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
 
         @Controller()
@@ -101,14 +97,6 @@ describe("action parameters", () => {
                 }
             }
 
-            @Get("/users-direct/ctx")
-            getUsersDirectKoa(@Ctx() ctx: any): any {
-                ctx.response.status = 201;
-                ctx.response.type = "custom/x-sample; charset=utf-8";
-                ctx.response.body = "hi, I was written directly to the response using Koa Ctx";
-                return ctx;
-            }
-
             @Get("/users/:userId")
             getUser(@Param("userId") userId: number) {
                 paramUserId = userId;
@@ -124,7 +112,7 @@ describe("action parameters", () => {
             }
 
             @Post("/session/")
-            @UseBefore(SessionMiddleware)
+            @Use(SessionMiddleware)
             addToSession(@Session() session: any) {
                 session["testElement"] = "@Session test";
                 session["fakeObject"] = {
@@ -136,43 +124,30 @@ describe("action parameters", () => {
             }
 
             @Get("/session/")
-            @UseBefore(SessionMiddleware)
-            loadFromSession(@Session("testElement") testElement: string) {
+            @Use(SessionMiddleware)
+            loadFromSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/not-use-session/")
-            notUseSession(@Session("testElement") testElement: string) {
+            notUseSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/session-param-empty/")
-            @UseBefore(SessionMiddleware)
-            loadEmptyParamFromSession(@Session("empty", { required: false }) emptyElement: string) {
+            @Use(SessionMiddleware)
+            loadEmptyParamFromSession(@SessionParam("empty", { required: false }) emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
             }
 
             @Get("/session-param-empty-error/")
-            @UseBefore(SessionMiddleware)
+            @Use(SessionMiddleware)
             errorOnLoadEmptyParamFromSession(@Session("empty") emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
-            }
-
-            @Get("/state")
-            @UseBefore(SetStateMiddleware)
-            @ContentType("application/json")
-            getState(@State() state: User) {
-                return state;
-            }
-
-            @Get("/state/username")
-            @UseBefore(SetStateMiddleware)
-            getUsernameFromState(@State("username") username: string) {
-                return `<html><body>${username}</body></html>`;
             }
 
             @Get("/photos")
@@ -346,17 +321,11 @@ describe("action parameters", () => {
 
     });
 
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
     before(done => {
-        expressApp = createExpressServer().listen(3001, done);
+        expressApp = bootstrap({ port: 3001 });
     });
     after(done => expressApp.close(done));
-    before(done => {
-        koaApp = createKoaServer();
-        koaApp.keys = ["koa-session-secret"];
-        koaApp = koaApp.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("@Req and @Res should be provided as Request and Response objects", () => {
         assertRequest([3001, 3002], "get", "users", response => {
@@ -371,14 +340,6 @@ describe("action parameters", () => {
         assertRequest([3001, 3002], "get", "users-direct", response => {
             expect(response).to.be.status(201);
             expect(response.body).to.be.equal("hi, I was written directly to the response");
-            expect(response).to.have.header("content-type", "custom/x-sample; charset=utf-8");
-        });
-    });
-
-    describe("writing directly to the response using @Ctx should work", () => {
-        assertRequest([3002], "get", "users-direct/ctx", response => {
-            expect(response).to.be.status(201);
-            expect(response.body).to.be.equal("hi, I was written directly to the response using Koa Ctx");
             expect(response).to.have.header("content-type", "custom/x-sample; charset=utf-8");
         });
     });
@@ -439,26 +400,6 @@ describe("action parameters", () => {
     //         // there should be a test for "ParamRequiredError" but chakram is the worst testing framework ever!!!
     //     });
     // });
-
-    describe("@State should return a value from state", () => {
-        assertRequest([3001], "get", "state", response => {
-            expect(response).to.be.status(500);
-        });
-        assertRequest([3001], "get", "state/username", response => {
-            expect(response).to.be.status(500);
-        });
-        assertRequest([3002], "get", "state", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "application/json");
-            expect(response.body.username).to.be.equal("pleerock");
-        });
-        assertRequest([3002], "get", "state/username", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>pleerock</body></html>");
-        });
-    });
-
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {

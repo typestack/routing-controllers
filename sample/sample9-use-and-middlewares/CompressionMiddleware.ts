@@ -1,6 +1,6 @@
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {MiddlewareInterface} from "../../src/interface/MiddlewareInterface";
 
-export class CompressionMiddleware implements ExpressMiddlewareInterface {
+export class CompressionMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("hello compression ...");

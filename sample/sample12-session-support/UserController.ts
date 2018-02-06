@@ -10,6 +10,7 @@ import {Delete} from "../../src/decorator/Delete";
 import {Param} from "../../src/decorator/Param";
 import {Session} from "../../src/decorator/Session";
 import {ContentType} from "../../src/decorator/ContentType";
+import {SessionParam} from "../../src/decorator/SessionParam";
 
 @Controller()
 export class UserController {
@@ -25,7 +26,7 @@ export class UserController {
 
     @Get("/users/:id")
     @ContentType("application/json")
-    getOne(@Session("user") user: any) {
+    getOne(@SessionParam("user") user: any) {
         return user;
     }
 

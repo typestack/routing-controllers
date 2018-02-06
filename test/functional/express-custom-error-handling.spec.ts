@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
-import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
+import {bootstrap, getMetadataArgsStorage} from "../../src/index";
+import {ErrorMiddlewareInterface} from "../../src/interface/ErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
-import {Middleware} from "../../src/decorator/Middleware";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -21,8 +21,7 @@ describe("custom express error handling", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Middleware({ type: "after" })
-        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
+        class CustomErrorHandler implements ErrorMiddlewareInterface {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 
@@ -48,7 +47,7 @@ describe("custom express error handling", () => {
     });
 
     let app: any;
-    before(done => app = createExpressServer({defaultErrorHandler: false}).listen(3001, done));
+    before(done => app = bootstrap({defaultErrorHandler: false}).listen(3001, done));
     after(done => app.close(done));
 
     it("should not call global error handler middleware if there was no errors", () => {

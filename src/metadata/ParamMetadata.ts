@@ -1,7 +1,7 @@
 import {ValidatorOptions} from "class-validator";
 import {ActionMetadata} from "./ActionMetadata";
-import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
-import {ParamType} from "./types/ParamType";
+import {ParamMetadataArgs} from "../metadata-args/ParamMetadataArgs";
+import {ParamType} from "../types/ParamType";
 import {ClassTransformOptions} from "class-transformer";
 import {Action} from "../Action";
 

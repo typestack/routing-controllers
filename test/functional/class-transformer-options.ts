@@ -1,13 +1,14 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Expose} from "class-transformer";
 import {defaultMetadataStorage} from "class-transformer/storage";
 import {Get} from "../../src/decorator/Get";
 import {QueryParam} from "../../src/decorator/QueryParam";
 import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
-import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
+import {TypeStackOptions} from "../../src/TypeStackOptions";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -59,7 +60,7 @@ describe("class transformer options", () => {
         });
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
+        before(done => expressApp = bootstrap().listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer().listen(3002, done));
         after(done => koaApp.close(done));
@@ -106,7 +107,7 @@ describe("class transformer options", () => {
             }
         });
 
-        const options: RoutingControllersOptions = {
+        const options: TypeStackOptions = {
             classToPlainTransformOptions: {
                 excludePrefixes: ["_"]
             },
@@ -116,7 +117,7 @@ describe("class transformer options", () => {
         };
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
+        before(done => expressApp = bootstrap(options).listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer(options).listen(3002, done));
         after(done => koaApp.close(done));
@@ -162,7 +163,7 @@ describe("class transformer options", () => {
         });
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
+        before(done => expressApp = bootstrap().listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer().listen(3002, done));
         after(done => koaApp.close(done));

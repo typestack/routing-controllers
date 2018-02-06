@@ -2,8 +2,9 @@ import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Post} from "../../src/decorator/Post";
 import {Body} from "../../src/decorator/Body";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -49,7 +50,7 @@ describe("routing-controllers global options", () => {
     describe("useClassTransformer by default must be set to true", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
+        before(done => expressApp = bootstrap().listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer().listen(3002, done));
         after(done => koaApp.close(done));
@@ -63,7 +64,7 @@ describe("routing-controllers global options", () => {
     describe("when useClassTransformer is set to true", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ classTransformer: true }).listen(3001, done));
+        before(done => expressApp = bootstrap({ classTransformer: true }).listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer({ classTransformer: true }).listen(3002, done));
         after(done => koaApp.close(done));
@@ -77,7 +78,7 @@ describe("routing-controllers global options", () => {
     describe("when useClassTransformer is not set", () => {
 
         let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ classTransformer: false }).listen(3001, done));
+        before(done => expressApp = bootstrap({ classTransformer: false }).listen(3001, done));
         after(done => expressApp.close(done));
         before(done => koaApp = createKoaServer({ classTransformer: false }).listen(3002, done));
         after(done => koaApp.close(done));
@@ -91,8 +92,8 @@ describe("routing-controllers global options", () => {
     describe("when routePrefix is used all controller routes should be appended by it", () => {
     
         let apps: any[] = [];
-        before(done => apps.push(createExpressServer({ routePrefix: "/api" }).listen(3001, done)));
-        before(done => apps.push(createExpressServer({ routePrefix: "api" }).listen(3002, done)));
+        before(done => apps.push(bootstrap({ routePrefix: "/api" }).listen(3001, done)));
+        before(done => apps.push(bootstrap({ routePrefix: "api" }).listen(3002, done)));
         before(done => apps.push(createKoaServer({ routePrefix: "/api" }).listen(3003, done)));
         before(done => apps.push(createKoaServer({ routePrefix: "api" }).listen(3004, done)));
         after(done => { apps.forEach(app => app.close()); done(); });

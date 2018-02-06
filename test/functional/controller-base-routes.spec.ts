@@ -1,8 +1,9 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
+
 const expect = require("chakram").expect;
 
 describe("controller > base routes functionality", () => {
@@ -33,7 +34,7 @@ describe("controller > base routes functionality", () => {
     });
 
     let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
+    before(done => expressApp = bootstrap().listen(3001, done));
     after(done => expressApp.close(done));
     before(done => koaApp = createKoaServer().listen(3002, done));
     after(done => koaApp.close(done));

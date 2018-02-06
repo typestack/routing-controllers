@@ -1,3 +1,7 @@
+import {NextFunction, Request, Response} from "express";
+import {ActionMetadata} from "./metadata/ActionMetadata";
+import {ContainerInstance} from "typedi";
+
 /**
  * Controller action properties.
  */
@@ -6,22 +10,31 @@ export interface Action {
     /**
      * Action Request object.
      */
-    request: any;
+    request: Request;
 
     /**
      * Action Response object.
      */
-    response: any;
-
-    /**
-     * Content in which action is executed.
-     * Koa-specific property.
-     */
-    context?: any;
+    response: Response;
 
     /**
      * "Next" function used to call next middleware.
      */
-    next?: Function;
+    next: NextFunction;
+
+    /**
+     * ActionMetadata of the executing action.
+     */
+    metadata?: ActionMetadata;
+
+    /**
+     * Interceptors to be executed before resolving action result.
+     */
+    interceptorFns?: Function[];
+
+    /**
+     * Container in which this action is running.
+     */
+    container?: ContainerInstance;
 
 }

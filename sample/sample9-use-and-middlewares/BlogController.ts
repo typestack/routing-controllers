@@ -3,15 +3,15 @@ import {Get} from "../../src/decorator/Get";
 import {Param} from "../../src/decorator/Param";
 import {CompressionMiddleware} from "./CompressionMiddleware";
 import {AllControllerActionsMiddleware} from "./AllControllerActionsMiddleware";
-import {UseBefore} from "../../src/decorator/UseBefore";
+import {Use} from "../../src/decorator/Use";
 
 @JsonController()
-@UseBefore(AllControllerActionsMiddleware)
+@Use(AllControllerActionsMiddleware)
 export class BlogController {
 
     @Get("/blogs")
-    @UseBefore(CompressionMiddleware)
-    @UseBefore((request: any, response: any, next: Function) => {
+    @Use(CompressionMiddleware)
+    @Use((request: any, response: any, next: Function) => {
         console.log("wow middleware");
         next();
     })

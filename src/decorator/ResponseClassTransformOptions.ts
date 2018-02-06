@@ -3,6 +3,8 @@ import {ClassTransformOptions} from "class-transformer";
 
 /**
  * Options to be set to class-transformer for the result of the response.
+ *
+ * todo: better design?
  */
 export function ResponseClassTransformOptions(options: ClassTransformOptions): Function {
     return function (object: Object, methodName: string) {

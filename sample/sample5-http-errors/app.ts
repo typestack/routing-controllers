@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import * as express from "express";
-import {useExpressServer} from "../../src/index";
+import {bootstrap} from "../../src/index";
 
 require("./BlogController");
 
 let app = express(); // create express server
-useExpressServer(app, {
+bootstrap({
+    expressApp: app,
     errorOverridingMap: {
         ForbiddenError: {
             message: "Access is denied"

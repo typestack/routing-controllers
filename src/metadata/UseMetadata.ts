@@ -1,4 +1,4 @@
-import {UseMetadataArgs} from "./args/UseMetadataArgs";
+import {UseMetadataArgs} from "../metadata-args/UseMetadataArgs";
 
 /**
  * "Use middleware" metadata.
@@ -24,11 +24,6 @@ export class UseMetadata {
      */
     middleware: Function;
 
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    afterAction: boolean;
-
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -37,7 +32,6 @@ export class UseMetadata {
         this.target = args.target;
         this.method = args.method;
         this.middleware = args.middleware;
-        this.afterAction = args.afterAction;
     }
     
 }

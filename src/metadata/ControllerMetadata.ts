@@ -1,9 +1,7 @@
 import {ActionMetadata} from "./ActionMetadata";
-import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
+import {ControllerMetadataArgs} from "../metadata-args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
-import {getFromContainer} from "../container";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import {InterceptorMetadata} from "./InterceptorMetadata";
 
 /**
  * Controller metadata.
@@ -32,7 +30,7 @@ export class ControllerMetadata {
     /**
      * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
-    type: "default"|"json";
+    type: "default"|"json"|"model";
 
     /**
      * Middleware "use"-s applied to a whole controller.
@@ -40,9 +38,9 @@ export class ControllerMetadata {
     uses: UseMetadata[];
 
     /**
-     * Middleware "use"-s applied to a whole controller.
+     * Interceptors to be executed on this controller.
      */
-    interceptors: InterceptorMetadata[];
+    interceptors: Function[];
 
     /**
      * Indicates if this action uses Authorized decorator.
@@ -62,17 +60,6 @@ export class ControllerMetadata {
         this.target = args.target;
         this.route = args.route;
         this.type = args.type;
-    }
-
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    /**
-     * Gets instance of the controller.
-     */
-    get instance(): any {
-        return getFromContainer(this.target);
     }
 
     // -------------------------------------------------------------------------

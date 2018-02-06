@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import {Get} from "../../src/decorator/Get";
-import { createExpressServer, createKoaServer, getMetadataArgsStorage, NotAcceptableError } from "../../src/index";
+import {bootstrap, getMetadataArgsStorage, NotAcceptableError} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Authorized} from "../../src/decorator/Authorized";
 import {Action} from "../../src/Action";
-import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
+import {TypeStackOptions} from "../../src/TypeStackOptions";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -43,7 +44,7 @@ describe("Controller responds with value when Authorization succeeds (async)", f
         }
     });
 
-    const serverOptions: RoutingControllersOptions = {
+    const serverOptions: TypeStackOptions = {
         authorizationChecker: async (action: Action, roles?: string[]) => {
             await sleep(10);
             return true;
@@ -52,17 +53,10 @@ describe("Controller responds with value when Authorization succeeds (async)", f
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer(serverOptions);
+        const server = bootstrap(serverOptions);
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
-
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer(serverOptions);
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("without roles", () => {
         assertRequest([3001, 3002], "get", "auth1", response => {
@@ -119,7 +113,7 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
         }
     });
 
-    const serverOptions: RoutingControllersOptions = {
+    const serverOptions: TypeStackOptions = {
         authorizationChecker: (action: Action, roles?: string[]) => {
             return true;
         }
@@ -127,17 +121,10 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer(serverOptions);
+        const server = bootstrap(serverOptions);
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
-
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer(serverOptions);
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("without roles", () => {
         assertRequest([3001, 3002], "get", "auth1", response => {
@@ -187,7 +174,7 @@ describe("Authorized Decorators Http Status Code", function () {
         }
     });
 
-    const serverOptions: RoutingControllersOptions = {
+    const serverOptions: TypeStackOptions = {
         authorizationChecker: async (action: Action, roles?: string[]) => {
             return false;
         }
@@ -195,17 +182,10 @@ describe("Authorized Decorators Http Status Code", function () {
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer(serverOptions);
+        const server = bootstrap(serverOptions);
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
-
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer(serverOptions);
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("without roles", () => {
         assertRequest([3001, 3002], "get", "auth1", response => {
@@ -236,7 +216,7 @@ describe("Authorization checker allows to throw (async)", function() {
         }
     });
 
-    const serverOptions: RoutingControllersOptions = {
+    const serverOptions: TypeStackOptions = {
         authorizationChecker: async (action: Action, roles?: string[]) => {
             throw new NotAcceptableError("Custom Error");
         },
@@ -244,17 +224,10 @@ describe("Authorization checker allows to throw (async)", function() {
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer(serverOptions);
+        const server = bootstrap(serverOptions);
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
-
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer(serverOptions);
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("custom errors", () => {
         assertRequest([3001, 3002], "get", "auth1", response => {
@@ -280,7 +253,7 @@ describe("Authorization checker allows to throw (sync)", function() {
         }
     });
 
-    const serverOptions: RoutingControllersOptions = {
+    const serverOptions: TypeStackOptions = {
         authorizationChecker: (action: Action, roles?: string[]) => {
             throw new NotAcceptableError("Custom Error");
         },
@@ -288,17 +261,10 @@ describe("Authorization checker allows to throw (sync)", function() {
 
     let expressApp: any;
     before(done => {
-        const server = createExpressServer(serverOptions);
+        const server = bootstrap(serverOptions);
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
-
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer(serverOptions);
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
 
     describe("custom errors", () => {
         assertRequest([3001, 3002], "get", "auth1", response => {

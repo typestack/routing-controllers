@@ -1,11 +1,14 @@
-import {ControllerMetadataArgs} from "../metadata/args/ControllerMetadataArgs";
-import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
-import {ParamMetadataArgs} from "../metadata/args/ParamMetadataArgs";
-import {ResponseHandlerMetadataArgs} from "../metadata/args/ResponseHandleMetadataArgs";
-import {MiddlewareMetadataArgs} from "../metadata/args/MiddlewareMetadataArgs";
-import {UseMetadataArgs} from "../metadata/args/UseMetadataArgs";
-import {UseInterceptorMetadataArgs} from "../metadata/args/UseInterceptorMetadataArgs";
-import {InterceptorMetadataArgs} from "../metadata/args/InterceptorMetadataArgs";
+import {ControllerMetadataArgs} from "../metadata-args/ControllerMetadataArgs";
+import {ActionMetadataArgs} from "../metadata-args/ActionMetadataArgs";
+import {ParamMetadataArgs} from "../metadata-args/ParamMetadataArgs";
+import {ResponseHandlerMetadataArgs} from "../metadata-args/ResponseHandleMetadataArgs";
+import {MiddlewareMetadataArgs} from "../metadata-args/MiddlewareMetadataArgs";
+import {UseMetadataArgs} from "../metadata-args/UseMetadataArgs";
+import {UseInterceptorMetadataArgs} from "../metadata-args/UseInterceptorMetadataArgs";
+import {InterceptorMetadataArgs} from "../metadata-args/InterceptorMetadataArgs";
+import {ModelMetadataArgs} from "../metadata-args/ModelMetadataArgs";
+import {ModelIdMetadataArgs} from "../metadata-args/ModelIdMetadataArgs";
+import {RequestMapMetadataArgs} from "../metadata-args/RequestMapMetadataArgs";
 
 /**
  * Storage all metadatas read from decorators.
@@ -37,6 +40,21 @@ export class MetadataArgsStorage {
     uses: UseMetadataArgs[] = [];
 
     /**
+     * Registered "request map" metadata args.
+     */
+    requestMaps: RequestMapMetadataArgs[] = [];
+
+    /**
+     * Registered "model" metadata args.
+     */
+    models: ModelMetadataArgs[] = [];
+
+    /**
+     * Registered "model id" metadata args.
+     */
+    modelIds: ModelIdMetadataArgs[] = [];
+
+    /**
      * Registered "use interceptor" metadata args.
      */
     useInterceptors: UseInterceptorMetadataArgs[] = [];
@@ -59,24 +77,6 @@ export class MetadataArgsStorage {
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
-
-    /**
-     * Filters registered middlewares by a given classes.
-     */
-    filterMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
-        return classes
-            .map(cls => this.middlewares.find(mid => mid.target === cls))
-            .filter(midd => midd !== undefined); // this might be not needed if all classes where decorated with `@Middleware`
-    }
-
-    /**
-     * Filters registered interceptors by a given classes.
-     */
-    filterInterceptorMetadatasForClasses(classes: Function[]): InterceptorMetadataArgs[] {
-        return this.interceptors.filter(ctrl => {
-            return classes.filter(cls => ctrl.target === cls).length > 0;
-        });
-    }
 
     /**
      * Filters registered controllers by a given classes.
@@ -147,6 +147,9 @@ export class MetadataArgsStorage {
         this.middlewares = [];
         this.interceptors = [];
         this.uses = [];
+        this.requestMaps = [];
+        this.models = [];
+        this.modelIds = [];
         this.useInterceptors = [];
         this.actions = [];
         this.params = [];

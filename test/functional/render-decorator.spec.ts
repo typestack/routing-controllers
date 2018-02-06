@@ -2,9 +2,10 @@ import "reflect-metadata";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Res} from "../../src/decorator/Res";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Render} from "../../src/decorator/Render";
+
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -42,7 +43,7 @@ describe("template rendering", () => {
     let expressApp: any;
     before(done => {
         const path = __dirname + "/../../../../test/resources";
-        const server = createExpressServer();
+        const server = bootstrap();
         const mustacheExpress = require("mustache-express");
         server.engine("html", mustacheExpress());
         server.set("view engine", "html");

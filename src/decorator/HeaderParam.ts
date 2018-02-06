@@ -3,10 +3,10 @@ import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects a request's http header value to the controller action parameter.
- * Must be applied on a controller action parameter.
+ * Can be used in controller actions or in request maps.
  */
-export function HeaderParam(name: string, options?: ParamOptions): Function {
-    return function (object: Object, methodName: string, index: number) {
+export function HeaderParam(name?: string, options?: ParamOptions): Function {
+    return function (object: Object, methodName: string, index?: number) {
         getMetadataArgsStorage().params.push({
             type: "header",
             object: object,

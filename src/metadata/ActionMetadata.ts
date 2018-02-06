@@ -1,13 +1,13 @@
 import {Action} from "../Action";
-import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
-import {ActionType} from "./types/ActionType";
+import {ActionMetadataArgs} from "../metadata-args/ActionMetadataArgs";
+import {ActionType} from "../types/ActionType";
 import {ClassTransformOptions} from "class-transformer";
 import {ControllerMetadata} from "./ControllerMetadata";
-import {InterceptorMetadata} from "./InterceptorMetadata";
 import {ParamMetadata} from "./ParamMetadata";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
-import { RoutingControllersOptions } from "../RoutingControllersOptions";
+import {TypeStackOptions} from "../TypeStackOptions";
 import {UseMetadata} from "./UseMetadata";
+import {getMetadataArgsStorage} from "typeorm";
 
 /**
  * Action metadata.
@@ -36,7 +36,7 @@ export class ActionMetadata {
     /**
      * Action's use interceptors.
      */
-    interceptors: InterceptorMetadata[];
+    interceptors: Function[];
 
     /**
      * Class on which's method this action is attached.
@@ -135,27 +135,32 @@ export class ActionMetadata {
     authorizedRoles: any[];
 
     /**
-     * Params to be appended to the method call.
+     * Handles all action parameters.
      */
-    appendParams?: (action: Action) => any[];
+    parametersHandler?: (action: Action, params: any[]) => any[];
+
+    interceptorFns: Function[];
+
+    useFns: Function[];
+
+    middlewareFns: Function[];
 
     /**
-     * Special function that will be called instead of orignal method of the target.
+     * Indicates if transaction is set for this action.
      */
-    methodOverride?: (actionMetadata: ActionMetadata, action: Action, params: any[]) => Promise<any> | any;
+    hasTransaction?: boolean;
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs, private options: RoutingControllersOptions) {
+    constructor(controllerMetadata: ControllerMetadata, args: ActionMetadataArgs, private options: TypeStackOptions) {
         this.controllerMetadata = controllerMetadata;
         this.route = args.route;
         this.target = args.target;
         this.method = args.method;
         this.type = args.type;
-        this.appendParams = args.appendParams;
-        this.methodOverride = args.methodOverride;
+        this.parametersHandler = args.parametersHandler;
     }
 
     // -------------------------------------------------------------------------
@@ -208,6 +213,13 @@ export class ActionMetadata {
 
         this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
         this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat((authorizedHandler && authorizedHandler.value) || []);
+        const transactionEntityManager = getMetadataArgsStorage().transactionEntityManagers.find(transactionEntityManager => {
+            return transactionEntityManager.target === this.target && transactionEntityManager.methodName === this.method;
+        });
+        const transactionRepository = getMetadataArgsStorage().transactionRepositories.find(transactionRepository => {
+            return transactionRepository.target === this.target && transactionRepository.methodName === this.method;
+        });
+        this.hasTransaction = !!transactionEntityManager || !!transactionRepository;
     }
 
     // -------------------------------------------------------------------------
@@ -218,17 +230,19 @@ export class ActionMetadata {
      * Builds full action route.
      */
     private buildFullRoute(): string | RegExp {
+        let path: string|RegExp = "";
         if (this.route instanceof RegExp) {
             if (this.controllerMetadata.route) {
-                return ActionMetadata.appendBaseRoute(this.controllerMetadata.route, this.route);
+                path = ActionMetadata.appendBaseRoute(this.controllerMetadata.route, this.route);
+            } else {
+                path = this.route;
             }
-            return this.route;
+        } else {
+            if (this.controllerMetadata.route) path += this.controllerMetadata.route;
+            if (this.route && typeof this.route === "string") path += this.route;
         }
 
-        let path: string = "";
-        if (this.controllerMetadata.route) path += this.controllerMetadata.route;
-        if (this.route && typeof this.route === "string") path += this.route;
-        return path;
+        return ActionMetadata.appendBaseRoute(this.options.routePrefix || "", path);
     }
 
     /**
@@ -252,18 +266,6 @@ export class ActionMetadata {
         return headers;
     }
 
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Calls action method.
-     * Action method is an action defined in a user controller.
-     */
-    callMethod(params: any[]) {
-        const controllerInstance = this.controllerMetadata.instance;
-        return controllerInstance[this.method].apply(controllerInstance, params);
-    }
 
     // -------------------------------------------------------------------------
     // Static Methods

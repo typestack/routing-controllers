@@ -1,17 +1,5 @@
 import {getMetadataArgsStorage} from "../index";
-import {ActionType} from "../metadata/types/ActionType";
-
-/**
- * Registers an action to be executed when request with specified method comes on a given route.
- * Must be applied on a controller action.
- */
-export function Method(method: ActionType, route?: RegExp): Function;
-
-/**
- * Registers an action to be executed when request with specified method comes on a given route.
- * Must be applied on a controller action.
- */
-export function Method(method: ActionType, route?: string): Function;
+import {ActionType} from "../types/ActionType";
 
 /**
  * Registers an action to be executed when request with specified method comes on a given route.

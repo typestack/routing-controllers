@@ -1,11 +1,9 @@
 import "reflect-metadata";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {bootstrap, getMetadataArgsStorage} from "../../src/index";
+import {MiddlewareInterface} from "../../src/interface/MiddlewareInterface";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
-import {UseBefore} from "../../src/decorator/UseBefore";
-import {Middleware} from "../../src/decorator/Middleware";
-import {UseAfter} from "../../src/decorator/UseAfter";
+import {Use} from "../../src/decorator/Use";
 import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
 
 const chakram = require("chakram");
@@ -39,8 +37,7 @@ describe("express middlewares", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Middleware({ type: "before" })
-        class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {
+        class TestGlobalBeforeMidleware implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalBefore = true;
@@ -50,8 +47,7 @@ describe("express middlewares", () => {
 
         }
 
-        @Middleware({ type: "after" })
-        class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
+        class TestGlobalAfterMidleware implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useGlobalAfter = true;
@@ -61,7 +57,7 @@ describe("express middlewares", () => {
 
         }
 
-        class TestLoggerMiddleware implements ExpressMiddlewareInterface {
+        class TestLoggerMiddleware implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 useCustom = true;
@@ -70,7 +66,7 @@ describe("express middlewares", () => {
 
         }
 
-        class TestCustomMiddlewareWhichThrows implements ExpressMiddlewareInterface {
+        class TestCustomMiddlewareWhichThrows implements MiddlewareInterface {
 
             use(request: any, response: any, next?: Function): any {
                 throw new NotAcceptableError("TestCustomMiddlewareWhichThrows");
@@ -88,13 +84,13 @@ describe("express middlewares", () => {
             }
 
             @Get("/questions")
-            @UseBefore(TestLoggerMiddleware)
+            @Use(TestLoggerMiddleware)
             questions() {
                 return "1234";
             }
 
             @Get("/users")
-            @UseBefore(function (request: any, response: any, next: Function) {
+            @Use(function (request: any, response: any, next: Function) {
                 useBefore = true;
                 useCallOrder = "setFromUseBefore";
                 next();
@@ -104,26 +100,10 @@ describe("express middlewares", () => {
                 return "1234";
             }
 
-            @Get("/photos")
-            @UseAfter(function (request: any, response: any, next: Function) {
-                useAfter = true;
-                useCallOrder = "setFromUseAfter";
-                next();
-            })
-            photos() {
-                useCallOrder = "setFromController";
-                return "1234";
-            }
-
             @Get("/posts")
-            @UseBefore(function (request: any, response: any, next: Function) {
+            @Use(function (request: any, response: any, next: Function) {
                 useBefore = true;
                 useCallOrder = "setFromUseBefore";
-                next();
-            })
-            @UseAfter(function (request: any, response: any, next: Function) {
-                useAfter = true;
-                useCallOrder = "setFromUseAfter";
                 next();
             })
             posts() {
@@ -132,7 +112,7 @@ describe("express middlewares", () => {
             }
 
             @Get("/customMiddlewareWichThrows")
-            @UseBefore(TestCustomMiddlewareWhichThrows)
+            @Use(TestCustomMiddlewareWhichThrows)
             customMiddlewareWichThrows() {
                 return "1234";
             }
@@ -140,7 +120,7 @@ describe("express middlewares", () => {
     });
 
     let app: any;
-    before(done => app = createExpressServer().listen(3001, done));
+    before(done => app = bootstrap().listen(3001, done));
     after(done => app.close(done));
 
     it("should call a global middlewares", () => {
@@ -169,27 +149,6 @@ describe("express middlewares", () => {
             .then((response: any) => {
                 expect(useBefore).to.be.equal(true);
                 expect(useCallOrder).to.be.equal("setFromController");
-                expect(response).to.have.status(200);
-            });
-    });
-
-    it("should call middleware and call it after controller action when @UseAfter is used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/photos")
-            .then((response: any) => {
-                expect(useAfter).to.be.equal(true);
-                expect(useCallOrder).to.be.equal("setFromUseAfter");
-                expect(response).to.have.status(200);
-            });
-    });
-
-    it("should call before middleware and call after middleware when @UseAfter and @UseAfter are used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts")
-            .then((response: any) => {
-                expect(useBefore).to.be.equal(true);
-                expect(useAfter).to.be.equal(true);
-                expect(useCallOrder).to.be.equal("setFromUseAfter");
                 expect(response).to.have.status(200);
             });
     });

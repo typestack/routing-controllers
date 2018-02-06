@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {bootstrap, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {QueryParam} from "../../src/decorator/QueryParam";
@@ -52,7 +52,7 @@ describe("defaults", () => {
     let defaultNullResultCode = 404;
     let expressApp: any;
     let kuaApp: any;
-    before(done => expressApp = createExpressServer({
+    before(done => expressApp = bootstrap({
         defaults: {
             nullResultCode: defaultNullResultCode,
             undefinedResultCode: defaultUndefinedResultCode,

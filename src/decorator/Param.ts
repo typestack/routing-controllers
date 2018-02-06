@@ -2,10 +2,10 @@ import {getMetadataArgsStorage} from "../index";
 
 /**
  * Injects a request's route parameter value to the controller action parameter.
- * Must be applied on a controller action parameter.
+ * Can be used in controller actions or in request maps.
  */
-export function Param(name: string): Function {
-    return function (object: Object, methodName: string, index: number) {
+export function Param(name?: string): Function {
+    return function (object: Object, methodName: string, index?: number) {
         getMetadataArgsStorage().params.push({
             type: "param",
             object: object,

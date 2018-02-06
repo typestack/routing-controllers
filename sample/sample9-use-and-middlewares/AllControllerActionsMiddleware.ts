@@ -1,6 +1,6 @@
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import {MiddlewareInterface} from "../../src/interface/MiddlewareInterface";
 
-export class AllControllerActionsMiddleware implements ExpressMiddlewareInterface {
+export class AllControllerActionsMiddleware implements MiddlewareInterface {
 
     use(request: any, response: any, next?: Function): any {
         console.log("controller action run");
