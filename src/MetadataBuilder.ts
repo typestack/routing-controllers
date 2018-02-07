@@ -85,7 +85,7 @@ export class MetadataBuilder {
                     query[action.name || action.propertyName] = callback;
 
                 } else if (action.type === "mutation") {
-                    query[action.name || action.propertyName] = callback;
+                    mutation[action.name || action.propertyName] = callback;
                 }
             });
         });

@@ -3,6 +3,8 @@ import {Query} from "../../../../src/decorator/Query";
 import {EntityManager} from "typeorm";
 import {Photo} from "../entity/Photo";
 import {PhotosArgs} from "../args/PhotosArgs";
+import {Mutation} from "../../../../src/decorator/Mutation";
+import {PhotoInput} from "../model/PhotoInput";
 
 @GraphController()
 export class PhotoController {
@@ -24,6 +26,17 @@ export class PhotoController {
     @Query()
     photo(args: { id: number }) {
         return this.entityManager.findOne(Photo, args.id);
+    }
+
+    @Mutation()
+    async savePhoto({ photoInput }: { photoInput: PhotoInput }) {
+        let photo = new Photo();
+        if (photoInput.id) {
+            photo = await this.entityManager.findOne(Photo, photoInput.id);
+        }
+        photo.filename = photoInput.filename;
+        await this.entityManager.save(photo);
+        return photo;
     }
 
 }

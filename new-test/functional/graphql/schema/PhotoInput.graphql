@@ -1,0 +1,4 @@
+input PhotoInput {
+    id: Int
+    filename: String
+}
