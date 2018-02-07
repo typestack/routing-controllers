@@ -1,7 +1,8 @@
+import "reflect-metadata";
 import {Action} from "./Action";
 import {ActionMetadata} from "./metadata/ActionMetadata";
 import {ActionParameterHandler} from "./ActionParameterHandler";
-import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
+import {MetadataBuilder} from "./MetadataBuilder";
 import {TypeStackOptions} from "./TypeStackOptions";
 import {Container} from "typedi";
 import * as express from "express";
@@ -12,7 +13,7 @@ import {NotFoundError} from "./index";
 import {HttpError} from "./http-error/HttpError";
 import {Utils} from "./Utils";
 import {PortNotSetError} from "./error/PortNotSetError";
-import {EntityManager, getConnection, getConnectionManager, getMetadataArgsStorage} from "typeorm";
+import {Connection, ConnectionOptionsReader, createConnection, EntityManager, getMetadataArgsStorage} from "typeorm";
 
 const templateUrl = require("template-url");
 
@@ -41,6 +42,12 @@ export class TypeStackFramework {
      */
     server: Server;
 
+    /**
+     * TypeORM connection.
+     * Connection is setup only if typeorm connection settings are defined.
+     */
+    ormConnection: Connection;
+
     // -------------------------------------------------------------------------
     // Private Properties
     // -------------------------------------------------------------------------
@@ -58,7 +65,6 @@ export class TypeStackFramework {
         this.options = options;
         this.application = options.expressApp || express();
         this.parameterHandler = new ActionParameterHandler(this);
-        new MetadataBuilder(this);
     }
 
     // -------------------------------------------------------------------------
@@ -69,9 +75,17 @@ export class TypeStackFramework {
      * Starts express application and http server.
      * If port is not given then port from the framework options will be used.
      */
-    start(port?: number): Promise<void> {
+    async start(port?: number): Promise<void> {
         if (!port && !this.options.port)
             throw new PortNotSetError();
+
+        // create TypeORM connection if typeorm configuration file exist
+        const hasConnection = await new ConnectionOptionsReader().has("default");
+        if (hasConnection) {
+            this.ormConnection = await createConnection();
+        }
+
+        new MetadataBuilder(this);
 
         return new Promise<void>((ok, fail) => {
             this.server = this.application.listen(port || this.options.port, (err: any) => err ? fail(err) : ok());
@@ -193,7 +207,7 @@ export class TypeStackFramework {
         if (action.metadata.hasTransaction) {
 
             // create a transaction
-            return getConnection(/* todo: take and use connection name */).manager.transaction(entityManager => {
+            return this.ormConnection.manager.transaction(entityManager => {
 
                 // register transactional entity manager and all custom repositories
                 action.container.set(EntityManager, entityManager);
@@ -207,8 +221,8 @@ export class TypeStackFramework {
         } else {
 
             // no transaction - register global entity manager
-            if (getConnectionManager().has("default")) // todo: take connection name from some decorator or decorator options
-                action.container.set(EntityManager, getConnection("default").manager);
+            if (this.ormConnection) // todo: take connection name from some decorator or decorator options
+                action.container.set(EntityManager, this.ormConnection.manager);
 
             return this.executeAction(action, params);
         }

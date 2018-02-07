@@ -1,0 +1,5 @@
+type Query {
+    photoCollection: PhotoCollection
+    photos(limit: Int, offset: Int): [Photo]
+    photo(id: Int): Photo
+}

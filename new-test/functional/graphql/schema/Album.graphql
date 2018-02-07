@@ -1,0 +1,4 @@
+type Album {
+    id: Int
+    name: String
+}

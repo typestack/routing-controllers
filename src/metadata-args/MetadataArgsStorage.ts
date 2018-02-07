@@ -1,14 +1,17 @@
-import {ControllerMetadataArgs} from "../metadata-args/ControllerMetadataArgs";
-import {ActionMetadataArgs} from "../metadata-args/ActionMetadataArgs";
-import {ParamMetadataArgs} from "../metadata-args/ParamMetadataArgs";
-import {ResponseHandlerMetadataArgs} from "../metadata-args/ResponseHandleMetadataArgs";
-import {MiddlewareMetadataArgs} from "../metadata-args/MiddlewareMetadataArgs";
-import {UseMetadataArgs} from "../metadata-args/UseMetadataArgs";
-import {UseInterceptorMetadataArgs} from "../metadata-args/UseInterceptorMetadataArgs";
-import {InterceptorMetadataArgs} from "../metadata-args/InterceptorMetadataArgs";
-import {ModelMetadataArgs} from "../metadata-args/ModelMetadataArgs";
-import {ModelIdMetadataArgs} from "../metadata-args/ModelIdMetadataArgs";
-import {RequestMapMetadataArgs} from "../metadata-args/RequestMapMetadataArgs";
+import {ControllerMetadataArgs} from "./ControllerMetadataArgs";
+import {ActionMetadataArgs} from "./ActionMetadataArgs";
+import {ParamMetadataArgs} from "./ParamMetadataArgs";
+import {ResponseHandlerMetadataArgs} from "./ResponseHandleMetadataArgs";
+import {MiddlewareMetadataArgs} from "./MiddlewareMetadataArgs";
+import {UseMetadataArgs} from "./UseMetadataArgs";
+import {UseInterceptorMetadataArgs} from "./UseInterceptorMetadataArgs";
+import {InterceptorMetadataArgs} from "./InterceptorMetadataArgs";
+import {ModelMetadataArgs} from "./ModelMetadataArgs";
+import {ModelIdMetadataArgs} from "./ModelIdMetadataArgs";
+import {RequestMapMetadataArgs} from "./RequestMapMetadataArgs";
+import {ResolverMetadataArgs} from "./ResolverMetadataArgs";
+import {GraphActionMetadataArgs} from "./GraphActionMetadataArgs";
+import {ResolveMetadataArgs} from "./ResolveMetadataArgs";
 
 /**
  * Storage all metadatas read from decorators.
@@ -73,6 +76,21 @@ export class MetadataArgsStorage {
      * Registered response handler metadata args.
      */
     responseHandlers: ResponseHandlerMetadataArgs[] = [];
+
+    /**
+     * GraphQL actions - mutations and queries.
+     */
+    graphActions: GraphActionMetadataArgs[] = [];
+
+    /**
+     * Resolver metadata args.
+     */
+    resolvers: ResolverMetadataArgs[] = [];
+
+    /**
+     * Resolve metadata args.
+     */
+    resolves: ResolveMetadataArgs[] = [];
 
     // -------------------------------------------------------------------------
     // Public Methods

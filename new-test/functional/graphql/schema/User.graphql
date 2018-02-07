@@ -1,0 +1,9 @@
+type User {
+    id: Int
+    firstName: String
+    lastName: String
+    name: String
+    fullName: String
+    photos: [Photo]
+    roles: [Role]
+}

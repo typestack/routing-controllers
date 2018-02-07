@@ -6,7 +6,7 @@ export interface ControllerMetadataArgs {
     /**
      * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
-    type: "default"|"json"|"model";
+    type: "default"|"json"|"graph";
 
     /**
      * Indicates object which is used by this controller.

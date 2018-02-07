@@ -1,0 +1,4 @@
+type Role {
+    name: String
+    users: [User]
+}

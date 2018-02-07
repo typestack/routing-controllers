@@ -1,0 +1,4 @@
+type PhotoCollection {
+    count: Int!
+    photos: [Photo]!
+}

@@ -17,9 +17,31 @@ export interface TypeStackOptions {
     port?: number;
 
     /**
+     * Route used for GraphQL controllers.
+     * By default is equal to "/graphql".
+     */
+    graphQLRoute?: string;
+
+    /**
+     * Route used for GraphQL controllers.
+     * By default is equal to "/graphiql".
+     */
+    graphIQLRoute?: string;
+
+    /**
      * List of controllers to register in the framework or directories from where to import all your controllers.
      */
     controllers?: (string|Function)[];
+
+    /**
+     * List of resolvers to register in the framework or directories from where to import all your resolvers.
+     */
+    resolvers?: (string|Function)[];
+
+    /**
+     * List of directories where from GraphQL schemas needs to be loaded.
+     */
+    schemas?: string[];
 
     /**
      * List of middlewares to register in the framework or directories from where to import all your middlewares.

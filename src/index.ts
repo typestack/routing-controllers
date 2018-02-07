@@ -1,5 +1,5 @@
 import {ParameterDecoratorInterface} from "./interface/ParameterDecoratorInterface";
-import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
+import {MetadataArgsStorage} from "./metadata-args/MetadataArgsStorage";
 import {TypeStackFramework} from "./TypeStackFramework";
 import {TypeStackOptions} from "./TypeStackOptions";
 
@@ -60,7 +60,7 @@ export * from "./http-error/UnauthorizedError";
 
 export * from "./interface/MiddlewareInterface";
 export * from "./interface/ErrorMiddlewareInterface";
-export * from "./metadata-builder/MetadataArgsStorage";
+export * from "./metadata-args/MetadataArgsStorage";
 export * from "./metadata/ActionMetadata";
 export * from "./metadata/ControllerMetadata";
 export * from "./metadata/MiddlewareMetadata";
