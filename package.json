@@ -50,7 +50,7 @@
     "reflect-metadata": "^0.1.12",
     "template-url": "^1.0.0",
     "typedi": "^0.6.1",
-    "typeorm": "^0.2.0-alpha.17"
+    "typeorm": "^0.2.0-alpha.18"
   },
   "devDependencies": {
     "@types/chai": "^3.4.35",
