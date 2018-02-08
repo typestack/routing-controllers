@@ -97,6 +97,13 @@ export class MetadataArgsStorage {
     // -------------------------------------------------------------------------
 
     /**
+     * Filters and returns only graph controllers.
+     */
+    filterGraphControllers(): ControllerMetadataArgs[] {
+        return this.controllers.filter(controller => controller.type === "graph");
+    }
+
+    /**
      * Filters registered controllers by a given classes.
      */
     filterControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {

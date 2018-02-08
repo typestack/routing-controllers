@@ -25,7 +25,9 @@ import {AuthorizationCheckerNotDefinedError} from "./error/AuthorizationCheckerN
 import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
 import {EntityManager} from "typeorm";
 import {HttpQueryError, runHttpQuery} from "apollo-server-core";
+import {SchemasNotDefinedInOptionsError} from "./error/SchemasNotDefinedInOptionsError";
 import DataLoader = require("dataloader");
+
 const {mergeTypes, fileLoader} = require("merge-graphql-schemas");
 
 /**
@@ -49,16 +51,17 @@ export class MetadataBuilder {
     // -------------------------------------------------------------------------
 
     protected registerGraphQL() {
-        const graphControllers = getMetadataArgsStorage().controllers.filter(controller => controller.type === "graph");
+
+        // load controllers, if user did not used any GraphController then no need to do anything
+        const graphControllers = getMetadataArgsStorage().filterGraphControllers();
         if (graphControllers.length === 0)
             return;
 
-        const graphQLRoute = this.framework.options.graphQLRoute || "/graphql";
-        const graphIQLRoute = this.framework.options.graphIQLRoute || "/graphiql";
-
+        // if schemas are not defined in the configuration then throw an error
         if (!this.framework.options.schemas)
-            throw new Error(`You must provide schemas in the configuration where from graphql schemas must be loaded and used.`);
+            throw new SchemasNotDefinedInOptionsError();
 
+        // load all schemas
         const schemaTypes = this.framework.options.schemas.reduce((types, schemaDir) => {
             types.push(...fileLoader(schemaDir));
             return types;
@@ -68,19 +71,51 @@ export class MetadataBuilder {
         const query: any = {};
         const mutation: any = {};
         const modelResolvers: any = {};
-        // const dataLoaders: any = { };
+
+        // register all actions (query and mutations) from the graph controller
         graphControllers.forEach(controller => {
             const graphActions = getMetadataArgsStorage().graphActions.filter(action => action.object.constructor === controller.target);
             graphActions.forEach(action => {
-                const that = this;
-                const callback = function(parent: any, args: any, context: any, info: any) {
-                    // todo: setup container properly
+                const callback = (parent: any, args: any, context: any, info: any) => {
+
                     context.container = Container.of(context.request);
-                    if (that.framework.ormConnection) {
-                        context.container.set(EntityManager, that.framework.ormConnection.manager);
+                    if (this.framework.options.currentUser)
+                        context.container.set(this.framework.options.currentUser, (this.framework.options.currentUserLoader as any)(args, context, info));
+
+                    if (this.framework.ormConnection) {
+                        if (action.transaction) {
+                            return this.framework.ormConnection.manager.transaction(async entityManager => {
+                                context.container.set(EntityManager, entityManager);
+
+                                if (this.framework.options.setupContainer) { // duplication
+                                    const setupContainerResult = this.framework.options.setupContainer(context.container);
+                                    if (Utils.isPromiseLike(setupContainerResult)) {
+                                        return setupContainerResult.then(() => {
+                                            return context.container.get(action.object.constructor as any)[action.propertyName](args, context, info);
+                                        });
+                                    }
+                                } else {
+                                    return context.container.get(action.object.constructor as any)[action.propertyName](args, context, info);
+                                }
+                            });
+
+                        } else {
+                            context.container.set(EntityManager, this.framework.ormConnection.manager);
+                        }
                     }
-                    return context.container.get(action.object.constructor as any)[action.propertyName](args, context, info);
+
+                    if (this.framework.options.setupContainer) {  // duplication
+                        const setupContainerResult = this.framework.options.setupContainer(context.container);
+                        if (Utils.isPromiseLike(setupContainerResult)) {
+                            return setupContainerResult.then(() => {
+                                return context.container.get(action.object.constructor as any)[action.propertyName](args, context, info);
+                            });
+                        }
+                    } else {
+                        return context.container.get(action.object.constructor as any)[action.propertyName](args, context, info);
+                    }
                 };
+
                 if (action.type === "query") {
                     query[action.name || action.propertyName] = callback;
 
@@ -91,11 +126,8 @@ export class MetadataBuilder {
         });
 
 
+        // register resolvers for all entities from the orm connection
         if (this.framework.ormConnection) {
-            // if (this.framework.ormConnection)
-            //     throw new Error(`TypeORM connection is not established, please make sure you to create ormconfig.json (or any other supported format) and make sure you have correct connection settings.`);
-
-
             this.framework.ormConnection.entityMetadatas.forEach(entityMetadata => {
                 const resolverName = entityMetadata.targetName;
                 if (!resolverName)
@@ -134,14 +166,10 @@ export class MetadataBuilder {
             });
         }
 
+        // register custom defined resolvers
         getMetadataArgsStorage().resolvers.forEach(resolver => {
-            const resolverName = resolver.name;
-            if (!resolverName)
-                throw new Error(`Resolver name is not set for controller ...`);
-
-            // dataLoaders[resolverName] = {};
-            if (!modelResolvers[resolverName])
-                modelResolvers[resolverName] = {};
+            if (!modelResolvers[resolver.name])
+                modelResolvers[resolver.name] = {};
 
             getMetadataArgsStorage()
                 .resolves
@@ -150,14 +178,14 @@ export class MetadataBuilder {
                     if (resolver.target.prototype[resolve.propertyName] === undefined)
                         return;
 
-                    modelResolvers[resolverName][resolve.propertyName] = (parent: any, args: any, context: any, info: any) => {
+                    modelResolvers[resolver.name][resolve.propertyName] = (parent: any, args: any, context: any, info: any) => {
                         if (resolve.dataLoader) {
 
-                            if (!context.dataLoaders[resolverName] || !context.dataLoaders[resolverName][resolve.propertyName]) {
-                                if (!context.dataLoaders[resolverName])
-                                    context.dataLoaders[resolverName] = {};
+                            if (!context.dataLoaders[resolver.name] || !context.dataLoaders[resolver.name][resolve.propertyName]) {
+                                if (!context.dataLoaders[resolver.name])
+                                    context.dataLoaders[resolver.name] = {};
 
-                                context.dataLoaders[resolverName][resolve.propertyName] = new DataLoader((keys: { parent: any, args: any, context: any, info: any }[]) => {
+                                context.dataLoaders[resolver.name][resolve.propertyName] = new DataLoader((keys: { parent: any, args: any, context: any, info: any }[]) => {
                                     const entities = keys.map(key => key.parent);
                                     const args = keys[0].args;
                                     const context = keys[0].context;
@@ -176,7 +204,7 @@ export class MetadataBuilder {
                                 });
                             }
 
-                            return context.dataLoaders[resolverName][resolve.propertyName].load({ parent, args, context, info });
+                            return context.dataLoaders[resolver.name][resolve.propertyName].load({ parent, args, context, info });
 
                         } else {
                             const container: ContainerInstance = context.container;
@@ -193,17 +221,7 @@ export class MetadataBuilder {
             resolvers["Mutation"] = mutation;
         }
 
-        const schema: any = {
-            typeDefs: mergeTypes(schemaTypes),
-            resolvers: {
-                ...resolvers,
-                ...modelResolvers
-            },
-            resolverValidationOptions: {
-                allowResolversNotInSchema: true
-            }
-        };
-        // console.log(schema);
+        const graphQLRoute = this.framework.options.graphQLRoute || "/graphql";
         this.framework.application.use(graphQLRoute, bodyParser.json(),
             (req: Request, res: Response, next: NextFunction): void => {
                 const options = {
@@ -212,7 +230,20 @@ export class MetadataBuilder {
                         response: res,
                         dataLoaders: {}
                     },
-                    schema: mergeSchemas({ schemas: [makeExecutableSchema(schema)] })
+                    schema: mergeSchemas({
+                        schemas: [
+                            makeExecutableSchema({
+                                typeDefs: mergeTypes(schemaTypes),
+                                resolvers: {
+                                    ...resolvers,
+                                    ...modelResolvers
+                                },
+                                resolverValidationOptions: {
+                                    allowResolversNotInSchema: true
+                                }
+                            })
+                        ]
+                    })
                 };
                 runHttpQuery([req, res], {
                     method: req.method,
@@ -240,6 +271,7 @@ export class MetadataBuilder {
                     res.end();
                 });
         });
+        const graphIQLRoute = this.framework.options.graphIQLRoute || "/graphiql";
         this.framework.application.use(graphIQLRoute, graphiqlExpress({ endpointURL: graphQLRoute, }));
     }
 

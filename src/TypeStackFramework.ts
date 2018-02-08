@@ -184,7 +184,7 @@ export class TypeStackFramework {
         // create a new container for the current request and setup it
         action.container = Container.of(action);
         if (this.options.currentUser)
-            action.container.set(this.options.currentUser, this.options.currentUserLoader(action));
+            action.container.set(this.options.currentUser, (this.options.currentUserLoader as any)(action));
 
         if (this.options.setupContainer) {
             const setupContainerResult = this.options.setupContainer(action.container);

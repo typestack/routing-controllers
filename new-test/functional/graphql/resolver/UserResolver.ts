@@ -6,22 +6,22 @@ import {Resolve} from "../../../../src/decorator/Resolve";
 @Resolver(User)
 export class UserResolver implements ResolverInterface<User> {
 
-    @Resolve()
+    @Resolve({ dataLoader: true })
     name(users: User[]) {
         return users.map(user => user.firstName + " " + user.lastName);
     }
 
-    @Resolve({ dataLoader: false })
+    @Resolve()
     fullName(user: User) {
         return "#" + user.id + " " + user.firstName + " " + user.lastName;
     }
 
-    @Resolve({ dataLoader: false })
+    @Resolve()
     firstName(user: User) {
         return "";
     }
 
-    @Resolve({ dataLoader: false })
+    @Resolve()
     lastName(user: User) {
         if (user.id === 1)
             return user.lastName;

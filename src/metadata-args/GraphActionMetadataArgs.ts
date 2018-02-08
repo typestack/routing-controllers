@@ -23,4 +23,10 @@ export interface GraphActionMetadataArgs {
      */
     name?: string;
 
+    /**
+     * Indicates if transaction is enabled for this action.
+     * By default, its enabled for mutations and disabled for the queries.
+     */
+    transaction?: boolean;
+
 }
