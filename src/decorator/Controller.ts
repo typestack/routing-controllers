@@ -7,7 +7,7 @@ import {getMetadataArgsStorage} from "../index";
  *
  * @param baseRoute Extra path you can apply as a base route to all controller actions
  */
-export function Controller(baseRoute?: string): Function {
+export function Controller(baseRoute?: string) {
     return function (object: Function) {
         getMetadataArgsStorage().controllers.push({
             type: "default",
