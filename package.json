@@ -33,11 +33,11 @@
     "controllers"
   ],
   "dependencies": {
-    "class-transformer": "~0.1.6",
-    "class-validator": "^0.7.0",
+    "class-transformer": "^0.1.9",
+    "class-validator": "0.8.4",
     "cookie": "^0.3.1",
     "glob": "^7.0.5",
-    "reflect-metadata": "^0.1.10",
+    "reflect-metadata": "^0.1.12",
     "template-url": "^1.0.0"
   },
   "devDependencies": {
@@ -86,8 +86,8 @@
     "ts-node": "^3.0.2",
     "tslint": "^5.0.0",
     "tslint-stylish": "^2.1.0",
-    "typedi": "^0.4.2",
-    "typescript": "^2.2.2"
+    "typedi": "~0.7.1",
+    "typescript": "~2.7.2"
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test gulp tests"
