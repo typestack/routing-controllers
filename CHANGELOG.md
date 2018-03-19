@@ -1,6 +1,12 @@
 # Changelog and release notes
 
-### 0.7.7 (to be released)
+### 0.7.8
+
+#### Features
+
+- updated `class-transformer` and `class-validator` to latest.
+
+### 0.7.7
 
 #### Features
 
