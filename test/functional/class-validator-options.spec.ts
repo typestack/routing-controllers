@@ -158,6 +158,52 @@ describe("parameters auto-validation", () => {
         });
     });
 
+    describe("should merge local validation options with global validation options prioritizing local", () => {
+
+        let requestFilter: any;
+        beforeEach(() => {
+            requestFilter = undefined;
+        });
+
+        before(() => {
+            getMetadataArgsStorage().reset();
+
+            @JsonController()
+            class ClassTransformUserController {
+
+                @Get("/user")
+                getUsers(@QueryParam("filter", { validate: { skipMissingProperties: false } }) filter: UserFilter): any {
+                    requestFilter = filter;
+                    const user = new UserModel();
+                    user.id = 1;
+                    user._firstName = "Umed";
+                    user._lastName = "Khudoiberdiev";
+                    return user;
+                }
+
+            }
+        });
+
+        const options: RoutingControllersOptions = {
+            validation: {
+                whitelist: true,
+                skipMissingProperties: true
+            }
+        };
+
+        let expressApp: any, koaApp: any;
+        before(done => expressApp = createExpressServer(options).listen(3001, done));
+        after(done => expressApp.close(done));
+        before(done => koaApp = createKoaServer(options).listen(3002, done));
+        after(done => koaApp.close(done));
+
+        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"aValidKeyword\", \"notKeyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
+            expect(response).to.have.status(200);
+            expect(requestFilter).to.have.property("keyword");
+            expect(requestFilter).to.not.have.property("notKeyword");
+        });
+    });
+
     describe("should pass the valid param after validation", () => {
 
         let requestFilter: any;
