@@ -1,3 +1,4 @@
+import * as vm from 'vm'
 import {Action} from "../Action";
 import {ActionMetadataArgs} from "./args/ActionMetadataArgs";
 import {ActionType} from "./types/ActionType";
@@ -262,7 +263,20 @@ export class ActionMetadata {
      */
     callMethod(params: any[]) {
         const controllerInstance = this.controllerMetadata.instance;
-        return controllerInstance[this.method].apply(controllerInstance, params);
+        // return controllerInstance[this.method].apply(controllerInstance, params);
+        const sandbox = {
+            wrap: controllerInstance.constructor,
+            method: this.method,
+            args: params,
+        }
+        const context = vm.createContext(sandbox)
+        const script = new vm.Script(
+            `(function() {
+                const wrapped = new wrap();
+                return wrapped[method].apply(wrapped, args);
+            })`,
+        )
+        return script.runInContext(context).call(context)
     }
 
     // -------------------------------------------------------------------------
