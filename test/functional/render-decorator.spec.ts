@@ -2,7 +2,7 @@ import "reflect-metadata";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Res} from "../../src/decorator/Res";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage, useKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Render} from "../../src/decorator/Render";
 const chakram = require("chakram");
@@ -55,9 +55,11 @@ describe("template rendering", () => {
     let koaApp: any;
     before(done => {
         const path = __dirname + "/../../../../test/resources";
-        const server = createKoaServer();
+        const Koa = require("koa");
         let koaViews = require("koa-views");
-        server.use(koaViews(path, { map: { html: "handlebars" } } ));
+        const koa = new Koa();
+        koa.use(koaViews(path, { map: { html: "handlebars" } } ));
+        const server = useKoaServer(koa);
         koaApp = server.listen(3002, done);
     });
     after(done => koaApp.close(done));

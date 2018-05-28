@@ -231,10 +231,7 @@ export class KoaDriver extends BaseDriver {
             }
         } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
-
-            this.koa.use(async function (ctx: any, next: any) {
-                await ctx.render(action.renderedTemplate, renderOptions);
-            });
+            return options.response.render(action.renderedTemplate, renderOptions);
         }
         else if (result === undefined) { // throw NotFoundError on undefined response
             if (action.undefinedResultCode instanceof Function) {
