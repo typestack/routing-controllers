@@ -329,6 +329,7 @@ export class ExpressDriver extends BaseDriver {
             options.response.end(Buffer.from(result as any), "binary");
         }
         else if (result.pipe instanceof Function) {
+            result.on("error", (error: any) => options.next(error));
             result.pipe(options.response);
         }
         else { // send regular result
