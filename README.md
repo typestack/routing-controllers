@@ -737,7 +737,7 @@ app.listen(3000);
 ```
 
 To use cors you need to install its module.
-For express its `npm i cors`, for koa its `npm i kcors`.
+For express its `npm i cors`, for koa its `npm i @koa/cors`.
 You can pass cors options as well:
 
 ```typescript

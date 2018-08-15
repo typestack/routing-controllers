@@ -43,7 +43,7 @@ export class KoaDriver extends BaseDriver {
         const bodyParser = require("koa-bodyparser");
         this.koa.use(bodyParser());
         if (this.cors) {
-            const cors = require("kcors");
+            let cors = require("@koa/cors") || require("kcors");
             if (this.cors === true) {
                 this.koa.use(cors());
             } else {
