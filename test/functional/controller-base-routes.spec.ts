@@ -10,7 +10,7 @@ describe("controller > base routes functionality", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Controller("/posts")
+        @Controller({ baseRoute: "/posts" })
         class PostController {
             @Get("/")
             getAll() {

@@ -25,10 +25,9 @@ export class KoaDriver extends BaseDriver {
     // Constructor
     // -------------------------------------------------------------------------
 
-    constructor(public koa?: any, public router?: any) {
+    constructor(public koa?: any, public router?: any, public subdomain?: any) {
         super();
         this.loadKoa();
-        this.loadRouter();
         this.app = this.koa;
     }
 
@@ -128,12 +127,12 @@ export class KoaDriver extends BaseDriver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = (context: any, next: () => Promise<any>) => {
-            const options: Action = {request: context.request, response: context.response, context, next};
+            const options: Action = { request: context.request, response: context.response, context, next };
             return executeCallback(options);
         };
 
         // finally register action in koa
-        this.router[actionMetadata.type.toLowerCase()](...[
+        this.getRouter(actionMetadata.controllerMetadata.subdomain)[actionMetadata.type.toLowerCase()](...[
             route,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
@@ -146,8 +145,16 @@ export class KoaDriver extends BaseDriver {
      * Registers all routes in the framework.
      */
     registerRoutes() {
-        this.koa.use(this.router.routes());
-        this.koa.use(this.router.allowedMethods());
+        if (this.subdomain) {
+            this.router.forEach((router: any, subdomain: string) => {
+                this.subdomain.use(subdomain, router.routes());
+                this.subdomain.use(subdomain, router.allowedMethods());
+            });
+            this.koa.use(this.subdomain.routes());
+        } else {
+            this.koa.use(this.getRouter().routes());
+            this.koa.use(this.getRouter().allowedMethods());
+        }
     }
 
     /**
@@ -381,14 +388,12 @@ export class KoaDriver extends BaseDriver {
     /**
      * Dynamically loads koa-router module.
      */
-    private loadRouter() {
+    private loadRouter(): any {
         if (require) {
-            if (!this.router) {
-                try {
-                    this.router = new (require("koa-router"))();
-                } catch (e) {
-                    throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
-                }
+            try {
+                return new (require("koa-router"))();
+            } catch (e) {
+                throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
             }
         } else {
             throw new Error("Cannot load koa. Try to install all required dependencies.");
@@ -422,5 +427,41 @@ export class KoaDriver extends BaseDriver {
         }
 
         return await next();
+    }
+
+        /**
+     * Dynamically loads koa-subdomain module.
+     */
+    private loadSubdomain(): any {
+        if (require) {
+            try {
+                return new (require("koa-subdomain"))();
+            } catch (e) {
+                throw new Error("koa-subdomain package was not found installed. Try to install it: npm install koa-subdomain@next --save");
+            }
+        } else {
+            throw new Error("Cannot load koa. Try to install all required dependencies.");
+        }
+    }
+
+    /**
+     * Return the router for the subdomain.
+     */
+    private getRouter(subdomain?: string): any {
+        if (!this.router) {
+            this.router = new Map<string, any>();
+        }
+
+        if (!subdomain) {
+            subdomain = "";
+        } else if (subdomain !== "" && !this.subdomain) {
+            this.subdomain = this.loadSubdomain();
+        }
+
+        if (!this.router.has(subdomain)) {
+            this.router.set(subdomain, this.loadRouter());
+        }
+
+        return this.router.get(subdomain);
     }
 }

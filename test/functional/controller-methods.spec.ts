@@ -90,7 +90,7 @@ describe("controller methods", () => {
             }
         }
 
-        @JsonController("/return/json")
+        @JsonController({ baseRoute: "/return/json" })
         class ReturnJsonController {
             @Get("/undefined")
             returnUndefined(): undefined {
@@ -102,7 +102,7 @@ describe("controller methods", () => {
             }
         }
 
-        @Controller("/return/normal")
+        @Controller({ baseRoute: "/return/normal" })
         class ReturnNormalController {
             @Get("/undefined")
             returnUndefined(): undefined {
@@ -114,7 +114,7 @@ describe("controller methods", () => {
             }
         }
 
-        @JsonController("/json-controller")
+        @JsonController({ baseRoute: "/json-controller" })
         class ContentTypeController {
             @Get("/text-html")
             @ContentType("text/html")

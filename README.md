@@ -97,7 +97,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa koa-router koa-bodyparser koa-multer --save`
+    `npm install koa koa-router koa-bodyparser koa-multer koa-subdomain --save`
 
     Optionally you can also install their typings:
 
@@ -341,7 +341,7 @@ createExpressServer({
 You can prefix all specific controller's actions with base route:
 
 ```typescript
-@Controller("/users")
+@Controller({ baseRoute: "/users" })
 export class UserController {
     // ...
 }
@@ -1401,8 +1401,9 @@ export class QuestionController {
 
 | Signature                            | Example                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |--------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@Controller(baseRoute: string)`     | `@Controller("/users") class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes.                                                                                                                                                                                                                                                      |
-| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes.  |
+| `@Controller(options: ControllerOptions)`     | `@Controller({ baseRoute: "/users", subdomain: "example" }) class SomeController`         | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Base route is used to concatenate it to all controller action routes. Subdomain is used to register the Controller and its annotated methods only for the specific subdomain.                                                                             |
+| `@JsonController(options: ControllerOptions)` | `@JsonController({ baseRoute: "/users", subdomain: "example" }) class SomeJsonController` | Class that is marked with this decorator is registered as controller and its annotated methods are registered as actions. Difference between @JsonController and @Controller is that @JsonController automatically converts results returned by controller to json objects (using JSON.parse) and response being sent to a client is sent with application/json content-type. Base route is used to concatenate it to all controller action routes.  
+Subdomain is used to register the Controller and its annotated methods only for the specific subdomain.                                           |
 
 #### Controller Action Decorators
 
@@ -1414,7 +1415,7 @@ export class QuestionController {
 | `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
 | `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
 | `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@Method(methodName: string, route: string\|RegExp)`           | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 

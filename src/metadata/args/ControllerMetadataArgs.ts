@@ -8,6 +8,11 @@ export interface ControllerMetadataArgs {
      */
     target: Function;
 
+     /**
+     * Subdomain for all actions registered in this controller.
+     */
+    subdomain: string;
+
     /**
      * Base route for all actions registered in this controller.
      */

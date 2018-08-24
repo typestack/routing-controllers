@@ -15,7 +15,7 @@ describe("dynamic redirect", function () {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @JsonController("/users")
+        @JsonController({ baseRoute: "/users" })
         class TestController {
 
             @Get("/:id")

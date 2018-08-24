@@ -25,6 +25,11 @@ export class ControllerMetadata {
     target: Function;
 
     /**
+     * Subdomain for all actions registered in this controller.
+     */
+    subdomain: string;
+
+    /**
      * Base route for all actions registered in this controller.
      */
     route: string;
@@ -62,6 +67,7 @@ export class ControllerMetadata {
         this.target = args.target;
         this.route = args.route;
         this.type = args.type;
+        this.subdomain = args.subdomain;
     }
 
     // -------------------------------------------------------------------------
