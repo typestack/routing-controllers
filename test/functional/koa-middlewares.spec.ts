@@ -127,9 +127,9 @@ describe("koa middlewares", () => {
                 return "1234";
             }
 
-            @Get("/customMiddlewareWichThrows")
+            @Get("/customMiddlewareWhichThrows")
             @UseBefore(TestCustomMiddlewareWhichThrows)
-            customMiddlewareWichThrows() {
+            customMiddlewareWhichThrows() {
                 return "1234";
             }
 
@@ -193,7 +193,7 @@ describe("koa middlewares", () => {
 
     it("should handle errors in custom middlewares", () => {
         return chakram
-            .get("http://127.0.0.1:3001/customMiddlewareWichThrows")
+            .get("http://127.0.0.1:3001/customMiddlewareWhichThrows")
             .then((response: any) => {
                 expect(response).to.have.status(406);
             });
