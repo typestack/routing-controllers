@@ -74,6 +74,13 @@ describe("koa middlewares", () => {
 
         }
 
+        class TestCustomAsyncMiddlewareWhichThrows implements KoaMiddlewareInterface {
+
+            async use(context: any, next?: Function): Promise<any> {
+                throw new NotAcceptableError("TestCustomAsyncMiddlewareWhichThrows");
+            }
+
+        }
         @Controller()
         class KoaMiddlewareController {
 
@@ -130,6 +137,12 @@ describe("koa middlewares", () => {
             @Get("/customMiddlewareWhichThrows")
             @UseBefore(TestCustomMiddlewareWhichThrows)
             customMiddlewareWhichThrows() {
+                return "1234";
+            }
+
+            @Get("/customAsyncMiddlewareWhichThrows")
+            @UseBefore(TestCustomAsyncMiddlewareWhichThrows)
+            TestCustomAsyncMiddlewareWhichThrows() {
                 return "1234";
             }
 
@@ -199,4 +212,11 @@ describe("koa middlewares", () => {
             });
     });
 
+    it("should handle errors in custom async middlewares", () => {
+        return chakram
+            .get("http://127.0.0.1:3001/customAsyncMiddlewareWhichThrows")
+            .then((response: any) => {
+                expect(response).to.have.status(406);
+            });
+    });
 });
