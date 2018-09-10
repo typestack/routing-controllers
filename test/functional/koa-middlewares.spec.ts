@@ -68,7 +68,7 @@ describe("koa middlewares", () => {
 
         class TestCustomMiddlewareWhichThrows implements KoaMiddlewareInterface {
 
-            use(request: any, response: any, next?: Function): any {
+            use(context: any, next?: Function): any {
                 throw new NotAcceptableError("TestCustomMiddlewareWhichThrows");
             }
 
