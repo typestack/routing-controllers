@@ -328,24 +328,11 @@ export class KoaDriver extends BaseDriver {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
-                middlewareFunctions.push((context: any, next: (err?: any) => Promise<any>) => {
+                middlewareFunctions.push(async (context: any, next: (err?: any) => Promise<any>) => {
                     try {
-                        const useResult = (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
-                        if (isPromiseLike(useResult)) {
-                            useResult.catch((error: any) => {
-                                this.handleError(error, undefined, {
-                                    request: context.req,
-                                    response: context.res,
-                                    context,
-                                    next
-                                });
-                                return error;
-                            });
-                        }
-
-                        return useResult;
+                        return await (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
                     } catch (error) {
-                        this.handleError(error, undefined, {
+                        return await this.handleError(error, undefined, {
                             request: context.request,
                             response: context.response,
                             context,
