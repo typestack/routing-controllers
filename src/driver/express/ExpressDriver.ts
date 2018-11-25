@@ -13,6 +13,7 @@ import {isPromiseLike} from "../../util/isPromiseLike";
 import {getFromContainer} from "../../container";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
 import {NotFoundError} from "../../index";
+import { responseEnrichmentMiddleware } from "./responseEnrichmentMiddleware";
 
 const cookie = require("cookie");
 const templateUrl = require("template-url");
@@ -162,15 +163,9 @@ export class ExpressDriver extends BaseDriver {
             return executeCallback({request, response, next});
         };
 
-        // finally register action in express
-        let responseEncrichmentMiddleware = (request: any, response: any, next: any) => {
-            enrichResponseWithEndAwareness(response);
-            next();
-        };
-
         this.express[actionMetadata.type.toLowerCase()](...[
             route,
-            responseEncrichmentMiddleware,
+            responseEnrichmentMiddleware,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,

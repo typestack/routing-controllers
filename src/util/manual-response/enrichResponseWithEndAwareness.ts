@@ -21,7 +21,4 @@ export function enrichResponseWithEndAwareness(response: ManualResponse) {
             return originalEnd.apply(response, args);
         };
     });
-
-    // Ensure the response prototype has the extension method "manualResponse"
-    // Object.getPrototypeOf(response).manualResponse || (Object.getPrototypeOf(response).manualResponse = getManualResponse);
 }
