@@ -3,6 +3,7 @@ import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
 import {ActionMetadata} from "../../metadata/ActionMetadata";
 import {Action} from "../../Action";
 import {ParamMetadata} from "../../metadata/ParamMetadata";
+import { enrichResponseWithEndAwareness } from "../../util/manual-response/enrichResponseWithEndAwareness";
 import {BaseDriver} from "../BaseDriver";
 import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
 import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface";
@@ -162,8 +163,14 @@ export class ExpressDriver extends BaseDriver {
         };
 
         // finally register action in express
+        let responseEncrichmentMiddleware = (request: any, response: any, next: any) => {
+            enrichResponseWithEndAwareness(response);
+            next();
+        };
+
         this.express[actionMetadata.type.toLowerCase()](...[
             route,
+            responseEncrichmentMiddleware,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,

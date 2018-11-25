@@ -1,6 +1,6 @@
 import {Action} from "./Action";
 import {ActionMetadata} from "./metadata/ActionMetadata";
-import {ActionParameterHandler} from "./ActionParameterHandler";
+import { ActionParameterHandler } from "./ActionParameterHandler";
 import {BaseDriver} from "./driver/BaseDriver";
 import {InterceptorInterface} from "./InterceptorInterface";
 import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
@@ -8,6 +8,7 @@ import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {getFromContainer} from "./container";
 import {isPromiseLike} from "./util/isPromiseLike";
+import { isManualResponse } from "./util/manual-response/isManualResponse";
 import {runInSequence} from "./util/runInSequence";
 
 /**
@@ -134,6 +135,10 @@ export class RoutingControllers<T extends BaseDriver> {
      * Handles result of the action method execution.
      */
     protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: Function[]): any {
+        if (isManualResponse(result)) {
+            // This response is manual, don't handle its resolve
+            return;
+        }
         if (isPromiseLike(result)) {
             return result
                 .then((data: any) => {

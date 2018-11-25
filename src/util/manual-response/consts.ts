@@ -1,0 +1,1 @@
+export const RESOLVED_RESULT = Symbol("resolved result");

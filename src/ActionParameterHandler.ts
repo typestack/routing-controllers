@@ -1,5 +1,6 @@
 import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
+import { Response } from "express";
 import {Action} from "./Action";
 import {BadRequestError} from "./http-error/BadRequestError";
 import {BaseDriver} from "./driver/BaseDriver";
@@ -9,6 +10,10 @@ import {ParamRequiredError} from "./error/ParamRequiredError";
 import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
 import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
 import {isPromiseLike} from "./util/isPromiseLike";
+import { RESOLVED_RESULT } from "./util/manual-response/consts";
+import { enrichResponseWithEndAwareness } from "./util/manual-response/enrichResponseWithEndAwareness";
+import { getManualResponse } from "./util/manual-response/getManualResponse";
+import { ManualResponse } from "./util/manual-response/ManualResponse";
 
 /**
  * Handles action parameter.
@@ -34,8 +39,10 @@ export class ActionParameterHandler<T extends BaseDriver> {
         if (param.type === "request")
             return action.request;
 
-        if (param.type === "response")
+        if (param.type === "response") {
+            enrichResponseWithEndAwareness(action.response);
             return action.response;
+        }
 
         if (param.type === "context")
             return action.context;
@@ -190,7 +197,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 .catch((validationErrors: ValidationError[]) => {
                     const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
                     error.errors = validationErrors;
-                    error.paramName = paramMetadata.name; 
+                    error.paramName = paramMetadata.name;
                     throw error;
                 });
         }
