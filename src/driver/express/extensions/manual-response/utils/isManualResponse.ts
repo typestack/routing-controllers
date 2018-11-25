@@ -1,5 +1,5 @@
-import { RESPONSE_RESULT_PROMISE } from "../consts";
-import { ManualResponse } from "../types/ManualResponse";
+import {RESPONSE_RESULT_PROMISE} from "../consts";
+import {ManualResponse} from "../types/ManualResponse";
 
 /**
  * Checks whether

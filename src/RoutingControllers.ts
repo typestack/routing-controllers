@@ -1,14 +1,14 @@
 import {Action} from "./Action";
-import {ActionMetadata} from "./metadata/ActionMetadata";
-import { ActionParameterHandler } from "./ActionParameterHandler";
-import {BaseDriver} from "./driver/BaseDriver";
-import {InterceptorInterface} from "./InterceptorInterface";
-import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
-import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
-import {RoutingControllersOptions} from "./RoutingControllersOptions";
+import {ActionParameterHandler} from "./ActionParameterHandler";
 import {getFromContainer} from "./container";
+import {BaseDriver} from "./driver/BaseDriver";
+import {isManualResponse} from "./driver/express/extensions/manual-response/utils/isManualResponse";
+import {InterceptorInterface} from "./InterceptorInterface";
+import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
+import {ActionMetadata} from "./metadata/ActionMetadata";
+import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
+import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {isPromiseLike} from "./util/isPromiseLike";
-import { isManualResponse } from "./driver/express/extensions/manual-response/utils/isManualResponse";
 import {runInSequence} from "./util/runInSequence";
 
 /**
@@ -64,7 +64,7 @@ export class RoutingControllers<T extends BaseDriver> {
             .buildInterceptorMetadata(classes)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
             .reverse();
-        this.interceptors.push(...interceptors);
+        this.interceptors.push(... interceptors);
         return this;
     }
 
@@ -76,9 +76,9 @@ export class RoutingControllers<T extends BaseDriver> {
         controllers.forEach(controller => {
             controller.actions.forEach(actionMetadata => {
                 const interceptorFns = this.prepareInterceptors([
-                    ...this.interceptors,
-                    ...actionMetadata.controllerMetadata.interceptors,
-                    ...actionMetadata.interceptors
+                    ... this.interceptors,
+                    ... actionMetadata.controllerMetadata.interceptors,
+                    ... actionMetadata.interceptors,
                 ]);
                 this.driver.registerAction(actionMetadata, (action: Action) => {
                     return this.executeAction(actionMetadata, action, interceptorFns);
@@ -92,7 +92,7 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Registers post-execution middlewares in the driver.
      */
-    registerMiddlewares(type: "before"|"after", classes?: Function[]): this {
+    registerMiddlewares(type: "before" | "after", classes?: Function[]): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
             .filter(middleware => middleware.global && middleware.type === type)
@@ -120,8 +120,8 @@ export class RoutingControllers<T extends BaseDriver> {
         return Promise.all(paramsPromises).then(params => {
 
             // execute action and handle result
-            const allParams = actionMetadata.appendParams ? actionMetadata.appendParams(action).concat(params) : params;
-            const result = actionMetadata.methodOverride ? actionMetadata.methodOverride(actionMetadata, action, allParams) : actionMetadata.callMethod(allParams);
+            const allParams = actionMetadata.appendParams ? actionMetadata.appendParams(action).concat(params): params;
+            const result = actionMetadata.methodOverride ? actionMetadata.methodOverride(actionMetadata, action, allParams): actionMetadata.callMethod(allParams);
             return this.handleCallMethodResult(result, actionMetadata, action, interceptorFns);
 
         }).catch(error => {
@@ -170,6 +170,7 @@ export class RoutingControllers<T extends BaseDriver> {
             }
         }
     }
+
     /**
      * Creates interceptors from the given "use interceptors".
      */
@@ -183,6 +184,5 @@ export class RoutingControllers<T extends BaseDriver> {
             return use.interceptor;
         });
     }
-
 
 }
