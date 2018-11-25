@@ -2,6 +2,7 @@ import {Action} from "./Action";
 import {ActionParameterHandler} from "./ActionParameterHandler";
 import {getFromContainer} from "./container";
 import {BaseDriver} from "./driver/BaseDriver";
+import {RESPONSE_RESULT_PROMISE} from "./driver/express/extensions/manual-response/consts";
 import {isManualResponse} from "./driver/express/extensions/manual-response/utils/isManualResponse";
 import {InterceptorInterface} from "./InterceptorInterface";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
@@ -135,10 +136,6 @@ export class RoutingControllers<T extends BaseDriver> {
      * Handles result of the action method execution.
      */
     protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: Function[]): any {
-        if (isManualResponse(result)) {
-            // This response is manual, don't handle its resolve
-            return;
-        }
         if (isPromiseLike(result)) {
             return result
                 .then((data: any) => {
@@ -148,7 +145,13 @@ export class RoutingControllers<T extends BaseDriver> {
                     return this.driver.handleError(error, action, options);
                 });
         } else {
-
+            if (isManualResponse(options.response)) {
+                if (result === options.response[RESPONSE_RESULT_PROMISE]) {
+                    // This response is manual, don't handle its resolve - ignore
+                    return;
+                }
+                throw new Error(`Declared @Res({manual: true}) but the controller action did return response.manual()`);
+            }
             if (interceptorFns) {
                 const awaitPromise = runInSequence(interceptorFns, interceptorFn => {
                     const interceptedResult = interceptorFn(options, result);
