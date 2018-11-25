@@ -190,7 +190,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
             && (value instanceof paramMetadata.targetType);
 
         if (isValidationEnabled && shouldValidate) {
-            const options = paramMetadata.validate instanceof Object ? paramMetadata.validate: this.driver.validationOptions;
+            const options = paramMetadata.validate instanceof Object ? paramMetadata.validate : this.driver.validationOptions;
             return validate(value, options)
                 .then(() => value)
                 .catch((validationErrors: ValidationError[]) => {
