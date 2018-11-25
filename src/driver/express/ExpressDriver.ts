@@ -13,7 +13,6 @@ import { BaseDriver } from "../BaseDriver";
 import { ExpressErrorMiddlewareInterface } from "./ExpressErrorMiddlewareInterface";
 import { ExpressMiddlewareInterface } from "./ExpressMiddlewareInterface";
 import { extendExpressResponse } from "./extensions/manual-response/extendExpressResponse";
-import { responseEnrichmentMiddleware } from "./extensions/manual-response/middlewares/responseEnrichmentMiddleware";
 
 const cookie = require ("cookie");
 const templateUrl = require ("template-url");
@@ -173,7 +172,6 @@ export class ExpressDriver extends BaseDriver {
 
         this.express[actionMetadata.type.toLowerCase ()] (...[
             route,
-            responseEnrichmentMiddleware,
             ... beforeMiddlewares,
             ... defaultMiddlewares,
             routeHandler,

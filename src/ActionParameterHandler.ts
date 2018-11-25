@@ -36,8 +36,10 @@ export class ActionParameterHandler<T extends BaseDriver> {
             return action.request;
 
         if (param.type === "response") {
-            // Extend express's response object upon injection with @Response
-            // enrichResponseWithEndAwareness (action.response);
+            if (param.extraOptions && param.extraOptions.manual) {
+                // Extend express's response object upon injection with @Res({manual:true})
+                enrichResponseWithEndAwareness (action.response);
+            }
             return action.response;
         }
 
