@@ -8,7 +8,7 @@ import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {getFromContainer} from "./container";
 import {isPromiseLike} from "./util/isPromiseLike";
-import { isManualResponse } from "./util/manual-response/isManualResponse";
+import { isManualResponse } from "./driver/express/extensions/manual-response/utils/isManualResponse";
 import {runInSequence} from "./util/runInSequence";
 
 /**

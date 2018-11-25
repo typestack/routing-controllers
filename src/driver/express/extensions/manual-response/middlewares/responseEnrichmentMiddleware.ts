@@ -1,4 +1,4 @@
-import { enrichResponseWithEndAwareness } from "../../util/manual-response/enrichResponseWithEndAwareness";
+import { enrichResponseWithEndAwareness } from "../enrichResponseWithEndAwareness";
 
 /**
  * Enrich express's response object with awareness of when the response write has been manually ended correctly
