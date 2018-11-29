@@ -13,6 +13,7 @@ import { BaseDriver } from "../BaseDriver";
 import { ExpressErrorMiddlewareInterface } from "./ExpressErrorMiddlewareInterface";
 import { ExpressMiddlewareInterface } from "./ExpressMiddlewareInterface";
 import { extendExpressResponse } from "./extensions/manual-response/extendExpressResponse";
+import {isManualResponse} from "./extensions/manual-response/utils/isManualResponse";
 
 const cookie = require ("cookie");
 const templateUrl = require ("template-url");
@@ -245,6 +246,9 @@ export class ExpressDriver extends BaseDriver {
      * Handles result of successfully executed controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
+        if (isManualResponse(options.response)) {
+            return;
+        }
 
         // if the action returned the response object itself, short-circuits
         if (result && result === options.response) {

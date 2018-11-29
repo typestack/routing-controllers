@@ -145,13 +145,6 @@ export class RoutingControllers<T extends BaseDriver> {
                     return this.driver.handleError(error, action, options);
                 });
         } else {
-            if (isManualResponse(options.response)) {
-                if (result === options.response[RESPONSE_RESULT_PROMISE]) {
-                    // This response is manual, don't handle its resolve - ignore
-                    return;
-                }
-                throw new Error(`Declared @Res({manual: true}) but the controller action did return response.manual()`);
-            }
             if (interceptorFns) {
                 const awaitPromise = runInSequence(interceptorFns, interceptorFn => {
                     const interceptedResult = interceptorFn(options, result);
