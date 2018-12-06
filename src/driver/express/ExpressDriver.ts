@@ -1,17 +1,17 @@
-import { UseMetadata } from "../../metadata/UseMetadata";
-import { MiddlewareMetadata } from "../../metadata/MiddlewareMetadata";
-import { ActionMetadata } from "../../metadata/ActionMetadata";
-import { Action } from "../../Action";
-import { ParamMetadata } from "../../metadata/ParamMetadata";
-import { BaseDriver } from "../BaseDriver";
-import { ExpressMiddlewareInterface } from "./ExpressMiddlewareInterface";
-import { ExpressErrorMiddlewareInterface } from "./ExpressErrorMiddlewareInterface";
-import { AccessDeniedError } from "../../error/AccessDeniedError";
-import { AuthorizationCheckerNotDefinedError } from "../../error/AuthorizationCheckerNotDefinedError";
-import { isPromiseLike } from "../../util/isPromiseLike";
-import { getFromContainer } from "../../container";
-import { AuthorizationRequiredError } from "../../error/AuthorizationRequiredError";
-import { NotFoundError } from "../../index";
+import {UseMetadata} from "../../metadata/UseMetadata";
+import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
+import {ActionMetadata} from "../../metadata/ActionMetadata";
+import {Action} from "../../Action";
+import {ParamMetadata} from "../../metadata/ParamMetadata";
+import {BaseDriver} from "../BaseDriver";
+import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
+import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface";
+import {AccessDeniedError} from "../../error/AccessDeniedError";
+import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
+import {isPromiseLike} from "../../util/isPromiseLike";
+import {getFromContainer} from "../../container";
+import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
+import {NotFoundError} from "../../index";
 
 const cookie = require("cookie");
 const templateUrl = require("template-url");
@@ -69,13 +69,13 @@ export class ExpressDriver extends BaseDriver {
                     const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                     if (isPromiseLike(useResult)) {
                         useResult.catch((error: any) => {
-                            this.handleError(error, undefined, { request, response, next });
+                            this.handleError(error, undefined, {request, response, next});
                             return error;
                         });
                     }
 
                 } catch (error) {
-                    this.handleError(error, undefined, { request, response, next });
+                    this.handleError(error, undefined, {request, response, next});
                 }
             });
         }
@@ -158,7 +158,7 @@ export class ExpressDriver extends BaseDriver {
             if (request.method.toLowerCase() !== actionMetadata.type)
                 return next();
 
-            return executeCallback({ request, response, next });
+            return executeCallback({request, response, next});
         };
 
         // finally register action in express
@@ -337,7 +337,6 @@ export class ExpressDriver extends BaseDriver {
             } else {
                 options.response.send(result);
             }
-
             // Stop layers execution if response is finished 
             if (!options.response.headersSent) {
                 options.next();
@@ -393,14 +392,14 @@ export class ExpressDriver extends BaseDriver {
                         const useResult = (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
                         if (isPromiseLike(useResult)) {
                             useResult.catch((error: any) => {
-                                this.handleError(error, undefined, { request, response, next });
+                                this.handleError(error, undefined, {request, response, next});
                                 return error;
                             });
                         }
 
                         return useResult;
                     } catch (error) {
-                        this.handleError(error, undefined, { request, response, next });
+                        this.handleError(error, undefined, {request, response, next});
                     }
                 });
 
