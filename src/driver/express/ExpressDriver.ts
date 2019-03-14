@@ -167,7 +167,10 @@ export class ExpressDriver extends BaseDriver {
             ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,
-            ...afterMiddlewares
+            ...afterMiddlewares,
+            (_req: any, _res: any, _next: any): void => {
+                // avoid calling the next route
+            }
         ]);
     }
 
