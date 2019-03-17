@@ -464,7 +464,7 @@ You can also specify uploading options to multer this way:
 
 ```typescript
 // to keep code clean better to extract this function into separate file
-export const fileUploadOptions = () => {
+export const fileUploadOptions = {
     storage: multer.diskStorage({
         destination: (req: any, file: any, cb: any) => { ...
         },
