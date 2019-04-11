@@ -128,6 +128,14 @@ export class KoaDriver extends BaseDriver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = (context: any, next: () => Promise<any>) => {
+            // Repeated static routing in dynamic routing may result in multiple calls:
+            // e.g. Router: /users/existed and Router: /users/:name
+            // Solution: call `executeCallback` at most once.
+            // About issue: https://github.com/typestack/routing-controllers/issues/220
+          
+            if (context.__driverExecuted) return next();
+            context.__driverExecuted = true;
+            
             const options: Action = {request: context.request, response: context.response, context, next};
             return executeCallback(options);
         };

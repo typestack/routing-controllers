@@ -155,8 +155,17 @@ export class ExpressDriver extends BaseDriver {
             // This causes a double action execution on our side, which results in an unhandled rejection,
             // saying: "Can't set headers after they are sent".
             // The following line skips action processing when the request method does not match the action method.
+            
             if (request.method.toLowerCase() !== actionMetadata.type)
                 return next();
+    
+            // Repeated static routing in dynamic routing may result in multiple calls:
+            // e.g. Router: /users/existed and Router: /users/:name
+            // Solution: call `executeCallback` at most once.
+            // About issue: https://github.com/typestack/routing-controllers/issues/220
+            
+            if (request.__driverExecuted) return next();
+            request.__driverExecuted = true;
 
             return executeCallback({request, response, next});
         };
@@ -237,7 +246,7 @@ export class ExpressDriver extends BaseDriver {
      * Handles result of successfully executed controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
-
+    
         // if the action returned the response object itself, short-circuits
         if (result && result === options.response) {
             options.next();
