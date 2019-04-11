@@ -246,7 +246,6 @@ export class ExpressDriver extends BaseDriver {
      * Handles result of successfully executed controller action.
      */
     handleSuccess(result: any, action: ActionMetadata, options: Action): void {
-    
         // if the action returned the response object itself, short-circuits
         if (result && result === options.response) {
             options.next();

@@ -20,12 +20,17 @@ export class UserController {
             { id: 2, name: "Second user!" }
         ];
     }
+  
+    @Get("/users/1")
+    getSpecialOne(@Req() request: Request) {
+      return "User 1, Special.";
+    }
 
     @Get("/users/:id")
     getOne(@Req() request: Request) {
         return "User #" + request.params.id;
     }
-
+    
     @Post("/users")
     post(@Req() request: Request) {
         let user = JSON.stringify(request.body); // probably you want to install body-parser for express
