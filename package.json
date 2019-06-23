@@ -1,6 +1,6 @@
 {
-  "name": "routing-controllers",
-  "private": true,
+  "name": "@gritcode/routing-controllers",
+  "private": false,
   "version": "0.7.8",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
@@ -34,11 +34,13 @@
   ],
   "dependencies": {
     "class-transformer": "^0.1.9",
-    "class-validator": "0.8.4",
     "cookie": "^0.3.1",
     "glob": "^7.0.5",
     "reflect-metadata": "^0.1.12",
     "template-url": "^1.0.0"
+  },
+  "peerDependencies": {
+    "class-validator": "^0.8.4"
   },
   "devDependencies": {
     "@types/chai": "^3.4.35",
@@ -53,6 +55,7 @@
     "chai": "^3.4.1",
     "chai-as-promised": "^6.0.0",
     "chakram": "^1.4.0",
+    "class-validator": "^0.8.4",
     "cors": "^2.8.3",
     "cross-env": "5.0.5",
     "del": "^2.2.1",
@@ -90,6 +93,9 @@
     "typescript": "~2.7.2"
   },
   "scripts": {
+    "lint": "gulp tslint",
+    "package": "gulp package",
+    "publish": "gulp publish",
     "test": "cross-env NODE_ENV=test gulp tests"
   },
   "typings": "index.d.ts"

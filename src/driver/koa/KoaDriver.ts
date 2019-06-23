@@ -79,7 +79,7 @@ export class KoaDriver extends BaseDriver {
                 const action: Action = { request: context.request, response: context.response, context, next };
                 try {
                     const checkResult = actionMetadata.authorizedRoles instanceof Function ?
-                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
+                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles, action).check(action) :
                         this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
                     const handleError = (result: any) => {
@@ -330,7 +330,7 @@ export class KoaDriver extends BaseDriver {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewareFunctions.push((context: any, next: (err?: any) => Promise<any>) => {
                     try {
-                        const useResult = (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
+                        const useResult = (getFromContainer(use.middleware, { context } as Action) as KoaMiddlewareInterface).use(context, next);
                         if (isPromiseLike(useResult)) {
                             useResult.catch((error: any) => {
                                 this.handleError(error, undefined, {

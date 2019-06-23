@@ -73,7 +73,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 1. Install module:
 
-    `npm install routing-controllers --save`
+    `npm install routing-controllers class-validator --save`
 
 2. `reflect-metadata` shim is required:
 
@@ -1357,6 +1357,39 @@ export class UsersController {
     // ... controller actions
 
 }
+```
+
+For other IoC providers that don't expose a `get(xxx)` function, you can create an IoC adapter using `IocAdapter` like so:
+
+```typescript
+// inversify-adapter.ts
+import { IoCAdapter } from 'routing-controllers'
+import { Container } from 'inversify'
+
+class InversifyAdapter implements IocAdapter {
+  constructor (
+    private readonly container: Container
+  ) {
+  }
+
+  get<T> (someClass: ClassConstructor<T>, action?: Action): T {
+    const childContainer = this.container.createChild()
+    childContainer.bind(API_SYMBOLS.ClientIp).toConstantValue(action.context.ip)
+    return childContainer.resolve<T>(someClass)
+  } 
+}
+```
+
+And then tell Routing Controllers to use it:
+```typescript
+// Somewhere in your app startup
+import { useContainer } from 'routing-controllers'
+import { Container } from 'inversify'
+import { InversifyAdapter } from './inversify-adapter.ts'
+
+const container = new Container()
+const inversifyAdapter = new InversifyAdapter(container)
+useContainer(inversifyAdapter)
 ```
 
 ## Custom parameter decorators

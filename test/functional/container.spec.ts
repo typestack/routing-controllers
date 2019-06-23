@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, createKoaServer, getMetadataArgsStorage, Action} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Container, Service} from "typedi";
-import {useContainer} from "../../src/container";
+import {useContainer, IocAdapter, ClassConstructor} from "../../src/container";
 import {Get} from "../../src/decorator/Get";
+import * as assert from "assert";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -104,17 +105,26 @@ describe("container", () => {
 
     describe("using custom container should be possible", () => {
 
+        let fakeContainer: IocAdapter & {
+            services: { [key: string]: any }
+            context: any[]
+        };
+
         before(() => {
 
-            const fakeContainer = {
-                services: [] as any,
+            fakeContainer = {
+                services: {},
+                context: [],
 
-                get(service: any) {
+                get<T>(service: ClassConstructor<T>, action: Action): T {
+
+                    this.context.push(action.context);
+                    
                     if (!this.services[service.name]) {
                         this.services[service.name] = new service();
                     }
 
-                    return this.services[service.name];
+                    return this.services[service.name] as T;
                 }
             };
 
@@ -205,6 +215,10 @@ describe("container", () => {
                 id: 2,
                 title: "post #2"
             }]);
+        });
+
+        it("should pass the action through to the Ioc adapter", () => {
+            assert.notEqual(fakeContainer.context.length, 0);
         });
     });
 
