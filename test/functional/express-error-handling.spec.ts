@@ -70,7 +70,7 @@ describe("express error handling", () => {
                 return {
                     status: this.httpCode,
                     publicData: `${this.publicData} (${this.httpCode})`
-                }
+                };
             }
         }
 

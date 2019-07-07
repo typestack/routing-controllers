@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {plainToClass} from "class-transformer";
 import {validateOrReject as validate, ValidationError} from "class-validator";
 import {Action} from "./Action";
@@ -175,14 +176,14 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 } else {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
-                
+
             case "date":
                 const parsedDate = new Date(value);
                 if (Number.isNaN(parsedDate.getTime())) {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
                 return parsedDate;
-                
+
             case "string":
             default:
                 return value;
