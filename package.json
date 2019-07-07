@@ -1,36 +1,20 @@
 {
-  "name": "routing-controllers",
-  "private": true,
-  "version": "0.8.0",
-  "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
-  "license": "MIT",
-  "readmeFilename": "README.md",
   "author": {
-    "name": "Umed Khudoiberdiev",
-    "email": "pleerock.me@gmail.com"
+    "email": "pleerock.me@gmail.com",
+    "name": "Umed Khudoiberdiev"
+  },
+  "bugs": {
+    "url": "https://github.com/TrejGun/routing-controllers/issues"
   },
   "contributors": [
     {
       "name": "Michał Lytek",
       "url": "https://github.com/19majkel94"
+    },
+    {
+      "name": "Trej Gun",
+      "url": "https://github.com/TrejGun"
     }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pleerock/routing-controllers.git"
-  },
-  "bugs": {
-    "url": "https://github.com/pleerock/routing-controllers/issues"
-  },
-  "main": "index.js",
-  "tags": [
-    "express",
-    "express.js",
-    "typescript",
-    "typescript-express",
-    "typescript-express.js",
-    "express-controllers",
-    "controllers"
   ],
   "dependencies": {
     "class-transformer": "^0.2.3",
@@ -40,6 +24,7 @@
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
   },
+  "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
@@ -58,15 +43,6 @@
     "del": "^5.0.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
-    "gulp": "^3.9.1",
-    "gulp-istanbul": "^1.1.3",
-    "gulp-mocha": "^6.0.0",
-    "gulp-replace": "^1.0.0",
-    "gulp-shell": "^0.7.1",
-    "gulp-sourcemaps": "^2.5.1",
-    "gulp-tslint": "^8.1.4",
-    "gulp-typescript": "^5.0.1",
-    "gulpclass": "^0.1.2",
     "handlebars": "^4.1.2",
     "kcors": "^2.2.2",
     "koa": "^2.7.0",
@@ -79,19 +55,44 @@
     "mocha": "^6.1.4",
     "multer": "^1.4.1",
     "mustache-express": "^1.2.8",
+    "nyc": "^14.1.1",
     "remap-istanbul": "^0.13.0",
     "request": "^2.88.0",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
-    "tslint-stylish": "^2.1.0",
     "typedi": "^0.8.0",
     "typescript": "^3.5.2"
   },
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./src/index.ts",
+  "name": "@terjgun/routing-controllers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrejGun/routing-controllers.git"
+  },
   "scripts": {
     "build": "tsc",
-    "test": "cross-env NODE_ENV=test gulp tests"
+    "coverage": "nyc npm run test",
+    "lint": "tslint --project tsconfig.json --fix",
+    "test": "NODE_ENV=test mocha"
   },
-  "typings": "index.d.ts"
+  "tags": [
+    "express",
+    "express.js",
+    "typescript",
+    "typescript-express",
+    "typescript-express.js",
+    "express-controllers",
+    "controllers"
+  ],
+  "types": "./dist/index.d.ts",
+  "typings": "index.d.ts",
+  "version": "0.8.0"
 }

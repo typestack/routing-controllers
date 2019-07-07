@@ -29,15 +29,16 @@ describe("special result value treatment", () => {
             @Get("/stream")
             @ContentType("text/plain")
             getStream() {
-                return createReadStream(path.resolve(__dirname, "../../../../test/resources/sample-text-file.txt"));
+                const pathStr = path.resolve(__dirname, "../../test/resources/sample-text-file.txt");
+                return createReadStream(pathStr);
             }
-            
+
             @Get("/buffer")
             @ContentType("application/octet-stream")
             getBuffer() {
                 return new Buffer(rawData);
             }
-            
+
             @Get("/array")
             @ContentType("application/octet-stream")
             getUIntArray() {

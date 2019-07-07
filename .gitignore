@@ -1,6 +1,17 @@
-build/
-node_modules/
+# Project
+logs
+
+# IDE
+.idea
+.vscode
+
+# OS
+.DS_Store
+
+# NODE
+dist/
 coverage/
+node_modules/
+.nyc_output/
+lerna-debug.log
 npm-debug.log
-.vscode/
-.idea/

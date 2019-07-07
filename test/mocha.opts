@@ -1,0 +1,5 @@
+--reporter spec
+--require ts-node/register
+--timeout 10000
+--ui bdd
+--recursive ./test/**/*.spec.ts

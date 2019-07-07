@@ -5,6 +5,7 @@ import {Res} from "../../src/decorator/Res";
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {Render} from "../../src/decorator/Render";
+import * as path from "path";
 const chakram = require("chakram");
 const expect = chakram.expect;
 
@@ -41,23 +42,23 @@ describe("template rendering", () => {
 
     let expressApp: any;
     before(done => {
-        const path = __dirname + "/../../../../test/resources";
+        const pathStr = path.resolve(__dirname, "../../test/resources");
         const server = createExpressServer();
         const mustacheExpress = require("mustache-express");
         server.engine("html", mustacheExpress());
         server.set("view engine", "html");
-        server.set("views", path);
-        server.use(require("express").static(path));
+        server.set("views", pathStr);
+        server.use(require("express").static(pathStr));
         expressApp = server.listen(3001, done);
     });
     after(done => expressApp.close(done));
 
     let koaApp: any;
     before(done => {
-        const path = __dirname + "/../../../../test/resources";
+        const pathStr = path.resolve(__dirname, "../../test/resources");
         const server = createKoaServer();
         let koaViews = require("koa-views");
-        server.use(koaViews(path, { map: { html: "handlebars" } } ));
+        server.use(koaViews(pathStr, { map: { html: "handlebars" } } ));
         koaApp = server.listen(3002, done);
     });
     after(done => koaApp.close(done));

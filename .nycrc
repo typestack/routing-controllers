@@ -1,0 +1,15 @@
+{
+  "all": true,
+  "cache": false,
+  "exclude": [
+    "sample/*",
+    "**/*.d.ts"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "reporter": [
+    "text",
+    "text-summary"
+  ]
+}
