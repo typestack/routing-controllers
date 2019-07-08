@@ -21,7 +21,7 @@ export interface UseContainerOptions {
  * container simply creates a new instance of the given class.
  */
 const defaultContainer: { get<T>(someClass: (new (...args: Array<any>) => T)|Function): T } = new (class {
-    private instances: Array<{ object: any type: Function }> = [];
+    private instances: Array<{ object: any, type: Function }> = [];
     public get<T>(someClass: new (...args: Array<any>) => T): T {
         let instance = this.instances.find(instance => instance.type === someClass);
         if (!instance) {

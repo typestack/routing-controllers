@@ -4,7 +4,7 @@ import {getMetadataArgsStorage} from '../index';
  * Marks given class as a middleware.
  * Allows to create global middlewares and control order of middleware execution.
  */
-export function Middleware(options: { priority?: number type: 'after'|'before' }): Function {
+export function Middleware(options: { priority?: number, type: 'after'|'before' }): Function {
     return function(target: Function) {
         getMetadataArgsStorage().middlewares.push({
             target,
