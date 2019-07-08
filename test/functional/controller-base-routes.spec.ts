@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
 import {Controller} from '../../src/decorator/Controller';
@@ -39,43 +40,43 @@ describe('controller > base routes functionality', () => {
 
   describe('get should respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>All posts</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>All posts</body></html>');
     });
   });
 
   describe('get should respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>One post</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>One post</body></html>');
     });
   });
 
   describe('get should respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'get', 'posts/1/users/2', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>One user</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>One user</body></html>');
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
     assertRequest([3001, 3002], 'get', '1/users/1', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
     assertRequest([3001, 3002], 'get', 'categories/1', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
     assertRequest([3001, 3002], 'get', 'users/1', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
   });
 });

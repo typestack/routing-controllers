@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual, deepStrictEqual} from 'assert';
 import {Get} from '../../src/decorator/Get';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage, NotAcceptableError} from '../../src/index';
 import {assertRequest} from './test-utils';
@@ -6,12 +7,10 @@ import {JsonController} from '../../src/decorator/JsonController';
 import {Authorized} from '../../src/decorator/Authorized';
 import {Action} from '../../src/Action';
 import {RoutingControllersOptions} from '../../src/RoutingControllersOptions';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
-describe('Controller responds with value when Authorization succeeds (async)', function() {
+describe('Controller responds with value when Authorization succeeds (async)', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -62,27 +61,27 @@ describe('Controller responds with value when Authorization succeeds (async)', f
 
   describe('without roles', () => {
     assertRequest([3001, 3002], 'get', 'auth1', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth1'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth1'});
     });
   });
 
   describe('with roles', () => {
     assertRequest([3001, 3002], 'get', 'auth2', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth2'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth2'});
     });
   });
 
   describe('async', () => {
     assertRequest([3001, 3002], 'get', 'auth3', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth3'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth3'});
     });
   });
 });
 
-describe('Controller responds with value when Authorization succeeds (sync)', function() {
+describe('Controller responds with value when Authorization succeeds (sync)', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -130,27 +129,27 @@ describe('Controller responds with value when Authorization succeeds (sync)', fu
 
   describe('without roles', () => {
     assertRequest([3001, 3002], 'get', 'auth1', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth1'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth1'});
     });
   });
 
   describe('with roles', () => {
     assertRequest([3001, 3002], 'get', 'auth2', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth2'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth2'});
     });
   });
 
   describe('async', () => {
     assertRequest([3001, 3002], 'get', 'auth3', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.eql({test: 'auth3'});
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {test: 'auth3'});
     });
   });
 });
 
-describe('Authorized Decorators Http Status Code', function() {
+describe('Authorized Decorators Http Status Code', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -191,18 +190,18 @@ describe('Authorized Decorators Http Status Code', function() {
 
   describe('without roles', () => {
     assertRequest([3001, 3002], 'get', 'auth1', response => {
-      expect(response).to.have.status(401);
+      strictEqual(response.response.statusCode, 401);
     });
   });
 
   describe('with roles', () => {
     assertRequest([3001, 3002], 'get', 'auth2', response => {
-      expect(response).to.have.status(403);
+      strictEqual(response.response.statusCode, 403);
     });
   });
 });
 
-describe('Authorization checker allows to throw (async)', function() {
+describe('Authorization checker allows to throw (async)', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -239,14 +238,14 @@ describe('Authorization checker allows to throw (async)', function() {
 
   describe('custom errors', () => {
     assertRequest([3001, 3002], 'get', 'auth1', response => {
-      expect(response).to.have.status(406);
-      expect(response.body).to.have.property('name', 'NotAcceptableError');
-      expect(response.body).to.have.property('message', 'Custom Error');
+      strictEqual(response.response.statusCode, 406);
+      strictEqual(response.body.name, 'NotAcceptableError');
+      strictEqual(response.body.message, 'Custom Error');
     });
   });
 });
 
-describe('Authorization checker allows to throw (sync)', function() {
+describe('Authorization checker allows to throw (sync)', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -283,9 +282,9 @@ describe('Authorization checker allows to throw (sync)', function() {
 
   describe('custom errors', () => {
     assertRequest([3001, 3002], 'get', 'auth1', response => {
-      expect(response).to.have.status(406);
-      expect(response.body).to.have.property('name', 'NotAcceptableError');
-      expect(response.body).to.have.property('message', 'Custom Error');
+      strictEqual(response.response.statusCode, 406);
+      strictEqual(response.body.name, 'NotAcceptableError');
+      strictEqual(response.body.message, 'Custom Error');
     });
   });
 });

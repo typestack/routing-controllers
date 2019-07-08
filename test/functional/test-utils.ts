@@ -1,4 +1,5 @@
 const chakram = require('chakram');
+import {strictEqual} from 'assert';
 
 export function assertRequest(
   ports: Array<number>,

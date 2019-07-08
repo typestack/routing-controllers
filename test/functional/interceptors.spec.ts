@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
 import {InterceptorInterface} from '../../src/InterceptorInterface';
@@ -7,8 +8,6 @@ import {UseInterceptor} from '../../src/decorator/UseInterceptor';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
 import {Action} from '../../src/Action';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('interceptor', () => {
   before(() => {
@@ -85,41 +84,41 @@ describe('interceptor', () => {
 
   describe('custom interceptor function should replace returned content', () => {
     assertRequest([3001, 3002], 'get', 'users', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>damn hello world</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>damn hello world</body></html>');
     });
   });
 
   describe('custom interceptor class should replace returned content', () => {
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>this post contains *** bad words</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>this post contains *** bad words</body></html>');
     });
   });
 
   describe('custom interceptor class used on the whole controller should replace returned content', () => {
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>hello world</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>hello world</body></html>');
     });
   });
 
   describe('global interceptor class should replace returned content', () => {
     assertRequest([3001, 3002], 'get', 'files', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>hello world</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>hello world</body></html>');
     });
   });
 
   describe('interceptors should support promises', () => {
     assertRequest([3001, 3002], 'get', 'photos', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>bye world</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>bye world</body></html>');
     });
   });
 });

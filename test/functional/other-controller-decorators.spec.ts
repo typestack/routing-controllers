@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
 import {Param} from '../../src/decorator/Param';
@@ -14,8 +15,6 @@ import {OnUndefined} from '../../src/decorator/OnUndefined';
 import {HttpError} from '../../src/http-error/HttpError';
 import {Action} from '../../src/Action';
 import {JsonController} from '../../src/decorator/JsonController';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('other controller decorators', () => {
   before(() => {
@@ -136,100 +135,100 @@ describe('other controller decorators', () => {
 
   describe('should return httpCode set by @HttpCode decorator', () => {
     assertRequest([3001, 3002], 'post', 'users', {name: 'Umed'}, response => {
-      expect(response).to.have.status(201);
-      expect(response.body).to.be.eql('<html><body>User has been created</body></html>');
+      strictEqual(response.response.statusCode, 201);
+      strictEqual(response.body, '<html><body>User has been created</body></html>');
     });
 
     assertRequest([3001, 3002], 'get', 'admin', response => {
-      expect(response).to.have.status(403);
-      expect(response.body).to.be.eql('<html><body>Access is denied</body></html>');
+      strictEqual(response.response.statusCode, 403);
+      strictEqual(response.body, '<html><body>Access is denied</body></html>');
     });
   });
 
   describe('should return custom code when @OnNull', () => {
     assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql('Post');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body, 'Post');
     });
     assertRequest([3001, 3002], 'get', 'posts/2', response => {
-      expect(response).to.have.status(200);
+      strictEqual(response.response.statusCode, 200);
     });
     assertRequest([3001, 3002], 'get', 'posts/3', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
     assertRequest([3001, 3002], 'get', 'posts/4', response => {
-      expect(response).to.have.status(404); // this is expected because for undefined 404 is given by default
+      strictEqual(response.response.statusCode, 404); // this is expected because for undefined 404 is given by default
     });
     assertRequest([3001, 3002], 'get', 'posts/5', response => {
-      expect(response).to.have.status(404); // this is expected because for undefined 404 is given by default
+      strictEqual(response.response.statusCode, 404); // this is expected because for undefined 404 is given by default
     });
   });
 
   describe('should return custom error message and code when @OnUndefined is used with Error class', () => {
     assertRequest([3001, 3002], 'get', 'questions/1', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.equal('Question');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body, 'Question');
     });
     assertRequest([3001, 3002], 'get', 'questions/2', response => {
-      expect(response).to.have.status(404);
-      expect(response.body.name).to.be.equal('QuestionNotFoundError');
-      expect(response.body.message).to.be.equal('Question was not found!');
+      strictEqual(response.response.statusCode, 404);
+      strictEqual(response.body.name, 'QuestionNotFoundError');
+      strictEqual(response.body.message, 'Question was not found!');
     });
     assertRequest([3001, 3002], 'get', 'questions/3', response => {
-      expect(response).to.have.status(404); // because of null
-      expect(response.body.name).to.be.equal('QuestionNotFoundError');
-      expect(response.body.message).to.be.equal('Question was not found!');
+      strictEqual(response.response.statusCode, 404); // because of null
+      strictEqual(response.body.name, 'QuestionNotFoundError');
+      strictEqual(response.body.message, 'Question was not found!');
     });
   });
 
   describe('should return custom code when @OnUndefined', () => {
     assertRequest([3001, 3002], 'get', 'photos/1', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql('Photo');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body, 'Photo');
     });
     assertRequest([3001, 3002], 'get', 'photos/2', response => {
-      expect(response).to.have.status(200);
+      strictEqual(response.response.statusCode, 200);
     });
     assertRequest([3001, 3002], 'get', 'photos/3', response => {
-      expect(response).to.have.status(204); // because of null
+      strictEqual(response.response.statusCode, 204); // because of null
     });
     assertRequest([3001, 3002], 'get', 'photos/4', response => {
-      expect(response).to.have.status(201);
+      strictEqual(response.response.statusCode, 201);
     });
     assertRequest([3001, 3002], 'get', 'photos/5', response => {
-      expect(response).to.have.status(201);
+      strictEqual(response.response.statusCode, 201);
     });
   });
 
   describe('should return content-type in the response when @ContentType is used', () => {
     assertRequest([3001, 3002], 'get', 'homepage', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.eql('<html><body>Hello world</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.body, '<html><body>Hello world</body></html>');
     });
   });
 
   describe('should return content-type in the response when @ContentType is used', () => {
     assertRequest([3001, 3002], 'get', 'textpage', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/plain; charset=utf-8');
-      expect(response.body).to.be.eql('Hello text');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'text/plain; charset=utf-8');
+      strictEqual(response.body, 'Hello text');
     });
   });
 
   describe('should return response with custom headers when @Header is used', () => {
     assertRequest([3001, 3002], 'get', 'userdash', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('authorization', 'Barer abcdefg');
-      expect(response).to.have.header('development-mode', 'enabled');
-      expect(response.body).to.be.eql('<html><body>Hello, User</body></html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['authorization'], 'Barer abcdefg');
+      strictEqual(response.response.headers['development-mode'], 'enabled');
+      strictEqual(response.body, '<html><body>Hello, User</body></html>');
     });
   });
 
   describe('should relocate to new location when @Location is used', () => {
     assertRequest([3001, 3002], 'get', 'github', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('location', 'http://github.com');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['location'], 'http://github.com');
     });
   });
 });

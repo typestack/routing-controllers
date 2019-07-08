@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
 import {Res} from '../../src/decorator/Res';
@@ -6,8 +7,6 @@ import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../.
 import {assertRequest} from './test-utils';
 import {Render} from '../../src/decorator/Render';
 import * as path from 'path';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('template rendering', () => {
   before(() => {
@@ -61,24 +60,15 @@ describe('template rendering', () => {
 
   describe('should render a template and use given variables', () => {
     assertRequest([3001, 3002], 'get', 'index', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.contain('<html>');
-      expect(response.body).to.contain('<body>');
-      expect(response.body).to.contain('Routing-controllers');
-      expect(response.body).to.contain('</body>');
-      expect(response.body).to.contain('</html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body, '<html>\n<body>\nRouting-controllers\n</body>\n</html>');
     });
   });
 
   describe('Express should render a template with given variables and locals variables', () => {
     assertRequest([3001], 'get', 'locals', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.contain('<html>');
-      expect(response.body).to.contain('<body>');
-      expect(response.body).to.contain('Routing-controllers');
-      expect(response.body).to.contain('my-variable');
-      expect(response.body).to.contain('</body>');
-      expect(response.body).to.contain('</html>');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body, '<html>\n\n<body>\n  Routing-controllers\n  my-variable\n</body>\n\n</html>');
     });
   });
 });

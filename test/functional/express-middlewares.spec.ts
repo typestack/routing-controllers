@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {createExpressServer, getMetadataArgsStorage} from '../../src/index';
 import {ExpressMiddlewareInterface} from '../../src/driver/express/ExpressMiddlewareInterface';
 import {Controller} from '../../src/decorator/Controller';
@@ -9,7 +10,6 @@ import {UseAfter} from '../../src/decorator/UseAfter';
 import {NotAcceptableError} from './../../src/http-error/NotAcceptableError';
 
 const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('express middlewares', () => {
   let useBefore: boolean,
@@ -134,42 +134,42 @@ describe('express middlewares', () => {
 
   it('should call a global middlewares', () =>
     chakram.get('http://127.0.0.1:3001/blogs').then((response: any) => {
-      expect(useGlobalBefore).to.be.equal(true);
-      expect(useGlobalAfter).to.be.equal(true);
-      expect(useGlobalCallOrder).to.be.equal('setFromGlobalAfter');
-      expect(response).to.have.status(200);
+      strictEqual(useGlobalBefore, true);
+      strictEqual(useGlobalAfter, true);
+      strictEqual(useGlobalCallOrder, 'setFromGlobalAfter');
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should use a custom middleware when @UseBefore or @UseAfter is used', () =>
     chakram.get('http://127.0.0.1:3001/questions').then((response: any) => {
-      expect(useCustom).to.be.equal(true);
-      expect(response).to.have.status(200);
+      strictEqual(useCustom, true);
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should call middleware and call it before controller action when @UseBefore is used', () =>
     chakram.get('http://127.0.0.1:3001/users').then((response: any) => {
-      expect(useBefore).to.be.equal(true);
-      expect(useCallOrder).to.be.equal('setFromController');
-      expect(response).to.have.status(200);
+      strictEqual(useBefore, true);
+      strictEqual(useCallOrder, 'setFromController');
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should call middleware and call it after controller action when @UseAfter is used', () =>
     chakram.get('http://127.0.0.1:3001/photos').then((response: any) => {
-      expect(useAfter).to.be.equal(true);
-      expect(useCallOrder).to.be.equal('setFromUseAfter');
-      expect(response).to.have.status(200);
+      strictEqual(useAfter, true);
+      strictEqual(useCallOrder, 'setFromUseAfter');
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should call before middleware and call after middleware when @UseAfter and @UseAfter are used', () =>
     chakram.get('http://127.0.0.1:3001/posts').then((response: any) => {
-      expect(useBefore).to.be.equal(true);
-      expect(useAfter).to.be.equal(true);
-      expect(useCallOrder).to.be.equal('setFromUseAfter');
-      expect(response).to.have.status(200);
+      strictEqual(useBefore, true);
+      strictEqual(useAfter, true);
+      strictEqual(useCallOrder, 'setFromUseAfter');
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should handle errors in custom middlewares', () =>
     chakram.get('http://127.0.0.1:3001/customMiddlewareWichThrows').then((response: any) => {
-      expect(response).to.have.status(406);
+      strictEqual(response.response.statusCode, 406);
     }));
 });

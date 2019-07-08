@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
@@ -8,8 +9,6 @@ import {Get} from '../../src/decorator/Get';
 import {QueryParam} from '../../src/decorator/QueryParam';
 import {ResponseClassTransformOptions} from '../../src/decorator/ResponseClassTransformOptions';
 import {RoutingControllersOptions} from '../../src/RoutingControllersOptions';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('class transformer options', () => {
   class UserFilter {
@@ -60,15 +59,15 @@ describe('class transformer options', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {
         id: 1,
         _firstName: 'Umed',
         _lastName: 'Khudoiberdiev',
         name: 'Umed Khudoiberdiev',
       });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
+      ok(requestFilter instanceof UserFilter);
+      deepStrictEqual(requestFilter, {
         keyword: 'Um',
         __somethingPrivate: 'blablabla',
       });
@@ -114,13 +113,13 @@ describe('class transformer options', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed Khudoiberdiev',
       });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
+      ok(requestFilter instanceof UserFilter);
+      deepStrictEqual(requestFilter, {
         keyword: 'Um',
       });
     });
@@ -157,13 +156,13 @@ describe('class transformer options', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed Khudoiberdiev',
       });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
+      ok(requestFilter instanceof UserFilter);
+      deepStrictEqual(requestFilter, {
         keyword: 'Um',
       });
     });

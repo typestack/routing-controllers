@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual, deepStrictEqual, ok} from 'assert';
 import {Length} from 'class-validator';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
@@ -8,9 +9,6 @@ import {Get} from '../../src/decorator/Get';
 import {QueryParam} from '../../src/decorator/QueryParam';
 import {ResponseClassTransformOptions} from '../../src/decorator/ResponseClassTransformOptions';
 import {RoutingControllersOptions} from '../../src/RoutingControllersOptions';
-
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('parameters auto-validation', () => {
   class UserFilter {
@@ -65,8 +63,8 @@ describe('parameters auto-validation', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(400);
-      expect(requestFilter).to.be.undefined;
+      strictEqual(response.response.statusCode, 400);
+      strictEqual(requestFilter, void 0);
     });
   });
 
@@ -101,8 +99,8 @@ describe('parameters auto-validation', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(400);
-      expect(requestFilter).to.be.undefined;
+      strictEqual(response.response.statusCode, 400);
+      strictEqual(requestFilter, void 0);
     });
   });
 
@@ -146,8 +144,8 @@ describe('parameters auto-validation', () => {
       'get',
       'user?filter={"notKeyword": "Um", "__somethingPrivate": "blablabla"}',
       response => {
-        expect(response).to.have.status(200);
-        expect(requestFilter).to.have.property('notKeyword');
+        strictEqual(response.response.statusCode, 200);
+        strictEqual(requestFilter.notKeyword, 'Um');
       },
     );
   });
@@ -190,14 +188,14 @@ describe('parameters auto-validation', () => {
       'get',
       'user?filter={"keyword": "Umedi", "__somethingPrivate": "blablabla"}',
       response => {
-        expect(response).to.have.status(200);
-        expect(response.body).to.be.eql({
+        strictEqual(response.response.statusCode, 200);
+        deepStrictEqual(response.body, {
           id: 1,
           _firstName: 'Umed',
           _lastName: 'Khudoiberdiev',
         });
-        expect(requestFilter).to.be.instanceOf(UserFilter);
-        expect(requestFilter).to.be.eql({
+        ok(requestFilter instanceof UserFilter);
+        deepStrictEqual(JSON.parse(JSON.stringify(requestFilter)), {
           keyword: 'Umedi',
           __somethingPrivate: 'blablabla',
         });
@@ -243,8 +241,8 @@ describe('parameters auto-validation', () => {
     };
 
     assertRequest([3001, 3002], 'get', `user?filter=${JSON.stringify(invalidFilter)}`, response => {
-      expect(response).to.have.status(400);
-      expect(response.body.paramName).to.equal('filter');
+      strictEqual(response.response.statusCode, 400);
+      strictEqual(response.body.paramName, 'filter');
     });
   });
 });

@@ -1,15 +1,15 @@
 import 'reflect-metadata';
+import {strictEqual, ok} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {Post} from '../../src/decorator/Post';
 import {Body} from '../../src/decorator/Body';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 export class User {
   public firstName: string;
   public lastName: string;
+
   public getName(): string {
     return this.firstName + ' ' + this.lastName;
   }
@@ -50,8 +50,8 @@ describe('routing-controllers global options', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      expect(initializedUser).to.be.instanceOf(User);
-      expect(response).to.have.status(200);
+      ok(initializedUser instanceof User);
+      strictEqual(response.response.statusCode, 200);
     });
   });
 
@@ -63,21 +63,22 @@ describe('routing-controllers global options', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      expect(initializedUser).to.be.instanceOf(User);
-      expect(response).to.have.status(200);
+      ok(initializedUser instanceof User);
+      strictEqual(response.response.statusCode, 200);
     });
   });
 
   describe('when useClassTransformer is not set', () => {
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer({classTransformer: false}).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer({classTransformer: false}).listen(3002, done)));
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      expect(initializedUser).not.to.be.instanceOf(User);
-      expect(response).to.have.status(200);
+      ok(!(initializedUser instanceof User));
+      strictEqual(response.response.statusCode, 200);
     });
   });
 
@@ -98,8 +99,8 @@ describe('routing-controllers global options', () => {
       'api/users',
       {firstName: 'Umed', lastName: 'Khudoiberdiev'},
       response => {
-        expect(initializedUser).to.be.instanceOf(User);
-        expect(response).to.have.status(200);
+        ok(initializedUser instanceof User);
+        strictEqual(response.response.statusCode, 200);
       },
     );
 
@@ -109,8 +110,8 @@ describe('routing-controllers global options', () => {
       'api/regex/users',
       {firstName: 'Umed', lastName: 'Khudoiberdiev'},
       response => {
-        expect(initializedUser).to.be.instanceOf(User);
-        expect(response).to.have.status(200);
+        ok(initializedUser instanceof User);
+        strictEqual(response.response.statusCode, 200);
       },
     );
   });

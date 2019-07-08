@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer} from '../../src/index';
 import {Get} from '../../src/decorator/Get';
@@ -7,7 +8,6 @@ import {ExpressErrorMiddlewareInterface} from '../../src/driver/express/ExpressE
 import {ExpressMiddlewareInterface} from '../../src/driver/express/ExpressMiddlewareInterface';
 
 const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('custom express global before middleware error handling', () => {
   class CustomError extends Error {
@@ -58,8 +58,8 @@ describe('custom express global before middleware error handling', () => {
 
   it('should call global error handler middleware with CustomError', () =>
     chakram.get('http://127.0.0.1:3001/answers').then((response: any) => {
-      expect(errorHandlerCalled).to.be.true;
-      expect(errorHandlerName).to.equals('CustomError');
-      expect(response).to.have.status(500);
+      strictEqual(errorHandlerCalled, true);
+      strictEqual(errorHandlerName, 'CustomError');
+      strictEqual(response.response.statusCode, 500);
     }));
 });

@@ -1,14 +1,13 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {Get} from '../../src/decorator/Get';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
 import {Redirect} from '../../src/decorator/Redirect';
 import {JsonController} from '../../src/decorator/JsonController';
 import {Param} from '../../src/decorator/Param';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
-describe('dynamic redirect', function() {
+describe('dynamic redirect', () => {
   before(() => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
@@ -59,22 +58,22 @@ describe('dynamic redirect', function() {
 
   describe('using template', () => {
     assertRequest([3001, 3002], 'get', 'template', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).has.property('login', 'pleerock');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body.login, 'pleerock');
     });
   });
 
   describe('using override', () => {
     assertRequest([3001, 3002], 'get', 'override', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).has.property('login', 'pleerock');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body.login, 'pleerock');
     });
   });
 
   describe('using original', () => {
     assertRequest([3001, 3002], 'get', 'original', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).has.property('login', 'pleerock');
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.body.login, 'pleerock');
     });
   });
 });

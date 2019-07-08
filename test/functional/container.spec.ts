@@ -1,12 +1,11 @@
 import 'reflect-metadata';
+import {strictEqual, deepStrictEqual} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
 import {Container, Service} from 'typedi';
 import {useContainer} from '../../src/container';
 import {Get} from '../../src/decorator/Get';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('container', () => {
   describe('using typedi container should be possible', () => {
@@ -75,8 +74,8 @@ describe('container', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'question #1',
@@ -89,8 +88,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'post #1',
@@ -182,8 +181,8 @@ describe('container', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'question #1',
@@ -196,8 +195,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'post #1',
@@ -302,8 +301,8 @@ describe('container', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'question #1',
@@ -316,8 +315,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'post #1',
@@ -330,8 +329,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'photos', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'photo #1',
@@ -440,8 +439,8 @@ describe('container', () => {
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'question #1',
@@ -454,8 +453,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'post #1',
@@ -468,8 +467,8 @@ describe('container', () => {
     });
 
     assertRequest([3001, 3002], 'get', 'photos', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           title: 'photo #1',

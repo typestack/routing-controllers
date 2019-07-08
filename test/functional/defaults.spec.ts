@@ -1,13 +1,11 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
 import {QueryParam} from '../../src/decorator/QueryParam';
 import {OnUndefined} from '../../src/decorator/OnUndefined';
 import {assertRequest} from './test-utils';
-
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('defaults', () => {
   before(() => {
@@ -77,38 +75,38 @@ describe('defaults', () => {
   after(done => kuaApp.close(done));
 
   it('should return undefinedResultCode from defaults config for void function', () => {
-    assertRequest([3001, 3002], 'get', 'voidfunc', res => {
-      expect(res).to.have.status(defaultUndefinedResultCode);
+    assertRequest([3001, 3002], 'get', 'voidfunc', response => {
+      strictEqual(response.response.statusCode, defaultUndefinedResultCode);
     });
   });
 
   it('should return undefinedResultCode from defaults config for promise void function', () => {
-    assertRequest([3001, 3002], 'get', 'promisevoidfunc', res => {
-      expect(res).to.have.status(defaultUndefinedResultCode);
+    assertRequest([3001, 3002], 'get', 'promisevoidfunc', response => {
+      strictEqual(response.response.statusCode, defaultUndefinedResultCode);
     });
   });
 
   it('should return 400 from required paramOptions', () => {
-    assertRequest([3001, 3002], 'get', 'paramfunc', res => {
-      expect(res).to.have.status(400);
+    assertRequest([3001, 3002], 'get', 'paramfunc', response => {
+      strictEqual(response.response.statusCode, 400);
     });
   });
 
   it('should return nullResultCode from defaults config', () => {
-    assertRequest([3001, 3002], 'get', 'nullfunc', res => {
-      expect(res).to.have.status(defaultNullResultCode);
+    assertRequest([3001, 3002], 'get', 'nullfunc', response => {
+      strictEqual(response.response.statusCode, defaultNullResultCode);
     });
   });
 
   it('should return status code from OnUndefined annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overridefunc', res => {
-      expect(res).to.have.status(404);
+    assertRequest([3001, 3002], 'get', 'overridefunc', response => {
+      strictEqual(response.response.statusCode, 404);
     });
   });
 
   it('should mark arg optional from QueryParam annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overrideparamfunc', res => {
-      expect(res).to.have.status(200);
+    assertRequest([3001, 3002], 'get', 'overrideparamfunc', response => {
+      strictEqual(response.response.statusCode, 200);
     });
   });
 });

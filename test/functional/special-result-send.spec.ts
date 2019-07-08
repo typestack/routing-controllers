@@ -1,18 +1,12 @@
 import 'reflect-metadata';
-
+import {ok, strictEqual} from 'assert';
 import {createReadStream} from 'fs';
 import * as path from 'path';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
-import {InterceptorInterface} from '../../src/InterceptorInterface';
-import {Interceptor} from '../../src/decorator/Interceptor';
-import {UseInterceptor} from '../../src/decorator/UseInterceptor';
 import {JsonController} from '../../src/decorator/JsonController';
 import {Get} from '../../src/decorator/Get';
-import {Action} from '../../src/Action';
 import {ContentType} from '../../src/decorator/ContentType';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('special result value treatment', () => {
   const rawData = [0xff, 0x66, 0xaa, 0xcc];
@@ -52,27 +46,25 @@ describe('special result value treatment', () => {
 
   describe('should pipe stream to response', () => {
     assertRequest([3001, 3002], 'get', 'stream', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/text\/plain/);
-      });
-      expect(response.body).to.be.equal('Hello World!');
+      strictEqual(response.response.statusCode, 200);
+      ok(response.response.headers['content-type'].match(/text\/plain/));
+      strictEqual(response.body, 'Hello World!');
     });
   });
 
   describe('should send raw binary data from Buffer', () => {
     assertRequest([3001, 3002], 'get', 'buffer', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'application/octet-stream');
-      expect(response.body).to.be.equal(new Buffer(rawData).toString());
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/octet-stream');
+      strictEqual(response.body, new Buffer(rawData).toString());
     });
   });
 
   describe('should send raw binary data from UIntArray', () => {
     assertRequest([3001, 3002], 'get', 'array', response => {
-      expect(response).to.be.status(200);
-      expect(response).to.have.header('content-type', 'application/octet-stream');
-      expect(response.body).to.be.equal(Buffer.from(rawData).toString());
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/octet-stream');
+      strictEqual(response.body, Buffer.from(rawData).toString());
     });
   });
 });

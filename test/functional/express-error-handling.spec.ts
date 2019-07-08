@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer, getMetadataArgsStorage} from '../../src/index';
 import {Get} from '../../src/decorator/Get';
@@ -7,8 +8,8 @@ import {UseAfter} from '../../src/decorator/UseAfter';
 import {ExpressErrorMiddlewareInterface} from '../../src/driver/express/ExpressErrorMiddlewareInterface';
 import {NotFoundError} from '../../src/http-error/NotFoundError';
 import {HttpError} from '../../src/http-error/HttpError';
+
 const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('express error handling', () => {
   let errorHandlerCalled: boolean, errorHandledSpecifically: boolean;
@@ -120,48 +121,45 @@ describe('express error handling', () => {
 
   it('should not call global error handler middleware if there was no errors', () =>
     chakram.get('http://127.0.0.1:3001/blogs').then((response: any) => {
-      expect(errorHandlerCalled).to.be.empty;
-      expect(errorHandledSpecifically).to.be.empty;
-      expect(response).to.have.status(200);
+      strictEqual(errorHandlerCalled, void 0);
+      strictEqual(errorHandledSpecifically, void 0);
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.statusCode, 200);
     }));
 
   it('should call global error handler middleware', () =>
     chakram.get('http://127.0.0.1:3001/posts').then((response: any) => {
-      expect(errorHandlerCalled).to.be.true;
-      expect(errorHandledSpecifically).to.be.empty;
-      expect(response).to.have.status(500);
+      strictEqual(errorHandlerCalled, true);
+      strictEqual(errorHandledSpecifically, void 0);
+      strictEqual(response.response.statusCode, 500);
     }));
 
   it('should call global error handler middleware', () =>
     chakram.get('http://127.0.0.1:3001/videos').then((response: any) => {
-      expect(errorHandlerCalled).to.be.true;
-      expect(errorHandledSpecifically).to.be.empty;
-      expect(response).to.have.status(404);
+      strictEqual(errorHandlerCalled, true);
+      strictEqual(errorHandledSpecifically, void 0);
+      strictEqual(response.response.statusCode, 404);
     }));
 
   it('should call error handler middleware if used', () =>
     chakram.get('http://127.0.0.1:3001/questions').then((response: any) => {
-      expect(errorHandlerCalled).to.be.true;
-      expect(errorHandledSpecifically).to.be.true;
-      expect(response).to.have.status(500);
+      strictEqual(errorHandlerCalled, true);
+      strictEqual(errorHandledSpecifically, true);
+      strictEqual(response.response.statusCode, 500);
     }));
 
   it('should not execute next middleware if soft error handled specifically and stopped error bubbling', () =>
     chakram.get('http://127.0.0.1:3001/files').then((response: any) => {
-      expect(errorHandlerCalled).to.be.empty;
-      expect(errorHandledSpecifically).to.be.empty;
-      expect(response).to.have.status(500);
+      strictEqual(errorHandlerCalled, void 0);
+      strictEqual(errorHandledSpecifically, void 0);
+      strictEqual(response.response.statusCode, 500);
     }));
 
   it('should process JsonErrors by their toJSON method if it exists', () =>
     chakram.get('http://127.0.0.1:3001/stories').then((response: any) => {
-      expect(response).to.have.status(503);
-      expect(response.body)
-        .to.have.property('status')
-        .and.equals(503);
-      expect(response.body)
-        .to.have.property('publicData')
-        .and.equals('sorry, try it again later (503)');
-      expect(response.body).to.not.have.property('secretData');
+      strictEqual(response.response.statusCode, 503);
+      strictEqual(response.body.status, 503);
+      strictEqual(response.body.publicData, 'sorry, try it again later (503)');
+      strictEqual(response.body.secretData, void 0);
     }));
 });

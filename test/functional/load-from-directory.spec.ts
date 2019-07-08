@@ -1,11 +1,10 @@
 import 'reflect-metadata';
+import {strictEqual, deepStrictEqual} from 'assert';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
 import {defaultFakeService} from '../fakes/global-options/FakeService';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('controllers and middlewares bulk loading from directories', () => {
   describe('loading all controllers from the given directories', () => {
@@ -13,34 +12,35 @@ describe('controllers and middlewares bulk loading from directories', () => {
 
     const serverOptions = {
       controllers: [
-        __dirname + '/../fakes/global-options/first-controllers/**/*{.js,.ts}',
-        __dirname + '/../fakes/global-options/second-controllers/*{.js,.ts}',
+        `${__dirname}/../fakes/global-options/first-controllers/**/*{.js,.ts}`,
+        `${__dirname}/../fakes/global-options/second-controllers/*{.js,.ts}`,
       ],
     };
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer(serverOptions).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer(serverOptions).listen(3002, done)));
     after(done => koaApp.close(done));
 
     assertRequest([3001, 3002], 'get', 'posts', response => {
-      expect(response.body).to.be.eql([{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
+      deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
     assertRequest([3001, 3002], 'get', 'questions', response => {
-      expect(response.body).to.be.eql([{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
+      deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
     assertRequest([3001, 3002], 'get', 'answers', response => {
-      expect(response.body).to.be.eql([{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
+      deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
     assertRequest([3001, 3002], 'get', 'photos', response => {
-      expect(response.body).to.be.eql('Hello photos');
+      strictEqual(response.body, 'Hello photos');
     });
 
     assertRequest([3001, 3002], 'get', 'videos', response => {
-      expect(response.body).to.be.eql('Hello videos');
+      strictEqual(response.body, 'Hello videos');
     });
   });
 
@@ -72,21 +72,21 @@ describe('controllers and middlewares bulk loading from directories', () => {
     beforeEach(() => defaultFakeService.reset());
 
     assertRequest([3001], 'get', 'publications', response => {
-      expect(response).to.have.status(200);
-      expect(defaultFakeService.postMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.questionMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.fileMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.videoMiddlewareCalled).to.be.false;
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(defaultFakeService.postMiddlewareCalled, true);
+      strictEqual(defaultFakeService.questionMiddlewareCalled, true);
+      strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);
+      strictEqual(defaultFakeService.fileMiddlewareCalled, false);
+      strictEqual(defaultFakeService.videoMiddlewareCalled, false);
     });
 
     assertRequest([3001], 'get', 'articles', response => {
-      expect(response).to.have.status(500);
-      expect(defaultFakeService.postMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.questionMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.fileMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.videoMiddlewareCalled).to.be.false;
+      strictEqual(response.response.statusCode, 500);
+      strictEqual(defaultFakeService.postMiddlewareCalled, true);
+      strictEqual(defaultFakeService.questionMiddlewareCalled, true);
+      strictEqual(defaultFakeService.questionErrorMiddlewareCalled, true);
+      strictEqual(defaultFakeService.fileMiddlewareCalled, false);
+      strictEqual(defaultFakeService.videoMiddlewareCalled, false);
     });
   });
 
@@ -118,21 +118,21 @@ describe('controllers and middlewares bulk loading from directories', () => {
     beforeEach(() => defaultFakeService.reset());
 
     assertRequest([3002], 'get', 'publications', response => {
-      expect(response).to.have.status(200);
-      expect(defaultFakeService.postMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.questionMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.fileMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.videoMiddlewareCalled).to.be.true;
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(defaultFakeService.postMiddlewareCalled, false);
+      strictEqual(defaultFakeService.questionMiddlewareCalled, false);
+      strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);
+      strictEqual(defaultFakeService.fileMiddlewareCalled, true);
+      strictEqual(defaultFakeService.videoMiddlewareCalled, true);
     });
 
     assertRequest([3002], 'get', 'articles', response => {
-      // expect(response).to.have.status(500);
-      expect(defaultFakeService.postMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.questionMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-      expect(defaultFakeService.fileMiddlewareCalled).to.be.true;
-      expect(defaultFakeService.videoMiddlewareCalled).to.be.true;
+      // strictEqual(response.response.statusCode, 500)
+      strictEqual(defaultFakeService.postMiddlewareCalled, false);
+      strictEqual(defaultFakeService.questionMiddlewareCalled, false);
+      strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);
+      strictEqual(defaultFakeService.fileMiddlewareCalled, true);
+      strictEqual(defaultFakeService.videoMiddlewareCalled, true);
     });
   });
 });

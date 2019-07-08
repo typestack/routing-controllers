@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {strictEqual, deepStrictEqual, ok} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {Get} from '../../src/decorator/Get';
 import {Post} from '../../src/decorator/Post';
@@ -9,8 +10,6 @@ import {Patch} from '../../src/decorator/Patch';
 import {Put} from '../../src/decorator/Put';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
-const chakram = require('chakram');
-const expect = chakram.expect;
 
 describe('json-controller methods', () => {
   before(() => {
@@ -128,10 +127,10 @@ describe('json-controller methods', () => {
 
   describe('get should respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'get', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.instanceOf(Array);
-      expect(response.body).to.be.eql([
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      ok(response.body instanceof Array);
+      deepStrictEqual(response.body, [
         {
           id: 1,
           name: 'Umed',
@@ -146,9 +145,9 @@ describe('json-controller methods', () => {
 
   describe('post respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'post', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'saved',
       });
     });
@@ -156,9 +155,9 @@ describe('json-controller methods', () => {
 
   describe('put respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'put', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'updated',
       });
     });
@@ -166,9 +165,9 @@ describe('json-controller methods', () => {
 
   describe('patch respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'patch', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'patched',
       });
     });
@@ -176,9 +175,9 @@ describe('json-controller methods', () => {
 
   describe('delete respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'delete', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'removed',
       });
     });
@@ -186,17 +185,17 @@ describe('json-controller methods', () => {
 
   describe('head respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'head', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.undefined;
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      strictEqual(response.body, void 0);
     });
   });
 
   describe('custom method (post) respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'post', 'categories', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'posted',
       });
     });
@@ -204,9 +203,9 @@ describe('json-controller methods', () => {
 
   describe('custom method (delete) respond with proper status code, headers and body content', () => {
     assertRequest([3001, 3002], 'delete', 'categories', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         status: 'removed',
       });
     });
@@ -214,9 +213,9 @@ describe('json-controller methods', () => {
 
   describe('route should work with parameter', () => {
     assertRequest([3001, 3002], 'get', 'users/umed', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed',
       });
@@ -225,9 +224,9 @@ describe('json-controller methods', () => {
 
   describe('route should work with regexp parameter', () => {
     assertRequest([3001, 3002], 'get', 'categories/1', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         id: 1,
         name: 'People',
       });
@@ -236,15 +235,15 @@ describe('json-controller methods', () => {
 
   describe('should respond with 404 when regexp does not match', () => {
     assertRequest([3001, 3002], 'get', 'categories/umed', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
   });
 
   describe('route should work with string regexp parameter', () => {
     assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         id: 1,
         title: 'About People',
       });
@@ -253,15 +252,15 @@ describe('json-controller methods', () => {
 
   describe('should respond with 404 when regexp does not match', () => {
     assertRequest([3001, 3002], 'get', 'posts/U', response => {
-      expect(response).to.have.status(404);
+      strictEqual(response.response.statusCode, 404);
     });
   });
 
   describe('should return result from a promise', () => {
     assertRequest([3001, 3002], 'get', 'posts-from-db', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         id: 1,
         title: 'Hello database post',
       });
@@ -270,9 +269,9 @@ describe('json-controller methods', () => {
 
   describe('should respond with 500 if promise failed', () => {
     assertRequest([3001, 3002], 'get', 'posts-from-failed-db', response => {
-      expect(response).to.have.status(500);
-      expect(response).to.have.header('content-type', 'application/json; charset=utf-8');
-      expect(response.body).to.be.eql({
+      strictEqual(response.response.statusCode, 500);
+      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      deepStrictEqual(response.body, {
         code: 10954,
         message: 'Cannot connect to db',
       });
