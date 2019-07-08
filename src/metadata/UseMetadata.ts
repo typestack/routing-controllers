@@ -4,40 +4,38 @@ import {UseMetadataArgs} from './args/UseMetadataArgs';
  * "Use middleware" metadata.
  */
 export class UseMetadata {
+  /**
+   * Indicates if middleware must be executed after routing action is executed.
+   */
+  public afterAction: boolean;
 
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    public afterAction: boolean;
+  /**
+   * Method used by this "use".
+   */
+  public method: string;
 
-    /**
-     * Method used by this "use".
-     */
-    public method: string;
+  /**
+   * Middleware to be executed by this "use".
+   */
+  public middleware: Function;
 
-    /**
-     * Middleware to be executed by this "use".
-     */
-    public middleware: Function;
+  // -------------------------------------------------------------------------
+  // Properties
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Properties
-    // -------------------------------------------------------------------------
+  /**
+   * Object class of the middleware class.
+   */
+  public target: Function;
 
-    /**
-     * Object class of the middleware class.
-     */
-    public target: Function;
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-
-    constructor(args: UseMetadataArgs) {
-        this.target = args.target;
-        this.method = args.method;
-        this.middleware = args.middleware;
-        this.afterAction = args.afterAction;
-    }
-
+  constructor(args: UseMetadataArgs) {
+    this.target = args.target;
+    this.method = args.method;
+    this.middleware = args.middleware;
+    this.afterAction = args.afterAction;
+  }
 }

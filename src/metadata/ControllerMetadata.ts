@@ -9,84 +9,82 @@ import {InterceptorMetadata} from './InterceptorMetadata';
  * Controller metadata.
  */
 export class ControllerMetadata {
+  // -------------------------------------------------------------------------
+  // Accessors
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
+  /**
+   * Gets instance of the controller.
+   */
+  get instance(): any {
+    return getFromContainer(this.target);
+  }
 
-    /**
-     * Gets instance of the controller.
-     */
-    get instance(): any {
-        return getFromContainer(this.target);
-    }
+  // -------------------------------------------------------------------------
+  // Properties
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Properties
-    // -------------------------------------------------------------------------
+  /**
+   * Controller actions.
+   */
+  public actions: Array<ActionMetadata>;
 
-    /**
-     * Controller actions.
-     */
-    public actions: Array<ActionMetadata>;
+  /**
+   * Roles set by @Authorized decorator.
+   */
+  public authorizedRoles: Array<any>;
 
-    /**
-     * Roles set by @Authorized decorator.
-     */
-    public authorizedRoles: Array<any>;
+  /**
+   * Middleware "use"-s applied to a whole controller.
+   */
+  public interceptors: Array<InterceptorMetadata>;
 
-    /**
-     * Middleware "use"-s applied to a whole controller.
-     */
-    public interceptors: Array<InterceptorMetadata>;
+  /**
+   * Indicates if this action uses Authorized decorator.
+   */
+  public isAuthorizedUsed: boolean;
 
-    /**
-     * Indicates if this action uses Authorized decorator.
-     */
-    public isAuthorizedUsed: boolean;
+  /**
+   * Base route for all actions registered in this controller.
+   */
+  public route: string;
 
-    /**
-     * Base route for all actions registered in this controller.
-     */
-    public route: string;
+  /**
+   * Indicates object which is used by this controller.
+   */
+  public target: Function;
 
-    /**
-     * Indicates object which is used by this controller.
-     */
-    public target: Function;
+  /**
+   * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
+   */
+  public type: 'default' | 'json';
 
-    /**
-     * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
-     */
-    public type: 'default'|'json';
+  /**
+   * Middleware "use"-s applied to a whole controller.
+   */
+  public uses: Array<UseMetadata>;
 
-    /**
-     * Middleware "use"-s applied to a whole controller.
-     */
-    public uses: Array<UseMetadata>;
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
+  constructor(args: ControllerMetadataArgs) {
+    this.target = args.target;
+    this.route = args.route;
+    this.type = args.type;
+  }
 
-    constructor(args: ControllerMetadataArgs) {
-        this.target = args.target;
-        this.route = args.route;
-        this.type = args.type;
-    }
+  // -------------------------------------------------------------------------
+  // Public Methods
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Builds everything controller metadata needs.
-     * Controller metadata should be used only after its build.
-     */
-    public build(responseHandlers: Array<ResponseHandlerMetadata>) {
-        const authorizedHandler = responseHandlers.find(handler => handler.type === 'authorized' && !handler.method);
-        this.isAuthorizedUsed = !!authorizedHandler;
-        this.authorizedRoles = [].concat((authorizedHandler && authorizedHandler.value) || []);
-    }
-
+  /**
+   * Builds everything controller metadata needs.
+   * Controller metadata should be used only after its build.
+   */
+  public build(responseHandlers: Array<ResponseHandlerMetadata>) {
+    const authorizedHandler = responseHandlers.find(handler => handler.type === 'authorized' && !handler.method);
+    this.isAuthorizedUsed = !!authorizedHandler;
+    this.authorizedRoles = [].concat((authorizedHandler && authorizedHandler.value) || []);
+  }
 }

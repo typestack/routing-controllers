@@ -2,12 +2,10 @@ import {ExpressMiddlewareInterface} from '../../../../src/driver/express/Express
 import {defaultFakeService} from '../FakeService';
 import {Middleware} from '../../../../src/decorator/Middleware';
 
-@Middleware({ type: 'before' })
+@Middleware({type: 'before'})
 export class FileMiddleware implements ExpressMiddlewareInterface {
-
-    public use(context: any, next?: (err?: any) => Promise<any>): Promise<any> {
-        defaultFakeService.fileMiddleware();
-        return next();
-    }
-
+  public use(context: any, next?: (err?: any) => Promise<any>): Promise<any> {
+    defaultFakeService.fileMiddleware();
+    return next();
+  }
 }

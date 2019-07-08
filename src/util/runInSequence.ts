@@ -3,11 +3,16 @@
  * Operations executed after each other, right after previous promise being resolved.
  */
 export function runInSequence<T, U>(collection: Array<T>, callback: (item: T) => Promise<U>): Promise<Array<U>> {
-    const results: Array<U> = [];
-    return collection.reduce((promise, item) =>
-        promise.then(() =>
-            callback(item)).then(result => {
+  const results: Array<U> = [];
+  return collection
+    .reduce(
+      (promise, item) =>
+        promise
+          .then(() => callback(item))
+          .then(result => {
             results.push(result);
-        }), Promise.resolve()).then(() =>
-        results);
+          }),
+      Promise.resolve(),
+    )
+    .then(() => results);
 }

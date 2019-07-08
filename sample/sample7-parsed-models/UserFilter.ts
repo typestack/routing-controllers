@@ -1,10 +1,7 @@
-
 export class UserFilter {
-    
-    keyword: string;
-    
-    hasKeyword(): boolean {
-        return this.keyword && this.keyword.length > 2;
-    }
-    
+  public keyword: string;
+
+  public hasKeyword(): boolean {
+    return this.keyword && this.keyword.length > 2;
+  }
 }

@@ -6,18 +6,18 @@ import {getMetadataArgsStorage} from '../index';
  * Must be applied on a controller action parameter.
  */
 export function Body(options?: BodyOptions): Function {
-    return function(object: Object, methodName: string, index: number) {
-        getMetadataArgsStorage().params.push({
-            type: 'body',
-            object,
-            method: methodName,
-            index,
-            parse: false,
-            required: options ? options.required : undefined,
-            classTransform: options ? options.transform : undefined,
-            validate: options ? options.validate : undefined,
-            explicitType: options ? options.type : undefined,
-            extraOptions: options ? options.options : undefined,
-        });
-    };
+  return function(object: Object, methodName: string, index: number) {
+    getMetadataArgsStorage().params.push({
+      type: 'body',
+      object,
+      method: methodName,
+      index,
+      parse: false,
+      required: options ? options.required : undefined,
+      classTransform: options ? options.transform : undefined,
+      validate: options ? options.validate : undefined,
+      explicitType: options ? options.type : undefined,
+      extraOptions: options ? options.options : undefined,
+    });
+  };
 }

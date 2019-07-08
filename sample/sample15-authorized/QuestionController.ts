@@ -5,14 +5,14 @@ import {Authorized} from '../../src/decorator/Authorized';
 
 @JsonController()
 export class QuestionController {
-
-    @Authorized()
-    @Get('/questions')
-    public all() {
-        return [{
-            id: 1,
-            title: 'Question #1',
-        }];
-    }
-
+  @Authorized()
+  @Get('/questions')
+  public all() {
+    return [
+      {
+        id: 1,
+        title: 'Question #1',
+      },
+    ];
+  }
 }

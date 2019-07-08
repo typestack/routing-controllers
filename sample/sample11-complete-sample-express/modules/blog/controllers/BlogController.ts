@@ -9,46 +9,41 @@ import {Delete} from '../../../../../src/decorator/Delete';
 
 @JsonController()
 export class BlogController {
+  @Get('/blogs')
+  public getAll() {
+    console.log('Getting blogs...');
+    return this.createPromise([{id: 1, name: 'Blog 1!'}, {id: 2, name: 'Blog 2!'}], 3000);
+  }
 
-    @Get('/blogs')
-    public getAll() {
-        console.log('Getting blogs...');
-        return this.createPromise([
-            { id: 1, name: 'Blog 1!'},
-            { id: 2, name: 'Blog 2!'},
-        ], 3000);
-    }
+  @Get('/blogs/:id')
+  public getOne() {
+    return this.createPromise({id: 1, name: 'Blog 1!'}, 3000);
+  }
 
-    @Get('/blogs/:id')
-    public getOne() {
-        return this.createPromise({ id: 1, name: 'Blog 1!'}, 3000);
-    }
+  @Patch('/blogs/:id')
+  public patch(@Req() request: Request) {
+    return this.createPromise('Blog #' + request.params.id + ' has been patched!', 3000);
+  }
 
-    @Patch('/blogs/:id')
-    public patch(@Req() request: Request) {
-        return this.createPromise('Blog #' + request.params.id + ' has been patched!', 3000);
-    }
+  @Post('/blogs')
+  public post(@Req() request: Request) {
+    const blog = JSON.stringify(request.body);
+    return this.createPromise('Blog ' + blog + ' !saved!', 3000);
+  }
 
-    @Post('/blogs')
-    public post(@Req() request: Request) {
-        const blog = JSON.stringify(request.body);
-        return this.createPromise('Blog ' + blog + ' !saved!', 3000);
-    }
+  @Put('/blogs/:id')
+  public put(@Req() request: Request) {
+    return this.createPromise('Blog #' + request.params.id + ' has been putted!', 3000);
+  }
 
-    @Put('/blogs/:id')
-    public put(@Req() request: Request) {
-        return this.createPromise('Blog #' + request.params.id + ' has been putted!', 3000);
-    }
+  @Delete('/blogs/:id')
+  public remove(@Req() request: Request) {
+    return this.createPromise('Blog #' + request.params.id + ' has been removed!', 3000);
+  }
 
-    @Delete('/blogs/:id')
-    public remove(@Req() request: Request) {
-        return this.createPromise('Blog #' + request.params.id + ' has been removed!', 3000);
-    }
-
-    private createPromise(data: any, timeout: number): Promise<any> {
-        return new Promise<any>((ok, fail) => {
-            setTimeout(() => ok(data), timeout);
-        });
-    }
-
+  private createPromise(data: any, timeout: number): Promise<any> {
+    return new Promise<any>((ok, fail) => {
+      setTimeout(() => ok(data), timeout);
+    });
+  }
 }

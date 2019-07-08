@@ -5,14 +5,14 @@ import {getMetadataArgsStorage} from '../index';
  * Must be applied on a controller action parameter.
  */
 export function HeaderParams(): Function {
-    return function(object: Object, methodName: string, index: number) {
-        getMetadataArgsStorage().params.push({
-            type: 'headers',
-            object,
-            method: methodName,
-            index,
-            parse: false,
-            required: false,
-        });
-    };
+  return function(object: Object, methodName: string, index: number) {
+    getMetadataArgsStorage().params.push({
+      type: 'headers',
+      object,
+      method: methodName,
+      index,
+      parse: false,
+      required: false,
+    });
+  };
 }

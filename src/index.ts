@@ -101,149 +101,147 @@ export * from './driver/koa/KoaDriver';
  * Metadata args storage follows the best practices and stores metadata in a global variable.
  */
 export function getMetadataArgsStorage(): MetadataArgsStorage {
-    if (!(global as any).routingControllersMetadataArgsStorage) {
-        (global as any).routingControllersMetadataArgsStorage = new MetadataArgsStorage();
-    }
+  if (!(global as any).routingControllersMetadataArgsStorage) {
+    (global as any).routingControllersMetadataArgsStorage = new MetadataArgsStorage();
+  }
 
-    return (global as any).routingControllersMetadataArgsStorage;
+  return (global as any).routingControllersMetadataArgsStorage;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
 export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
-    const driver = new ExpressDriver(expressApp);
-    return createServer(driver, options);
+  const driver = new ExpressDriver(expressApp);
+  return createServer(driver, options);
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
 export function createExpressServer(options?: RoutingControllersOptions): any {
-    const driver = new ExpressDriver();
-    return createServer(driver, options);
+  const driver = new ExpressDriver();
+  return createServer(driver, options);
 }
 
 /**
  * Registers all loaded actions in your koa application.
  */
 export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions): T {
-    const driver = new KoaDriver(koaApp);
-    return createServer(driver, options);
+  const driver = new KoaDriver(koaApp);
+  return createServer(driver, options);
 }
 
 /**
  * Registers all loaded actions in your koa application.
  */
 export function createKoaServer(options?: RoutingControllersOptions): any {
-    const driver = new KoaDriver();
-    return createServer(driver, options);
+  const driver = new KoaDriver();
+  return createServer(driver, options);
 }
 
 /**
  * Registers all loaded actions in your application using selected driver.
  */
 export function createServer<T extends BaseDriver>(driver: T, options?: RoutingControllersOptions): any {
-    createExecutor(driver, options);
-    return driver.app;
+  createExecutor(driver, options);
+  return driver.app;
 }
 
 /**
  * Registers all loaded actions in your express application.
  */
 export function createExecutor<T extends BaseDriver>(driver: T, options: RoutingControllersOptions = {}): void {
+  // import all controllers and middlewares and error handlers (new way)
+  let controllerClasses: Array<Function>;
+  if (options && options.controllers && options.controllers.length) {
+    controllerClasses = (options.controllers as Array<any>).filter(controller => controller instanceof Function);
+    const controllerDirs = (options.controllers as Array<any>).filter(controller => typeof controller === 'string');
+    controllerClasses.push(...importClassesFromDirectories(controllerDirs));
+  }
+  let middlewareClasses: Array<Function>;
+  if (options && options.middlewares && options.middlewares.length) {
+    middlewareClasses = (options.middlewares as Array<any>).filter(controller => controller instanceof Function);
+    const middlewareDirs = (options.middlewares as Array<any>).filter(controller => typeof controller === 'string');
+    middlewareClasses.push(...importClassesFromDirectories(middlewareDirs));
+  }
+  let interceptorClasses: Array<Function>;
+  if (options && options.interceptors && options.interceptors.length) {
+    interceptorClasses = (options.interceptors as Array<any>).filter(controller => controller instanceof Function);
+    const interceptorDirs = (options.interceptors as Array<any>).filter(controller => typeof controller === 'string');
+    interceptorClasses.push(...importClassesFromDirectories(interceptorDirs));
+  }
 
-    // import all controllers and middlewares and error handlers (new way)
-    let controllerClasses: Array<Function>;
-    if (options && options.controllers && options.controllers.length) {
-        controllerClasses = (options.controllers as Array<any>).filter(controller => controller instanceof Function);
-        const controllerDirs = (options.controllers as Array<any>).filter(controller => typeof controller === 'string');
-        controllerClasses.push(...importClassesFromDirectories(controllerDirs));
+  if (options && options.development !== undefined) {
+    driver.developmentMode = options.development;
+  } else {
+    driver.developmentMode = process.env.NODE_ENV !== 'production';
+  }
+
+  if (options.defaultErrorHandler !== undefined) {
+    driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
+  } else {
+    driver.isDefaultErrorHandlingEnabled = true;
+  }
+
+  if (options.classTransformer !== undefined) {
+    driver.useClassTransformer = options.classTransformer;
+  } else {
+    driver.useClassTransformer = true;
+  }
+
+  if (options.validation !== undefined) {
+    driver.enableValidation = !!options.validation;
+    if (options.validation instanceof Object) {
+      driver.validationOptions = options.validation as ValidationOptions;
     }
-    let middlewareClasses: Array<Function>;
-    if (options && options.middlewares && options.middlewares.length) {
-        middlewareClasses = (options.middlewares as Array<any>).filter(controller => controller instanceof Function);
-        const middlewareDirs = (options.middlewares as Array<any>).filter(controller => typeof controller === 'string');
-        middlewareClasses.push(...importClassesFromDirectories(middlewareDirs));
-    }
-    let interceptorClasses: Array<Function>;
-    if (options && options.interceptors && options.interceptors.length) {
-        interceptorClasses = (options.interceptors as Array<any>).filter(controller => controller instanceof Function);
-        const interceptorDirs = (options.interceptors as Array<any>).filter(controller => typeof controller === 'string');
-        interceptorClasses.push(...importClassesFromDirectories(interceptorDirs));
-    }
+  } else {
+    driver.enableValidation = true;
+  }
 
-    if (options && options.development !== undefined) {
-        driver.developmentMode = options.development;
-    } else {
-        driver.developmentMode = process.env.NODE_ENV !== 'production';
-    }
+  driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
+  driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
 
-    if (options.defaultErrorHandler !== undefined) {
-        driver.isDefaultErrorHandlingEnabled = options.defaultErrorHandler;
-    } else {
-        driver.isDefaultErrorHandlingEnabled = true;
-    }
+  if (options.errorOverridingMap !== undefined) {
+    driver.errorOverridingMap = options.errorOverridingMap;
+  }
 
-    if (options.classTransformer !== undefined) {
-        driver.useClassTransformer = options.classTransformer;
-    } else {
-        driver.useClassTransformer = true;
-    }
+  if (options.routePrefix !== undefined) {
+    driver.routePrefix = options.routePrefix;
+  }
 
-    if (options.validation !== undefined) {
-        driver.enableValidation = !!options.validation;
-        if (options.validation instanceof Object) {
-            driver.validationOptions = options.validation as ValidationOptions;
-        }
+  if (options.currentUserChecker !== undefined) {
+    driver.currentUserChecker = options.currentUserChecker;
+  }
 
-    } else {
-        driver.enableValidation = true;
-    }
+  if (options.authorizationChecker !== undefined) {
+    driver.authorizationChecker = options.authorizationChecker;
+  }
 
-    driver.classToPlainTransformOptions = options.classToPlainTransformOptions;
-    driver.plainToClassTransformOptions = options.plainToClassTransformOptions;
+  driver.cors = options.cors;
 
-    if (options.errorOverridingMap !== undefined) {
-        driver.errorOverridingMap = options.errorOverridingMap;
-    }
-
-    if (options.routePrefix !== undefined) {
-        driver.routePrefix = options.routePrefix;
-    }
-
-    if (options.currentUserChecker !== undefined) {
-        driver.currentUserChecker = options.currentUserChecker;
-    }
-
-    if (options.authorizationChecker !== undefined) {
-        driver.authorizationChecker = options.authorizationChecker;
-    }
-
-    driver.cors = options.cors;
-
-    // next create a controller executor
-    new RoutingControllers(driver, options)
-        .initialize()
-        .registerInterceptors(interceptorClasses)
-        .registerMiddlewares('before', middlewareClasses)
-        .registerControllers(controllerClasses)
-        .registerMiddlewares('after', middlewareClasses); // todo: register only for loaded controllers?
+  // next create a controller executor
+  new RoutingControllers(driver, options)
+    .initialize()
+    .registerInterceptors(interceptorClasses)
+    .registerMiddlewares('before', middlewareClasses)
+    .registerControllers(controllerClasses)
+    .registerMiddlewares('after', middlewareClasses); // todo: register only for loaded controllers?
 }
 
 /**
  * Registers custom parameter decorator used in the controller actions.
  */
 export function createParamDecorator(options: CustomParameterDecorator) {
-    return function(object: Object, method: string, index: number) {
-        getMetadataArgsStorage().params.push({
-            type: 'custom-converter',
-            object,
-            method,
-            index,
-            parse: false,
-            required: options.required,
-            transform: options.value,
-        });
-    };
+  return function(object: Object, method: string, index: number) {
+    getMetadataArgsStorage().params.push({
+      type: 'custom-converter',
+      object,
+      method,
+      index,
+      parse: false,
+      required: options.required,
+      transform: options.value,
+    });
+  };
 }

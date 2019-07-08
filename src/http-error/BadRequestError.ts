@@ -4,15 +4,14 @@ import {HttpError} from './HttpError';
  * Exception for 400 HTTP error.
  */
 export class BadRequestError extends HttpError {
-    public name = 'BadRequestError';
+  public name = 'BadRequestError';
 
-    constructor(message?: string) {
-        super(400);
-        Object.setPrototypeOf(this, BadRequestError.prototype);
+  constructor(message?: string) {
+    super(400);
+    Object.setPrototypeOf(this, BadRequestError.prototype);
 
-        if (message) {
-            this.message = message;
-        }
+    if (message) {
+      this.message = message;
     }
-
+  }
 }

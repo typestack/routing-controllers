@@ -8,51 +8,51 @@ import {KoaMiddlewareInterface} from '../driver/koa/KoaMiddlewareInterface';
  * Middleware metadata.
  */
 export class MiddlewareMetadata {
+  // -------------------------------------------------------------------------
+  // Accessors
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
+  /**
+   * Gets middleware instance from the container.
+   */
+  get instance(): ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface {
+    return getFromContainer<ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface>(
+      this.target,
+    );
+  }
 
-    /**
-     * Gets middleware instance from the container.
-     */
-    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface {
-        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface>(this.target);
-    }
+  // -------------------------------------------------------------------------
+  // Properties
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Properties
-    // -------------------------------------------------------------------------
+  /**
+   * Indicates if this middleware is global, thous applied to all routes.
+   */
+  public global: boolean;
 
-    /**
-     * Indicates if this middleware is global, thous applied to all routes.
-     */
-    public global: boolean;
+  /**
+   * Execution priority of the middleware.
+   */
+  public priority: number;
 
-    /**
-     * Execution priority of the middleware.
-     */
-    public priority: number;
+  /**
+   * Object class of the middleware class.
+   */
+  public target: Function;
 
-    /**
-     * Object class of the middleware class.
-     */
-    public target: Function;
+  /**
+   * Indicates if middleware must be executed after routing action is executed.
+   */
+  public type: 'before' | 'after';
 
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    public type: 'before'|'after';
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-
-    constructor(args: MiddlewareMetadataArgs) {
-        this.global = args.global;
-        this.target = args.target;
-        this.priority = args.priority;
-        this.type = args.type;
-    }
-
+  constructor(args: MiddlewareMetadataArgs) {
+    this.global = args.global;
+    this.target = args.target;
+    this.priority = args.priority;
+    this.type = args.type;
+  }
 }
