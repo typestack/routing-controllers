@@ -182,17 +182,19 @@ export class KoaDriver extends BaseDriver {
       }
     }
 
-    // set http status code
-    if (result === undefined && action.undefinedResultCode) {
-      console.log(action.undefinedResultCode);
-      options.response.status = action.undefinedResultCode;
-    } else if (result === null && action.nullResultCode) {
-      options.response.status = action.nullResultCode;
-    } else if (action.successHttpCode) {
-      options.response.status = action.successHttpCode;
-    } else if (options.response.body === null) {
-      options.response.status = 204;
-    }
+        // set http status code
+        if (result === undefined && action.undefinedResultCode) {
+            options.response.status = action.undefinedResultCode;
+        }
+        else if (result === null && action.nullResultCode) {
+            options.response.status = action.nullResultCode;
+
+        } else if (action.successHttpCode) {
+            options.response.status = action.successHttpCode;
+
+        } else if (options.response.body === null) {
+            options.response.status = 204;
+        }
 
     // apply http headers
     Object.keys(action.headers).forEach(name => {
