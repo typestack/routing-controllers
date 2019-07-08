@@ -7,8 +7,6 @@
     ]
   },
   "include": [
-    "./src/**/*.ts",
-    "./test/**/*.ts",
-    "./sample/**/*.ts"
+    "./src/**/*.ts"
   ]
 }

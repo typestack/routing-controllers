@@ -17,7 +17,7 @@ export function Post(route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Post(route?: string | RegExp): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().actions.push({
       type: 'post',
       target: object.constructor,

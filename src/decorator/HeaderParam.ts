@@ -6,7 +6,7 @@ import {getMetadataArgsStorage} from '../index';
  * Must be applied on a controller action parameter.
  */
 export function HeaderParam(name: string, options?: ParamOptions): Function {
-  return function(object: Object, methodName: string, index: number) {
+  return (object: Object, methodName: string, index: number) => {
     getMetadataArgsStorage().params.push({
       type: 'header',
       object,

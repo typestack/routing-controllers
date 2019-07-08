@@ -17,7 +17,7 @@ export function OnUndefined(error: Function): Function;
  * Must be applied on a controller action.
  */
 export function OnUndefined(codeOrError: number | Function): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().responseHandlers.push({
       type: 'on-undefined',
       target: object.constructor,

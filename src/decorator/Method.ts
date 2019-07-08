@@ -18,7 +18,7 @@ export function Method(method: ActionType, route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Method(method: ActionType, route?: string | RegExp): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().actions.push({
       type: method,
       target: object.constructor,

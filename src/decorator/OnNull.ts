@@ -17,7 +17,7 @@ export function OnNull(error: Function): Function;
  * Must be applied on a controller action.
  */
 export function OnNull(codeOrError: number | Function): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().responseHandlers.push({
       type: 'on-null',
       target: object.constructor,

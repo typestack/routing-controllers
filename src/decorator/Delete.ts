@@ -17,7 +17,7 @@ export function Delete(route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Delete(route?: string | RegExp): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().actions.push({
       type: 'delete',
       target: object.constructor,

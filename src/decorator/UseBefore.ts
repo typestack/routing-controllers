@@ -25,7 +25,7 @@ export function UseBefore(...middlewares: Array<(request: any, response: any, ne
 export function UseBefore(
   ...middlewares: Array<Function | ((request: any, response: any, next: Function) => any)>
 ): Function {
-  return function(objectOrFunction: Object | Function, methodName?: string) {
+  return (objectOrFunction: Object | Function, methodName?: string) => {
     middlewares.forEach(middleware => {
       getMetadataArgsStorage().uses.push({
         target: methodName ? objectOrFunction.constructor : (objectOrFunction as Function),

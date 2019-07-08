@@ -5,7 +5,7 @@ import {getMetadataArgsStorage} from '../index';
  * Authorization logic must be defined in routing-controllers settings.
  */
 export function CurrentUser(options?: {required?: boolean}) {
-  return function(object: Object, methodName: string, index: number) {
+  return (object: Object, methodName: string, index: number) => {
     getMetadataArgsStorage().params.push({
       type: 'current-user',
       object,

@@ -5,7 +5,7 @@ import {getMetadataArgsStorage} from '../index';
  * Must be applied on a controller action.
  */
 export function ContentType(contentType: string): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().responseHandlers.push({
       type: 'content-type',
       target: object.constructor,

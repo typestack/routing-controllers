@@ -17,7 +17,7 @@ export function Head(route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Head(route?: string | RegExp): Function {
-  return function(object: Object, methodName: string) {
+  return (object: Object, methodName: string) => {
     getMetadataArgsStorage().actions.push({
       type: 'head',
       target: object.constructor,

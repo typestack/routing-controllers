@@ -233,7 +233,7 @@ export function createExecutor<T extends BaseDriver>(driver: T, options: Routing
  * Registers custom parameter decorator used in the controller actions.
  */
 export function createParamDecorator(options: CustomParameterDecorator) {
-  return function(object: Object, method: string, index: number) {
+  return (object: Object, method: string, index: number) => {
     getMetadataArgsStorage().params.push({
       type: 'custom-converter',
       object,

@@ -4,7 +4,7 @@ import {getMetadataArgsStorage} from '../index';
  * Registers a global interceptor.
  */
 export function Interceptor(options?: {priority?: number}): Function {
-  return function(target: Function) {
+  return (target: Function) => {
     getMetadataArgsStorage().interceptors.push({
       target,
       global: true,

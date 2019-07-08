@@ -171,9 +171,8 @@ export class RoutingControllers<T extends BaseDriver> {
     return uses.map(use => {
       if (use.interceptor.prototype && use.interceptor.prototype.intercept) {
         // if this is function instance of InterceptorInterface
-        return function(action: Action, result: any) {
-          return (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
-        };
+        return (action: Action, result: any) =>
+          (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
       }
       return use.interceptor;
     });

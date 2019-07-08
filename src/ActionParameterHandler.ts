@@ -99,7 +99,8 @@ export class ActionParameterHandler<T extends BaseDriver> {
           }
         }
       } else if (param.name && isValueEmpty) {
-        // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
+        // regular check for all other parameters
+        // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
         return Promise.reject(new ParamRequiredError(action, param));
       }
     }
@@ -124,13 +125,13 @@ export class ActionParameterHandler<T extends BaseDriver> {
         Object.keys(value).map(async key => {
           const keyValue = value[key];
           if (typeof keyValue === 'string') {
-            const ParamType: Function | undefined = Reflect.getMetadata('design:type', param.targetType.prototype, key);
-            if (ParamType) {
-              const typeString = ParamType.name.toLowerCase();
+            const paramType: Function | undefined = Reflect.getMetadata('design:type', param.targetType.prototype, key);
+            if (paramType) {
+              const typeString = paramType.name.toLowerCase();
               value[key] = await this.normalizeParamValue(keyValue, {
                 ...param,
                 name: key,
-                targetType: ParamType,
+                targetType: paramType,
                 targetName: typeString,
               });
             }
