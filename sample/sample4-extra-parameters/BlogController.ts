@@ -1,12 +1,12 @@
-import {JsonController} from "../../src/decorator/JsonController";
-import {Get} from "../../src/decorator/Get";
-import {Post} from "../../src/decorator/Post";
-import {Put} from "../../src/decorator/Put";
-import {Patch} from "../../src/decorator/Patch";
-import {Delete} from "../../src/decorator/Delete";
-import {QueryParam} from "../../src/decorator/QueryParam";
-import {Param} from "../../src/decorator/Param";
-import {Body} from "../../src/decorator/Body";
+import {JsonController} from '../../src/decorator/JsonController';
+import {Get} from '../../src/decorator/Get';
+import {Post} from '../../src/decorator/Post';
+import {Put} from '../../src/decorator/Put';
+import {Patch} from '../../src/decorator/Patch';
+import {Delete} from '../../src/decorator/Delete';
+import {QueryParam} from '../../src/decorator/QueryParam';
+import {Param} from '../../src/decorator/Param';
+import {Body} from '../../src/decorator/Body';
 
 export interface BlogFilter {
     keyword: string;
@@ -17,37 +17,37 @@ export interface BlogFilter {
 @JsonController()
 export class BlogController {
 
-    @Get("/blogs")
-    getAll(@QueryParam("filter", { required: true, parse: true }) filter: BlogFilter) {
+    @Get('/blogs')
+    public getAll(@QueryParam('filter', { required: true, parse: true }) filter: BlogFilter) {
         return [
-            { id: 1, name: "Blog " + filter.keyword },
-            { id: 2, name: "Blog " + filter.keyword }
+            { id: 1, name: 'Blog ' + filter.keyword },
+            { id: 2, name: 'Blog ' + filter.keyword },
         ];
     }
 
-    @Get("/blogs/:id")
-    getOne(@Param("id") id: number, @QueryParam("name") name: string) {
-        return { id: id, name: name };
+    @Get('/blogs/:id')
+    public getOne(@Param('id') id: number, @QueryParam('name') name: string) {
+        return { id, name };
     }
 
-    @Post("/blogs")
-    post(@Body() blog: any) {
-        return "Blog " + JSON.stringify(blog) + " !saved!";
+    @Patch('/blogs/:id')
+    public patch(@Param('id') id: number) {
+        return 'Blog #' + id + ' has been patched!';
     }
 
-    @Put("/blogs/:id")
-    put(@Param("id") id: number) {
-        return "Blog #" + id + " has been putted!";
+    @Post('/blogs')
+    public post(@Body() blog: any) {
+        return 'Blog ' + JSON.stringify(blog) + ' !saved!';
     }
 
-    @Patch("/blogs/:id")
-    patch(@Param("id") id: number) {
-        return "Blog #" + id + " has been patched!";
+    @Put('/blogs/:id')
+    public put(@Param('id') id: number) {
+        return 'Blog #' + id + ' has been putted!';
     }
 
-    @Delete("/blogs/:id")
-    remove(@Param("id") id: number) {
-        return "Blog #" + id + " has been removed!";
+    @Delete('/blogs/:id')
+    public remove(@Param('id') id: number) {
+        return 'Blog #' + id + ' has been removed!';
     }
 
 }
