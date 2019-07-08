@@ -2,12 +2,12 @@
  * Metadata used to store registered middlewares.
  */
 export interface UseMetadataArgs {
-    
+
     /**
-     * Object class of this "use".
+     * Indicates if middleware must be executed after routing action is executed.
      */
-    target: Function;
-    
+    afterAction: boolean;
+
     /**
      * Method to which this "use" is applied.
      * If method is not given it means "use" is used on the controller. Then "use" applied to all controller's actions.
@@ -20,8 +20,8 @@ export interface UseMetadataArgs {
     middleware: Function;
 
     /**
-     * Indicates if middleware must be executed after routing action is executed.
+     * Object class of this "use".
      */
-    afterAction: boolean;
+    target: Function;
 
 }

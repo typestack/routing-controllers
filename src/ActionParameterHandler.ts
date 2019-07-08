@@ -1,16 +1,16 @@
-import "reflect-metadata";
-import {plainToClass} from "class-transformer";
-import {validateOrReject as validate, ValidationError} from "class-validator";
-import {Action} from "./Action";
-import {BadRequestError} from "./http-error/BadRequestError";
-import {BaseDriver} from "./driver/BaseDriver";
-import {ParameterParseJsonError} from "./error/ParameterParseJsonError";
-import {ParamMetadata} from "./metadata/ParamMetadata";
-import {ParamRequiredError} from "./error/ParamRequiredError";
-import {AuthorizationRequiredError} from "./error/AuthorizationRequiredError";
-import {CurrentUserCheckerNotDefinedError} from "./error/CurrentUserCheckerNotDefinedError";
-import {isPromiseLike} from "./util/isPromiseLike";
-import { InvalidParamError } from "./error/ParamNormalizationError";
+import 'reflect-metadata';
+import {plainToClass} from 'class-transformer';
+import {validateOrReject as validate, ValidationError} from 'class-validator';
+import {Action} from './Action';
+import {BadRequestError} from './http-error/BadRequestError';
+import {BaseDriver} from './driver/BaseDriver';
+import {ParameterParseJsonError} from './error/ParameterParseJsonError';
+import {ParamMetadata} from './metadata/ParamMetadata';
+import {ParamRequiredError} from './error/ParamRequiredError';
+import {AuthorizationRequiredError} from './error/AuthorizationRequiredError';
+import {CurrentUserCheckerNotDefinedError} from './error/CurrentUserCheckerNotDefinedError';
+import {isPromiseLike} from './util/isPromiseLike';
+import { InvalidParamError } from './error/ParamNormalizationError';
 
 /**
  * Handles action parameter.
@@ -31,22 +31,26 @@ export class ActionParameterHandler<T extends BaseDriver> {
     /**
      * Handles action parameter.
      */
-    handle(action: Action, param: ParamMetadata): Promise<any>|any {
+    public handle(action: Action, param: ParamMetadata): Promise<any>|any {
 
-        if (param.type === "request")
+        if (param.type === 'request') {
             return action.request;
+        }
 
-        if (param.type === "response")
+        if (param.type === 'response') {
             return action.response;
+        }
 
-        if (param.type === "context")
+        if (param.type === 'context') {
             return action.context;
+        }
 
         // get parameter value from request and normalize it
         const value = this.normalizeParamValue(this.driver.getParamFromRequest(action, param), param);
 
-        if (isPromiseLike(value))
+        if (isPromiseLike(value)) {
             return value.then(value => this.handleValue(value, action, param));
+        }
 
         return this.handleValue(value, action, param);
     }
@@ -61,38 +65,42 @@ export class ActionParameterHandler<T extends BaseDriver> {
     protected handleValue(value: any, action: Action, param: ParamMetadata): Promise<any>|any {
 
         // if transform function is given for this param then apply it
-        if (param.transform)
+        if (param.transform) {
             value = param.transform(action, value);
+        }
 
         // if its current-user decorator then get its value
-        if (param.type === "current-user") {
-            if (!this.driver.currentUserChecker)
+        if (param.type === 'current-user') {
+            if (!this.driver.currentUserChecker) {
                 throw new CurrentUserCheckerNotDefinedError();
+            }
 
             value = this.driver.currentUserChecker(action);
         }
 
         // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
-            const isValueEmpty = value === null || value === undefined || value === "";
-            const isValueEmptyObject = typeof value === "object" && Object.keys(value).length === 0;
+            const isValueEmpty = value === null || value === undefined || value === '';
+            const isValueEmptyObject = typeof value === 'object' && Object.keys(value).length === 0;
 
-            if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
+            if (param.type === 'body' && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
                 return Promise.reject(new ParamRequiredError(action, param));
 
-            } else if (param.type === "current-user") { // current user has a special check as well
+            } else if (param.type === 'current-user') { // current user has a special check as well
 
                 if (isPromiseLike(value)) {
                     return value.then(currentUser => {
-                        if (!currentUser)
+                        if (!currentUser) {
                             return Promise.reject(new AuthorizationRequiredError(action));
+                        }
 
                         return currentUser;
                     });
 
                 } else {
-                    if (!value)
+                    if (!value) {
                         return Promise.reject(new AuthorizationRequiredError(action));
+                    }
                 }
 
             } else if (param.name && isValueEmpty) { // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
@@ -107,15 +115,16 @@ export class ActionParameterHandler<T extends BaseDriver> {
      * Normalizes parameter value.
      */
     protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
-        if (value === null || value === undefined)
+        if (value === null || value === undefined) {
             return value;
+        }
 
         // if param value is an object and param type match, normalize its string properties
-        if (typeof value === "object" && ["queries", "headers", "params", "cookies"].some(paramType => paramType === param.type)) {
+        if (typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type)) {
             await Promise.all(Object.keys(value).map(async key => {
                 const keyValue = value[key];
-                if (typeof keyValue === "string") {
-                    const ParamType: Function|undefined = Reflect.getMetadata("design:type", param.targetType.prototype, key);
+                if (typeof keyValue === 'string') {
+                    const ParamType: Function|undefined = Reflect.getMetadata('design:type', param.targetType.prototype, key);
                     if (ParamType) {
                         const typeString = ParamType.name.toLowerCase();
                         value[key] = await this.normalizeParamValue(keyValue, {
@@ -129,18 +138,18 @@ export class ActionParameterHandler<T extends BaseDriver> {
             }));
         }
         // if value is a string, normalize it to demanded type
-        else if (typeof value === "string") {
+        else if (typeof value === 'string') {
             switch (param.targetName) {
-                case "number":
-                case "string":
-                case "boolean":
-                case "date":
+                case 'number':
+                case 'string':
+                case 'boolean':
+                case 'date':
                     return this.normalizeStringValue(value, param.name, param.targetName);
             }
         }
 
         // if target type is not primitive, transform and validate it
-        if ((["number", "string", "boolean"].indexOf(param.targetName) === -1)
+        if ((['number', 'string', 'boolean'].indexOf(param.targetName) === -1)
             && (param.parse || param.isTargetObject)
         ) {
                 value = this.parseValue(value, param);
@@ -156,8 +165,8 @@ export class ActionParameterHandler<T extends BaseDriver> {
      */
     protected normalizeStringValue(value: string, parameterName: string, parameterType: string) {
         switch (parameterType) {
-            case "number":
-                if (value === "") {
+            case 'number':
+                if (value === '') {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
 
@@ -168,23 +177,23 @@ export class ActionParameterHandler<T extends BaseDriver> {
 
                 return valueNumber;
 
-            case "boolean":
-                if (value === "true" || value === "1" || value === "") {
+            case 'boolean':
+                if (value === 'true' || value === '1' || value === '') {
                     return true;
-                } else if (value === "false" || value === "0") {
+                } else if (value === 'false' || value === '0') {
                     return false;
                 } else {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
 
-            case "date":
+            case 'date':
                 const parsedDate = new Date(value);
                 if (Number.isNaN(parsedDate.getTime())) {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
                 return parsedDate;
 
-            case "string":
+            case 'string':
             default:
                 return value;
         }
@@ -194,7 +203,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
      * Parses string value into a JSON object.
      */
     protected parseValue(value: any, paramMetadata: ParamMetadata): any {
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
             try {
                 return JSON.parse(value);
             } catch (error) {
@@ -235,7 +244,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
             const options = paramMetadata.validate instanceof Object ? paramMetadata.validate : this.driver.validationOptions;
             return validate(value, options)
                 .then(() => value)
-                .catch((validationErrors: ValidationError[]) => {
+                .catch((validationErrors: Array<ValidationError>) => {
                     const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
                     error.errors = validationErrors;
                     throw error;

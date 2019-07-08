@@ -1,38 +1,19 @@
-import {Action} from "./Action";
-import {ActionMetadata} from "./metadata/ActionMetadata";
-import {ActionParameterHandler} from "./ActionParameterHandler";
-import {BaseDriver} from "./driver/BaseDriver";
-import {InterceptorInterface} from "./InterceptorInterface";
-import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
-import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
-import {RoutingControllersOptions} from "./RoutingControllersOptions";
-import {getFromContainer} from "./container";
-import {isPromiseLike} from "./util/isPromiseLike";
-import {runInSequence} from "./util/runInSequence";
+import {Action} from './Action';
+import {ActionMetadata} from './metadata/ActionMetadata';
+import {ActionParameterHandler} from './ActionParameterHandler';
+import {BaseDriver} from './driver/BaseDriver';
+import {InterceptorInterface} from './InterceptorInterface';
+import {InterceptorMetadata} from './metadata/InterceptorMetadata';
+import {MetadataBuilder} from './metadata-builder/MetadataBuilder';
+import {RoutingControllersOptions} from './RoutingControllersOptions';
+import {getFromContainer} from './container';
+import {isPromiseLike} from './util/isPromiseLike';
+import {runInSequence} from './util/runInSequence';
 
 /**
  * Registers controllers and middlewares in the given server framework.
  */
 export class RoutingControllers<T extends BaseDriver> {
-
-    // -------------------------------------------------------------------------
-    // Private properties
-    // -------------------------------------------------------------------------
-
-    /**
-     * Used to check and handle controller action parameters.
-     */
-    private parameterHandler: ActionParameterHandler<T>;
-
-    /**
-     * Used to build metadata objects for controllers and middlewares.
-     */
-    private metadataBuilder: MetadataBuilder;
-
-    /**
-     * Global interceptors run on each controller action.
-     */
-    private interceptors: InterceptorMetadata[] = [];
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -43,6 +24,25 @@ export class RoutingControllers<T extends BaseDriver> {
         this.metadataBuilder = new MetadataBuilder(options);
     }
 
+    /**
+     * Global interceptors run on each controller action.
+     */
+    private interceptors: Array<InterceptorMetadata> = [];
+
+    /**
+     * Used to build metadata objects for controllers and middlewares.
+     */
+    private metadataBuilder: MetadataBuilder;
+
+    // -------------------------------------------------------------------------
+    // Private properties
+    // -------------------------------------------------------------------------
+
+    /**
+     * Used to check and handle controller action parameters.
+     */
+    private parameterHandler: ActionParameterHandler<T>;
+
     // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
@@ -50,15 +50,35 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Initializes the things driver needs before routes and middleware registration.
      */
-    initialize(): this {
+    public initialize(): this {
         this.driver.initialize();
+        return this;
+    }
+
+    /**
+     * Registers all given controllers and actions from those controllers.
+     */
+    public registerControllers(classes?: Array<Function>): this {
+        const controllers = this.metadataBuilder.buildControllerMetadata(classes);
+        controllers.forEach(controller => {
+            controller.actions.forEach(actionMetadata => {
+                const interceptorFns = this.prepareInterceptors([
+                    ...this.interceptors,
+                    ...actionMetadata.controllerMetadata.interceptors,
+                    ...actionMetadata.interceptors,
+                ]);
+                this.driver.registerAction(actionMetadata, (action: Action) =>
+                    this.executeAction(actionMetadata, action, interceptorFns));
+            });
+        });
+        this.driver.registerRoutes();
         return this;
     }
 
     /**
      * Registers all given interceptors.
      */
-    registerInterceptors(classes?: Function[]): this {
+    public registerInterceptors(classes?: Array<Function>): this {
         const interceptors = this.metadataBuilder
             .buildInterceptorMetadata(classes)
             .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
@@ -68,30 +88,9 @@ export class RoutingControllers<T extends BaseDriver> {
     }
 
     /**
-     * Registers all given controllers and actions from those controllers.
-     */
-    registerControllers(classes?: Function[]): this {
-        const controllers = this.metadataBuilder.buildControllerMetadata(classes);
-        controllers.forEach(controller => {
-            controller.actions.forEach(actionMetadata => {
-                const interceptorFns = this.prepareInterceptors([
-                    ...this.interceptors,
-                    ...actionMetadata.controllerMetadata.interceptors,
-                    ...actionMetadata.interceptors
-                ]);
-                this.driver.registerAction(actionMetadata, (action: Action) => {
-                    return this.executeAction(actionMetadata, action, interceptorFns);
-                });
-            });
-        });
-        this.driver.registerRoutes();
-        return this;
-    }
-
-    /**
      * Registers post-execution middlewares in the driver.
      */
-    registerMiddlewares(type: "before"|"after", classes?: Function[]): this {
+    public registerMiddlewares(type: 'before'|'after', classes?: Array<Function>): this {
         this.metadataBuilder
             .buildMiddlewareMetadata(classes)
             .filter(middleware => middleware.global && middleware.type === type)
@@ -108,7 +107,7 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Executes given controller action.
      */
-    protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
+    protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Array<Function>) {
 
         // compute all parameters
         const paramsPromises = actionMetadata.params
@@ -133,15 +132,13 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Handles result of the action method execution.
      */
-    protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: Function[]): any {
+    protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: Array<Function>): any {
         if (isPromiseLike(result)) {
             return result
-                .then((data: any) => {
-                    return this.handleCallMethodResult(data, action, options, interceptorFns);
-                })
-                .catch((error: any) => {
-                    return this.driver.handleError(error, action, options);
-                });
+                .then((data: any) =>
+                    this.handleCallMethodResult(data, action, options, interceptorFns))
+                .catch((error: any) =>
+                    this.driver.handleError(error, action, options));
         } else {
 
             if (interceptorFns) {
@@ -168,16 +165,15 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Creates interceptors from the given "use interceptors".
      */
-    protected prepareInterceptors(uses: InterceptorMetadata[]): Function[] {
+    protected prepareInterceptors(uses: Array<InterceptorMetadata>): Array<Function> {
         return uses.map(use => {
             if (use.interceptor.prototype && use.interceptor.prototype.intercept) { // if this is function instance of InterceptorInterface
-                return function (action: Action, result: any) {
+                return function(action: Action, result: any) {
                     return (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
                 };
             }
             return use.interceptor;
         });
     }
-
 
 }

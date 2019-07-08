@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "rootDirs": ["./src", "./test"]
+  },
+  "include": ["./src/**/*.ts", "./test/**/*.ts"]
+}

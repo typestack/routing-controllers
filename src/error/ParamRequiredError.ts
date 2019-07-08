@@ -1,13 +1,13 @@
-import {BadRequestError} from "../http-error/BadRequestError";
-import {ParamMetadata} from "../metadata/ParamMetadata";
-import {Action} from "../Action";
+import {BadRequestError} from '../http-error/BadRequestError';
+import {ParamMetadata} from '../metadata/ParamMetadata';
+import {Action} from '../Action';
 
 /**
  * Thrown when parameter is required, but was missing in a user request.
  */
 export class ParamRequiredError extends BadRequestError {
 
-    name = "ParamRequiredError";
+    public name = 'ParamRequiredError';
 
     constructor(action: Action, param: ParamMetadata) {
         super();
@@ -15,47 +15,47 @@ export class ParamRequiredError extends BadRequestError {
 
         let paramName: string;
         switch (param.type) {
-            case "param":
+            case 'param':
                 paramName = `Parameter "${param.name}" is`;
                 break;
 
-            case "body":
-                paramName = "Request body is";
+            case 'body':
+                paramName = 'Request body is';
                 break;
-                
-            case "body-param":
+
+            case 'body-param':
                 paramName = `Body parameter "${param.name}" is`;
                 break;
 
-            case "query":
+            case 'query':
                 paramName = `Query parameter "${param.name}" is`;
                 break;
 
-            case "header":
+            case 'header':
                 paramName = `Header "${param.name}" is`;
                 break;
 
-            case "file":
+            case 'file':
                 paramName = `Uploaded file "${param.name}" is`;
                 break;
 
-            case "files":
+            case 'files':
                 paramName = `Uploaded files "${param.name}" are`;
                 break;
 
-            case "session":
-                paramName = "Session is";
+            case 'session':
+                paramName = 'Session is';
                 break;
 
-            case "cookie":
-                paramName = "Cookie is";
+            case 'cookie':
+                paramName = 'Cookie is';
                 break;
 
             default:
-                paramName = "Parameter is";
+                paramName = 'Parameter is';
         }
 
-        const uri = action.request.method + " " + action.request.url; // todo: check it it works in koa
+        const uri = action.request.method + ' ' + action.request.url; // todo: check it it works in koa
         this.message = `${paramName} required for request on ${uri}`;
     }
 

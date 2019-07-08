@@ -1,6 +1,6 @@
-import {ValidatorOptions} from "class-validator";
-import {ClassTransformOptions} from "class-transformer";
-import {ParamType} from "../types/ParamType";
+import {ValidatorOptions} from 'class-validator';
+import {ClassTransformOptions} from 'class-transformer';
+import {ParamType} from '../types/ParamType';
 
 /**
  * Controller metadata used to storage information about registered parameters.
@@ -8,14 +8,19 @@ import {ParamType} from "../types/ParamType";
 export interface ParamMetadataArgs {
 
     /**
-     * Parameter object.
+     * Class transform options used to perform plainToClass operation.
      */
-    object: any;
+    classTransform?: ClassTransformOptions;
 
     /**
-     * Method on which's parameter is attached.
+     * Explicitly set type which should be used for Body to perform transformation.
      */
-    method: string;
+    explicitType?: any;
+
+    /**
+     * Extra parameter options.
+     */
+    extraOptions?: any;
 
     /**
      * Index (# number) of the parameter in the method signature.
@@ -23,14 +28,19 @@ export interface ParamMetadataArgs {
     index: number;
 
     /**
-     * Parameter type.
+     * Method on which's parameter is attached.
      */
-    type: ParamType;
+    method: string;
 
     /**
      * Parameter name.
      */
     name?: string;
+
+    /**
+     * Parameter object.
+     */
+    object: any;
 
     /**
      * Specifies if parameter should be parsed as json or not.
@@ -46,26 +56,16 @@ export interface ParamMetadataArgs {
      * Transforms the value.
      */
     transform?: (value?: any, request?: any, response?: any) => Promise<any>|any;
-    
-    /**
-     * Extra parameter options.
-     */
-    extraOptions?: any;
 
     /**
-     * Class transform options used to perform plainToClass operation.
+     * Parameter type.
      */
-    classTransform?: ClassTransformOptions;
+    type: ParamType;
 
     /**
      * If true, class-validator will be used to validate param object.
      * If validation options are given then it means validation will be applied (is true).
      */
     validate?: boolean|ValidatorOptions;
-
-    /**
-     * Explicitly set type which should be used for Body to perform transformation.
-     */
-    explicitType?: any;
 
 }

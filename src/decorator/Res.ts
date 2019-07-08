@@ -1,18 +1,18 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Injects a Response object to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
 export function Res(): Function {
-    return function (object: Object, methodName: string, index: number) {
+    return function(object: Object, methodName: string, index: number) {
         getMetadataArgsStorage().params.push({
-            type: "response",
-            object: object,
+            type: 'response',
+            object,
             method: methodName,
-            index: index,
+            index,
             parse: false,
-            required: false
+            required: false,
         });
     };
 }

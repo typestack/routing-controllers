@@ -1,12 +1,12 @@
-import {Controller} from "../../../../src/decorator/Controller";
-import {Get} from "../../../../src/decorator/Get";
+import {Controller} from '../../../../src/decorator/Controller';
+import {Get} from '../../../../src/decorator/Get';
 
 @Controller()
 export class PhotoController {
 
-    @Get("/photos")
-    getAll() {
-        return "Hello photos";
+    @Get('/photos')
+    public getAll() {
+        return 'Hello photos';
     }
 
 }

@@ -1,13 +1,13 @@
-import {ActionMetadata} from "../metadata/ActionMetadata";
-import {ControllerMetadata} from "../metadata/ControllerMetadata";
-import {InterceptorMetadata} from "../metadata/InterceptorMetadata";
-import {MiddlewareMetadata} from "../metadata/MiddlewareMetadata";
-import {ParamMetadata} from "../metadata/ParamMetadata";
-import { ParamMetadataArgs } from "../metadata/args/ParamMetadataArgs";
-import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
-import { RoutingControllersOptions } from "../RoutingControllersOptions";
-import {UseMetadata} from "../metadata/UseMetadata";
-import {getMetadataArgsStorage} from "../index";
+import {ActionMetadata} from '../metadata/ActionMetadata';
+import {ControllerMetadata} from '../metadata/ControllerMetadata';
+import {InterceptorMetadata} from '../metadata/InterceptorMetadata';
+import {MiddlewareMetadata} from '../metadata/MiddlewareMetadata';
+import {ParamMetadata} from '../metadata/ParamMetadata';
+import { ParamMetadataArgs } from '../metadata/args/ParamMetadataArgs';
+import {ResponseHandlerMetadata} from '../metadata/ResponseHandleMetadata';
+import { RoutingControllersOptions } from '../RoutingControllersOptions';
+import {UseMetadata} from '../metadata/UseMetadata';
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -23,67 +23,46 @@ export class MetadataBuilder {
     /**
      * Builds controller metadata from a registered controller metadata args.
      */
-    buildControllerMetadata(classes?: Function[]) {
+    public buildControllerMetadata(classes?: Array<Function>) {
         return this.createControllers(classes);
-    }
-
-    /**
-     * Builds middleware metadata from a registered middleware metadata args.
-     */
-    buildMiddlewareMetadata(classes?: Function[]): MiddlewareMetadata[] {
-        return this.createMiddlewares(classes);
     }
 
     /**
      * Builds interceptor metadata from a registered interceptor metadata args.
      */
-    buildInterceptorMetadata(classes?: Function[]): InterceptorMetadata[] {
+    public buildInterceptorMetadata(classes?: Array<Function>): Array<InterceptorMetadata> {
         return this.createInterceptors(classes);
     }
 
-    // -------------------------------------------------------------------------
-    // Protected Methods
-    // -------------------------------------------------------------------------
-
     /**
-     * Creates middleware metadatas.
+     * Builds middleware metadata from a registered middleware metadata args.
      */
-    protected createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
-        const middlewares = !classes ? getMetadataArgsStorage().middlewares : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
-        return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
+    public buildMiddlewareMetadata(classes?: Array<Function>): Array<MiddlewareMetadata> {
+        return this.createMiddlewares(classes);
     }
 
     /**
-     * Creates interceptor metadatas.
+     * Creates use interceptors for actions.
      */
-    protected createInterceptors(classes?: Function[]): InterceptorMetadata[] {
-        const interceptors = !classes ? getMetadataArgsStorage().interceptors : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
-        return interceptors.map(interceptorArgs => new InterceptorMetadata({
-            target: interceptorArgs.target,
-            method: undefined,
-            interceptor: interceptorArgs.target
-        }));
+    protected createActionInterceptorUses(action: ActionMetadata): Array<InterceptorMetadata> {
+        return getMetadataArgsStorage()
+            .filterInterceptorUsesWithTargetAndMethod(action.target, action.method)
+            .map(useArgs => new InterceptorMetadata(useArgs));
     }
 
     /**
-     * Creates controller metadatas.
+     * Creates response handler metadatas for action.
      */
-    protected createControllers(classes?: Function[]): ControllerMetadata[] {
-        const controllers = !classes ? getMetadataArgsStorage().controllers : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
-        return controllers.map(controllerArgs => {
-            const controller = new ControllerMetadata(controllerArgs);
-            controller.build(this.createControllerResponseHandlers(controller));
-            controller.actions = this.createActions(controller);
-            controller.uses = this.createControllerUses(controller);
-            controller.interceptors = this.createControllerInterceptorUses(controller);
-            return controller;
-        });
+    protected createActionResponseHandlers(action: ActionMetadata): Array<ResponseHandlerMetadata> {
+        return getMetadataArgsStorage()
+            .filterResponseHandlersWithTargetAndMethod(action.target, action.method)
+            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
     }
 
     /**
      * Creates action metadatas.
      */
-    protected createActions(controller: ControllerMetadata): ActionMetadata[] {
+    protected createActions(controller: ControllerMetadata): Array<ActionMetadata> {
         return getMetadataArgsStorage()
             .filterActionsWithTarget(controller.target)
             .map(actionArgs => {
@@ -97,9 +76,84 @@ export class MetadataBuilder {
     }
 
     /**
+     * Creates use metadatas for actions.
+     */
+    protected createActionUses(action: ActionMetadata): Array<UseMetadata> {
+        return getMetadataArgsStorage()
+            .filterUsesWithTargetAndMethod(action.target, action.method)
+            .map(useArgs => new UseMetadata(useArgs));
+    }
+
+    /**
+     * Creates use interceptors for controllers.
+     */
+    protected createControllerInterceptorUses(controller: ControllerMetadata): Array<InterceptorMetadata> {
+        return getMetadataArgsStorage()
+            .filterInterceptorUsesWithTargetAndMethod(controller.target, undefined)
+            .map(useArgs => new InterceptorMetadata(useArgs));
+    }
+
+    /**
+     * Creates response handler metadatas for controller.
+     */
+    protected createControllerResponseHandlers(controller: ControllerMetadata): Array<ResponseHandlerMetadata> {
+        return getMetadataArgsStorage()
+            .filterResponseHandlersWithTarget(controller.target)
+            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
+    }
+
+    /**
+     * Creates controller metadatas.
+     */
+    protected createControllers(classes?: Array<Function>): Array<ControllerMetadata> {
+        const controllers = !classes ? getMetadataArgsStorage().controllers : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
+        return controllers.map(controllerArgs => {
+            const controller = new ControllerMetadata(controllerArgs);
+            controller.build(this.createControllerResponseHandlers(controller));
+            controller.actions = this.createActions(controller);
+            controller.uses = this.createControllerUses(controller);
+            controller.interceptors = this.createControllerInterceptorUses(controller);
+            return controller;
+        });
+    }
+
+    /**
+     * Creates use metadatas for controllers.
+     */
+    protected createControllerUses(controller: ControllerMetadata): Array<UseMetadata> {
+        return getMetadataArgsStorage()
+            .filterUsesWithTargetAndMethod(controller.target, undefined)
+            .map(useArgs => new UseMetadata(useArgs));
+    }
+
+    /**
+     * Creates interceptor metadatas.
+     */
+    protected createInterceptors(classes?: Array<Function>): Array<InterceptorMetadata> {
+        const interceptors = !classes ? getMetadataArgsStorage().interceptors : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
+        return interceptors.map(interceptorArgs => new InterceptorMetadata({
+            target: interceptorArgs.target,
+            method: undefined,
+            interceptor: interceptorArgs.target,
+        }));
+    }
+
+    // -------------------------------------------------------------------------
+    // Protected Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Creates middleware metadatas.
+     */
+    protected createMiddlewares(classes?: Array<Function>): Array<MiddlewareMetadata> {
+        const middlewares = !classes ? getMetadataArgsStorage().middlewares : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
+        return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
+    }
+
+    /**
      * Creates param metadatas.
      */
-    protected createParams(action: ActionMetadata): ParamMetadata[] {
+    protected createParams(action: ActionMetadata): Array<ParamMetadata> {
         return getMetadataArgsStorage()
             .filterParamsWithTargetAndMethod(action.target, action.method)
             .map(paramArgs => new ParamMetadata(action, this.decorateDefaultParamOptions(paramArgs)));
@@ -109,68 +163,16 @@ export class MetadataBuilder {
      * Decorate paramArgs with default settings
      */
     private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
-        let options = this.options.defaults && this.options.defaults.paramOptions;
-        if (!options)
+        const options = this.options.defaults && this.options.defaults.paramOptions;
+        if (!options) {
             return paramArgs;
-        
-        if (paramArgs.required === undefined)
+        }
+
+        if (paramArgs.required === undefined) {
             paramArgs.required = options.required || false;
+        }
 
         return paramArgs;
-    }
-
-    /**
-     * Creates response handler metadatas for action.
-     */
-    protected createActionResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
-        return getMetadataArgsStorage()
-            .filterResponseHandlersWithTargetAndMethod(action.target, action.method)
-            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
-    }
-
-    /**
-     * Creates response handler metadatas for controller.
-     */
-    protected createControllerResponseHandlers(controller: ControllerMetadata): ResponseHandlerMetadata[] {
-        return getMetadataArgsStorage()
-            .filterResponseHandlersWithTarget(controller.target)
-            .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
-    }
-
-    /**
-     * Creates use metadatas for actions.
-     */
-    protected createActionUses(action: ActionMetadata): UseMetadata[] {
-        return getMetadataArgsStorage()
-            .filterUsesWithTargetAndMethod(action.target, action.method)
-            .map(useArgs => new UseMetadata(useArgs));
-    }
-
-    /**
-     * Creates use interceptors for actions.
-     */
-    protected createActionInterceptorUses(action: ActionMetadata): InterceptorMetadata[] {
-        return getMetadataArgsStorage()
-            .filterInterceptorUsesWithTargetAndMethod(action.target, action.method)
-            .map(useArgs => new InterceptorMetadata(useArgs));
-    }
-
-    /**
-     * Creates use metadatas for controllers.
-     */
-    protected createControllerUses(controller: ControllerMetadata): UseMetadata[] {
-        return getMetadataArgsStorage()
-            .filterUsesWithTargetAndMethod(controller.target, undefined)
-            .map(useArgs => new UseMetadata(useArgs));
-    }
-
-    /**
-     * Creates use interceptors for controllers.
-     */
-    protected createControllerInterceptorUses(controller: ControllerMetadata): InterceptorMetadata[] {
-        return getMetadataArgsStorage()
-            .filterInterceptorUsesWithTargetAndMethod(controller.target, undefined)
-            .map(useArgs => new InterceptorMetadata(useArgs));
     }
 
 }

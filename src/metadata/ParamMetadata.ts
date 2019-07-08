@@ -1,9 +1,9 @@
-import {ValidatorOptions} from "class-validator";
-import {ActionMetadata} from "./ActionMetadata";
-import {ParamMetadataArgs} from "./args/ParamMetadataArgs";
-import {ParamType} from "./types/ParamType";
-import {ClassTransformOptions} from "class-transformer";
-import {Action} from "../Action";
+import {ValidatorOptions} from 'class-validator';
+import {ActionMetadata} from './ActionMetadata';
+import {ParamMetadataArgs} from './args/ParamMetadataArgs';
+import {ParamType} from './types/ParamType';
+import {ClassTransformOptions} from 'class-transformer';
+import {Action} from '../Action';
 
 /**
  * Action Parameter metadata.
@@ -17,84 +17,84 @@ export class ParamMetadata {
     /**
      * Parameter's action.
      */
-    actionMetadata: ActionMetadata;
+    public actionMetadata: ActionMetadata;
 
     /**
-     * Object on which's method's parameter this parameter is attached.
+     * Class transform options used to perform plainToClass operation.
      */
-    object: any;
-
-    /**
-     * Method on which's parameter is attached.
-     */
-    method: string;
-
-    /**
-     * Index (# number) of the parameter in the method signature.
-     */
-    index: number;
-
-    /**
-     * Parameter type.
-     */
-    type: ParamType;
-
-    /**
-     * Parameter name.
-     */
-    name: string;
-
-    /**
-     * Parameter target type.
-     */
-    targetType?: any;
-
-    /**
-     * Parameter target type's name in lowercase.
-     */
-    targetName: string = "";
-
-    /**
-     * Indicates if target type is an object.
-     */
-    isTargetObject: boolean = false;
-
-    /**
-     * Parameter target.
-     */
-    target: any;
-
-    /**
-     * Specifies if parameter should be parsed as json or not.
-     */
-    parse: boolean;
-
-    /**
-     * Indicates if this parameter is required or not
-     */
-    required: boolean;
-
-    /**
-     * Transforms the value.
-     */
-    transform: (action: Action, value?: any) => Promise<any>|any;
+    public classTransform?: ClassTransformOptions;
 
     /**
      * Additional parameter options.
      * For example it can be uploader middleware options or body-parser middleware options.
      */
-    extraOptions: any;
+    public extraOptions: any;
 
     /**
-     * Class transform options used to perform plainToClass operation.
+     * Index (# number) of the parameter in the method signature.
      */
-    classTransform?: ClassTransformOptions;
+    public index: number;
+
+    /**
+     * Indicates if target type is an object.
+     */
+    public isTargetObject: boolean = false;
+
+    /**
+     * Method on which's parameter is attached.
+     */
+    public method: string;
+
+    /**
+     * Parameter name.
+     */
+    public name: string;
+
+    /**
+     * Object on which's method's parameter this parameter is attached.
+     */
+    public object: any;
+
+    /**
+     * Specifies if parameter should be parsed as json or not.
+     */
+    public parse: boolean;
+
+    /**
+     * Indicates if this parameter is required or not
+     */
+    public required: boolean;
+
+    /**
+     * Parameter target.
+     */
+    public target: any;
+
+    /**
+     * Parameter target type's name in lowercase.
+     */
+    public targetName: string = '';
+
+    /**
+     * Parameter target type.
+     */
+    public targetType?: any;
+
+    /**
+     * Transforms the value.
+     */
+    public transform: (action: Action, value?: any) => Promise<any>|any;
+
+    /**
+     * Parameter type.
+     */
+    public type: ParamType;
 
     /**
      * If true, class-validator will be used to validate param object.
      * If validation options are given then it means validation will be applied (is true).
      */
-    validate?: boolean|ValidatorOptions;
+    public validate?: boolean|ValidatorOptions;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -114,12 +114,12 @@ export class ParamMetadata {
         this.transform = args.transform;
         this.classTransform = args.classTransform;
         this.validate = args.validate;
-        
+
         if (args.explicitType) {
             this.targetType = args.explicitType;
         } else {
-            const ParamTypes = (Reflect as any).getMetadata("design:paramtypes", args.object, args.method);
-            if (typeof ParamTypes !== "undefined") {
+            const ParamTypes = (Reflect as any).getMetadata('design:paramtypes', args.object, args.method);
+            if (typeof ParamTypes !== 'undefined') {
                 this.targetType = ParamTypes[args.index];
             }
         }
@@ -128,10 +128,10 @@ export class ParamMetadata {
             if (this.targetType instanceof Function && this.targetType.name) {
                 this.targetName = this.targetType.name.toLowerCase();
 
-            } else if (typeof this.targetType === "string") {
+            } else if (typeof this.targetType === 'string') {
                 this.targetName = this.targetType.toLowerCase();
             }
-            this.isTargetObject = this.targetType instanceof Function || this.targetType.toLowerCase() === "object";
+            this.isTargetObject = this.targetType instanceof Function || this.targetType.toLowerCase() === 'object';
         }
     }
 

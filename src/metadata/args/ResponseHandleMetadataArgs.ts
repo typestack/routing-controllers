@@ -1,4 +1,4 @@
-import {ResponseHandlerType} from "../types/ResponseHandlerType";
+import {ResponseHandlerType} from '../types/ResponseHandlerType';
 
 /**
  * Storages information about registered response handlers.
@@ -6,14 +6,19 @@ import {ResponseHandlerType} from "../types/ResponseHandlerType";
 export interface ResponseHandlerMetadataArgs {
 
     /**
-     * Class on which's method decorator is set.
-     */
-    target: Function;
-
-    /**
      * Method on which decorator is set.
      */
     method: string;
+
+    /**
+     * Secondary property value. Can be header value for example.
+     */
+    secondaryValue?: any;
+
+    /**
+     * Class on which's method decorator is set.
+     */
+    target: Function;
 
     /**
      * Property type. See ResponsePropertyMetadataType for possible values.
@@ -25,9 +30,4 @@ export interface ResponseHandlerMetadataArgs {
      */
     value?: any;
 
-    /**
-     * Secondary property value. Can be header value for example.
-     */
-    secondaryValue?: any;
-    
 }

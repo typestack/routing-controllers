@@ -1,18 +1,18 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Injects all request's cookies to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
 export function CookieParams() {
-    return function (object: Object, methodName: string, index: number) {
+    return function(object: Object, methodName: string, index: number) {
         getMetadataArgsStorage().params.push({
-            type: "cookies",
-            object: object,
+            type: 'cookies',
+            object,
             method: methodName,
-            index: index,
+            index,
             parse: false,
-            required: false
+            required: false,
         });
     };
 }

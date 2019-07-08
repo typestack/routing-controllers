@@ -1,4 +1,4 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Registers a controller method to be executed when DELETE request comes on a given route.
@@ -17,12 +17,12 @@ export function Delete(route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Delete(route?: string|RegExp): Function {
-    return function (object: Object, methodName: string) {
+    return function(object: Object, methodName: string) {
         getMetadataArgsStorage().actions.push({
-            type: "delete",
+            type: 'delete',
             target: object.constructor,
             method: methodName,
-            route: route
+            route,
         });
     };
 }

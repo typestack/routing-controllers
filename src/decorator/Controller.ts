@@ -1,4 +1,4 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Defines a class as a controller.
@@ -8,11 +8,11 @@ import {getMetadataArgsStorage} from "../index";
  * @param baseRoute Extra path you can apply as a base route to all controller actions
  */
 export function Controller(baseRoute?: string): Function {
-    return function (object: Function) {
+    return function(object: Function) {
         getMetadataArgsStorage().controllers.push({
-            type: "default",
+            type: 'default',
             target: object,
-            route: baseRoute
+            route: baseRoute,
         });
     };
 }

@@ -1,20 +1,20 @@
-import {UseMetadata} from "../../metadata/UseMetadata";
-import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
-import {ActionMetadata} from "../../metadata/ActionMetadata";
-import {Action} from "../../Action";
-import {ParamMetadata} from "../../metadata/ParamMetadata";
-import {BaseDriver} from "../BaseDriver";
-import {ExpressMiddlewareInterface} from "./ExpressMiddlewareInterface";
-import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface";
-import {AccessDeniedError} from "../../error/AccessDeniedError";
-import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
-import {isPromiseLike} from "../../util/isPromiseLike";
-import {getFromContainer} from "../../container";
-import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import {NotFoundError} from "../../index";
+import {UseMetadata} from '../../metadata/UseMetadata';
+import {MiddlewareMetadata} from '../../metadata/MiddlewareMetadata';
+import {ActionMetadata} from '../../metadata/ActionMetadata';
+import {Action} from '../../Action';
+import {ParamMetadata} from '../../metadata/ParamMetadata';
+import {BaseDriver} from '../BaseDriver';
+import {ExpressMiddlewareInterface} from './ExpressMiddlewareInterface';
+import {ExpressErrorMiddlewareInterface} from './ExpressErrorMiddlewareInterface';
+import {AccessDeniedError} from '../../error/AccessDeniedError';
+import {AuthorizationCheckerNotDefinedError} from '../../error/AuthorizationCheckerNotDefinedError';
+import {isPromiseLike} from '../../util/isPromiseLike';
+import {getFromContainer} from '../../container';
+import {AuthorizationRequiredError} from '../../error/AuthorizationRequiredError';
+import {NotFoundError} from '../../index';
 
-const cookie = require("cookie");
-const templateUrl = require("template-url");
+const cookie = require('cookie');
+const templateUrl = require('template-url');
 
 /**
  * Integration with express framework.
@@ -31,212 +31,98 @@ export class ExpressDriver extends BaseDriver {
         this.app = this.express;
     }
 
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Initializes the things driver needs before routes and middlewares registration.
-     */
-    initialize() {
-        if (this.cors) {
-            const cors = require("cors");
-            if (this.cors === true) {
-                this.express.use(cors());
-            } else {
-                this.express.use(cors(this.cors));
-            }
-        }
-    }
-
-    /**
-     * Registers middleware that run before controller actions.
-     */
-    registerMiddleware(middleware: MiddlewareMetadata): void {
-
-        // if its an error handler then register it with proper signature in express
-        if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
-            this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
-                (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
-            });
-            return;
-        }
-
-        // if its a regular middleware then register it as express middleware
-        if ((middleware.instance as ExpressMiddlewareInterface).use) {
-            this.express.use((request: any, response: any, next: (err: any) => any) => {
-                try {
-                    const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
-                    if (isPromiseLike(useResult)) {
-                        useResult.catch((error: any) => {
-                            this.handleError(error, undefined, {request, response, next});
-                            return error;
-                        });
-                    }
-
-                } catch (error) {
-                    this.handleError(error, undefined, {request, response, next});
-                }
-            });
-        }
-    }
-
-    /**
-     * Registers action in the driver.
-     */
-    registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
-
-        // middlewares required for this action
-        const defaultMiddlewares: any[] = [];
-
-        if (actionMetadata.isBodyUsed) {
-            if (actionMetadata.isJsonTyped) {
-                defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
-            } else {
-                defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
-            }
-        }
-
-        if (actionMetadata.isAuthorizedUsed) {
-            defaultMiddlewares.push((request: any, response: any, next: Function) => {
-                if (!this.authorizationChecker)
-                    throw new AuthorizationCheckerNotDefinedError();
-
-                const action: Action = { request, response, next };
-                try {
-                    const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
-
-                    const handleError = (result: any) => {
-                        if (!result) {
-                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
-                            this.handleError(error, actionMetadata, action);
-                        } else {
-                            next();
-                        }
-                    };
-
-                    if (isPromiseLike(checkResult)) {
-                        checkResult
-                            .then(result => handleError(result))
-                            .catch(error => this.handleError(error, actionMetadata, action));
-                    } else {
-                        handleError(checkResult);
-                    }
-                } catch (error) {
-                    this.handleError(error, actionMetadata, action);
-                }
-            });
-        }
-
-        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
-            const multer = this.loadMulter();
-            actionMetadata.params
-                .filter(param => param.type === "file")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
-                });
-            actionMetadata.params
-                .filter(param => param.type === "files")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });
-        }
-
-        // user used middlewares
-        const uses = [...actionMetadata.controllerMetadata.uses, ...actionMetadata.uses];
-        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
-        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
-
-        // prepare route and route handler function
-        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
-        const routeHandler = function routeHandler(request: any, response: any, next: Function) {
-            // Express calls the "get" route automatically when we call the "head" route:
-            // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
-            // This causes a double action execution on our side, which results in an unhandled rejection,
-            // saying: "Can't set headers after they are sent".
-            // The following line skips action processing when the request method does not match the action method.
-            if (request.method.toLowerCase() !== actionMetadata.type)
-                return next();
-
-            return executeCallback({request, response, next});
-        };
-
-        // finally register action in express
-        this.express[actionMetadata.type.toLowerCase()](...[
-            route,
-            ...beforeMiddlewares,
-            ...defaultMiddlewares,
-            routeHandler,
-            ...afterMiddlewares
-        ]);
-    }
-
-    /**
-     * Registers all routes in the framework.
-     */
-    registerRoutes() {
-    }
-
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(action: Action, param: ParamMetadata): any {
+    public getParamFromRequest(action: Action, param: ParamMetadata): any {
         const request: any = action.request;
         switch (param.type) {
-            case "body":
+            case 'body':
                 return request.body;
 
-            case "body-param":
+            case 'body-param':
                 return request.body[param.name];
 
-            case "param":
+            case 'param':
                 return request.params[param.name];
 
-            case "params":
+            case 'params':
                 return request.params;
 
-            case "session-param":
+            case 'session-param':
                 return request.session[param.name];
-            
-            case "session":
+
+            case 'session':
                 return request.session;
 
-            case "state":
-                throw new Error("@State decorators are not supported by express driver.");
+            case 'state':
+                throw new Error('@State decorators are not supported by express driver.');
 
-            case "query":
+            case 'query':
                 return request.query[param.name];
 
-            case "queries":
+            case 'queries':
                 return request.query;
 
-            case "header":
+            case 'header':
                 return request.headers[param.name.toLowerCase()];
 
-            case "headers":
+            case 'headers':
                 return request.headers;
 
-            case "file":
+            case 'file':
                 return request.file;
 
-            case "files":
+            case 'files':
                 return request.files;
 
-            case "cookie":
-                if (!request.headers.cookie) return;
+            case 'cookie':
+                if (!request.headers.cookie) { return; }
                 const cookies = cookie.parse(request.headers.cookie);
                 return cookies[param.name];
 
-            case "cookies":
-                if (!request.headers.cookie) return {};
+            case 'cookies':
+                if (!request.headers.cookie) { return {}; }
                 return cookie.parse(request.headers.cookie);
         }
     }
 
     /**
+     * Handles result of failed executed controller action.
+     */
+    public handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
+        if (this.isDefaultErrorHandlingEnabled) {
+            const response: any = options.response;
+
+            // set http code
+            // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
+            if (error.httpCode) {
+                response.status(error.httpCode);
+            } else {
+                response.status(500);
+            }
+
+            // apply http headers
+            if (action) {
+                Object.keys(action.headers).forEach(name => {
+                    response.header(name, action.headers[name]);
+                });
+            }
+
+            // send error content
+            if (action && action.isJsonTyped) {
+                response.json(this.processJsonError(error));
+            } else {
+                response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+            }
+        }
+        options.next(error);
+    }
+
+    /**
      * Handles result of successfully executed controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: Action): void {
+    public handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // if the action returned the response object itself, short-circuits
         if (result && result === options.response) {
@@ -274,7 +160,7 @@ export class ExpressDriver extends BaseDriver {
         });
 
         if (action.redirect) { // if redirect is set then do it
-            if (typeof result === "string") {
+            if (typeof result === 'string') {
                 options.response.redirect(result);
             } else if (result instanceof Object) {
                 options.response.redirect(templateUrl(action.redirect, result));
@@ -323,10 +209,10 @@ export class ExpressDriver extends BaseDriver {
             options.next();
         }
         else if (result instanceof Buffer) { // check if it's binary data (Buffer)
-            options.response.end(result, "binary");
+            options.response.end(result, 'binary');
         }
         else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
-            options.response.end(Buffer.from(result as any), "binary");
+            options.response.end(Buffer.from(result as any), 'binary');
         }
         else if (result.pipe instanceof Function) {
             result.pipe(options.response);
@@ -341,36 +227,191 @@ export class ExpressDriver extends BaseDriver {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
     /**
-     * Handles result of failed executed controller action.
+     * Initializes the things driver needs before routes and middlewares registration.
      */
-    handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
-        if (this.isDefaultErrorHandlingEnabled) {
-            const response: any = options.response;
-
-            // set http code
-            // note that we can't use error instanceof HttpError properly anymore because of new typescript emit process
-            if (error.httpCode) {
-                response.status(error.httpCode);
+    public initialize() {
+        if (this.cors) {
+            const cors = require('cors');
+            if (this.cors === true) {
+                this.express.use(cors());
             } else {
-                response.status(500);
-            }
-
-            // apply http headers
-            if (action) {
-                Object.keys(action.headers).forEach(name => {
-                    response.header(name, action.headers[name]);
-                });
-            }
-
-            // send error content
-            if (action && action.isJsonTyped) {
-                response.json(this.processJsonError(error));
-            } else {
-                response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+                this.express.use(cors(this.cors));
             }
         }
-        options.next(error);
+    }
+
+    /**
+     * Registers action in the driver.
+     */
+    public registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
+
+        // middlewares required for this action
+        const defaultMiddlewares: Array<any> = [];
+
+        if (actionMetadata.isBodyUsed) {
+            if (actionMetadata.isJsonTyped) {
+                defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
+            } else {
+                defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
+            }
+        }
+
+        if (actionMetadata.isAuthorizedUsed) {
+            defaultMiddlewares.push((request: any, response: any, next: Function) => {
+                if (!this.authorizationChecker) {
+                    throw new AuthorizationCheckerNotDefinedError();
+                }
+
+                const action: Action = { request, response, next };
+                try {
+                    const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
+
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            const error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            this.handleError(error, actionMetadata, action);
+                        } else {
+                            next();
+                        }
+                    };
+
+                    if (isPromiseLike(checkResult)) {
+                        checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.handleError(error, actionMetadata, action));
+                    } else {
+                        handleError(checkResult);
+                    }
+                } catch (error) {
+                    this.handleError(error, actionMetadata, action);
+                }
+            });
+        }
+
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
+            const multer = this.loadMulter();
+            actionMetadata.params
+                .filter(param => param.type === 'file')
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            actionMetadata.params
+                .filter(param => param.type === 'files')
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
+        }
+
+        // user used middlewares
+        const uses = [...actionMetadata.controllerMetadata.uses, ...actionMetadata.uses];
+        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
+        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
+
+        // prepare route and route handler function
+        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
+        const routeHandler = function routeHandler(request: any, response: any, next: Function) {
+            // Express calls the "get" route automatically when we call the "head" route:
+            // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
+            // This causes a double action execution on our side, which results in an unhandled rejection,
+            // saying: "Can't set headers after they are sent".
+            // The following line skips action processing when the request method does not match the action method.
+            if (request.method.toLowerCase() !== actionMetadata.type) {
+                return next();
+            }
+
+            return executeCallback({request, response, next});
+        };
+
+        // finally register action in express
+        this.express[actionMetadata.type.toLowerCase()](...[
+            route,
+            ...beforeMiddlewares,
+            ...defaultMiddlewares,
+            routeHandler,
+            ...afterMiddlewares,
+        ]);
+    }
+
+    /**
+     * Registers middleware that run before controller actions.
+     */
+    public registerMiddleware(middleware: MiddlewareMetadata): void {
+
+        // if its an error handler then register it with proper signature in express
+        if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
+            this.express.use(function(error: any, request: any, response: any, next: (err?: any) => any) {
+                (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
+            });
+            return;
+        }
+
+        // if its a regular middleware then register it as express middleware
+        if ((middleware.instance as ExpressMiddlewareInterface).use) {
+            this.express.use((request: any, response: any, next: (err: any) => any) => {
+                try {
+                    const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
+                    if (isPromiseLike(useResult)) {
+                        useResult.catch((error: any) => {
+                            this.handleError(error, undefined, {request, response, next});
+                            return error;
+                        });
+                    }
+
+                } catch (error) {
+                    this.handleError(error, undefined, {request, response, next});
+                }
+            });
+        }
+    }
+
+    /**
+     * Registers all routes in the framework.
+     */
+    public registerRoutes() {
+    }
+
+    /**
+     * Dynamically loads body-parser module.
+     */
+    protected loadBodyParser() {
+        try {
+            return require('body-parser');
+        } catch (e) {
+            throw new Error('body-parser package was not found installed. Try to install it: npm install body-parser --save');
+        }
+    }
+
+    /**
+     * Dynamically loads express module.
+     */
+    protected loadExpress() {
+        if (require) {
+            if (!this.express) {
+                try {
+                    this.express = require('express')();
+                } catch (e) {
+                    throw new Error('express package was not found installed. Try to install it: npm install express --save');
+                }
+            }
+        } else {
+            throw new Error('Cannot load express. Try to install all required dependencies.');
+        }
+    }
+
+    /**
+     * Dynamically loads multer module.
+     */
+    protected loadMulter() {
+        try {
+            return require('multer');
+        } catch (e) {
+            throw new Error('multer package was not found installed. Try to install it: npm install multer --save');
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -380,8 +421,8 @@ export class ExpressDriver extends BaseDriver {
     /**
      * Creates middlewares from the given "use"-s.
      */
-    protected prepareMiddlewares(uses: UseMetadata[]) {
-        const middlewareFunctions: Function[] = [];
+    protected prepareMiddlewares(uses: Array<UseMetadata>) {
+        const middlewareFunctions: Array<Function> = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
@@ -401,7 +442,7 @@ export class ExpressDriver extends BaseDriver {
                 });
 
             } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
-                middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                middlewareFunctions.push(function(error: any, request: any, response: any, next: (err: any) => any) {
                     return (getFromContainer(use.middleware) as ExpressErrorMiddlewareInterface).error(error, request, response, next);
                 });
 
@@ -410,45 +451,6 @@ export class ExpressDriver extends BaseDriver {
             }
         });
         return middlewareFunctions;
-    }
-
-    /**
-     * Dynamically loads express module.
-     */
-    protected loadExpress() {
-        if (require) {
-            if (!this.express) {
-                try {
-                    this.express = require("express")();
-                } catch (e) {
-                    throw new Error("express package was not found installed. Try to install it: npm install express --save");
-                }
-            }
-        } else {
-            throw new Error("Cannot load express. Try to install all required dependencies.");
-        }
-    }
-
-    /**
-     * Dynamically loads body-parser module.
-     */
-    protected loadBodyParser() {
-        try {
-            return require("body-parser");
-        } catch (e) {
-            throw new Error("body-parser package was not found installed. Try to install it: npm install body-parser --save");
-        }
-    }
-
-    /**
-     * Dynamically loads multer module.
-     */
-    protected loadMulter() {
-        try {
-            return require("multer");
-        } catch (e) {
-            throw new Error("multer package was not found installed. Try to install it: npm install multer --save");
-        }
     }
 
 }

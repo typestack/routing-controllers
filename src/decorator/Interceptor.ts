@@ -1,14 +1,14 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Registers a global interceptor.
  */
 export function Interceptor(options?: { priority?: number }): Function {
-    return function (target: Function) {
+    return function(target: Function) {
         getMetadataArgsStorage().interceptors.push({
-            target: target,
+            target,
             global: true,
-            priority: options && options.priority ? options.priority : 0
+            priority: options && options.priority ? options.priority : 0,
         });
     };
 }

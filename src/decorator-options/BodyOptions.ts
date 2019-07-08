@@ -1,10 +1,15 @@
-import {ValidatorOptions} from "class-validator";
-import {ClassTransformOptions} from "class-transformer";
+import {ValidatorOptions} from 'class-validator';
+import {ClassTransformOptions} from 'class-transformer';
 
 /**
  * Body decorator parameters.
  */
 export interface BodyOptions {
+
+    /**
+     * Extra options to be passed to body-parser middleware.
+     */
+    options?: any;
 
     /**
      * If set to true then request body will become required.
@@ -20,6 +25,11 @@ export interface BodyOptions {
     transform?: ClassTransformOptions;
 
     /**
+     * Explicitly set type which should be used for Body to perform transformation.
+     */
+    type?: any;
+
+    /**
      * If true, class-validator will be used to validate param object.
      * If validation options are given then class-validator will perform validation with given options.
      *
@@ -27,14 +37,4 @@ export interface BodyOptions {
      */
     validate?: boolean|ValidatorOptions;
 
-    /**
-     * Extra options to be passed to body-parser middleware.
-     */
-    options?: any;
-
-    /**
-     * Explicitly set type which should be used for Body to perform transformation.
-     */
-    type?: any;
-    
 }

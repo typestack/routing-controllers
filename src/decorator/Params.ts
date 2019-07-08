@@ -1,17 +1,17 @@
-import {ParamOptions} from "../decorator-options/ParamOptions";
-import {getMetadataArgsStorage} from "../index";
+import {ParamOptions} from '../decorator-options/ParamOptions';
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Injects all request's route parameters to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
 export function Params(options?: ParamOptions): Function {
-    return function (object: Object, methodName: string, index: number) {
+    return function(object: Object, methodName: string, index: number) {
         getMetadataArgsStorage().params.push({
-            type: "params",
-            object: object,
+            type: 'params',
+            object,
             method: methodName,
-            index: index,
+            index,
             parse: options ? options.parse : false,
             required: options ? options.required : undefined,
             classTransform: options ? options.transform : undefined,

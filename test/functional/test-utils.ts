@@ -1,9 +1,9 @@
-const chakram = require("chakram");
+const chakram = require('chakram');
 
-export function assertRequest(ports: number[], method: string, route: string, callback: (response: any) => any): void;
-export function assertRequest(ports: number[], method: string, route: string, dataOrOptions: any, callback: (response: any) => any): void;
-export function assertRequest(ports: number[], method: string, route: string, data: any, requestOptions: any, callback: (response: any) => any): void;
-export function assertRequest(ports: number[],
+export function assertRequest(ports: Array<number>, method: string, route: string, callback: (response: any) => any): void;
+export function assertRequest(ports: Array<number>, method: string, route: string, dataOrOptions: any, callback: (response: any) => any): void;
+export function assertRequest(ports: Array<number>, method: string, route: string, data: any, requestOptions: any, callback: (response: any) => any): void;
+export function assertRequest(ports: Array<number>,
                               method: string,
                               route: string,
                               dataOrCallback: any|((response: any) => any),
@@ -13,10 +13,10 @@ export function assertRequest(ports: number[],
 
     ports.forEach(port => {
 
-        it("asserting port " + port, async() => {
-            let unhandledRejection: Error = undefined;
+        it('asserting port ' + port, async () => {
+            let unhandledRejection: Error;
             const captureRejection = (e: Error) => { unhandledRejection = e; };
-            process.on("unhandledRejection", captureRejection);
+            process.on('unhandledRejection', captureRejection);
 
             try {
                 let r;
@@ -30,22 +30,22 @@ export function assertRequest(ports: number[],
                     r = await chakram[method](`http://127.0.0.1:${port}/${route}`, dataOrCallback as any, dataOrRequestOptionsOrCallback as any).then(maybeCallback);
                 }
                 else {
-                    throw new Error("No assertion has been performed");
+                    throw new Error('No assertion has been performed');
                 }
 
                 if (unhandledRejection) {
-                    const e = new Error("There was an unhandled rejection while processing the request");
-                    e.stack += "\nCaused by: " + unhandledRejection.stack;
+                    const e = new Error('There was an unhandled rejection while processing the request');
+                    e.stack += '\nCaused by: ' + unhandledRejection.stack;
                     throw e;
                 }
 
                 return r;
             }
             finally {
-                process.removeListener("unhandledRejection", captureRejection);
+                process.removeListener('unhandledRejection', captureRejection);
             }
         });
-        
+
     });
-    
+
 }

@@ -1,17 +1,17 @@
-import "reflect-metadata";
-import {Get} from "../../src/decorator/Get";
-import { createExpressServer, createKoaServer, getMetadataArgsStorage, NotAcceptableError } from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Authorized} from "../../src/decorator/Authorized";
-import {Action} from "../../src/Action";
-import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
-const chakram = require("chakram");
+import 'reflect-metadata';
+import {Get} from '../../src/decorator/Get';
+import { createExpressServer, createKoaServer, getMetadataArgsStorage, NotAcceptableError } from '../../src/index';
+import {assertRequest} from './test-utils';
+import {JsonController} from '../../src/decorator/JsonController';
+import {Authorized} from '../../src/decorator/Authorized';
+import {Action} from '../../src/Action';
+import {RoutingControllersOptions} from '../../src/RoutingControllersOptions';
+const chakram = require('chakram');
 const expect = chakram.expect;
 
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
-describe("Controller responds with value when Authorization succeeds (async)", function () {
+describe('Controller responds with value when Authorization succeeds (async)', function() {
 
     before(() => {
 
@@ -22,32 +22,32 @@ describe("Controller responds with value when Authorization succeeds (async)", f
         class AuthController {
 
             @Authorized()
-            @Get("/auth1")
-            auth1() {
-                return { test: "auth1" };
+            @Get('/auth1')
+            public auth1() {
+                return { test: 'auth1' };
             }
 
-            @Authorized(["role1"])
-            @Get("/auth2")
-            auth2() {
-                return { test: "auth2" };
+            @Authorized(['role1'])
+            @Get('/auth2')
+            public auth2() {
+                return { test: 'auth2' };
             }
 
             @Authorized()
-            @Get("/auth3")
-            async auth3() {
+            @Get('/auth3')
+            public async auth3() {
                 await sleep(10);
-                return { test: "auth3" };
+                return { test: 'auth3' };
             }
 
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
-        authorizationChecker: async (action: Action, roles?: string[]) => {
+        authorizationChecker: async (action: Action, roles?: Array<string>) => {
             await sleep(10);
             return true;
-        }
+        },
     };
 
     let expressApp: any;
@@ -64,31 +64,31 @@ describe("Controller responds with value when Authorization succeeds (async)", f
     });
     after(done => koaApp.close(done));
 
-    describe("without roles", () => {
-        assertRequest([3001, 3002], "get", "auth1", response => {
+    describe('without roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth1', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth1" });
+            expect(response.body).to.eql({ test: 'auth1' });
         });
     });
 
-    describe("with roles", () => {
-        assertRequest([3001, 3002], "get", "auth2", response => {
+    describe('with roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth2', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth2" });
+            expect(response.body).to.eql({ test: 'auth2' });
         });
     });
 
-    describe("async", () => {
-        assertRequest([3001, 3002], "get", "auth3", response => {
+    describe('async', () => {
+        assertRequest([3001, 3002], 'get', 'auth3', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth3" });
+            expect(response.body).to.eql({ test: 'auth3' });
         });
     });
 
 });
 
-describe("Controller responds with value when Authorization succeeds (sync)", function () {
-    
+describe('Controller responds with value when Authorization succeeds (sync)', function() {
+
     before(() => {
 
         // reset metadata args storage
@@ -98,31 +98,30 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
         class AuthController {
 
             @Authorized()
-            @Get("/auth1")
-            auth1() {
-                return { test: "auth1" };
+            @Get('/auth1')
+            public auth1() {
+                return { test: 'auth1' };
             }
 
-            @Authorized(["role1"])
-            @Get("/auth2")
-            auth2() {
-                return { test: "auth2" };
+            @Authorized(['role1'])
+            @Get('/auth2')
+            public auth2() {
+                return { test: 'auth2' };
             }
 
             @Authorized()
-            @Get("/auth3")
-            async auth3() {
+            @Get('/auth3')
+            public async auth3() {
                 await sleep(10);
-                return { test: "auth3" };
+                return { test: 'auth3' };
             }
 
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
-        authorizationChecker: (action: Action, roles?: string[]) => {
-            return true;
-        }
+        authorizationChecker: (action: Action, roles?: Array<string>) =>
+            true,
     };
 
     let expressApp: any;
@@ -139,30 +138,30 @@ describe("Controller responds with value when Authorization succeeds (sync)", fu
     });
     after(done => koaApp.close(done));
 
-    describe("without roles", () => {
-        assertRequest([3001, 3002], "get", "auth1", response => {
+    describe('without roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth1', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth1" });
+            expect(response.body).to.eql({ test: 'auth1' });
         });
     });
 
-    describe("with roles", () => {
-        assertRequest([3001, 3002], "get", "auth2", response => {
+    describe('with roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth2', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth2" });
+            expect(response.body).to.eql({ test: 'auth2' });
         });
     });
 
-    describe("async", () => {
-        assertRequest([3001, 3002], "get", "auth3", response => {
+    describe('async', () => {
+        assertRequest([3001, 3002], 'get', 'auth3', response => {
             expect(response).to.have.status(200);
-            expect(response.body).to.eql({ test: "auth3" });
+            expect(response.body).to.eql({ test: 'auth3' });
         });
     });
 
 });
 
-describe("Authorized Decorators Http Status Code", function () {
+describe('Authorized Decorators Http Status Code', function() {
 
     before(() => {
 
@@ -173,24 +172,23 @@ describe("Authorized Decorators Http Status Code", function () {
         class AuthController {
 
             @Authorized()
-            @Get("/auth1")
-            auth1() {
-                return {test: "auth1"};
+            @Get('/auth1')
+            public auth1() {
+                return {test: 'auth1'};
             }
 
-            @Authorized(["role1"])
-            @Get("/auth2")
-            auth2() {
-                return {test: "auth2"};
+            @Authorized(['role1'])
+            @Get('/auth2')
+            public auth2() {
+                return {test: 'auth2'};
             }
 
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
-        authorizationChecker: async (action: Action, roles?: string[]) => {
-            return false;
-        }
+        authorizationChecker: async (action: Action, roles?: Array<string>) =>
+            false,
     };
 
     let expressApp: any;
@@ -207,21 +205,21 @@ describe("Authorized Decorators Http Status Code", function () {
     });
     after(done => koaApp.close(done));
 
-    describe("without roles", () => {
-        assertRequest([3001, 3002], "get", "auth1", response => {
+    describe('without roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth1', response => {
             expect(response).to.have.status(401);
         });
     });
 
-    describe("with roles", () => {
-        assertRequest([3001, 3002], "get", "auth2", response => {
+    describe('with roles', () => {
+        assertRequest([3001, 3002], 'get', 'auth2', response => {
             expect(response).to.have.status(403);
         });
     });
 
 });
 
-describe("Authorization checker allows to throw (async)", function() {
+describe('Authorization checker allows to throw (async)', function() {
     before(() => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
@@ -229,16 +227,16 @@ describe("Authorization checker allows to throw (async)", function() {
         @JsonController()
         class AuthController {
             @Authorized()
-            @Get("/auth1")
-            auth1() {
-                return { test: "auth1" };
+            @Get('/auth1')
+            public auth1() {
+                return { test: 'auth1' };
             }
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
-        authorizationChecker: async (action: Action, roles?: string[]) => {
-            throw new NotAcceptableError("Custom Error");
+        authorizationChecker: async (action: Action, roles?: Array<string>) => {
+            throw new NotAcceptableError('Custom Error');
         },
     };
 
@@ -256,16 +254,16 @@ describe("Authorization checker allows to throw (async)", function() {
     });
     after(done => koaApp.close(done));
 
-    describe("custom errors", () => {
-        assertRequest([3001, 3002], "get", "auth1", response => {
+    describe('custom errors', () => {
+        assertRequest([3001, 3002], 'get', 'auth1', response => {
             expect(response).to.have.status(406);
-            expect(response.body).to.have.property("name", "NotAcceptableError");
-            expect(response.body).to.have.property("message", "Custom Error");
+            expect(response.body).to.have.property('name', 'NotAcceptableError');
+            expect(response.body).to.have.property('message', 'Custom Error');
         });
     });
 });
 
-describe("Authorization checker allows to throw (sync)", function() {
+describe('Authorization checker allows to throw (sync)', function() {
     before(() => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
@@ -273,16 +271,16 @@ describe("Authorization checker allows to throw (sync)", function() {
         @JsonController()
         class AuthController {
             @Authorized()
-            @Get("/auth1")
-            auth1() {
-                return { test: "auth1" };
+            @Get('/auth1')
+            public auth1() {
+                return { test: 'auth1' };
             }
         }
     });
 
     const serverOptions: RoutingControllersOptions = {
-        authorizationChecker: (action: Action, roles?: string[]) => {
-            throw new NotAcceptableError("Custom Error");
+        authorizationChecker: (action: Action, roles?: Array<string>) => {
+            throw new NotAcceptableError('Custom Error');
         },
     };
 
@@ -300,11 +298,11 @@ describe("Authorization checker allows to throw (sync)", function() {
     });
     after(done => koaApp.close(done));
 
-    describe("custom errors", () => {
-        assertRequest([3001, 3002], "get", "auth1", response => {
+    describe('custom errors', () => {
+        assertRequest([3001, 3002], 'get', 'auth1', response => {
             expect(response).to.have.status(406);
-            expect(response.body).to.have.property("name", "NotAcceptableError");
-            expect(response.body).to.have.property("message", "Custom Error");
+            expect(response.body).to.have.property('name', 'NotAcceptableError');
+            expect(response.body).to.have.property('message', 'Custom Error');
         });
     });
 });

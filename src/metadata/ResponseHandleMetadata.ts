@@ -1,10 +1,20 @@
-import {ResponseHandlerMetadataArgs} from "./args/ResponseHandleMetadataArgs";
-import {ResponseHandlerType} from "./types/ResponseHandlerType";
+import {ResponseHandlerMetadataArgs} from './args/ResponseHandleMetadataArgs';
+import {ResponseHandlerType} from './types/ResponseHandlerType';
 
 /**
  * Response handler metadata.
  */
 export class ResponseHandlerMetadata {
+
+    /**
+     * Method on which decorator is set.
+     */
+    public method: string;
+
+    /**
+     * Secondary property value. Can be header value for example.
+     */
+    public secondaryValue: any;
 
     // -------------------------------------------------------------------------
     // Properties
@@ -13,27 +23,17 @@ export class ResponseHandlerMetadata {
     /**
      * Class on which's method decorator is set.
      */
-    target: Function;
-
-    /**
-     * Method on which decorator is set.
-     */
-    method: string;
+    public target: Function;
 
     /**
      * Property type. See ResponsePropertyMetadataType for possible values.
      */
-    type: ResponseHandlerType;
+    public type: ResponseHandlerType;
 
     /**
      * Property value. Can be status code, content-type, header name, template name, etc.
      */
-    value: any;
-
-    /**
-     * Secondary property value. Can be header value for example.
-     */
-    secondaryValue: any;
+    public value: any;
 
     // -------------------------------------------------------------------------
     // Constructor

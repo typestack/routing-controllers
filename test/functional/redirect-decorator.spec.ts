@@ -1,51 +1,50 @@
-import "reflect-metadata";
-import {Get} from "../../src/decorator/Get";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {Redirect} from "../../src/decorator/Redirect";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Param} from "../../src/decorator/Param";
-const chakram = require("chakram");
+import 'reflect-metadata';
+import {Get} from '../../src/decorator/Get';
+import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
+import {assertRequest} from './test-utils';
+import {Redirect} from '../../src/decorator/Redirect';
+import {JsonController} from '../../src/decorator/JsonController';
+import {Param} from '../../src/decorator/Param';
+const chakram = require('chakram');
 const expect = chakram.expect;
 
-describe("dynamic redirect", function () {
+describe('dynamic redirect', function() {
 
     before(() => {
 
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @JsonController("/users")
+        @JsonController('/users')
         class TestController {
 
-            @Get("/:id")
-            async getOne(@Param("id") id: string) {
+            @Get('/:id')
+            public async getOne(@Param('id') id: string) {
                 return {
-                    login: id
+                    login: id,
                 };
             }
-
 
         }
 
         @JsonController()
         class RedirectController {
 
-            @Get("/template")
-            @Redirect("/users/:owner")
-            template() {
-                return {owner: "pleerock", repo: "routing-controllers"};
+            @Get('/original')
+            @Redirect('/users/pleerock')
+            public original() {
             }
 
-            @Get("/original")
-            @Redirect("/users/pleerock")
-            original() {
+            @Get('/override')
+            @Redirect('https://api.github.com')
+            public override() {
+                return '/users/pleerock';
             }
 
-            @Get("/override")
-            @Redirect("https://api.github.com")
-            override() {
-                return "/users/pleerock";
+            @Get('/template')
+            @Redirect('/users/:owner')
+            public template() {
+                return {owner: 'pleerock', repo: 'routing-controllers'};
             }
 
         }
@@ -65,24 +64,24 @@ describe("dynamic redirect", function () {
     });
     after(done => koaApp.close(done));
 
-    describe("using template", () => {
-        assertRequest([3001, 3002], "get", "template", response => {
+    describe('using template', () => {
+        assertRequest([3001, 3002], 'get', 'template', response => {
             expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
+            expect(response.body).has.property('login', 'pleerock');
         });
     });
 
-    describe("using override", () => {
-        assertRequest([3001, 3002], "get", "override", response => {
+    describe('using override', () => {
+        assertRequest([3001, 3002], 'get', 'override', response => {
             expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
+            expect(response.body).has.property('login', 'pleerock');
         });
     });
 
-    describe("using original", () => {
-        assertRequest([3001, 3002], "get", "original", response => {
+    describe('using original', () => {
+        assertRequest([3001, 3002], 'get', 'original', response => {
             expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
+            expect(response.body).has.property('login', 'pleerock');
         });
     });
 

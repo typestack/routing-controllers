@@ -80,18 +80,9 @@
   "scripts": {
     "build": "tsc",
     "coverage": "nyc npm run test",
-    "lint": "tslint --project tsconfig.json --fix",
+    "lint": "tslint --project tsconfig.test.json --fix",
     "test": "NODE_ENV=test mocha"
   },
-  "tags": [
-    "express",
-    "express.js",
-    "typescript",
-    "typescript-express",
-    "typescript-express.js",
-    "express-controllers",
-    "controllers"
-  ],
   "types": "./dist/index.d.ts",
   "typings": "index.d.ts",
   "version": "0.8.0"

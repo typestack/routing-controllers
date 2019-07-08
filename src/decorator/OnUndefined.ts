@@ -1,4 +1,4 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Used to set specific HTTP status code when result returned by a controller action is equal to undefined.
@@ -17,12 +17,12 @@ export function OnUndefined(error: Function): Function;
  * Must be applied on a controller action.
  */
 export function OnUndefined(codeOrError: number|Function): Function {
-    return function (object: Object, methodName: string) {
+    return function(object: Object, methodName: string) {
         getMetadataArgsStorage().responseHandlers.push({
-            type: "on-undefined",
+            type: 'on-undefined',
             target: object.constructor,
             method: methodName,
-            value: codeOrError
+            value: codeOrError,
         });
     };
 }

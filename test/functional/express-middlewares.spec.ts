@@ -1,17 +1,17 @@
-import "reflect-metadata";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
-import {Controller} from "../../src/decorator/Controller";
-import {Get} from "../../src/decorator/Get";
-import {UseBefore} from "../../src/decorator/UseBefore";
-import {Middleware} from "../../src/decorator/Middleware";
-import {UseAfter} from "../../src/decorator/UseAfter";
-import {NotAcceptableError} from "./../../src/http-error/NotAcceptableError";
+import 'reflect-metadata';
+import {createExpressServer, getMetadataArgsStorage} from '../../src/index';
+import {ExpressMiddlewareInterface} from '../../src/driver/express/ExpressMiddlewareInterface';
+import {Controller} from '../../src/decorator/Controller';
+import {Get} from '../../src/decorator/Get';
+import {UseBefore} from '../../src/decorator/UseBefore';
+import {Middleware} from '../../src/decorator/Middleware';
+import {UseAfter} from '../../src/decorator/UseAfter';
+import {NotAcceptableError} from './../../src/http-error/NotAcceptableError';
 
-const chakram = require("chakram");
+const chakram = require('chakram');
 const expect = chakram.expect;
 
-describe("express middlewares", () => {
+describe('express middlewares', () => {
 
     let useBefore: boolean,
         useAfter: boolean,
@@ -39,23 +39,23 @@ describe("express middlewares", () => {
         // reset metadata args storage
         getMetadataArgsStorage().reset();
 
-        @Middleware({ type: "before" })
+        @Middleware({ type: 'before' })
         class TestGlobalBeforeMidleware implements ExpressMiddlewareInterface {
 
-            use(request: any, response: any, next?: Function): any {
+            public use(request: any, response: any, next?: Function): any {
                 useGlobalBefore = true;
-                useGlobalCallOrder = "setFromGlobalBefore";
+                useGlobalCallOrder = 'setFromGlobalBefore';
                 next();
             }
 
         }
 
-        @Middleware({ type: "after" })
+        @Middleware({ type: 'after' })
         class TestGlobalAfterMidleware implements ExpressMiddlewareInterface {
 
-            use(request: any, response: any, next?: Function): any {
+            public use(request: any, response: any, next?: Function): any {
                 useGlobalAfter = true;
-                useGlobalCallOrder = "setFromGlobalAfter";
+                useGlobalCallOrder = 'setFromGlobalAfter';
                 next();
             }
 
@@ -63,7 +63,7 @@ describe("express middlewares", () => {
 
         class TestLoggerMiddleware implements ExpressMiddlewareInterface {
 
-            use(request: any, response: any, next?: Function): any {
+            public use(request: any, response: any, next?: Function): any {
                 useCustom = true;
                 next();
             }
@@ -72,8 +72,8 @@ describe("express middlewares", () => {
 
         class TestCustomMiddlewareWhichThrows implements ExpressMiddlewareInterface {
 
-            use(request: any, response: any, next?: Function): any {
-                throw new NotAcceptableError("TestCustomMiddlewareWhichThrows");
+            public use(request: any, response: any, next?: Function): any {
+                throw new NotAcceptableError('TestCustomMiddlewareWhichThrows');
             }
 
         }
@@ -81,60 +81,60 @@ describe("express middlewares", () => {
         @Controller()
         class ExpressMiddlewareController {
 
-            @Get("/blogs")
-            blogs() {
-                useGlobalCallOrder = "setFromController";
-                return "1234";
+            @Get('/blogs')
+            public blogs() {
+                useGlobalCallOrder = 'setFromController';
+                return '1234';
             }
 
-            @Get("/questions")
-            @UseBefore(TestLoggerMiddleware)
-            questions() {
-                return "1234";
-            }
-
-            @Get("/users")
-            @UseBefore(function (request: any, response: any, next: Function) {
-                useBefore = true;
-                useCallOrder = "setFromUseBefore";
-                next();
-            })
-            users() {
-                useCallOrder = "setFromController";
-                return "1234";
-            }
-
-            @Get("/photos")
-            @UseAfter(function (request: any, response: any, next: Function) {
-                useAfter = true;
-                useCallOrder = "setFromUseAfter";
-                next();
-            })
-            photos() {
-                useCallOrder = "setFromController";
-                return "1234";
-            }
-
-            @Get("/posts")
-            @UseBefore(function (request: any, response: any, next: Function) {
-                useBefore = true;
-                useCallOrder = "setFromUseBefore";
-                next();
-            })
-            @UseAfter(function (request: any, response: any, next: Function) {
-                useAfter = true;
-                useCallOrder = "setFromUseAfter";
-                next();
-            })
-            posts() {
-                useCallOrder = "setFromController";
-                return "1234";
-            }
-
-            @Get("/customMiddlewareWichThrows")
+            @Get('/customMiddlewareWichThrows')
             @UseBefore(TestCustomMiddlewareWhichThrows)
-            customMiddlewareWichThrows() {
-                return "1234";
+            public customMiddlewareWichThrows() {
+                return '1234';
+            }
+
+            @Get('/photos')
+            @UseAfter(function(request: any, response: any, next: Function) {
+                useAfter = true;
+                useCallOrder = 'setFromUseAfter';
+                next();
+            })
+            public photos() {
+                useCallOrder = 'setFromController';
+                return '1234';
+            }
+
+            @Get('/posts')
+            @UseBefore(function(request: any, response: any, next: Function) {
+                useBefore = true;
+                useCallOrder = 'setFromUseBefore';
+                next();
+            })
+            @UseAfter(function(request: any, response: any, next: Function) {
+                useAfter = true;
+                useCallOrder = 'setFromUseAfter';
+                next();
+            })
+            public posts() {
+                useCallOrder = 'setFromController';
+                return '1234';
+            }
+
+            @Get('/questions')
+            @UseBefore(TestLoggerMiddleware)
+            public questions() {
+                return '1234';
+            }
+
+            @Get('/users')
+            @UseBefore(function(request: any, response: any, next: Function) {
+                useBefore = true;
+                useCallOrder = 'setFromUseBefore';
+                next();
+            })
+            public users() {
+                useCallOrder = 'setFromController';
+                return '1234';
             }
         }
     });
@@ -143,63 +143,57 @@ describe("express middlewares", () => {
     before(done => app = createExpressServer().listen(3001, done));
     after(done => app.close(done));
 
-    it("should call a global middlewares", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/blogs")
+    it('should call a global middlewares', () =>
+        chakram
+            .get('http://127.0.0.1:3001/blogs')
             .then((response: any) => {
                 expect(useGlobalBefore).to.be.equal(true);
                 expect(useGlobalAfter).to.be.equal(true);
-                expect(useGlobalCallOrder).to.be.equal("setFromGlobalAfter");
+                expect(useGlobalCallOrder).to.be.equal('setFromGlobalAfter');
                 expect(response).to.have.status(200);
-            });
-    });
+            }));
 
-    it("should use a custom middleware when @UseBefore or @UseAfter is used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/questions")
+    it('should use a custom middleware when @UseBefore or @UseAfter is used', () =>
+        chakram
+            .get('http://127.0.0.1:3001/questions')
             .then((response: any) => {
                 expect(useCustom).to.be.equal(true);
                 expect(response).to.have.status(200);
-            });
-    });
+            }));
 
-    it("should call middleware and call it before controller action when @UseBefore is used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/users")
+    it('should call middleware and call it before controller action when @UseBefore is used', () =>
+        chakram
+            .get('http://127.0.0.1:3001/users')
             .then((response: any) => {
                 expect(useBefore).to.be.equal(true);
-                expect(useCallOrder).to.be.equal("setFromController");
+                expect(useCallOrder).to.be.equal('setFromController');
                 expect(response).to.have.status(200);
-            });
-    });
+            }));
 
-    it("should call middleware and call it after controller action when @UseAfter is used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/photos")
+    it('should call middleware and call it after controller action when @UseAfter is used', () =>
+        chakram
+            .get('http://127.0.0.1:3001/photos')
             .then((response: any) => {
                 expect(useAfter).to.be.equal(true);
-                expect(useCallOrder).to.be.equal("setFromUseAfter");
+                expect(useCallOrder).to.be.equal('setFromUseAfter');
                 expect(response).to.have.status(200);
-            });
-    });
+            }));
 
-    it("should call before middleware and call after middleware when @UseAfter and @UseAfter are used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts")
+    it('should call before middleware and call after middleware when @UseAfter and @UseAfter are used', () =>
+        chakram
+            .get('http://127.0.0.1:3001/posts')
             .then((response: any) => {
                 expect(useBefore).to.be.equal(true);
                 expect(useAfter).to.be.equal(true);
-                expect(useCallOrder).to.be.equal("setFromUseAfter");
+                expect(useCallOrder).to.be.equal('setFromUseAfter');
                 expect(response).to.have.status(200);
-            });
-    });
+            }));
 
-    it("should handle errors in custom middlewares", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/customMiddlewareWichThrows")
+    it('should handle errors in custom middlewares', () =>
+        chakram
+            .get('http://127.0.0.1:3001/customMiddlewareWichThrows')
             .then((response: any) => {
                 expect(response).to.have.status(406);
-            });
-    });
+            }));
 
 });

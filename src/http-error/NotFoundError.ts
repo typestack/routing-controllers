@@ -1,17 +1,18 @@
-import {HttpError} from "./HttpError";
+import {HttpError} from './HttpError';
 
 /**
  * Exception for 404 HTTP error.
  */
 export class NotFoundError extends HttpError {
-    name = "NotFoundError";
+    public name = 'NotFoundError';
 
     constructor(message?: string) {
         super(404);
         Object.setPrototypeOf(this, NotFoundError.prototype);
 
-        if (message)
+        if (message) {
             this.message = message;
+        }
     }
 
 }

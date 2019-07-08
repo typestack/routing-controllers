@@ -1,17 +1,18 @@
-import {HttpError} from "./HttpError";
+import {HttpError} from './HttpError';
 
 /**
  * Exception for 401 HTTP error.
  */
 export class UnauthorizedError extends HttpError {
-    name = "UnauthorizedError";
+    public name = 'UnauthorizedError';
 
     constructor(message?: string) {
         super(401);
         Object.setPrototypeOf(this, UnauthorizedError.prototype);
 
-        if (message)
+        if (message) {
             this.message = message;
+        }
     }
 
 }

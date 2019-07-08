@@ -1,4 +1,4 @@
-import {getMetadataArgsStorage} from "../index";
+import {getMetadataArgsStorage} from '../index';
 
 /**
  * Defines a class as a JSON controller. If JSON controller is used, then all controller actions will return
@@ -7,11 +7,11 @@ import {getMetadataArgsStorage} from "../index";
  * @param baseRoute Extra path you can apply as a base route to all controller actions
  */
 export function JsonController(baseRoute?: string) {
-    return function (object: Function) {
+    return function(object: Function) {
         getMetadataArgsStorage().controllers.push({
-            type: "json",
+            type: 'json',
             target: object,
-            route: baseRoute
+            route: baseRoute,
         });
     };
 }

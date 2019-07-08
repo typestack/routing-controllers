@@ -1,11 +1,19 @@
-import {ExpressMiddlewareInterface} from "../../../src/driver/express/ExpressMiddlewareInterface";
-import * as session from "express-session";
+import {ExpressMiddlewareInterface} from '../../../src/driver/express/ExpressMiddlewareInterface';
+import * as session from 'express-session';
 
-const convert = require("koa-convert");
-const KoaSession = require("koa-session");
+const convert = require('koa-convert');
+const KoaSession = require('koa-session');
 
 export class SessionMiddleware implements ExpressMiddlewareInterface {
-    public use (requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
+
+    private expSession = session({
+        secret: '19majkel94_helps_pleerock',
+        resave: false,
+        saveUninitialized: true,
+    });
+
+    private koaSession: any;
+    public use(requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
         if (next) {
             return this.expSession(requestOrContext, responseOrNext, next);
         } else {
@@ -15,12 +23,4 @@ export class SessionMiddleware implements ExpressMiddlewareInterface {
             return this.koaSession(requestOrContext, responseOrNext);
         }
     }
-
-    private expSession = session({
-        secret: "19majkel94_helps_pleerock",
-        resave: false,
-        saveUninitialized: true,
-    });
-
-    private koaSession: any;
 }

@@ -1,20 +1,20 @@
-import {Action} from "../../Action";
-import {ActionMetadata} from "../../metadata/ActionMetadata";
-import {BaseDriver} from "../BaseDriver";
-import {MiddlewareMetadata} from "../../metadata/MiddlewareMetadata";
-import {ParamMetadata} from "../../metadata/ParamMetadata";
-import {UseMetadata} from "../../metadata/UseMetadata";
-import {KoaMiddlewareInterface} from "./KoaMiddlewareInterface";
-import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
-import {AccessDeniedError} from "../../error/AccessDeniedError";
-import {isPromiseLike} from "../../util/isPromiseLike";
-import {getFromContainer} from "../../container";
-import {RoleChecker} from "../../RoleChecker";
-import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
-import {HttpError, NotFoundError} from "../../index";
+import {Action} from '../../Action';
+import {ActionMetadata} from '../../metadata/ActionMetadata';
+import {BaseDriver} from '../BaseDriver';
+import {MiddlewareMetadata} from '../../metadata/MiddlewareMetadata';
+import {ParamMetadata} from '../../metadata/ParamMetadata';
+import {UseMetadata} from '../../metadata/UseMetadata';
+import {KoaMiddlewareInterface} from './KoaMiddlewareInterface';
+import {AuthorizationCheckerNotDefinedError} from '../../error/AuthorizationCheckerNotDefinedError';
+import {AccessDeniedError} from '../../error/AccessDeniedError';
+import {isPromiseLike} from '../../util/isPromiseLike';
+import {getFromContainer} from '../../container';
+import {RoleChecker} from '../../RoleChecker';
+import {AuthorizationRequiredError} from '../../error/AuthorizationRequiredError';
+import {HttpError, NotFoundError} from '../../index';
 
-const cookie = require("cookie");
-const templateUrl = require("template-url");
+const cookie = require('cookie');
+const templateUrl = require('template-url');
 
 /**
  * Integration with koa framework.
@@ -32,187 +32,104 @@ export class KoaDriver extends BaseDriver {
         this.app = this.koa;
     }
 
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Initializes the things driver needs before routes and middleware registration.
-     */
-    initialize() {
-        const bodyParser = require("koa-bodyparser");
-        this.koa.use(bodyParser());
-        if (this.cors) {
-            const cors = require("kcors");
-            if (this.cors === true) {
-                this.koa.use(cors());
-            } else {
-                this.koa.use(cors(this.cors));
-            }
-        }
-    }
-
-    /**
-     * Registers middleware that run before controller actions.
-     */
-    registerMiddleware(middleware: MiddlewareMetadata): void {
-        if ((middleware.instance as KoaMiddlewareInterface).use) {
-            this.koa.use(function (ctx: any, next: any) {
-                return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
-            });
-        }
-    }
-
-    /**
-     * Registers action in the driver.
-     */
-    registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
-
-        // middlewares required for this action
-        const defaultMiddlewares: any[] = [];
-
-        if (actionMetadata.isAuthorizedUsed) {
-            defaultMiddlewares.push((context: any, next: Function) => {
-                if (!this.authorizationChecker)
-                    throw new AuthorizationCheckerNotDefinedError();
-
-                const action: Action = { request: context.request, response: context.response, context, next };
-                try {
-                    const checkResult = actionMetadata.authorizedRoles instanceof Function ?
-                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
-                        this.authorizationChecker(action, actionMetadata.authorizedRoles);
-
-                    const handleError = (result: any) => {
-                        if (!result) {
-                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
-                            return this.handleError(error, actionMetadata, action);
-                        } else {
-                            return next();
-                        }
-                    };
-
-                    if (isPromiseLike(checkResult)) {
-                        return checkResult
-                            .then(result => handleError(result))
-                            .catch(error => this.handleError(error, actionMetadata, action));
-                    } else {
-                        return handleError(checkResult);
-                    }
-                } catch (error) {
-                    return this.handleError(error, actionMetadata, action);
-                }
-            });
-        }
-
-        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
-            const multer = this.loadMulter();
-            actionMetadata.params
-                .filter(param => param.type === "file")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
-                });
-            actionMetadata.params
-                .filter(param => param.type === "files")
-                .forEach(param => {
-                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
-                });
-
-            defaultMiddlewares.push(this.fixMulterRequestAssignment);
-        }
-
-        // user used middlewares
-        const uses = actionMetadata.controllerMetadata.uses.concat(actionMetadata.uses);
-        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
-        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
-
-        // prepare route and route handler function
-        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
-        const routeHandler = (context: any, next: () => Promise<any>) => {
-            const options: Action = {request: context.request, response: context.response, context, next};
-            return executeCallback(options);
-        };
-
-        // finally register action in koa
-        this.router[actionMetadata.type.toLowerCase()](...[
-            route,
-            ...beforeMiddlewares,
-            ...defaultMiddlewares,
-            routeHandler,
-            ...afterMiddlewares
-        ]);
-    }
-
-    /**
-     * Registers all routes in the framework.
-     */
-    registerRoutes() {
-        this.koa.use(this.router.routes());
-        this.koa.use(this.router.allowedMethods());
-    }
-
     /**
      * Gets param from the request.
      */
-    getParamFromRequest(actionOptions: Action, param: ParamMetadata): any {
+    public getParamFromRequest(actionOptions: Action, param: ParamMetadata): any {
         const context = actionOptions.context;
         const request: any = actionOptions.request;
         switch (param.type) {
-            case "body":
+            case 'body':
                 return request.body;
 
-            case "body-param":
+            case 'body-param':
                 return request.body[param.name];
 
-            case "param":
+            case 'param':
                 return context.params[param.name];
 
-            case "params":
+            case 'params':
                 return context.params;
 
-            case "session":
+            case 'session':
                 return context.session;
 
-            case "session-param":
+            case 'session-param':
                 return context.session[param.name];
 
-            case "state":
-                if (param.name)
+            case 'state':
+                if (param.name) {
                     return context.state[param.name];
+                }
                 return context.state;
 
-            case "query":
+            case 'query':
                 return context.query[param.name];
 
-            case "queries":
+            case 'queries':
                 return context.query;
 
-            case "file":
+            case 'file':
                 return actionOptions.context.req.file;
 
-            case "files":
+            case 'files':
                 return actionOptions.context.req.files;
 
-            case "header":
+            case 'header':
                 return context.headers[param.name.toLowerCase()];
 
-            case "headers":
+            case 'headers':
                 return request.headers;
 
-            case "cookie":
-                if (!context.headers.cookie) return;
+            case 'cookie':
+                if (!context.headers.cookie) { return; }
                 const cookies = cookie.parse(context.headers.cookie);
                 return cookies[param.name];
 
-            case "cookies":
-                if (!request.headers.cookie) return {};
+            case 'cookies':
+                if (!request.headers.cookie) { return {}; }
                 return cookie.parse(request.headers.cookie);
         }
     }
 
     /**
+     * Handles result of failed executed controller action.
+     */
+    public handleError(error: any, action: ActionMetadata | undefined, options: Action) {
+        return new Promise((resolve, reject) => {
+            if (this.isDefaultErrorHandlingEnabled) {
+
+                // apply http headers
+                if (action) {
+                    Object.keys(action.headers).forEach(name => {
+                        options.response.set(name, action.headers[name]);
+                    });
+                }
+
+                // send error content
+                if (action && action.isJsonTyped) {
+                    options.response.body = this.processJsonError(error);
+                } else {
+                    options.response.body = this.processTextError(error);
+                }
+
+                // set http status
+                if (error instanceof HttpError && error.httpCode) {
+                    options.response.status = error.httpCode;
+                } else {
+                    options.response.status = 500;
+                }
+
+                return resolve();
+            }
+            return reject(error);
+        });
+    }
+
+    /**
      * Handles result of successfully executed controller action.
      */
-    handleSuccess(result: any, action: ActionMetadata, options: Action): void {
+    public handleSuccess(result: any, action: ActionMetadata, options: Action): void {
 
         // if the action returned the context or the response object itself, short-circuits
         if (result && (result === options.response || result === options.context)) {
@@ -223,7 +140,7 @@ export class KoaDriver extends BaseDriver {
         result = this.transformResult(result, action, options);
 
         if (action.redirect) { // if redirect is set then do it
-            if (typeof result === "string") {
+            if (typeof result === 'string') {
                 options.response.redirect(result);
             } else if (result instanceof Object) {
                 options.response.redirect(templateUrl(action.redirect, result));
@@ -233,7 +150,7 @@ export class KoaDriver extends BaseDriver {
         } else if (action.renderedTemplate) { // if template is set then render it // TODO: not working in koa
             const renderOptions = result && result instanceof Object ? result : {};
 
-            this.koa.use(async function (ctx: any, next: any) {
+            this.koa.use(async function(ctx: any, next: any) {
                 await ctx.render(action.renderedTemplate, renderOptions);
             });
         }
@@ -246,8 +163,9 @@ export class KoaDriver extends BaseDriver {
             }
         }
         else if (result === null) { // send null response
-            if (action.nullResultCode instanceof Function)
+            if (action.nullResultCode instanceof Function) {
                 throw new (action.nullResultCode as any)(options);
+            }
 
             options.response.body = null;
         }
@@ -285,38 +203,140 @@ export class KoaDriver extends BaseDriver {
         return options.next();
     }
 
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
     /**
-     * Handles result of failed executed controller action.
+     * Initializes the things driver needs before routes and middleware registration.
      */
-    handleError(error: any, action: ActionMetadata | undefined, options: Action) {
-        return new Promise((resolve, reject) => {
-            if (this.isDefaultErrorHandlingEnabled) {
-
-                // apply http headers
-                if (action) {
-                    Object.keys(action.headers).forEach(name => {
-                        options.response.set(name, action.headers[name]);
-                    });
-                }
-
-                // send error content
-                if (action && action.isJsonTyped) {
-                    options.response.body = this.processJsonError(error);
-                } else {
-                    options.response.body = this.processTextError(error);
-                }
-
-                // set http status
-                if (error instanceof HttpError && error.httpCode) {
-                    options.response.status = error.httpCode;
-                } else {
-                    options.response.status = 500;
-                }
-
-                return resolve();
+    public initialize() {
+        const bodyParser = require('koa-bodyparser');
+        this.koa.use(bodyParser());
+        if (this.cors) {
+            const cors = require('kcors');
+            if (this.cors === true) {
+                this.koa.use(cors());
+            } else {
+                this.koa.use(cors(this.cors));
             }
-            return reject(error);
-        });
+        }
+    }
+
+    /**
+     * Registers action in the driver.
+     */
+    public registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
+
+        // middlewares required for this action
+        const defaultMiddlewares: Array<any> = [];
+
+        if (actionMetadata.isAuthorizedUsed) {
+            defaultMiddlewares.push((context: any, next: Function) => {
+                if (!this.authorizationChecker) {
+                    throw new AuthorizationCheckerNotDefinedError();
+                }
+
+                const action: Action = { request: context.request, response: context.response, context, next };
+                try {
+                    const checkResult = actionMetadata.authorizedRoles instanceof Function ?
+                        getFromContainer<RoleChecker>(actionMetadata.authorizedRoles).check(action) :
+                        this.authorizationChecker(action, actionMetadata.authorizedRoles);
+
+                    const handleError = (result: any) => {
+                        if (!result) {
+                            const error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            return this.handleError(error, actionMetadata, action);
+                        } else {
+                            return next();
+                        }
+                    };
+
+                    if (isPromiseLike(checkResult)) {
+                        return checkResult
+                            .then(result => handleError(result))
+                            .catch(error => this.handleError(error, actionMetadata, action));
+                    } else {
+                        return handleError(checkResult);
+                    }
+                } catch (error) {
+                    return this.handleError(error, actionMetadata, action);
+                }
+            });
+        }
+
+        if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
+            const multer = this.loadMulter();
+            actionMetadata.params
+                .filter(param => param.type === 'file')
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).single(param.name));
+                });
+            actionMetadata.params
+                .filter(param => param.type === 'files')
+                .forEach(param => {
+                    defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
+                });
+
+            defaultMiddlewares.push(this.fixMulterRequestAssignment);
+        }
+
+        // user used middlewares
+        const uses = actionMetadata.controllerMetadata.uses.concat(actionMetadata.uses);
+        const beforeMiddlewares = this.prepareMiddlewares(uses.filter(use => !use.afterAction));
+        const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
+
+        // prepare route and route handler function
+        const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
+        const routeHandler = (context: any, next: () => Promise<any>) => {
+            const options: Action = {request: context.request, response: context.response, context, next};
+            return executeCallback(options);
+        };
+
+        // finally register action in koa
+        this.router[actionMetadata.type.toLowerCase()](...[
+            route,
+            ...beforeMiddlewares,
+            ...defaultMiddlewares,
+            routeHandler,
+            ...afterMiddlewares,
+        ]);
+    }
+
+    /**
+     * Registers middleware that run before controller actions.
+     */
+    public registerMiddleware(middleware: MiddlewareMetadata): void {
+        if ((middleware.instance as KoaMiddlewareInterface).use) {
+            this.koa.use(function(ctx: any, next: any) {
+                return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
+            });
+        }
+    }
+
+    /**
+     * Registers all routes in the framework.
+     */
+    public registerRoutes() {
+        this.koa.use(this.router.routes());
+        this.koa.use(this.router.allowedMethods());
+    }
+
+    /**
+     * Dynamically loads koa and required koa-router module.
+     */
+    protected loadKoa() {
+        if (require) {
+            if (!this.koa) {
+                try {
+                    this.koa = new (require('koa'))();
+                } catch (e) {
+                    throw new Error('koa package was not found installed. Try to install it: npm install koa@next --save');
+                }
+            }
+        } else {
+            throw new Error('Cannot load koa. Try to install all required dependencies.');
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -326,8 +346,8 @@ export class KoaDriver extends BaseDriver {
     /**
      * Creates middlewares from the given "use"-s.
      */
-    protected prepareMiddlewares(uses: UseMetadata[]) {
-        const middlewareFunctions: Function[] = [];
+    protected prepareMiddlewares(uses: Array<UseMetadata>) {
+        const middlewareFunctions: Array<Function> = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
                 middlewareFunctions.push((context: any, next: (err?: any) => Promise<any>) => {
@@ -339,7 +359,7 @@ export class KoaDriver extends BaseDriver {
                                     request: context.req,
                                     response: context.res,
                                     context,
-                                    next
+                                    next,
                                 });
                                 return error;
                             });
@@ -351,7 +371,7 @@ export class KoaDriver extends BaseDriver {
                             request: context.request,
                             response: context.response,
                             context,
-                            next
+                            next,
                         });
                     }
                 });
@@ -364,19 +384,31 @@ export class KoaDriver extends BaseDriver {
     }
 
     /**
-     * Dynamically loads koa and required koa-router module.
+     * This middleware fixes a bug on koa-multer implementation.
+     *
+     * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
      */
-    protected loadKoa() {
-        if (require) {
-            if (!this.koa) {
-                try {
-                    this.koa = new (require("koa"))();
-                } catch (e) {
-                    throw new Error("koa package was not found installed. Try to install it: npm install koa@next --save");
-                }
+    private async fixMulterRequestAssignment(ctx: any, next: Function) {
+        if ('request' in ctx) {
+            if (ctx.req.body) { ctx.request.body = ctx.req.body; }
+            if (ctx.req.file) { ctx.request.file = ctx.req.file; }
+            if (ctx.req.files) {
+                ctx.request.files = ctx.req.files;
+                ctx.files = ctx.req.files;
             }
-        } else {
-            throw new Error("Cannot load koa. Try to install all required dependencies.");
+        }
+
+        return next();
+    }
+
+    /**
+     * Dynamically loads koa-multer module.
+     */
+    private loadMulter() {
+        try {
+            return require('koa-multer');
+        } catch (e) {
+            throw new Error('koa-multer package was not found installed. Try to install it: npm install koa-multer --save');
         }
     }
 
@@ -387,42 +419,13 @@ export class KoaDriver extends BaseDriver {
         if (require) {
             if (!this.router) {
                 try {
-                    this.router = new (require("koa-router"))();
+                    this.router = new (require('koa-router'))();
                 } catch (e) {
-                    throw new Error("koa-router package was not found installed. Try to install it: npm install koa-router@next --save");
+                    throw new Error('koa-router package was not found installed. Try to install it: npm install koa-router@next --save');
                 }
             }
         } else {
-            throw new Error("Cannot load koa. Try to install all required dependencies.");
+            throw new Error('Cannot load koa. Try to install all required dependencies.');
         }
-    }
-
-    /**
-     * Dynamically loads koa-multer module.
-     */
-    private loadMulter() {
-        try {
-            return require("koa-multer");
-        } catch (e) {
-            throw new Error("koa-multer package was not found installed. Try to install it: npm install koa-multer --save");
-        }
-    }
-
-    /**
-     * This middleware fixes a bug on koa-multer implementation.
-     *
-     * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
-     */
-    private async fixMulterRequestAssignment(ctx: any, next: Function) {
-        if ("request" in ctx) {
-            if (ctx.req.body) ctx.request.body = ctx.req.body;
-            if (ctx.req.file) ctx.request.file = ctx.req.file;
-            if (ctx.req.files) {
-                ctx.request.files = ctx.req.files;
-                ctx.files = ctx.req.files;
-            }
-        }
-
-        return await next();
     }
 }

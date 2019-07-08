@@ -1,9 +1,29 @@
-import {UseInterceptorMetadataArgs} from "./args/UseInterceptorMetadataArgs";
+import {UseInterceptorMetadataArgs} from './args/UseInterceptorMetadataArgs';
 
 /**
  * "Use interceptor" metadata.
  */
 export class InterceptorMetadata {
+
+    /**
+     * Indicates if this interceptor is global or not.
+     */
+    public global: boolean;
+
+    /**
+     * Interceptor class or function to be executed by this "use".
+     */
+    public interceptor: Function;
+
+    /**
+     * Method used by this "use".
+     */
+    public method: string;
+
+    /**
+     * Interceptor priority. Used for global interceptors.
+     */
+    public priority: number;
 
     // -------------------------------------------------------------------------
     // Properties
@@ -12,32 +32,12 @@ export class InterceptorMetadata {
     /**
      * Object class of the interceptor class.
      */
-    target: Function;
-
-    /**
-     * Method used by this "use".
-     */
-    method: string;
-
-    /**
-     * Interceptor class or function to be executed by this "use".
-     */
-    interceptor: Function;
-
-    /**
-     * Indicates if this interceptor is global or not.
-     */
-    global: boolean;
-
-    /**
-     * Interceptor priority. Used for global interceptors.
-     */
-    priority: number;
+    public target: Function;
 
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    
+
     constructor(args: UseInterceptorMetadataArgs) {
         this.target = args.target;
         this.method = args.method;
@@ -45,5 +45,5 @@ export class InterceptorMetadata {
         this.priority = args.priority;
         this.global = args.global;
     }
-    
+
 }
