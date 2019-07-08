@@ -287,7 +287,7 @@ describe('controller methods', () => {
     });
   });
 
-  describe('should respond with 200 and text/html even in json controller\'s method', () => {
+  describe('should respond with 200 and text/html even in json controller`s method', () => {
     assertRequest([3001, 3002], 'get', 'json-controller/text-html', response => {
       expect(response).to.have.status(200);
       expect(response).to.have.header('content-type', (contentType: string) => {
@@ -297,7 +297,7 @@ describe('controller methods', () => {
     });
   });
 
-  describe('should respond with 200 and text/plain even in json controller\'s method', () => {
+  describe('should respond with 200 and text/plain even in json controller`s method', () => {
     assertRequest([3001, 3002], 'get', 'json-controller/text-plain', response => {
       expect(response).to.have.status(200);
       expect(response).to.have.header('content-type', (contentType: string) => {
@@ -307,7 +307,7 @@ describe('controller methods', () => {
     });
   });
 
-  describe('should respond with 401 and text/html when UnauthorizedError throwed even in json controller\'s method', () => {
+  describe('should respond with 401 and text/html when UnauthorizedError throwed even in json controller`s method', () => {
     assertRequest([3001, 3002], 'get', 'json-controller/text-plain-error', response => {
       expect(response).to.have.status(401);
       expect(response).to.have.header('content-type', (contentType: string) => {
@@ -318,7 +318,7 @@ describe('controller methods', () => {
     });
   });
 
-  describe('should respond with 401 and aplication/json when UnauthorizedError throwed in standard json controller\'s method', () => {
+  describe('should respond with 401 and aplication/json when UnauthorizedError throwed in standard json controller`s method', () => {
     assertRequest([3001, 3002], 'get', 'json-controller/json-error', response => {
       expect(response).to.have.status(401);
       expect(response).to.have.header('content-type', (contentType: string) => {

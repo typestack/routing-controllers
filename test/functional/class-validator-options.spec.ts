@@ -205,48 +205,46 @@ describe('parameters auto-validation', () => {
     );
   });
 
-    describe("should contain param name on validation failed", () => {
-
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            getMetadataArgsStorage().reset();
-
-            @JsonController()
-            class UserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-            }
-        });
-
-        const options: RoutingControllersOptions = {
-            validation: true
-        };
-
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(options).listen(3002, done));
-        after(done => koaApp.close(done));
-
-        const invalidFilter = {
-            keyword: "aa"
-        };
-
-        assertRequest([3001, 3002], "get", `user?filter=${JSON.stringify(invalidFilter)}`, response => {
-            expect(response).to.have.status(400);
-            expect(response.body.paramName).to.equal("filter");
-        });
+  describe('should contain param name on validation failed', () => {
+    let requestFilter: any;
+    beforeEach(() => {
+      requestFilter = undefined;
     });
+
+    before(() => {
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class UserController {
+        @Get('/user')
+        public getUsers(@QueryParam('filter') filter: UserFilter): any {
+          requestFilter = filter;
+          const user = new UserModel();
+          user.id = 1;
+          user._firstName = 'Umed';
+          user._lastName = 'Khudoiberdiev';
+          return user;
+        }
+      }
+    });
+
+    const options: RoutingControllersOptions = {
+      validation: true,
+    };
+
+    let expressApp: any, koaApp: any;
+    before(done => (expressApp = createExpressServer(options).listen(3001, done)));
+    after(done => expressApp.close(done));
+    before(done => (koaApp = createKoaServer(options).listen(3002, done)));
+    after(done => koaApp.close(done));
+
+    const invalidFilter = {
+      keyword: 'aa',
+    };
+
+    assertRequest([3001, 3002], 'get', `user?filter=${JSON.stringify(invalidFilter)}`, response => {
+      expect(response).to.have.status(400);
+      expect(response.body.paramName).to.equal('filter');
+    });
+  });
 });

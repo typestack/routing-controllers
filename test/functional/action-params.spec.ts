@@ -30,30 +30,37 @@ const chakram = require('chakram');
 const expect = chakram.expect;
 
 describe('action parameters', () => {
-  let paramUserId: number, paramFirstId: number, paramSecondId: number;
+  let paramUserId: number;
+  let paramFirstId: number;
+  let paramSecondId: number;
   let sessionTestElement: string;
-  let queryParamSortBy: string,
-    queryParamCount: string,
-    queryParamLimit: number,
-    queryParamShowAll: boolean,
-    queryParamFilter: any;
-  let queryParams1: {[key: string]: any}, queryParams2: {[key: string]: any}, queryParams3: {[key: string]: any};
-  let headerParamToken: string,
-    headerParamCount: number,
-    headerParamLimit: number,
-    headerParamShowAll: boolean,
-    headerParamFilter: any;
-  let cookieParamToken: string,
-    cookieParamCount: number,
-    cookieParamLimit: number,
-    cookieParamShowAll: boolean,
-    cookieParamFilter: any;
+  let queryParamSortBy: string;
+  let queryParamCount: string;
+  let queryParamLimit: number;
+  let queryParamShowAll: boolean;
+  let queryParamFilter: any;
+  let queryParams1: { [key: string]: any };
+  let queryParams2: { [key: string]: any };
+  let queryParams3: { [key: string]: any };
+  let headerParamToken: string;
+  let headerParamCount: number;
+  let headerParamLimit: number;
+  let headerParamShowAll: boolean;
+  let headerParamFilter: any;
+  let cookieParamToken: string;
+  let cookieParamCount: number;
+  let cookieParamLimit: number;
+  let cookieParamShowAll: boolean;
+  let cookieParamFilter: any;
   let body: string;
-  let bodyParamName: string, bodyParamAge: number, bodyParamIsActive: boolean;
+  let bodyParamName: string;
+  let bodyParamAge: number;
+  let bodyParamIsActive: boolean;
   let uploadedFileName: string;
   let uploadedFilesFirstName: string;
   let uploadedFilesSecondName: string;
-  let requestReq: any, requestRes: any;
+  let requestReq: any;
+  let requestRes: any;
 
   beforeEach(() => {
     paramUserId = undefined;
@@ -164,7 +171,7 @@ describe('action parameters', () => {
       }
 
       @Get('/photos-with-json')
-      public getPhotosWithJsonParam(@QueryParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getPhotosWithJsonParam(@QueryParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         queryParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -206,7 +213,7 @@ describe('action parameters', () => {
       }
 
       @Get('/posts-with-json')
-      public getPostsWithJsonParam(@HeaderParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getPostsWithJsonParam(@HeaderParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         headerParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -230,7 +237,7 @@ describe('action parameters', () => {
       }
 
       @Get('/questions-with-json')
-      public getQuestionsWithJsonParam(@CookieParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getQuestionsWithJsonParam(@CookieParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         cookieParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -528,7 +535,7 @@ describe('action parameters', () => {
   });
 
   // todo: enable koa test when #227 fixed
-  describe('@QueryParams should give a proper values from request\'s query parameters', () => {
+  describe('@QueryParams should give a proper values from request`s query parameters', () => {
     assertRequest([3001 /*3002*/], 'get', 'photos-params?sortBy=name&count=2&limit=10&showAll', response => {
       expect(response).to.be.status(200);
       expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
@@ -539,7 +546,7 @@ describe('action parameters', () => {
     });
   });
 
-  describe('@QueryParams should give a proper values from request\'s query parameters with nested json', () => {
+  describe('@QueryParams should give a proper values from request`s query parameters with nested json', () => {
     assertRequest(
       [3001 /*3002*/],
       'get',
@@ -558,7 +565,7 @@ describe('action parameters', () => {
     );
   });
 
-  describe('@QueryParams should not validate request query parameters when it\'s turned off in validator options', () => {
+  describe('@QueryParams should not validate request query parameters when it`s turned off in validator options', () => {
     assertRequest(
       [3001, 3002],
       'get',
@@ -575,7 +582,7 @@ describe('action parameters', () => {
   });
 
   // todo: enable koa test when #227 fixed
-  describe('@QueryParams should give a proper values from request\'s optional query parameters', () => {
+  describe('@QueryParams should give a proper values from request`s optional query parameters', () => {
     assertRequest([3001 /*3002*/], 'get', 'photos-params-optional?sortBy=name&limit=10', response => {
       expect(queryParams3.sortBy).to.be.equal('name');
       expect(queryParams3.count).to.be.equal(undefined);
@@ -903,14 +910,14 @@ describe('action parameters', () => {
             contentType: 'image/text',
           },
         },
-        p1: 'hi, i\'m a param',
+        p1: 'hi, i`m a param',
       },
     };
 
     assertRequest([3001, 3002], 'post', 'files-with-body-param', undefined, requestOptions, response => {
       expect(response).to.be.status(200);
       expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>hello-world.txt - hi, i\'m a param</body></html>');
+      expect(response.body).to.be.equal('<html><body>hello-world.txt - hi, i`m a param</body></html>');
     });
   });
 
