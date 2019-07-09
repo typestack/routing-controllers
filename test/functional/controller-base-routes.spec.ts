@@ -4,7 +4,6 @@ import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../.
 import {assertRequest} from './test-utils';
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
-const expect = require('chakram').expect;
 
 describe('controller > base routes functionality', () => {
   before(() => {
@@ -39,44 +38,44 @@ describe('controller > base routes functionality', () => {
   after(done => koaApp.close(done));
 
   describe('get should respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>All posts</body></html>');
     });
   });
 
   describe('get should respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts/1'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>One post</body></html>');
     });
   });
 
   describe('get should respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'get', 'posts/1/users/2', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts/1/users/2'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>One user</body></html>');
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
-    assertRequest([3001, 3002], 'get', '1/users/1', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: '1/users/1'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
-    assertRequest([3001, 3002], 'get', 'categories/1', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'categories/1'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 
   describe('wrong route should respond with 404 error', () => {
-    assertRequest([3001, 3002], 'get', 'users/1', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'users/1'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 });

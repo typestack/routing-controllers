@@ -23,23 +23,23 @@ describe('controllers and middlewares bulk loading from directories', () => {
     before(done => (koaApp = createKoaServer(serverOptions).listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'posts', response => {
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
       deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
-    assertRequest([3001, 3002], 'get', 'questions', response => {
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
       deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
-    assertRequest([3001, 3002], 'get', 'answers', response => {
+    assertRequest([3001, 3002], {uri: 'answers'}, response => {
       deepStrictEqual(response.body, [{id: 1, title: '#1'}, {id: 2, title: '#2'}]);
     });
 
-    assertRequest([3001, 3002], 'get', 'photos', response => {
+    assertRequest([3001, 3002], {uri: 'photos'}, response => {
       strictEqual(response.body, 'Hello photos');
     });
 
-    assertRequest([3001, 3002], 'get', 'videos', response => {
+    assertRequest([3001, 3002], {uri: 'videos'}, response => {
       strictEqual(response.body, 'Hello videos');
     });
   });
@@ -63,7 +63,7 @@ describe('controllers and middlewares bulk loading from directories', () => {
     });
 
     const serverOptions = {
-      middlewares: [__dirname + '/../fakes/global-options/express-middlewares/**/*{.js,.ts}'],
+      middlewares: [`${__dirname}/../fakes/global-options/express-middlewares/**/*{.js,.ts}`],
     };
     let expressApp: any;
     before(done => (expressApp = createExpressServer(serverOptions).listen(3001, done)));
@@ -71,8 +71,8 @@ describe('controllers and middlewares bulk loading from directories', () => {
 
     beforeEach(() => defaultFakeService.reset());
 
-    assertRequest([3001], 'get', 'publications', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001], {uri: 'publications'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(defaultFakeService.postMiddlewareCalled, true);
       strictEqual(defaultFakeService.questionMiddlewareCalled, true);
       strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);
@@ -80,8 +80,8 @@ describe('controllers and middlewares bulk loading from directories', () => {
       strictEqual(defaultFakeService.videoMiddlewareCalled, false);
     });
 
-    assertRequest([3001], 'get', 'articles', response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001], {uri: 'articles'}, response => {
+      strictEqual(response.statusCode, 500);
       strictEqual(defaultFakeService.postMiddlewareCalled, true);
       strictEqual(defaultFakeService.questionMiddlewareCalled, true);
       strictEqual(defaultFakeService.questionErrorMiddlewareCalled, true);
@@ -117,8 +117,8 @@ describe('controllers and middlewares bulk loading from directories', () => {
 
     beforeEach(() => defaultFakeService.reset());
 
-    assertRequest([3002], 'get', 'publications', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3002], {uri: 'publications'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(defaultFakeService.postMiddlewareCalled, false);
       strictEqual(defaultFakeService.questionMiddlewareCalled, false);
       strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);
@@ -126,8 +126,8 @@ describe('controllers and middlewares bulk loading from directories', () => {
       strictEqual(defaultFakeService.videoMiddlewareCalled, true);
     });
 
-    assertRequest([3002], 'get', 'articles', response => {
-      // strictEqual(response.response.statusCode, 500)
+    assertRequest([3002], {uri: 'articles'}, response => {
+      // strictEqual(response.statusCode, 500)
       strictEqual(defaultFakeService.postMiddlewareCalled, false);
       strictEqual(defaultFakeService.questionMiddlewareCalled, false);
       strictEqual(defaultFakeService.questionErrorMiddlewareCalled, false);

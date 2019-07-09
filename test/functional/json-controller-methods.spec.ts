@@ -126,9 +126,9 @@ describe('json-controller methods', () => {
   after(done => koaApp.close(done));
 
   describe('get should respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'get', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       ok(response.body instanceof Array);
       deepStrictEqual(response.body, [
         {
@@ -144,9 +144,9 @@ describe('json-controller methods', () => {
   });
 
   describe('post respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'post', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users', method: 'post'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'saved',
       });
@@ -154,9 +154,9 @@ describe('json-controller methods', () => {
   });
 
   describe('put respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'put', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users', method: 'put'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'updated',
       });
@@ -164,9 +164,9 @@ describe('json-controller methods', () => {
   });
 
   describe('patch respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'patch', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users', method: 'patch'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'patched',
       });
@@ -174,9 +174,9 @@ describe('json-controller methods', () => {
   });
 
   describe('delete respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'delete', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users', method: 'delete'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'removed',
       });
@@ -184,17 +184,17 @@ describe('json-controller methods', () => {
   });
 
   describe('head respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'head', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users', method: 'head'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       strictEqual(response.body, void 0);
     });
   });
 
   describe('custom method (post) respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'post', 'categories', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'categories', method: 'post'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'posted',
       });
@@ -202,9 +202,9 @@ describe('json-controller methods', () => {
   });
 
   describe('custom method (delete) respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'delete', 'categories', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'categories', method: 'delete'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         status: 'removed',
       });
@@ -212,9 +212,9 @@ describe('json-controller methods', () => {
   });
 
   describe('route should work with parameter', () => {
-    assertRequest([3001, 3002], 'get', 'users/umed', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users/umed'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed',
@@ -223,9 +223,9 @@ describe('json-controller methods', () => {
   });
 
   describe('route should work with regexp parameter', () => {
-    assertRequest([3001, 3002], 'get', 'categories/1', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'categories/1'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         id: 1,
         name: 'People',
@@ -234,15 +234,15 @@ describe('json-controller methods', () => {
   });
 
   describe('should respond with 404 when regexp does not match', () => {
-    assertRequest([3001, 3002], 'get', 'categories/umed', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'categories/umed'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 
   describe('route should work with string regexp parameter', () => {
-    assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts/1'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         id: 1,
         title: 'About People',
@@ -251,15 +251,15 @@ describe('json-controller methods', () => {
   });
 
   describe('should respond with 404 when regexp does not match', () => {
-    assertRequest([3001, 3002], 'get', 'posts/U', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'posts/U'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 
   describe('should return result from a promise', () => {
-    assertRequest([3001, 3002], 'get', 'posts-from-db', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts-from-db'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         id: 1,
         title: 'Hello database post',
@@ -268,9 +268,9 @@ describe('json-controller methods', () => {
   });
 
   describe('should respond with 500 if promise failed', () => {
-    assertRequest([3001, 3002], 'get', 'posts-from-failed-db', response => {
-      strictEqual(response.response.statusCode, 500);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts-from-failed-db'}, response => {
+      strictEqual(response.statusCode, 500);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, {
         code: 10954,
         message: 'Cannot connect to db',

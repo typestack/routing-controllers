@@ -6,8 +6,7 @@ import {Get} from '../../src/decorator/Get';
 import {Middleware} from '../../src/decorator/Middleware';
 import {ExpressErrorMiddlewareInterface} from '../../src/driver/express/ExpressErrorMiddlewareInterface';
 import {ExpressMiddlewareInterface} from '../../src/driver/express/ExpressMiddlewareInterface';
-
-const chakram = require('chakram');
+import {assertRequest} from './test-utils';
 
 describe('custom express global before middleware error handling', () => {
   class CustomError extends Error {
@@ -57,9 +56,9 @@ describe('custom express global before middleware error handling', () => {
   after(done => app.close(done));
 
   it('should call global error handler middleware with CustomError', () =>
-    chakram.get('http://127.0.0.1:3001/answers').then((response: any) => {
+    assertRequest([3001], {uri: 'answers'}, response => {
       strictEqual(errorHandlerCalled, true);
       strictEqual(errorHandlerName, 'CustomError');
-      strictEqual(response.response.statusCode, 500);
+      strictEqual(response.statusCode, 500);
     }));
 });

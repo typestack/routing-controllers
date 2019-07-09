@@ -134,101 +134,101 @@ describe('other controller decorators', () => {
   after(done => koaApp.close(done));
 
   describe('should return httpCode set by @HttpCode decorator', () => {
-    assertRequest([3001, 3002], 'post', 'users', {name: 'Umed'}, response => {
-      strictEqual(response.response.statusCode, 201);
+    assertRequest([3001, 3002], {uri: 'users', method: 'post', body: {name: 'Umed'}}, response => {
+      strictEqual(response.statusCode, 201);
       strictEqual(response.body, '<html><body>User has been created</body></html>');
     });
 
-    assertRequest([3001, 3002], 'get', 'admin', response => {
-      strictEqual(response.response.statusCode, 403);
+    assertRequest([3001, 3002], {uri: 'admin'}, response => {
+      strictEqual(response.statusCode, 403);
       strictEqual(response.body, '<html><body>Access is denied</body></html>');
     });
   });
 
   describe('should return custom code when @OnNull', () => {
-    assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts/1'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, 'Post');
     });
-    assertRequest([3001, 3002], 'get', 'posts/2', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts/2'}, response => {
+      strictEqual(response.statusCode, 200);
     });
-    assertRequest([3001, 3002], 'get', 'posts/3', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'posts/3'}, response => {
+      strictEqual(response.statusCode, 404);
     });
-    assertRequest([3001, 3002], 'get', 'posts/4', response => {
-      strictEqual(response.response.statusCode, 404); // this is expected because for undefined 404 is given by default
+    assertRequest([3001, 3002], {uri: 'posts/4'}, response => {
+      strictEqual(response.statusCode, 404); // this is expected because for undefined 404 is given by default
     });
-    assertRequest([3001, 3002], 'get', 'posts/5', response => {
-      strictEqual(response.response.statusCode, 404); // this is expected because for undefined 404 is given by default
+    assertRequest([3001, 3002], {uri: 'posts/5'}, response => {
+      strictEqual(response.statusCode, 404); // this is expected because for undefined 404 is given by default
     });
   });
 
   describe('should return custom error message and code when @OnUndefined is used with Error class', () => {
-    assertRequest([3001, 3002], 'get', 'questions/1', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'questions/1'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, 'Question');
     });
-    assertRequest([3001, 3002], 'get', 'questions/2', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'questions/2'}, response => {
+      strictEqual(response.statusCode, 404);
       strictEqual(response.body.name, 'QuestionNotFoundError');
       strictEqual(response.body.message, 'Question was not found!');
     });
-    assertRequest([3001, 3002], 'get', 'questions/3', response => {
-      strictEqual(response.response.statusCode, 404); // because of null
+    assertRequest([3001, 3002], {uri: 'questions/3'}, response => {
+      strictEqual(response.statusCode, 404); // because of null
       strictEqual(response.body.name, 'QuestionNotFoundError');
       strictEqual(response.body.message, 'Question was not found!');
     });
   });
 
   describe('should return custom code when @OnUndefined', () => {
-    assertRequest([3001, 3002], 'get', 'photos/1', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos/1'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, 'Photo');
     });
-    assertRequest([3001, 3002], 'get', 'photos/2', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos/2'}, response => {
+      strictEqual(response.statusCode, 200);
     });
-    assertRequest([3001, 3002], 'get', 'photos/3', response => {
-      strictEqual(response.response.statusCode, 204); // because of null
+    assertRequest([3001, 3002], {uri: 'photos/3'}, response => {
+      strictEqual(response.statusCode, 204); // because of null
     });
-    assertRequest([3001, 3002], 'get', 'photos/4', response => {
-      strictEqual(response.response.statusCode, 201);
+    assertRequest([3001, 3002], {uri: 'photos/4'}, response => {
+      strictEqual(response.statusCode, 201);
     });
-    assertRequest([3001, 3002], 'get', 'photos/5', response => {
-      strictEqual(response.response.statusCode, 201);
+    assertRequest([3001, 3002], {uri: 'photos/5'}, response => {
+      strictEqual(response.statusCode, 201);
     });
   });
 
   describe('should return content-type in the response when @ContentType is used', () => {
-    assertRequest([3001, 3002], 'get', 'homepage', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'homepage'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>Hello world</body></html>');
     });
   });
 
   describe('should return content-type in the response when @ContentType is used', () => {
-    assertRequest([3001, 3002], 'get', 'textpage', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/plain; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'textpage'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/plain; charset=utf-8');
       strictEqual(response.body, 'Hello text');
     });
   });
 
   describe('should return response with custom headers when @Header is used', () => {
-    assertRequest([3001, 3002], 'get', 'userdash', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['authorization'], 'Barer abcdefg');
-      strictEqual(response.response.headers['development-mode'], 'enabled');
+    assertRequest([3001, 3002], {uri: 'userdash'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['authorization'], 'Barer abcdefg');
+      strictEqual(response.headers['development-mode'], 'enabled');
       strictEqual(response.body, '<html><body>Hello, User</body></html>');
     });
   });
 
   describe('should relocate to new location when @Location is used', () => {
-    assertRequest([3001, 3002], 'get', 'github', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['location'], 'http://github.com');
+    assertRequest([3001, 3002], {uri: 'github'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['location'], 'http://github.com');
     });
   });
 });

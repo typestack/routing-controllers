@@ -8,17 +8,16 @@ import {UseAfter} from '../../src/decorator/UseAfter';
 import {createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {KoaMiddlewareInterface} from '../../src/driver/koa/KoaMiddlewareInterface';
 import {NotAcceptableError} from './../../src/http-error/NotAcceptableError';
-
-const chakram = require('chakram');
+import {assertRequest} from './test-utils';
 
 describe('koa middlewares', () => {
-  let useBefore: boolean,
-    useAfter: boolean,
-    useCustom: boolean,
-    useGlobalBefore: boolean,
-    useGlobalAfter: boolean,
-    useCallOrder: string,
-    useGlobalCallOrder: string;
+  let useBefore: boolean;
+  let useAfter: boolean;
+  let useCustom: boolean;
+  let useGlobalBefore: boolean;
+  let useGlobalAfter: boolean;
+  let useCallOrder: string;
+  let useGlobalCallOrder: string;
 
   beforeEach(() => {
     useBefore = false;
@@ -79,7 +78,7 @@ describe('koa middlewares', () => {
       }
 
       @Get('/photos')
-      @UseAfter(function(context: any, next: Function) {
+      @UseAfter((context: any, next: Function) => {
         useAfter = true;
         useCallOrder = 'setFromUseAfter';
         return next();
@@ -90,12 +89,12 @@ describe('koa middlewares', () => {
       }
 
       @Get('/posts')
-      @UseBefore(function(context: any, next: Function) {
+      @UseBefore((context: any, next: Function) => {
         useBefore = true;
         useCallOrder = 'setFromUseBefore';
         return next();
       })
-      @UseAfter(function(context: any, next: Function) {
+      @UseAfter((context: any, next: Function) => {
         useAfter = true;
         useCallOrder = 'setFromUseAfter';
         return next();
@@ -112,7 +111,7 @@ describe('koa middlewares', () => {
       }
 
       @Get('/users')
-      @UseBefore(function(context: any, next: Function) {
+      @UseBefore((context: any, next: Function) => {
         useBefore = true;
         useCallOrder = 'setFromUseBefore';
         return next();
@@ -129,43 +128,43 @@ describe('koa middlewares', () => {
   after(done => app.close(done));
 
   it('should call a global middlewares', () =>
-    chakram.get('http://127.0.0.1:3001/blogs').then((response: any) => {
+    assertRequest([3001], {uri: 'blogs'}, response => {
       strictEqual(useGlobalBefore, true);
       strictEqual(useGlobalAfter, true);
       strictEqual(useGlobalCallOrder, 'setFromGlobalAfter');
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should use a custom middleware when @UseBefore or @UseAfter is used', () =>
-    chakram.get('http://127.0.0.1:3001/questions').then((response: any) => {
+    assertRequest([3001], {uri: 'questions'}, response => {
       strictEqual(useCustom, true);
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should call middleware and call it before controller action when @UseBefore is used', () =>
-    chakram.get('http://127.0.0.1:3001/users').then((response: any) => {
+    assertRequest([3001], {uri: 'users'}, response => {
       strictEqual(useBefore, true);
       strictEqual(useCallOrder, 'setFromController');
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should call middleware and call it after controller action when @UseAfter is used', () =>
-    chakram.get('http://127.0.0.1:3001/photos').then((response: any) => {
+    assertRequest([3001], {uri: 'photos'}, response => {
       strictEqual(useAfter, true);
       strictEqual(useCallOrder, 'setFromUseAfter');
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should call before middleware and call after middleware when @UseAfter and @UseAfter are used', () =>
-    chakram.get('http://127.0.0.1:3001/posts').then((response: any) => {
+    assertRequest([3001], {uri: 'posts'}, response => {
       strictEqual(useBefore, true);
       strictEqual(useAfter, true);
       strictEqual(useCallOrder, 'setFromUseAfter');
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should handle errors in custom middlewares', () =>
-    chakram.get('http://127.0.0.1:3001/customMiddlewareWichThrows').then((response: any) => {
-      strictEqual(response.response.statusCode, 406);
+    assertRequest([3001], {uri: 'customMiddlewareWichThrows'}, response => {
+      strictEqual(response.statusCode, 406);
     }));
 });

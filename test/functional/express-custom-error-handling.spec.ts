@@ -6,8 +6,7 @@ import {createExpressServer, getMetadataArgsStorage} from '../../src/index';
 import {ExpressErrorMiddlewareInterface} from '../../src/driver/express/ExpressErrorMiddlewareInterface';
 import {NotFoundError} from '../../src/http-error/NotFoundError';
 import {Middleware} from '../../src/decorator/Middleware';
-
-const chakram = require('chakram');
+import {assertRequest} from './test-utils';
 
 describe('custom express error handling', () => {
   let errorHandlerCalled: boolean;
@@ -51,21 +50,21 @@ describe('custom express error handling', () => {
   after(done => app.close(done));
 
   it('should not call global error handler middleware if there was no errors', () =>
-    chakram.get('http://127.0.0.1:3001/blogs').then((response: any) => {
+    assertRequest([3001], {uri: 'blogs'}, response => {
       strictEqual(errorHandlerCalled, void 0);
-      strictEqual(response.response.statusCode, 200);
+      strictEqual(response.statusCode, 200);
     }));
 
   it('should call global error handler middleware', () =>
-    chakram.get('http://127.0.0.1:3001/videos').then((response: any) => {
+    assertRequest([3001], {uri: 'videos'}, response => {
       strictEqual(errorHandlerCalled, true);
-      strictEqual(response.response.statusCode, 404);
+      strictEqual(response.statusCode, 404);
     }));
 
   it('should be able to send response', () =>
-    chakram.get('http://127.0.0.1:3001/videos').then((response: any) => {
+    assertRequest([3001], {uri: 'videos'}, response => {
       strictEqual(errorHandlerCalled, true);
-      strictEqual(response.response.statusCode, 404);
+      strictEqual(response.statusCode, 404);
       strictEqual(response.body, 'Videos were not found.');
     }));
 });

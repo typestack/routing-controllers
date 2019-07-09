@@ -1,4 +1,3 @@
-import {expect} from 'chai';
 import {strictEqual, ok} from 'assert';
 import {HttpError} from '../../src/http-error/HttpError';
 import {BadRequestError} from '../../src/http-error/BadRequestError';

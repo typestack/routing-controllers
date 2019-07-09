@@ -76,48 +76,49 @@ describe('interceptor', () => {
     }
   });
 
-  let expressApp: any, koaApp: any;
+  let expressApp: any;
+  let koaApp: any;
   before(done => (expressApp = createExpressServer().listen(3001, done)));
   after(done => expressApp.close(done));
   before(done => (koaApp = createKoaServer().listen(3002, done)));
   after(done => koaApp.close(done));
 
   describe('custom interceptor function should replace returned content', () => {
-    assertRequest([3001, 3002], 'get', 'users', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'users'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>damn hello world</body></html>');
     });
   });
 
   describe('custom interceptor class should replace returned content', () => {
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>this post contains *** bad words</body></html>');
     });
   });
 
   describe('custom interceptor class used on the whole controller should replace returned content', () => {
-    assertRequest([3001, 3002], 'get', 'questions', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>hello world</body></html>');
     });
   });
 
   describe('global interceptor class should replace returned content', () => {
-    assertRequest([3001, 3002], 'get', 'files', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'files'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>hello world</body></html>');
     });
   });
 
   describe('interceptors should support promises', () => {
-    assertRequest([3001, 3002], 'get', 'photos', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'photos'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>bye world</body></html>');
     });
   });

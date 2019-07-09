@@ -11,7 +11,7 @@ export class User {
   public lastName: string;
 
   public getName(): string {
-    return this.firstName + ' ' + this.lastName;
+    return `${this.firstName} ${this.lastName}`;
   }
 }
 
@@ -43,29 +43,39 @@ describe('routing-controllers global options', () => {
   });
 
   describe('useClassTransformer by default must be set to true', () => {
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer().listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      ok(initializedUser instanceof User);
-      strictEqual(response.response.statusCode, 200);
-    });
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users', method: 'post', body: {firstName: 'Umed', lastName: 'Khudoiberdiev'}},
+      response => {
+        ok(initializedUser instanceof User);
+        strictEqual(response.statusCode, 200);
+      },
+    );
   });
 
   describe('when useClassTransformer is set to true', () => {
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer({classTransformer: true}).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer({classTransformer: true}).listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      ok(initializedUser instanceof User);
-      strictEqual(response.response.statusCode, 200);
-    });
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users', method: 'post', body: {firstName: 'Umed', lastName: 'Khudoiberdiev'}},
+      response => {
+        ok(initializedUser instanceof User);
+        strictEqual(response.statusCode, 200);
+      },
+    );
   });
 
   describe('when useClassTransformer is not set', () => {
@@ -76,10 +86,14 @@ describe('routing-controllers global options', () => {
     before(done => (koaApp = createKoaServer({classTransformer: false}).listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'post', 'users', {firstName: 'Umed', lastName: 'Khudoiberdiev'}, response => {
-      ok(!(initializedUser instanceof User));
-      strictEqual(response.response.statusCode, 200);
-    });
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users', method: 'post', body: {firstName: 'Umed', lastName: 'Khudoiberdiev'}},
+      response => {
+        ok(!(initializedUser instanceof User));
+        strictEqual(response.statusCode, 200);
+      },
+    );
   });
 
   describe('when routePrefix is used all controller routes should be appended by it', () => {
@@ -95,23 +109,27 @@ describe('routing-controllers global options', () => {
 
     assertRequest(
       [3001, 3002, 3003, 3004],
-      'post',
-      'api/users',
-      {firstName: 'Umed', lastName: 'Khudoiberdiev'},
+      {
+        uri: 'api/users',
+        method: 'post',
+        body: {firstName: 'Umed', lastName: 'Khudoiberdiev'},
+      },
       response => {
         ok(initializedUser instanceof User);
-        strictEqual(response.response.statusCode, 200);
+        strictEqual(response.statusCode, 200);
       },
     );
 
     assertRequest(
       [3001, 3002, 3003, 3004],
-      'post',
-      'api/regex/users',
-      {firstName: 'Umed', lastName: 'Khudoiberdiev'},
+      {
+        uri: 'api/regex/users',
+        method: 'post',
+        body: {firstName: 'Umed', lastName: 'Khudoiberdiev'},
+      },
       response => {
         ok(initializedUser instanceof User);
-        strictEqual(response.response.statusCode, 200);
+        strictEqual(response.statusCode, 200);
       },
     );
   });

@@ -5,8 +5,7 @@ import {ExpressMiddlewareInterface} from '../../src/driver/express/ExpressMiddle
 import {Controller} from '../../src/decorator/Controller';
 import {Get} from '../../src/decorator/Get';
 import {Middleware} from '../../src/decorator/Middleware';
-
-const chakram = require('chakram');
+import {assertRequest} from './test-utils';
 
 describe('order of middlewares', () => {
   describe('loaded direct from array', () => {
@@ -61,8 +60,8 @@ describe('order of middlewares', () => {
     after(done => app.close(done));
 
     it('should call middlewares in order defined by items order', () =>
-      chakram.get('http://127.0.0.1:3001/test').then((response: any) => {
-        strictEqual(response.response.statusCode, 200);
+      assertRequest([3001], {uri: 'test'}, response => {
+        strictEqual(response.statusCode, 200);
         strictEqual(middlewaresOrder[0], 1);
         strictEqual(middlewaresOrder[1], 2);
         strictEqual(middlewaresOrder[2], 3);
@@ -121,8 +120,8 @@ describe('order of middlewares', () => {
     after(done => app.close(done));
 
     it('should call middlewares in order defined by priority parameter of decorator', () =>
-      chakram.get('http://127.0.0.1:3001/test').then((response: any) => {
-        strictEqual(response.response.statusCode, 200);
+      assertRequest([3001], {uri: 'test'}, response => {
+        strictEqual(response.statusCode, 200);
         strictEqual(middlewaresOrder[0], 1);
         strictEqual(middlewaresOrder[1], 2);
         strictEqual(middlewaresOrder[2], 3);

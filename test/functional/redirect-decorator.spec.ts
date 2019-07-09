@@ -57,22 +57,22 @@ describe('dynamic redirect', () => {
   after(done => koaApp.close(done));
 
   describe('using template', () => {
-    assertRequest([3001, 3002], 'get', 'template', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'template'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body.login, 'pleerock');
     });
   });
 
   describe('using override', () => {
-    assertRequest([3001, 3002], 'get', 'override', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'override'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body.login, 'pleerock');
     });
   });
 
   describe('using original', () => {
-    assertRequest([3001, 3002], 'get', 'original', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'original'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body.login, 'pleerock');
     });
   });

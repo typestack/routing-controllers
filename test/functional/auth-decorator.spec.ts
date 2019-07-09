@@ -60,22 +60,22 @@ describe('Controller responds with value when Authorization succeeds (async)', (
   after(done => koaApp.close(done));
 
   describe('without roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth1', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth1'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth1'});
     });
   });
 
   describe('with roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth2', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth2'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth2'});
     });
   });
 
   describe('async', () => {
-    assertRequest([3001, 3002], 'get', 'auth3', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth3'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth3'});
     });
   });
@@ -128,22 +128,22 @@ describe('Controller responds with value when Authorization succeeds (sync)', ()
   after(done => koaApp.close(done));
 
   describe('without roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth1', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth1'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth1'});
     });
   });
 
   describe('with roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth2', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth2'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth2'});
     });
   });
 
   describe('async', () => {
-    assertRequest([3001, 3002], 'get', 'auth3', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'auth3'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {test: 'auth3'});
     });
   });
@@ -189,14 +189,14 @@ describe('Authorized Decorators Http Status Code', () => {
   after(done => koaApp.close(done));
 
   describe('without roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth1', response => {
-      strictEqual(response.response.statusCode, 401);
+    assertRequest([3001, 3002], {uri: 'auth1'}, response => {
+      strictEqual(response.statusCode, 401);
     });
   });
 
   describe('with roles', () => {
-    assertRequest([3001, 3002], 'get', 'auth2', response => {
-      strictEqual(response.response.statusCode, 403);
+    assertRequest([3001, 3002], {uri: 'auth2'}, response => {
+      strictEqual(response.statusCode, 403);
     });
   });
 });
@@ -237,8 +237,8 @@ describe('Authorization checker allows to throw (async)', () => {
   after(done => koaApp.close(done));
 
   describe('custom errors', () => {
-    assertRequest([3001, 3002], 'get', 'auth1', response => {
-      strictEqual(response.response.statusCode, 406);
+    assertRequest([3001, 3002], {uri: 'auth1'}, response => {
+      strictEqual(response.statusCode, 406);
       strictEqual(response.body.name, 'NotAcceptableError');
       strictEqual(response.body.message, 'Custom Error');
     });
@@ -281,8 +281,8 @@ describe('Authorization checker allows to throw (sync)', () => {
   after(done => koaApp.close(done));
 
   describe('custom errors', () => {
-    assertRequest([3001, 3002], 'get', 'auth1', response => {
-      strictEqual(response.response.statusCode, 406);
+    assertRequest([3001, 3002], {uri: 'auth1'}, response => {
+      strictEqual(response.statusCode, 406);
       strictEqual(response.body.name, 'NotAcceptableError');
       strictEqual(response.body.message, 'Custom Error');
     });

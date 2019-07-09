@@ -37,9 +37,9 @@ describe('action parameters', () => {
   let queryParamLimit: number;
   let queryParamShowAll: boolean;
   let queryParamFilter: any;
-  let queryParams1: {[key: string]: any};
-  let queryParams2: {[key: string]: any};
-  let queryParams3: {[key: string]: any};
+  let queryParams1: { [key: string]: any };
+  let queryParams2: { [key: string]: any };
+  let queryParams3: { [key: string]: any };
   let headerParamToken: string;
   let headerParamCount: number;
   let headerParamLimit: number;
@@ -169,7 +169,7 @@ describe('action parameters', () => {
       }
 
       @Get('/photos-with-json')
-      public getPhotosWithJsonParam(@QueryParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getPhotosWithJsonParam(@QueryParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         queryParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -211,7 +211,7 @@ describe('action parameters', () => {
       }
 
       @Get('/posts-with-json')
-      public getPostsWithJsonParam(@HeaderParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getPostsWithJsonParam(@HeaderParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         headerParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -235,7 +235,7 @@ describe('action parameters', () => {
       }
 
       @Get('/questions-with-json')
-      public getQuestionsWithJsonParam(@CookieParam('filter', {parse: true}) filter: {keyword: string; limit: number}) {
+      public getQuestionsWithJsonParam(@CookieParam('filter', {parse: true}) filter: { keyword: string; limit: number }) {
         cookieParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -432,63 +432,63 @@ describe('action parameters', () => {
   after(done => koaApp.close(done));
 
   describe('@Req and @Res should be provided as Request and Response objects', () => {
-    assertRequest([3001, 3002], 'get', 'users', response => {
+    assertRequest([3001, 3002], {uri: 'users'}, response => {
       ok(requestReq instanceof Object); // apply better check here
       ok(requestRes instanceof Object); // apply better check here
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
   describe('writing directly to the response using @Res should work', () => {
-    assertRequest([3001, 3002], 'get', 'users-direct', response => {
-      strictEqual(response.response.statusCode, 201);
+    assertRequest([3001, 3002], {uri: 'users-direct'}, response => {
+      strictEqual(response.statusCode, 201);
       strictEqual(response.body, 'hi, I was written directly to the response');
-      strictEqual(response.response.headers['content-type'], 'custom/x-sample; charset=utf-8');
+      strictEqual(response.headers['content-type'], 'custom/x-sample; charset=utf-8');
     });
   });
 
   describe('writing directly to the response using @Ctx should work', () => {
-    assertRequest([3002], 'get', 'users-direct/ctx', response => {
-      strictEqual(response.response.statusCode, 201);
+    assertRequest([3002], {uri: 'users-direct/ctx'}, response => {
+      strictEqual(response.statusCode, 201);
       strictEqual(response.body, 'hi, I was written directly to the response using Koa Ctx');
-      strictEqual(response.response.headers['content-type'], 'custom/x-sample; charset=utf-8');
+      strictEqual(response.headers['content-type'], 'custom/x-sample; charset=utf-8');
     });
   });
 
   describe('@Param should give a param from route', () => {
-    assertRequest([3001, 3002], 'get', 'users/1', response => {
+    assertRequest([3001, 3002], {uri: 'users/1'}, response => {
       strictEqual(paramUserId, 1);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>1</body></html>');
     });
   });
 
   describe('multiple @Param should give a proper values from route', () => {
-    assertRequest([3001, 3002], 'get', 'users/23/photos/32', response => {
+    assertRequest([3001, 3002], {uri: 'users/23/photos/32'}, response => {
       strictEqual(paramFirstId, 23);
       strictEqual(paramSecondId, 32);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>23,32</body></html>');
     });
   });
 
   describe('@Session middleware not use', () => {
-    assertRequest([3001, 3002], 'get', 'not-use-session', response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001, 3002], {uri: 'not-use-session'}, response => {
+      strictEqual(response.statusCode, 500);
     });
   });
 
   describe('@Session should return a value from session', () => {
-    assertRequest([3001, 3002], 'post', 'session', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'session', method: 'post'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>@Session</body></html>');
-      assertRequest([3001, 3002], 'get', 'session', response => {
-        strictEqual(response.response.statusCode, 200);
-        strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      assertRequest([3001, 3002], {uri: 'session'}, response => {
+        strictEqual(response.statusCode, 200);
+        strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
         strictEqual(response.body, '<html><body>@Session test</body></html>');
         strictEqual(sessionTestElement, '@Session test');
       });
@@ -496,9 +496,9 @@ describe('action parameters', () => {
   });
 
   describe('@Session(param) should allow to inject empty property', () => {
-    assertRequest([3001, 3002], 'get', 'session-param-empty', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'session-param-empty'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>true</body></html>');
       strictEqual(sessionTestElement, void 0);
     });
@@ -508,35 +508,35 @@ describe('action parameters', () => {
 
   // describe("@Session(param) should throw required error when param is empty", () => {
   //     assertRequest([3001, 3002], "get", "session-param-empty-error", response => {
-  //         strictEqual(response.response.statusCode, 400)
+  //         strictEqual(response.statusCode, 400)
   //         // there should be a test for "ParamRequiredError" but chakram is the worst testing framework ever!!!
   //     });
   // });
 
   describe('@State should return a value from state', () => {
-    assertRequest([3001], 'get', 'state', response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001], {uri: 'state'}, response => {
+      strictEqual(response.statusCode, 500);
     });
-    assertRequest([3001], 'get', 'state/username', response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001], {uri: 'state/username'}, response => {
+      strictEqual(response.statusCode, 500);
     });
-    assertRequest([3002], 'get', 'state', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json');
+    assertRequest([3002], {uri: 'state'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json');
       strictEqual(response.body.username, 'pleerock');
     });
-    assertRequest([3002], 'get', 'state/username', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3002], {uri: 'state/username'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>pleerock</body></html>');
     });
   });
 
   // todo: enable koa test when #227 fixed
-  describe('@QueryParams should give a proper values from request`s query parameters', () => {
-    assertRequest([3001 /*3002*/], 'get', 'photos-params?sortBy=name&count=2&limit=10&showAll', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+  describe('@QueryParams should give a proper values from send`s query parameters', () => {
+    assertRequest([3001 /*3002*/], {uri: 'photos-params?sortBy=name&count=2&limit=10&showAll'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(queryParams1.sortBy, 'name');
       strictEqual(queryParams1.count, '2');
       strictEqual(queryParams1.limit, 10);
@@ -544,14 +544,16 @@ describe('action parameters', () => {
     });
   });
 
-  describe('@QueryParams should give a proper values from request`s query parameters with nested json', () => {
+  describe('@QueryParams should give a proper values from send`s query parameters with nested json', () => {
     assertRequest(
       [3001 /*3002*/],
-      'get',
-      'photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D',
+      {
+        uri:
+          'photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D',
+      },
       response => {
-        strictEqual(response.response.statusCode, 200);
-        strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+        strictEqual(response.statusCode, 200);
+        strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
         strictEqual(queryParams1.sortBy, 'name');
         strictEqual(queryParams1.count, '2');
         strictEqual(queryParams1.limit, 10);
@@ -563,14 +565,13 @@ describe('action parameters', () => {
     );
   });
 
-  describe('@QueryParams should not validate request query parameters when it`s turned off in validator options', () => {
+  describe('@QueryParams should not validate send query parameters when it`s turned off in validator options', () => {
     assertRequest(
       [3001, 3002],
-      'get',
-      'photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true',
+      {uri: 'photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true'},
       response => {
-        strictEqual(response.response.statusCode, 200);
-        strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+        strictEqual(response.statusCode, 200);
+        strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
         strictEqual(queryParams2.sortBy, 'verylongtext');
         strictEqual(queryParams2.count, '2');
         strictEqual(queryParams2.limit, 1);
@@ -580,66 +581,66 @@ describe('action parameters', () => {
   });
 
   // todo: enable koa test when #227 fixed
-  describe('@QueryParams should give a proper values from request`s optional query parameters', () => {
-    assertRequest([3001 /*3002*/], 'get', 'photos-params-optional?sortBy=name&limit=10', response => {
+  describe('@QueryParams should give a proper values from send`s optional query parameters', () => {
+    assertRequest([3001 /*3002*/], {uri: 'photos-params-optional?sortBy=name&limit=10'}, response => {
       strictEqual(queryParams3.sortBy, 'name');
       strictEqual(queryParams3.count, undefined);
       strictEqual(queryParams3.limit, 10);
       strictEqual(queryParams3.showAll, true);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
-  describe('@QueryParam should give a proper values from request query parameters', () => {
-    assertRequest([3001, 3002], 'get', 'photos?sortBy=name&count=2&limit=10&showAll=true', response => {
+  describe('@QueryParam should give a proper values from send query parameters', () => {
+    assertRequest([3001, 3002], {uri: 'photos?sortBy=name&count=2&limit=10&showAll=true'}, response => {
       strictEqual(queryParamSortBy, 'name');
       strictEqual(queryParamCount, '2');
       strictEqual(queryParamLimit, 10);
       strictEqual(queryParamShowAll, true);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
   describe('for @QueryParam when required is params must be provided and they should not be empty', () => {
-    assertRequest([3001, 3002], 'get', 'photos-with-required/?limit=0', response => {
+    assertRequest([3001, 3002], {uri: 'photos-with-required/?limit=0'}, response => {
       strictEqual(queryParamLimit, 0);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>0</body></html>');
     });
-    assertRequest([3001, 3002], 'get', 'photos-with-required/?', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'photos-with-required/?'}, response => {
+      strictEqual(response.statusCode, 400);
     });
-    assertRequest([3001, 3002], 'get', 'photos-with-required/?limit', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'photos-with-required/?limit'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
   describe('for @QueryParam when the type is Date then it should be parsed', () => {
-    assertRequest([3001, 3002], 'get', 'posts-after/?from=2017-01-01T00:00:00Z', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts-after/?from=2017-01-01T00:00:00Z'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, '2017-01-01T00:00:00.000Z');
     });
   });
 
   describe('for @QueryParam when the type is Date and it is invalid then the response should be a BadRequest error', () => {
-    assertRequest([3001, 3002], 'get', 'posts-after/?from=InvalidDate', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'posts-after/?from=InvalidDate'}, response => {
+      strictEqual(response.statusCode, 400);
       strictEqual(response.body.name, 'ParamNormalizationError');
     });
   });
 
   describe('for @QueryParam when parseJson flag is used query param must be converted to object', () => {
-    assertRequest([3001, 3002], 'get', 'photos-with-json/?filter={"keyword": "name", "limit": 5}', response => {
+    assertRequest([3001, 3002], {uri: 'photos-with-json/?filter={"keyword": "name", "limit": 5}'}, response => {
       deepStrictEqual(queryParamFilter, {keyword: 'name', limit: 5});
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
-  describe('@HeaderParam should give a proper values from request headers', () => {
+  describe('@HeaderParam should give a proper values from send headers', () => {
     const requestOptions = {
       headers: {
         token: '31ds31das231sad12',
@@ -647,12 +648,12 @@ describe('action parameters', () => {
         showAll: false,
       },
     };
-    assertRequest([3001, 3002], 'get', 'posts', requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'posts', ...requestOptions}, response => {
       strictEqual(headerParamToken, '31ds31das231sad12');
       strictEqual(headerParamCount, 20);
       strictEqual(headerParamShowAll, false);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
@@ -667,16 +668,16 @@ describe('action parameters', () => {
         filter: '',
       },
     };
-    assertRequest([3001, 3002], 'get', 'posts-with-required', validRequestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'posts-with-required', ...validRequestOptions}, response => {
       strictEqual(headerParamLimit, 0);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
-    assertRequest([3001, 3002], 'get', 'posts-with-required', invalidRequestOptions, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'posts-with-required', ...invalidRequestOptions}, response => {
+      strictEqual(response.statusCode, 400);
     });
-    assertRequest([3001, 3002], 'get', 'posts-with-required', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'posts-with-required'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
@@ -686,14 +687,14 @@ describe('action parameters', () => {
         filter: '{"keyword": "name", "limit": 5}',
       },
     };
-    assertRequest([3001, 3002], 'get', 'posts-with-json', requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'posts-with-json', ...requestOptions}, response => {
       deepStrictEqual(headerParamFilter, {keyword: 'name', limit: 5});
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
-  describe('@CookieParam should give a proper values from request headers', () => {
+  describe('@CookieParam should give a proper values from send headers', () => {
     const request = require('request');
     const jar = request.jar();
     const url2 = 'http://127.0.0.1:3002/questions';
@@ -704,12 +705,12 @@ describe('action parameters', () => {
     const requestOptions = {
       jar,
     };
-    assertRequest([3001, 3002], 'get', 'questions', requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'questions', ...requestOptions}, response => {
       strictEqual(cookieParamToken, '31ds31das231sad12');
       strictEqual(cookieParamCount, 20);
       strictEqual(cookieParamShowAll, false);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
@@ -722,14 +723,14 @@ describe('action parameters', () => {
     const validRequestOptions = {jar};
     const invalidRequestOptions = {jar: request.jar()};
 
-    assertRequest([3001, 3002], 'get', 'questions-with-required', validRequestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'questions-with-required', ...validRequestOptions}, response => {
       strictEqual(cookieParamLimit, 20);
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
 
-    assertRequest([3001, 3002], 'get', 'questions-with-required', invalidRequestOptions, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'questions-with-required', ...invalidRequestOptions}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
@@ -740,14 +741,14 @@ describe('action parameters', () => {
     jar.setCookie(request.cookie('filter={"keyword": "name", "limit": 5}'), url);
     const requestOptions = {jar};
 
-    assertRequest([3001, 3002], 'get', 'questions-with-json', requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'questions-with-json', ...requestOptions}, response => {
       deepStrictEqual(cookieParamFilter, {keyword: 'name', limit: 5});
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
     });
   });
 
-  describe('@Body should provide a request body', () => {
+  describe('@Body should provide a send body', () => {
     const requestOptions = {
       headers: {
         'Content-type': 'text/plain',
@@ -756,11 +757,14 @@ describe('action parameters', () => {
     };
 
     // todo: koa @Body with text bug. uncomment after fix https://github.com/koajs/bodyparser/issues/52
-    assertRequest([3001 /*, 3002*/], 'post', 'questions', 'hello', requestOptions, response => {
-      strictEqual(body, 'hello');
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
-    });
+    assertRequest(
+      [3001 /*, 3002*/],
+      {uri: 'questions', method: 'post', body: 'hello', ...requestOptions},
+      response => {
+        strictEqual(body, 'hello');
+        strictEqual(response.statusCode, 200);
+        strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
+      });
   });
 
   // todo: koa @Body with text bug. uncomment after fix https://github.com/koajs/bodyparser/issues/52
@@ -772,85 +776,121 @@ describe('action parameters', () => {
       json: false,
     };
 
-    assertRequest([3001 /*, 3002*/], 'post', 'questions-with-required', '0', requestOptions, response => {
-      strictEqual(body, '0');
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
-    });
+    assertRequest(
+      [3001 /*, 3002*/],
+      {uri: 'questions-with-required', method: 'post', body: '0', ...requestOptions},
+      response => {
+        strictEqual(body, '0');
+        strictEqual(response.statusCode, 200);
+        strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
+      },
+    );
 
-    assertRequest([3001, 3002], 'post', 'questions-with-required', '', requestOptions, response => {
-      strictEqual(response.response.statusCode, 400);
-    });
+    assertRequest(
+      [3001, 3002],
+      {uri: 'questions-with-required', method: 'post', body: '', ...requestOptions},
+      response => {
+        strictEqual(response.statusCode, 400);
+      },
+    );
 
-    assertRequest([3001, 3002], 'post', 'questions-with-required', undefined, requestOptions, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'questions-with-required', method: 'post', ...requestOptions}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
   describe('@Body should provide a json object for json-typed controllers and actions', () => {
-    assertRequest([3001, 3002], 'post', 'posts', {hello: 'world'}, response => {
+    assertRequest([3001, 3002], {uri: 'posts', method: 'post', body: {hello: 'world'}}, response => {
       deepStrictEqual(body, {hello: 'world'});
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/json; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/json; charset=utf-8');
       deepStrictEqual(response.body, body); // should we allow to return a text body for json controllers?
     });
   });
 
   describe('@Body should fail if required body was not provided for json-typed controllers and actions', () => {
-    assertRequest([3001, 3002], 'post', 'posts-with-required', {hello: ''}, response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts-with-required', method: 'post', body: {hello: ''}}, response => {
+      strictEqual(response.statusCode, 200);
     });
-    assertRequest([3001, 3002], 'post', 'posts-with-required', undefined, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'posts-with-required', method: 'post'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
   describe('@BodyParam should provide a json object for json-typed controllers and actions', () => {
-    assertRequest([3001, 3002], 'post', 'users', {name: 'johny', age: 27, isActive: true}, response => {
-      strictEqual(bodyParamName, 'johny');
-      strictEqual(bodyParamAge, 27);
-      strictEqual(bodyParamIsActive, true);
-      strictEqual(response.response.statusCode, 204);
-    });
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users', method: 'post', body: {name: 'johny', age: 27, isActive: true}},
+      response => {
+        strictEqual(bodyParamName, 'johny');
+        strictEqual(bodyParamAge, 27);
+        strictEqual(bodyParamIsActive, true);
+        strictEqual(response.statusCode, 204);
+      },
+    );
   });
 
   describe('@BodyParam should fail if required body was not provided for json-typed controllers and actions', () => {
-    assertRequest([3001, 3002], 'post', 'users-with-required', {name: 'johny', age: 27, isActive: true}, response => {
-      strictEqual(response.response.statusCode, 204);
-    });
-    assertRequest([3001, 3002], 'post', 'users-with-required', undefined, response => {
-      strictEqual(response.response.statusCode, 400);
-    });
-    assertRequest([3001, 3002], 'post', 'users-with-required', {name: '', age: 27, isActive: false}, response => {
-      strictEqual(response.response.statusCode, 400);
-    });
-    assertRequest([3001, 3002], 'post', 'users-with-required', {name: 'Johny', age: 0, isActive: false}, response => {
-      strictEqual(response.response.statusCode, 204);
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users-with-required', method: 'post', body: {name: 'johny', age: 27, isActive: true}},
+      response => {
+        strictEqual(response.statusCode, 204);
+      },
+    );
+    assertRequest([3001, 3002], {uri: 'users-with-required', method: 'post'}, response => {
+      strictEqual(response.statusCode, 400);
     });
     assertRequest(
       [3001, 3002],
-      'post',
-      'users-with-required',
-      {name: 'Johny', age: undefined, isActive: false},
+      {uri: 'users-with-required', method: 'post', body: {name: '', age: 27, isActive: false}},
       response => {
-        strictEqual(response.response.statusCode, 400);
+        strictEqual(response.statusCode, 400);
       },
     );
     assertRequest(
       [3001, 3002],
-      'post',
-      'users-with-required',
-      {name: 'Johny', age: 27, isActive: undefined},
+      {uri: 'users-with-required', method: 'post', body: {name: 'Johny', age: 0, isActive: false}},
       response => {
-        strictEqual(response.response.statusCode, 400);
+        strictEqual(response.statusCode, 204);
       },
     );
-    assertRequest([3001, 3002], 'post', 'users-with-required', {name: 'Johny', age: 27, isActive: false}, response => {
-      strictEqual(response.response.statusCode, 204);
-    });
-    assertRequest([3001, 3002], 'post', 'users-with-required', {name: 'Johny', age: 27, isActive: true}, response => {
-      strictEqual(response.response.statusCode, 204);
-    });
+    assertRequest(
+      [3001, 3002],
+      {
+        uri: 'users-with-required',
+        method: 'post',
+        body: {name: 'Johny', age: undefined, isActive: false},
+      },
+      response => {
+        strictEqual(response.statusCode, 400);
+      },
+    );
+    assertRequest(
+      [3001, 3002],
+      {
+        uri: 'users-with-required',
+        method: 'post',
+        body: {name: 'Johny', age: 27, isActive: undefined},
+      },
+      response => {
+        strictEqual(response.statusCode, 400);
+      },
+    );
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users-with-required', method: 'post', body: {name: 'Johny', age: 27, isActive: false}},
+      response => {
+        strictEqual(response.statusCode, 204);
+      },
+    );
+    assertRequest(
+      [3001, 3002],
+      {uri: 'users-with-required', method: 'post', body: {name: 'Johny', age: 27, isActive: true}},
+      response => {
+        strictEqual(response.statusCode, 204);
+      },
+    );
   });
 
   describe('@UploadedFile should provide uploaded file with the given name', () => {
@@ -866,10 +906,10 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'files', undefined, requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'files', method: 'post', ...requestOptions}, response => {
       strictEqual(uploadedFileName, 'hello-world.txt');
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>hello-world.txt</body></html>');
     });
   });
@@ -889,9 +929,9 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'files-with-body', undefined, requestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'files-with-body', method: 'post', ...requestOptions}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(
         response.body,
         `<html><body>hello-world.txt - {"anotherField":"hi","andOther":"hello"}</body></html>`,
@@ -913,9 +953,9 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'files-with-body-param', undefined, requestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+    assertRequest([3001, 3002], {uri: 'files-with-body-param', method: 'post', ...requestOptions}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>hello-world.txt - hi, i`m a param</body></html>');
     });
   });
@@ -944,12 +984,12 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'files-with-limit', undefined, validRequestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'files-with-limit', method: 'post', ...validRequestOptions}, response => {
+      strictEqual(response.statusCode, 200);
     });
 
-    assertRequest([3001, 3002], 'post', 'files-with-limit', undefined, invalidRequestOptions, response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001, 3002], {uri: 'files-with-limit', method: 'post', ...invalidRequestOptions}, response => {
+      strictEqual(response.statusCode, 500);
     });
   });
 
@@ -966,12 +1006,12 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'files-with-required', undefined, requestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'files-with-required', method: 'post', ...requestOptions}, response => {
+      strictEqual(response.statusCode, 200);
     });
 
-    assertRequest([3001, 3002], 'post', 'files-with-required', undefined, {}, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'files-with-required', method: 'post'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
@@ -997,11 +1037,11 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'photos', undefined, requestOptions, response => {
+    assertRequest([3001, 3002], {uri: 'photos', method: 'post', ...requestOptions}, response => {
       strictEqual(uploadedFilesFirstName, 'me.jpg');
       strictEqual(uploadedFilesSecondName, 'she.jpg');
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'text/html; charset=utf-8');
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'text/html; charset=utf-8');
       strictEqual(response.body, '<html><body>me.jpg she.jpg</body></html>');
     });
   });
@@ -1041,11 +1081,11 @@ describe('action parameters', () => {
       },
     };
 
-    assertRequest([3001, 3002], 'post', 'photos-with-limit', undefined, validRequestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos-with-limit', method: 'post', ...validRequestOptions}, response => {
+      strictEqual(response.statusCode, 200);
     });
-    assertRequest([3001, 3002], 'post', 'photos-with-limit', undefined, invalidRequestOptions, response => {
-      strictEqual(response.response.statusCode, 500);
+    assertRequest([3001, 3002], {uri: 'photos-with-limit', method: 'post', ...invalidRequestOptions}, response => {
+      strictEqual(response.statusCode, 500);
     });
   });
 
@@ -1069,13 +1109,14 @@ describe('action parameters', () => {
           },
         ],
       },
+      json: false,
     };
 
-    assertRequest([3001, 3002], 'post', 'photos-with-required', undefined, requestOptions, response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos-with-required', method: 'post', ...requestOptions}, response => {
+      strictEqual(response.statusCode, 200);
     });
-    assertRequest([3001, 3002], 'post', 'photos-with-required', undefined, {}, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'photos-with-required', method: 'post'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 });

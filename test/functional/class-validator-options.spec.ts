@@ -18,8 +18,9 @@ describe('parameters auto-validation', () => {
 
   class UserModel {
     get name(): string {
-      return this._firstName + ' ' + this._lastName;
+      return `${this._firstName} ${this._lastName}`;
     }
+
     public _firstName: string;
     public _lastName: string;
     public id: number;
@@ -56,14 +57,15 @@ describe('parameters auto-validation', () => {
       validation: true,
     };
 
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer(options).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer(options).listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}'}, response => {
+      strictEqual(response.statusCode, 400);
       strictEqual(requestFilter, void 0);
     });
   });
@@ -98,8 +100,8 @@ describe('parameters auto-validation', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}'}, response => {
+      strictEqual(response.statusCode, 400);
       strictEqual(requestFilter, void 0);
     });
   });
@@ -133,7 +135,8 @@ describe('parameters auto-validation', () => {
       },
     };
 
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer(options).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer(options).listen(3002, done)));
@@ -141,10 +144,9 @@ describe('parameters auto-validation', () => {
 
     assertRequest(
       [3001, 3002],
-      'get',
-      'user?filter={"notKeyword": "Um", "__somethingPrivate": "blablabla"}',
+      {uri: 'user?filter={"notKeyword": "Um", "__somethingPrivate": "blablabla"}'},
       response => {
-        strictEqual(response.response.statusCode, 200);
+        strictEqual(response.statusCode, 200);
         strictEqual(requestFilter.notKeyword, 'Um');
       },
     );
@@ -177,7 +179,8 @@ describe('parameters auto-validation', () => {
       validation: true,
     };
 
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer(options).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer(options).listen(3002, done)));
@@ -185,10 +188,9 @@ describe('parameters auto-validation', () => {
 
     assertRequest(
       [3001, 3002],
-      'get',
-      'user?filter={"keyword": "Umedi", "__somethingPrivate": "blablabla"}',
+      {uri: 'user?filter={"keyword": "Umedi", "__somethingPrivate": "blablabla"}'},
       response => {
-        strictEqual(response.response.statusCode, 200);
+        strictEqual(response.statusCode, 200);
         deepStrictEqual(response.body, {
           id: 1,
           _firstName: 'Umed',
@@ -230,7 +232,8 @@ describe('parameters auto-validation', () => {
       validation: true,
     };
 
-    let expressApp: any, koaApp: any;
+    let expressApp: any;
+    let koaApp: any;
     before(done => (expressApp = createExpressServer(options).listen(3001, done)));
     after(done => expressApp.close(done));
     before(done => (koaApp = createKoaServer(options).listen(3002, done)));
@@ -240,8 +243,8 @@ describe('parameters auto-validation', () => {
       keyword: 'aa',
     };
 
-    assertRequest([3001, 3002], 'get', `user?filter=${JSON.stringify(invalidFilter)}`, response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: `user?filter=${JSON.stringify(invalidFilter)}`}, response => {
+      strictEqual(response.statusCode, 400);
       strictEqual(response.body.paramName, 'filter');
     });
   });

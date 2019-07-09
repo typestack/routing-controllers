@@ -45,25 +45,25 @@ describe('special result value treatment', () => {
   after(done => koaApp.close(done));
 
   describe('should pipe stream to response', () => {
-    assertRequest([3001, 3002], 'get', 'stream', response => {
-      strictEqual(response.response.statusCode, 200);
-      ok(response.response.headers['content-type'].match(/text\/plain/));
+    assertRequest([3001, 3002], {uri: 'stream'}, response => {
+      strictEqual(response.statusCode, 200);
+      ok(response.headers['content-type'].match(/text\/plain/));
       strictEqual(response.body, 'Hello World!');
     });
   });
 
   describe('should send raw binary data from Buffer', () => {
-    assertRequest([3001, 3002], 'get', 'buffer', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/octet-stream');
+    assertRequest([3001, 3002], {uri: 'buffer'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/octet-stream');
       strictEqual(response.body, new Buffer(rawData).toString());
     });
   });
 
   describe('should send raw binary data from UIntArray', () => {
-    assertRequest([3001, 3002], 'get', 'array', response => {
-      strictEqual(response.response.statusCode, 200);
-      strictEqual(response.response.headers['content-type'], 'application/octet-stream');
+    assertRequest([3001, 3002], {uri: 'array'}, response => {
+      strictEqual(response.statusCode, 200);
+      strictEqual(response.headers['content-type'], 'application/octet-stream');
       strictEqual(response.body, Buffer.from(rawData).toString());
     });
   });

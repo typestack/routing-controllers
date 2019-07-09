@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {strictEqual} from 'assert';
+import {strictEqual, deepStrictEqual, ok} from 'assert';
 import {JsonController} from '../../src/decorator/JsonController';
 import {createExpressServer, createKoaServer, getMetadataArgsStorage} from '../../src/index';
 import {assertRequest} from './test-utils';
@@ -20,6 +20,7 @@ describe('class transformer options', () => {
     get name(): string {
       return this._firstName + ' ' + this._lastName;
     }
+
     public _firstName: string;
     public _lastName: string;
     public id: number;
@@ -58,8 +59,8 @@ describe('class transformer options', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {
         id: 1,
         _firstName: 'Umed',
@@ -112,8 +113,8 @@ describe('class transformer options', () => {
     before(done => (koaApp = createKoaServer(options).listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed Khudoiberdiev',
@@ -155,8 +156,8 @@ describe('class transformer options', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, {
         id: 1,
         name: 'Umed Khudoiberdiev',

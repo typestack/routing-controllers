@@ -59,15 +59,15 @@ describe('template rendering', () => {
   after(done => koaApp.close(done));
 
   describe('should render a template and use given variables', () => {
-    assertRequest([3001, 3002], 'get', 'index', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'index'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, '<html>\n<body>\nRouting-controllers\n</body>\n</html>');
     });
   });
 
   describe('Express should render a template with given variables and locals variables', () => {
-    assertRequest([3001], 'get', 'locals', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001], {uri: 'locals'}, response => {
+      strictEqual(response.statusCode, 200);
       strictEqual(response.body, '<html>\n\n<body>\n  Routing-controllers\n  my-variable\n</body>\n\n</html>');
     });
   });

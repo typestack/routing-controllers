@@ -75,38 +75,38 @@ describe('defaults', () => {
   after(done => kuaApp.close(done));
 
   it('should return undefinedResultCode from defaults config for void function', () => {
-    assertRequest([3001, 3002], 'get', 'voidfunc', response => {
-      strictEqual(response.response.statusCode, defaultUndefinedResultCode);
+    assertRequest([3001, 3002], {uri: 'voidfunc'}, response => {
+      strictEqual(response.statusCode, defaultUndefinedResultCode);
     });
   });
 
   it('should return undefinedResultCode from defaults config for promise void function', () => {
-    assertRequest([3001, 3002], 'get', 'promisevoidfunc', response => {
-      strictEqual(response.response.statusCode, defaultUndefinedResultCode);
+    assertRequest([3001, 3002], {uri: 'promisevoidfunc'}, response => {
+      strictEqual(response.statusCode, defaultUndefinedResultCode);
     });
   });
 
   it('should return 400 from required paramOptions', () => {
-    assertRequest([3001, 3002], 'get', 'paramfunc', response => {
-      strictEqual(response.response.statusCode, 400);
+    assertRequest([3001, 3002], {uri: 'paramfunc'}, response => {
+      strictEqual(response.statusCode, 400);
     });
   });
 
   it('should return nullResultCode from defaults config', () => {
-    assertRequest([3001, 3002], 'get', 'nullfunc', response => {
-      strictEqual(response.response.statusCode, defaultNullResultCode);
+    assertRequest([3001, 3002], {uri: 'nullfunc'}, response => {
+      strictEqual(response.statusCode, defaultNullResultCode);
     });
   });
 
   it('should return status code from OnUndefined annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overridefunc', response => {
-      strictEqual(response.response.statusCode, 404);
+    assertRequest([3001, 3002], {uri: 'overridefunc'}, response => {
+      strictEqual(response.statusCode, 404);
     });
   });
 
   it('should mark arg optional from QueryParam annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overrideparamfunc', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'overrideparamfunc'}, response => {
+      strictEqual(response.statusCode, 200);
     });
   });
 });

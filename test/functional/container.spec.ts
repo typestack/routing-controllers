@@ -73,8 +73,8 @@ describe('container', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'questions', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -87,8 +87,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -180,8 +180,8 @@ describe('container', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'questions', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -194,8 +194,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -300,8 +300,8 @@ describe('container', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'questions', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -314,8 +314,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -328,8 +328,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'photos', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -438,8 +438,8 @@ describe('container', () => {
     before(done => (koaApp = createKoaServer().listen(3002, done)));
     after(done => koaApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'questions', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'questions'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -452,8 +452,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'posts', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'posts'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
@@ -466,8 +466,8 @@ describe('container', () => {
       ]);
     });
 
-    assertRequest([3001, 3002], 'get', 'photos', response => {
-      strictEqual(response.response.statusCode, 200);
+    assertRequest([3001, 3002], {uri: 'photos'}, response => {
+      strictEqual(response.statusCode, 200);
       deepStrictEqual(response.body, [
         {
           id: 1,
