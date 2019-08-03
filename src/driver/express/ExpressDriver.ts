@@ -53,18 +53,18 @@ export class ExpressDriver extends BaseDriver {
      * Registers middleware that run before controller actions.
      */
     registerMiddleware(middleware: MiddlewareMetadata): void {
+        let middlewareWrapper;
 
         // if its an error handler then register it with proper signature in express
         if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
-            this.express.use(function (error: any, request: any, response: any, next: (err?: any) => any) {
+            middlewareWrapper = (error: any, request: any, response: any, next: (err?: any) => any) => {
                 (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
-            });
-            return;
+            };
         }
 
         // if its a regular middleware then register it as express middleware
-        if ((middleware.instance as ExpressMiddlewareInterface).use) {
-            this.express.use((request: any, response: any, next: (err: any) => any) => {
+        else if ((middleware.instance as ExpressMiddlewareInterface).use) {
+            middlewareWrapper = (request: any, response: any, next: (err: any) => any) => {
                 try {
                     const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                     if (isPromiseLike(useResult)) {
@@ -77,7 +77,17 @@ export class ExpressDriver extends BaseDriver {
                 } catch (error) {
                     this.handleError(error, undefined, {request, response, next});
                 }
+            };
+        }
+
+        if (middlewareWrapper) {
+            // Name the function for better debugging
+            Object.defineProperty(middlewareWrapper, "name", {
+                value: middleware.instance.constructor.name,
+                writable: true
             });
+
+            this.express.use(middlewareWrapper);
         }
     }
 
