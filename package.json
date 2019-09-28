@@ -95,24 +95,6 @@
   "scripts": {
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
     "clean": "rimraf build coverage",
-    "test": "rimraf coverage && cross-env NODE_ENV=test nyc mocha -r ts-node/register test/**/*.ts"
-  },
-  "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "exclude": [
-      "**/*.d.ts",
-      "sample/**",
-      "src/decorator-options/**",
-      "src/metadata/args/**",
-      "src/metadata/types/**"
-    ],
-    "reporter": [
-      "html",
-      "lcov",
-      "text-summary"
-    ],
-    "all": true
+    "test": "rimraf coverage && cross-env NODE_ENV=test nyc mocha test/**/*.ts"
   }
 }
