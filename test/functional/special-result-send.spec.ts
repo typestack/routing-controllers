@@ -29,7 +29,7 @@ describe("special result value treatment", () => {
             @Get("/stream")
             @ContentType("text/plain")
             getStream() {
-                return createReadStream(path.resolve(__dirname, "../../../../test/resources/sample-text-file.txt"));
+                return createReadStream(path.resolve(__dirname, "../resources/sample-text-file.txt"));
             }
             
             @Get("/buffer")
