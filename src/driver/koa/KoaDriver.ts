@@ -264,7 +264,6 @@ export class KoaDriver extends BaseDriver {
 
         // set http status code
         if (result === undefined && action.undefinedResultCode) {
-            console.log(action.undefinedResultCode);
             options.response.status = action.undefinedResultCode;
         }
         else if (result === null && action.nullResultCode) {
