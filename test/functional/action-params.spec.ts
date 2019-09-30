@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-
+import {IsString, IsBoolean, Min, MaxLength, ValidateNested} from "class-validator";
+import {getMetadataArgsStorage, createExpressServer, createKoaServer} from "../../src/index";
 import {assertRequest} from "./test-utils";
 import {User} from "../fakes/global-options/User";
 import {Controller} from "../../src/decorator/Controller";
@@ -13,8 +13,10 @@ import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
 import {UseBefore} from "../../src/decorator/UseBefore";
 import {Session} from "../../src/decorator/Session";
+import {SessionParam} from "../../src/decorator/SessionParam";
 import {State} from "../../src/decorator/State";
 import {QueryParam} from "../../src/decorator/QueryParam";
+import {QueryParams} from "../../src/decorator/QueryParams";
 import {HeaderParam} from "../../src/decorator/HeaderParam";
 import {CookieParam} from "../../src/decorator/CookieParam";
 import {Body} from "../../src/decorator/Body";
@@ -32,6 +34,7 @@ describe("action parameters", () => {
     let paramUserId: number, paramFirstId: number, paramSecondId: number;
     let sessionTestElement: string;
     let queryParamSortBy: string, queryParamCount: string, queryParamLimit: number, queryParamShowAll: boolean, queryParamFilter: any;
+    let queryParams1: {[key: string]: any}, queryParams2: {[key: string]: any}, queryParams3: {[key: string]: any};
     let headerParamToken: string, headerParamCount: number, headerParamLimit: number, headerParamShowAll: boolean, headerParamFilter: any;
     let cookieParamToken: string, cookieParamCount: number, cookieParamLimit: number, cookieParamShowAll: boolean, cookieParamFilter: any;
     let body: string;
@@ -51,6 +54,9 @@ describe("action parameters", () => {
         queryParamLimit = undefined;
         queryParamShowAll = undefined;
         queryParamFilter = undefined;
+        queryParams1 = undefined;
+        queryParams2 = undefined;
+        queryParams3 = undefined;
         headerParamToken = undefined;
         headerParamCount = undefined;
         headerParamShowAll = undefined;
@@ -78,6 +84,34 @@ describe("action parameters", () => {
 
         const {SetStateMiddleware} = require("../fakes/global-options/koa-middlewares/SetStateMiddleware");
         const {SessionMiddleware} = require("../fakes/global-options/SessionMiddleware");
+
+        class NestedQueryClass {
+            @Min(5)
+            num: number;
+
+            @IsString()
+            str: string;
+
+            @IsBoolean()
+            isFive: boolean;
+        }
+
+        class QueryClass {
+            @MaxLength(5)
+            sortBy?: string;
+
+            @IsString()
+            count?: string;
+
+            @Min(5)
+            limit?: number;
+
+            @IsBoolean()
+            showAll: boolean = true;
+
+            @ValidateNested()
+            myObject: NestedQueryClass;
+        }
 
         @Controller()
         class UserActionParamsController {
@@ -137,27 +171,27 @@ describe("action parameters", () => {
 
             @Get("/session/")
             @UseBefore(SessionMiddleware)
-            loadFromSession(@Session("testElement") testElement: string) {
+            loadFromSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/not-use-session/")
-            notUseSession(@Session("testElement") testElement: string) {
+            notUseSession(@SessionParam("testElement") testElement: string) {
                 sessionTestElement = testElement;
                 return `<html><body>${testElement}</body></html>`;
             }
 
             @Get("/session-param-empty/")
             @UseBefore(SessionMiddleware)
-            loadEmptyParamFromSession(@Session("empty", { required: false }) emptyElement: string) {
+            loadEmptyParamFromSession(@SessionParam("empty", { required: false }) emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
             }
 
             @Get("/session-param-empty-error/")
             @UseBefore(SessionMiddleware)
-            errorOnLoadEmptyParamFromSession(@Session("empty") emptyElement: string) {
+            errorOnLoadEmptyParamFromSession(@SessionParam("empty") emptyElement: string) {
                 sessionTestElement = emptyElement;
                 return `<html><body>${emptyElement === undefined}</body></html>`;
             }
@@ -184,6 +218,24 @@ describe("action parameters", () => {
                 queryParamCount = count;
                 queryParamLimit = limit;
                 queryParamShowAll = showAll;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params")
+            getPhotosWithQuery(@QueryParams() query: QueryClass) {
+                queryParams1 = query;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params-no-validate")
+            getPhotosWithQueryAndNoValidation(@QueryParams({ validate: false }) query: QueryClass) {
+                queryParams2 = query;
+                return `<html><body>hello</body></html>`;
+            }
+
+            @Get("/photos-params-optional")
+            getPhotosWithOptionalQuery(@QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass) {
+                queryParams3 = query;
                 return `<html><body>hello</body></html>`;
             }
 
@@ -459,6 +511,54 @@ describe("action parameters", () => {
         });
     });
 
+    // todo: enable koa test when #227 fixed
+    describe("@QueryParams should give a proper values from request's query parameters", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams1.sortBy).to.be.equal("name");
+            expect(queryParams1.count).to.be.equal("2");
+            expect(queryParams1.limit).to.be.equal(10);
+            expect(queryParams1.showAll).to.be.equal(true);
+        });
+    });
+
+    describe("@QueryParams should give a proper values from request's query parameters with nested json", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams1.sortBy).to.be.equal("name");
+            expect(queryParams1.count).to.be.equal("2");
+            expect(queryParams1.limit).to.be.equal(10);
+            expect(queryParams1.showAll).to.be.equal(true);
+            expect(queryParams1.myObject.num).to.be.equal(5);
+            expect(queryParams1.myObject.str).to.be.equal("five");
+            expect(queryParams1.myObject.isFive).to.be.equal(true);
+        });
+    });
+
+    describe("@QueryParams should not validate request query parameters when it's turned off in validator options", () => {
+        assertRequest([3001, 3002], "get", "photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true", response => {
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(queryParams2.sortBy).to.be.equal("verylongtext");
+            expect(queryParams2.count).to.be.equal("2");
+            expect(queryParams2.limit).to.be.equal(1);
+            expect(queryParams2.showAll).to.be.equal(true);
+        });
+    });
+
+    // todo: enable koa test when #227 fixed
+    describe("@QueryParams should give a proper values from request's optional query parameters", () => {
+        assertRequest([3001, /*3002*/], "get", "photos-params-optional?sortBy=name&limit=10", response => {
+            expect(queryParams3.sortBy).to.be.equal("name");
+            expect(queryParams3.count).to.be.equal(undefined);
+            expect(queryParams3.limit).to.be.equal(10);
+            expect(queryParams3.showAll).to.be.equal(true);
+            expect(response).to.be.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+        });
+    });
 
     describe("@QueryParam should give a proper values from request query parameters", () => {
         assertRequest([3001, 3002], "get", "photos?sortBy=name&count=2&limit=10&showAll=true", response => {
@@ -496,8 +596,7 @@ describe("action parameters", () => {
     describe("for @QueryParam when the type is Date and it is invalid then the response should be a BadRequest error", () => {
         assertRequest([3001, 3002], "get", "posts-after/?from=InvalidDate", response => {
             expect(response).to.be.status(400);
-            expect(response.body.name).to.be.equals("BadRequestError");
-            expect(response.body.message).to.be.equals("from is invalid! It can't be parsed to date.");
+            expect(response.body.name).to.be.equals("ParamNormalizationError");
         });
     });
 
