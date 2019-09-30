@@ -73,11 +73,11 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 1. Install module:
 
-    `npm install routing-controllers --save`
+    `npm install routing-controllers`
 
 2. `reflect-metadata` shim is required:
 
-    `npm install reflect-metadata --save`
+    `npm install reflect-metadata`
 
     and make sure to import it before you use routing-controllers:
 
@@ -89,21 +89,27 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
 
-    `npm install express body-parser multer --save`
+    `npm install express body-parser multer`
 
     Optionally you can also install their typings:
 
-    `npm install @types/express @types/body-parser @types/multer --save`
+    `npm install -D @types/express @types/body-parser @types/multer`
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa koa-router koa-bodyparser koa-multer --save`
+    `npm install koa koa-router koa-bodyparser koa-multer`
 
     Optionally you can also install their typings:
 
-    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
+    `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
 
-4. Its important to set these options in `tsconfig.json` file of your project:
+4. Install peer dependencies:
+
+  `npm install class-transformer class-validator`
+
+  In prior versions, these were direct dependencies, but now they are peer dependencies so you can choose when to upgrade and accept breaking changes.
+
+5. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
     {
