@@ -17,7 +17,7 @@ export interface UseContainerOptions {
 
 }
 
-export type ClassConstructor<T> = { new (...args: any[]): T }
+export type ClassConstructor<T> = { new (...args: any[]): T };
 
 /**
  * Container to be used by this library for inversion control. If container was not implicitly set then by default
@@ -49,7 +49,7 @@ export interface IocAdapter {
     /**
      * Return
      */
-    get<T> (someClass: ClassConstructor<T>, action?: Action): T
+    get<T> (someClass: ClassConstructor<T>, action?: Action): T;
 }
 
 /**

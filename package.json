@@ -1,6 +1,6 @@
 {
   "name": "@gritcode/routing-controllers",
-  "private": true,
+  "private": false,
   "version": "0.8.0",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
@@ -39,7 +39,8 @@
     "template-url": "^1.0.0"
   },
   "peerDependencies": {
-    "class-validator": "^0.8.4"
+    "class-transformer": "^0.2.3",
+    "class-validator": "0.10.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
@@ -84,10 +85,6 @@
     "tslint": "^5.20.0",
     "typedi": "~0.8.0",
     "typescript": "~3.6.3"
-  },
-  "peerDependencies": {
-    "class-transformer": "^0.2.3",
-    "class-validator": "0.10.1"
   },
   "scripts": {
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
