@@ -73,11 +73,11 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 1. Install module:
 
-    `npm install routing-controllers class-validator --save`
+    `npm install routing-controllers`
 
 2. `reflect-metadata` shim is required:
 
-    `npm install reflect-metadata --save`
+    `npm install reflect-metadata`
 
     and make sure to import it before you use routing-controllers:
 
@@ -89,21 +89,27 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
     **a. If you want to use routing-controllers with *express.js*, then install it and all required dependencies:**
 
-    `npm install express body-parser multer --save`
+    `npm install express body-parser multer`
 
     Optionally you can also install their typings:
 
-    `npm install @types/express @types/body-parser @types/multer --save`
+    `npm install -D @types/express @types/body-parser @types/multer`
 
     **b. If you want to use routing-controllers with *koa 2*, then install it and all required dependencies:**
 
-    `npm install koa koa-router koa-bodyparser koa-multer --save`
+    `npm install koa koa-router koa-bodyparser koa-multer`
 
     Optionally you can also install their typings:
 
-    `npm install @types/koa @types/koa-router @types/koa-bodyparser --save`
+    `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
 
-4. Its important to set these options in `tsconfig.json` file of your project:
+4. Install peer dependencies:
+
+  `npm install class-transformer class-validator`
+
+  In prior versions, these were direct dependencies, but now they are peer dependencies so you can choose when to upgrade and accept breaking changes.
+
+5. Its important to set these options in `tsconfig.json` file of your project:
 
     ```json
     {
@@ -370,6 +376,37 @@ getUsers(@QueryParam("limit") limit: number) {
 ```
 
 If you want to inject all query parameters use `@QueryParams()` decorator.
+The bigest benefit of this approach is that you can perform validation of the params.
+
+```typescript
+enum Roles {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest",
+}
+
+class GetUsersQuery {
+
+    @IsPositive()
+    limit: number;
+
+    @IsAlpha()
+    city: string;
+
+    @IsEnum(Roles)
+    role: Roles;
+
+    @IsBoolean()
+    isActive: boolean;
+
+}
+
+@Get("/users")
+getUsers(@QueryParams() query: GetUsersQuery) {
+    // here you can access query.role, query.limit
+    // and others valid query parameters
+}
+```
 
 #### Inject request body
 
@@ -421,18 +458,20 @@ If you want to inject all header parameters use `@CookieParams()` decorator.
 
 #### Inject session object
 
-To inject a session value, use `@Session` decorator:
+To inject a session value, use `@SessionParam` decorator:
 
 ```typescript
-@Get("/login/")
-savePost(@Session("user") user: User, @Body() post: Post) {
-}
+@Get("/login")
+savePost(@SessionParam("user") user: User, @Body() post: Post) {}
 ```
 If you want to inject the main session object, use `@Session()` without any parameters.
-
+```typescript
+@Get("/login")
+savePost(@Session() session: any, @Body() post: Post) {}
+```
 The parameter marked with `@Session` decorator is required by default. If your action param is optional, you have to mark it as not required:
 ```ts
-action(@Session("user", { required: false }) user: User)
+action(@Session("user", { required: false }) user: User) {}
 ```
 
 Express uses [express-session][5] / Koa uses [koa-session][6] or [koa-generic-session][7] to handle session, so firstly you have to install it manually to use `@Session` decorator.
@@ -1457,14 +1496,15 @@ export class QuestionController {
 | `@Res()`                                                           | `getAll(@Res() response: Response)`              | Injects a Response object.                                                                                                              | `function (request, response)`            |
 | `@Ctx()`                                                           | `getAll(@Ctx() context: Context)`                | Injects a Context object (koa-specific)                                                                                                 | `function (ctx)` (koa-analogue)           |
 | `@Param(name: string, options?: ParamOptions)`                     | `get(@Param("id") id: number)`                   | Injects a router parameter.                                                                                                             | `request.params.id`                       |
-| `@Params()`                                                        | `get(@Params() params: any)`                     | Injects all request parameters.                                                                                                         | `request.params`                          |
+| `@Params()`                                                        | `get(@Params() params: any)`                     | Injects all router parameters.                                                                                                          | `request.params`                          |
 | `@QueryParam(name: string, options?: ParamOptions)`                | `get(@QueryParam("id") id: number)`              | Injects a query string parameter.                                                                                                       | `request.query.id`                        |
 | `@QueryParams()`                                                   | `get(@QueryParams() params: any)`                | Injects all query parameters.                                                                                                           | `request.query`                           |
 | `@HeaderParam(name: string, options?: ParamOptions)`               | `get(@HeaderParam("token") token: string)`       | Injects a specific request headers.                                                                                                     | `request.headers.token`                   |
 | `@HeaderParams()`                                                  | `get(@HeaderParams() params: any)`               | Injects all request headers.                                                                                                            | `request.headers`                         |
 | `@CookieParam(name: string, options?: ParamOptions)`               | `get(@CookieParam("username") username: string)` | Injects a cookie parameter.                                                                                                             | `request.cookie("username")`              |
-| `@CookieParams()`                                                  | `get(@CookieParams() params: any)`               | Injects all cookies.                                                                                                                    | `request.cookies                          |
-| `@Session(name?: string)`                                          | `get(@Session("user") user: User)`               | Injects an object from session (or the whole session).                                                                                  | `request.session.user`                    |
+| `@CookieParams()`                                                  | `get(@CookieParams() params: any)`               | Injects all cookies.                                                                                                                    | `request.cookies`                         |
+| `@Session()`                                                       | `get(@Session() session: any)`                   | Injects the whole session object.                                                                                                       | `request.session`                         |
+| `@SessionParam(name: string)`                                      | `get(@SessionParam("user") user: User)`          | Injects an object from session property.                                                                                                | `request.session.user`                    |
 | `@State(name?: string)`                                            | `get(@State() session: StateType)`               | Injects an object from the state (or the whole state).                                                                                  | `ctx.state` (koa-analogue)                |
 | `@Body(options?: BodyOptions)`                                     | `post(@Body() body: any)`                        | Injects a body. In parameter options you can specify body parser middleware options.                                                    | `request.body`                            |
 | `@BodyParam(name: string, options?: ParamOptions)`                 | `post(@BodyParam("name") name: string)`          | Injects a body parameter.                                                                                                               | `request.body.name`                       |

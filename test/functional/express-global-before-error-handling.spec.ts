@@ -40,7 +40,7 @@ describe("custom express global before middleware error handling", () => {
             error(error: any, req: any, res: any, next: any) {
                 errorHandlerCalled = true;
                 errorHandlerName = error.name;
-                res.status(error.httpCode).send(error.message);
+                res.status(error.httpCode || 500).send(error.message);
             }
         }
 

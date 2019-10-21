@@ -170,9 +170,10 @@ export class KoaDriver extends BaseDriver {
                 return context.params;
 
             case "session":
-                if (param.name)
-                    return context.session[param.name];
                 return context.session;
+
+            case "session-param":
+                return context.session[param.name];
 
             case "state":
                 if (param.name)

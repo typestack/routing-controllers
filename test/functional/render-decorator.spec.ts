@@ -41,7 +41,7 @@ describe("template rendering", () => {
 
     let expressApp: any;
     before(done => {
-        const path = __dirname + "/../../../../test/resources";
+        const path = __dirname + "/../resources";
         const server = createExpressServer();
         const mustacheExpress = require("mustache-express");
         server.engine("html", mustacheExpress());
@@ -54,7 +54,7 @@ describe("template rendering", () => {
 
     let koaApp: any;
     before(done => {
-        const path = __dirname + "/../../../../test/resources";
+        const path = __dirname + "/../resources";
         const server = createKoaServer();
         let koaViews = require("koa-views");
         server.use(koaViews(path, { map: { html: "handlebars" } } ));
