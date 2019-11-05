@@ -67,7 +67,7 @@
 - returned validation error value signature has changed
 - controllers and middlewares now can be specified in routing-controllers options
 - `MiddlewareInterface` was removed and instead `ExpressMiddlewareInterface` or `KoaMiddlewareInterface` should be used
-- `ExpressErrorMiddlewareInterface` was renamed into `ErrorMiddlewareInterface`
+- `ErrorMiddlewareInterface` was renamed to `ExpressErrorMiddlewareInterface`
 - per-controller and per-action middlewares used in `@UseBefore` and `@UseAfter` now should not be marked with `@Middleware` decorator
 - `@MiddlewareGlobalBefore()` and `@MiddlewareGlobalAfter()` were removed and instead new signatures should be used: `@Middleware({ type: "before" })` and `@Middleware({ type: "after" })`
 - named some decorator parameter names
