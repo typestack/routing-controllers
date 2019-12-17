@@ -50,6 +50,7 @@ export * from "./decorator/Req";
 export * from "./decorator/Res";
 export * from "./decorator/ResponseClassTransformOptions";
 export * from "./decorator/Session";
+export * from "./decorator/SessionParam";
 export * from "./decorator/State";
 export * from "./decorator/UploadedFile";
 export * from "./decorator/UploadedFiles";
