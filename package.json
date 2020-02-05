@@ -1,7 +1,7 @@
 {
   "name": "@gritcode/routing-controllers",
   "private": false,
-  "version": "0.8.0",
+  "version": "0.8.1-alpha.1",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -13,6 +13,14 @@
     {
       "name": "Michał Lytek",
       "url": "https://github.com/19majkel94"
+    },
+    {
+      "name": "Jonathas Morais",
+      "url": "https://github.com/jotamorais"
+    },
+    {
+      "name": "adenhertog",
+      "url": "https://github.com/adenhertog"
     }
   ],
   "repository": {
