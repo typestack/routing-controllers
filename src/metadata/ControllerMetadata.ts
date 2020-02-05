@@ -4,6 +4,7 @@ import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {InterceptorMetadata} from "./InterceptorMetadata";
+import { Action } from "../Action";
 
 /**
  * Controller metadata.
@@ -70,9 +71,10 @@ export class ControllerMetadata {
 
     /**
      * Gets instance of the controller.
+     * @param action Details around the request session
      */
-    get instance(): any {
-        return getFromContainer(this.target);
+    getInstance(action: Action): any  {
+        return getFromContainer(this.target, action);
     }
 
     // -------------------------------------------------------------------------
