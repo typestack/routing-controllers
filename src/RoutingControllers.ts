@@ -109,7 +109,6 @@ export class RoutingControllers<T extends BaseDriver> {
      * Executes given controller action.
      */
     protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
-
         // compute all parameters
         const paramsPromises = actionMetadata.params
             .sort((param1, param2) => param1.index - param2.index)
@@ -120,7 +119,7 @@ export class RoutingControllers<T extends BaseDriver> {
 
             // execute action and handle result
             const allParams = actionMetadata.appendParams ? actionMetadata.appendParams(action).concat(params) : params;
-            const result = actionMetadata.methodOverride ? actionMetadata.methodOverride(actionMetadata, action, allParams) : actionMetadata.callMethod(allParams);
+            const result = actionMetadata.methodOverride ? actionMetadata.methodOverride(actionMetadata, action, allParams) : actionMetadata.callMethod(allParams, action);
             return this.handleCallMethodResult(result, actionMetadata, action, interceptorFns);
 
         }).catch(error => {
@@ -172,7 +171,7 @@ export class RoutingControllers<T extends BaseDriver> {
         return uses.map(use => {
             if (use.interceptor.prototype && use.interceptor.prototype.intercept) { // if this is function instance of InterceptorInterface
                 return function (action: Action, result: any) {
-                    return (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
+                    return (getFromContainer(use.interceptor, action) as InterceptorInterface).intercept(action, result);
                 };
             }
             return use.interceptor;
