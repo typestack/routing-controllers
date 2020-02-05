@@ -1,5 +1,5 @@
 {
-  "name": "@gritcode/routing-controllers",
+  "name": "routing-controllers",
   "private": false,
   "version": "0.8.1-alpha.1",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
