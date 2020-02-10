@@ -14,6 +14,7 @@ import {importClassesFromDirectories} from "./util/importClassesFromDirectories"
 
 export * from "./container";
 
+export * from "./decorator/All";
 export * from "./decorator/Authorized";
 export * from "./decorator/Body";
 export * from "./decorator/BodyParam";

@@ -1,7 +1,8 @@
 /**
  * Controller action type.
  */
-export type ActionType = "checkout"
+export type ActionType = "all"
+    |"checkout"
     |"connect"
     |"copy"
     |"delete"

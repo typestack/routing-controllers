@@ -165,7 +165,7 @@ export class ExpressDriver extends BaseDriver {
             // This causes a double action execution on our side, which results in an unhandled rejection,
             // saying: "Can't set headers after they are sent".
             // The following line skips action processing when the request method does not match the action method.
-            if (request.method.toLowerCase() !== actionMetadata.type)
+            if (actionMetadata.type !== "all" && request.method.toLowerCase() !== actionMetadata.type)
                 return next();
 
             return executeCallback({request, response, next});
@@ -207,7 +207,7 @@ export class ExpressDriver extends BaseDriver {
 
             case "session-param":
                 return request.session[param.name];
-            
+
             case "session":
                 return request.session;
 
