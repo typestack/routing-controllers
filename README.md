@@ -733,7 +733,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -755,7 +755,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -796,7 +796,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -809,9 +809,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true
@@ -1486,7 +1486,8 @@ export class QuestionController {
 | `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
 | `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
 | `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@All(route: string\|RegExp)`                                  | `@All("/users/me") rewrite()`          | Methods marked with this decorator will register a request made with any HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.all("/users/me", rewrite)`      |
+| `@Method(methodName: string, route: string\|RegExp)`           | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
