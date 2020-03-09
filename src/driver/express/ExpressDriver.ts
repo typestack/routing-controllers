@@ -373,11 +373,13 @@ export class ExpressDriver extends BaseDriver {
                 });
             }
 
-            // send error content
-            if (action && action.isJsonTyped) {
-                response.json(this.processJsonError(error));
-            } else {
-                response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+            // send error content if headers wasn't setted yet.
+            if (!response.headersSent) {
+                if (action && action.isJsonTyped) {
+                    response.json(this.processJsonError(error));
+                } else {
+                    response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
+                }
             }
         }
         options.next(error);
