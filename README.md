@@ -269,7 +269,7 @@ export class UserController {
     @Get("/posts")
     getAllPosts(@Req() request: any, @Res() response: any) {
         // some response functions don't return the response object,
-        // so you need to return it explicitly
+        // so it needs to be returned explicitly
         response.redirect("/users");
 
         return response;
