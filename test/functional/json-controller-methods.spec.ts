@@ -23,7 +23,7 @@ describe("json-controller methods", () => {
         @JsonController()
         class JsonUserController {
             @Get("/users")
-            getAll() {
+            getAll(): any {
                 return [{
                     id: 1,
                     name: "Umed"
@@ -34,56 +34,56 @@ describe("json-controller methods", () => {
             }
 
             @Post("/users")
-            post() {
+            post(): any {
                 return {
                     status: "saved"
                 };
             }
 
             @Put("/users")
-            put() {
+            put(): any {
                 return {
                     status: "updated"
                 };
             }
 
             @Patch("/users")
-            patch() {
+            patch(): any {
                 return {
                     status: "patched"
                 };
             }
 
             @Delete("/users")
-            delete() {
+            delete(): any {
                 return {
                     status: "removed"
                 };
             }
 
             @Head("/users")
-            head() {
+            head(): any {
                 return {
                     thisWillNot: "beSent"
                 };
             }
 
             @Method("post", "/categories")
-            postCategories() {
+            postCategories(): any {
                 return {
                     status: "posted"
                 };
             }
 
             @Method("delete", "/categories")
-            getCategories() {
+            getCategories(): any {
                 return {
                     status: "removed"
                 };
             }
 
             @Get("/users/:id")
-            getUserById() {
+            getUserById(): any {
                 return {
                     id: 1,
                     name: "Umed"
@@ -91,7 +91,7 @@ describe("json-controller methods", () => {
             }
 
             @Get(/\/categories\/[\d+]/)
-            getCategoryById() {
+            getCategoryById(): any {
                 return {
                     id: 1,
                     name: "People"
@@ -99,7 +99,7 @@ describe("json-controller methods", () => {
             }
 
             @Get("/posts/:id(\\d+)")
-            getPostById() {
+            getPostById(): any {
                 return {
                     id: 1,
                     title: "About People"
@@ -107,7 +107,7 @@ describe("json-controller methods", () => {
             }
 
             @Get("/posts-from-db")
-            getPostFromDb() {
+            getPostFromDb(): Promise<any> {
                 return new Promise((ok, fail) => {
                     setTimeout(() => {
                         ok({
@@ -119,7 +119,7 @@ describe("json-controller methods", () => {
             }
 
             @Get("/posts-from-failed-db")
-            getPostFromFailedDb() {
+            getPostFromFailedDb(): Promise<any> {
                 return new Promise((ok, fail) => {
                     setTimeout(() => {
                         fail({

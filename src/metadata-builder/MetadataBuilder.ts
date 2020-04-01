@@ -23,7 +23,7 @@ export class MetadataBuilder {
     /**
      * Builds controller metadata from a registered controller metadata args.
      */
-    buildControllerMetadata(classes?: Function[]) {
+    buildControllerMetadata(classes?: Function[]): ControllerMetadata[] {
         return this.createControllers(classes);
     }
 
@@ -106,20 +106,6 @@ export class MetadataBuilder {
     }
 
     /**
-     * Decorate paramArgs with default settings
-     */
-    private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
-        let options = this.options.defaults && this.options.defaults.paramOptions;
-        if (!options)
-            return paramArgs;
-        
-        if (paramArgs.required === undefined)
-            paramArgs.required = options.required || false;
-
-        return paramArgs;
-    }
-
-    /**
      * Creates response handler metadatas for action.
      */
     protected createActionResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
@@ -173,4 +159,17 @@ export class MetadataBuilder {
             .map(useArgs => new InterceptorMetadata(useArgs));
     }
 
+    /**
+     * Decorate paramArgs with default settings
+     */
+    private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs): ParamMetadataArgs {
+        const options = this.options.defaults && this.options.defaults.paramOptions;
+        if (!options)
+            return paramArgs;
+
+        if (paramArgs.required === undefined)
+            paramArgs.required = options.required || false;
+
+        return paramArgs;
+    }
 }

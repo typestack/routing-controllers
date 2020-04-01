@@ -4,8 +4,9 @@ import {getMetadataArgsStorage} from "../index";
  * Injects a State object to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
+// TODO: Is there a test for this?
 export function State(objectName?: string): Function {
-    return function (object: Object, methodName: string, index: number) {
+    return function(object: Record<string, any>, methodName: string, index: number): void {
         getMetadataArgsStorage().params.push({
             type: "state",
             object: object,

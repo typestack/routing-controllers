@@ -83,7 +83,7 @@ export class ControllerMetadata {
      * Builds everything controller metadata needs.
      * Controller metadata should be used only after its build.
      */
-    build(responseHandlers: ResponseHandlerMetadata[]) {
+    build(responseHandlers: ResponseHandlerMetadata[]): void {
         const authorizedHandler = responseHandlers.find(handler => handler.type === "authorized" && !handler.method);
         this.isAuthorizedUsed = !!authorizedHandler;
         this.authorizedRoles = [].concat((authorizedHandler && authorizedHandler.value) || []);

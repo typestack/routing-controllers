@@ -5,7 +5,7 @@ import * as path from "path";
  */
 export function importClassesFromDirectories(directories: string[], formats = [".js", ".ts"]): Function[] {
 
-    const loadFileClasses = function (exported: any, allLoaded: Function[]) {
+    const loadFileClasses = function (exported: any, allLoaded: Function[]): Function[] {
         if (exported instanceof Function) {
             allLoaded.push(exported);
         } else if (exported instanceof Array) {
@@ -24,7 +24,7 @@ export function importClassesFromDirectories(directories: string[], formats = ["
     const dirs = allFiles
         .filter(file => {
             const dtsExtension = file.substring(file.length - 5, file.length);
-            return formats.indexOf(path.extname(file)) !== -1 && dtsExtension !== ".d.ts";
+            return formats.includes(path.extname(file)) && dtsExtension !== ".d.ts";
         })
         .map(file => {
             return require(file);

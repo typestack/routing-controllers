@@ -3,10 +3,8 @@ import {Get} from "../../../../src/decorator/Get";
 
 @Controller()
 export class PhotoController {
-
     @Get("/photos")
-    getAll() {
+    getAll(): string {
         return "Hello photos";
     }
-
 }

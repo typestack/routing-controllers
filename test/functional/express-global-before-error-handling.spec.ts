@@ -37,7 +37,7 @@ describe("custom express global before middleware error handling", () => {
 
         @Middleware({type: "after"})
         class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
-            error(error: any, req: any, res: any, next: any) {
+            error(error: any, req: any, res: any, next: any): void {
                 errorHandlerCalled = true;
                 errorHandlerName = error.name;
                 res.status(error.httpCode || 500).send(error.message);
@@ -46,9 +46,8 @@ describe("custom express global before middleware error handling", () => {
 
         @JsonController()
         class ExpressErrorHandlerController {
-
             @Get("/answers")
-            answers() {
+            answers(): any {
                 return {
                     id: 1,
                     title: "My answer"

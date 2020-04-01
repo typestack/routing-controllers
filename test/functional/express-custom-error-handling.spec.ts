@@ -34,7 +34,7 @@ describe("custom express error handling", () => {
         @JsonController()
         class ExpressErrorHandlerController {
             @Get("/blogs")
-            blogs() {
+            blogs(): any {
                 return {
                     id: 1,
                     title: "About me"
@@ -42,7 +42,7 @@ describe("custom express error handling", () => {
             }
 
             @Get("/videos")
-            videos() {
+            videos(): never {
                 throw new NotFoundError("Videos were not found.");
             }
         }

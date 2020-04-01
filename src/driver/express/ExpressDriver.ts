@@ -14,9 +14,10 @@ import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError
 import {NotFoundError} from "../../index";
 import multer from "multer";
 import bodyParser from "body-parser";
-
-const cookie = require("cookie");
-const templateUrl = require("template-url");
+import cookie from "cookie";
+import templateUrl from "template-url";
+import cors from "cors";
+import express from "express";
 
 /**
  * Integration with express framework.
@@ -40,9 +41,8 @@ export class ExpressDriver extends BaseDriver {
     /**
      * Initializes the things driver needs before routes and middlewares registration.
      */
-    initialize() {
+    initialize(): void {
         if (this.cors) {
-            const cors = require("cors");
             if (this.cors === true) {
                 this.express.use(cors());
             } else {
@@ -59,14 +59,14 @@ export class ExpressDriver extends BaseDriver {
 
         // if its an error handler then register it with proper signature in express
         if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
-            middlewareWrapper = (error: any, request: any, response: any, next: (err?: any) => any) => {
+            middlewareWrapper = (error: any, request: express.Request, response: express.Response, next: express.NextFunction): any => {
                 (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
             };
         }
 
         // if its a regular middleware then register it as express middleware
         else if ((middleware.instance as ExpressMiddlewareInterface).use) {
-            middlewareWrapper = (request: any, response: any, next: (err: any) => any) => {
+            middlewareWrapper = (request: express.Request, response: express.Response, next: express.NextFunction): any => {
                 try {
                     const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
                     if (isPromiseLike(useResult)) {
@@ -118,9 +118,9 @@ export class ExpressDriver extends BaseDriver {
                 try {
                     const checkResult = this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
-                    const handleError = (result: any) => {
+                    const handleError = (result: any): void => {
                         if (!result) {
-                            let error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
+                            const error = actionMetadata.authorizedRoles.length === 0 ? new AuthorizationRequiredError(action) : new AccessDeniedError(action);
                             this.handleError(error, actionMetadata, action);
                         } else {
                             next();
@@ -161,7 +161,7 @@ export class ExpressDriver extends BaseDriver {
 
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
-        const routeHandler = function routeHandler(request: any, response: any, next: Function) {
+        const routeHandler = function routeHandler(request: any, response: any, next: Function): any {
             // Express calls the "get" route automatically when we call the "head" route:
             // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
             // This causes a double action execution on our side, which results in an unhandled rejection,
@@ -186,7 +186,9 @@ export class ExpressDriver extends BaseDriver {
     /**
      * Registers all routes in the framework.
      */
-    registerRoutes() {
+    // Why is this empty?!
+    registerRoutes(): void {
+        // Empty
     }
 
     /**
@@ -209,7 +211,7 @@ export class ExpressDriver extends BaseDriver {
 
             case "session-param":
                 return request.session[param.name];
-            
+
             case "session":
                 return request.session;
 
@@ -399,12 +401,14 @@ export class ExpressDriver extends BaseDriver {
     /**
      * Creates middlewares from the given "use"-s.
      */
-    protected prepareMiddlewares(uses: UseMetadata[]) {
+    protected prepareMiddlewares(uses: UseMetadata[]): Function[] {
         const middlewareFunctions: Function[] = [];
         uses.forEach(use => {
             if (use.middleware.prototype && use.middleware.prototype.use) { // if this is function instance of MiddlewareInterface
-                middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
+                middlewareFunctions.push((request: express.Request, response: express.Response, next: express.NextFunction): any => {
                     try {
+                        // TODO: Fix this rule
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
                         const useResult = (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(request, response, next);
                         if (isPromiseLike(useResult)) {
                             useResult.catch((error: any) => {
@@ -421,6 +425,8 @@ export class ExpressDriver extends BaseDriver {
 
             } else if (use.middleware.prototype && use.middleware.prototype.error) {  // if this is function instance of ErrorMiddlewareInterface
                 middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
+                    // TODO: Fix this rule
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
                     return (getFromContainer(use.middleware) as ExpressErrorMiddlewareInterface).error(error, request, response, next);
                 });
 
@@ -434,17 +440,14 @@ export class ExpressDriver extends BaseDriver {
     /**
      * Dynamically loads express module.
      */
-    protected loadExpress() {
-        if (require) {
-            if (!this.express) {
-                try {
-                    this.express = require("express")();
-                } catch (e) {
-                    throw new Error("express package was not found installed. Try to install it: npm install express --save");
-                }
+    // TODO: Remove me?
+    protected loadExpress(): void {
+        if (!this.express) {
+            try {
+                this.express = express();
+            } catch (e) {
+                throw new Error("express package was not found installed. Try to install it: npm install express --save");
             }
-        } else {
-            throw new Error("Cannot load express. Try to install all required dependencies.");
         }
     }
 }

@@ -3,10 +3,8 @@ import {Get} from "../../../../src/decorator/Get";
 
 @Controller()
 export class VideoController {
-
     @Get("/videos")
-    getAll() {
+    getAll(): string {
         return "Hello videos";
     }
-
 }

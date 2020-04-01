@@ -142,7 +142,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         }
 
         // if target type is not primitive, transform and validate it
-        if ((["number", "string", "boolean"].indexOf(param.targetName) === -1)
+        if ((!["number", "string", "boolean"].includes(param.targetName))
             && (param.parse || param.isTargetObject)
         ) {
                 value = this.parseValue(value, param);
@@ -156,7 +156,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     /**
      * Normalizes string value to number or boolean.
      */
-    protected normalizeStringValue(value: string, parameterName: string, parameterType: string) {
+    protected normalizeStringValue(value: string, parameterName: string, parameterType: string): any {
         switch (parameterType) {
             case "number":
                 if (value === "") {
@@ -164,7 +164,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 }
 
                 const valueNumber = +value;
-                if (valueNumber === NaN) {
+                if (isNaN(valueNumber)) {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
 

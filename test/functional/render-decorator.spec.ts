@@ -23,7 +23,7 @@ describe("template rendering", () => {
         class RenderController {
             @Get("/index")
             @Render("render-test-spec.html")
-            index() {
+            index(): any {
                 return {
                     name: "Routing-controllers"
                 };
@@ -31,7 +31,7 @@ describe("template rendering", () => {
 
             @Get("/locals")
             @Render("render-test-locals-spec.html")
-            locals(@Res() res: any) {
+            locals(@Res() res: any): any {
                 res.locals.myVariable = "my-variable";
 
                 return {
@@ -41,7 +41,7 @@ describe("template rendering", () => {
         }
 
         const resourcePath: string = path.resolve(__dirname, "../resources");
-        let expressApplication: ExpressApplication = createExpressServer();
+        const expressApplication: ExpressApplication = createExpressServer();
         expressApplication.engine("html", mustacheExpress());
         expressApplication.set("view engine", "html");
         expressApplication.set("views", resourcePath);

@@ -26,62 +26,62 @@ describe("controller methods", () => {
         @Controller()
         class UserController {
             @Get("/users")
-            getAll() {
+            getAll(): string {
                 return "<html><body>All users</body></html>";
             }
 
             @Post("/users")
-            post() {
+            post(): string {
                 return "<html><body>Posting user</body></html>";
             }
 
             @Put("/users")
-            put() {
+            put(): string {
                 return "<html><body>Putting user</body></html>";
             }
 
             @Patch("/users")
-            patch() {
+            patch(): string {
                 return "<html><body>Patching user</body></html>";
             }
 
             @Delete("/users")
-            delete() {
+            delete(): string {
                 return "<html><body>Removing user</body></html>";
             }
 
             @Head("/users")
-            head() {
+            head(): string {
                 return "<html><body>Removing user</body></html>";
             }
 
             @Method("post", "/categories")
-            postCategories() {
+            postCategories(): string {
                 return "<html><body>Posting categories</body></html>";
             }
 
             @Method("delete", "/categories")
-            getCategories() {
+            getCategories(): string {
                 return "<html><body>Get categories</body></html>";
             }
 
             @Get("/users/:id")
-            getUserById() {
+            getUserById(): string {
                 return "<html><body>One user</body></html>";
             }
 
             @Get(/\/categories\/[\d+]/)
-            getCategoryById() {
+            getCategoryById(): string {
                 return "<html><body>One category</body></html>";
             }
 
             @Get("/posts/:id(\\d+)")
-            getPostById() {
+            getPostById(): string {
                 return "<html><body>One post</body></html>";
             }
 
             @Get("/posts-from-db")
-            getPostFromDb() {
+            getPostFromDb(): Promise<string> {
                 return new Promise((ok, fail) => {
                     setTimeout(() => {
                         ok("<html><body>resolved after half second</body></html>");
@@ -90,7 +90,7 @@ describe("controller methods", () => {
             }
 
             @Get("/posts-from-failed-db")
-            getPostFromFailedDb() {
+            getPostFromFailedDb(): Promise<string> {
                 return new Promise((ok, fail) => {
                     setTimeout(() => {
                         fail("<html><body>cannot connect to a database</body></html>");

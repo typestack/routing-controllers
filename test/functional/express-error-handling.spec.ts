@@ -62,7 +62,7 @@ describe("express error handling", () => {
                 this.secretData = privateMsg || "secret";
             }
 
-            toJSON() {
+            toJSON(): any {
                 return {
                     status: this.httpCode,
                     publicData: `${this.publicData} (${this.httpCode})`
@@ -73,7 +73,7 @@ describe("express error handling", () => {
         @JsonController()
         class ExpressErrorHandlerController {
             @Get("/blogs")
-            blogs() {
+            blogs(): any {
                 return {
                     id: 1,
                     title: "About me"
@@ -81,34 +81,34 @@ describe("express error handling", () => {
             }
 
             @Get("/posts")
-            posts() {
+            posts(): never {
                 throw new Error("System error, cannot retrieve posts");
             }
 
             @Get("/videos")
-            videos() {
+            videos(): never {
                 throw new NotFoundError("Videos were not found.");
             }
 
             @Get("/questions")
             @UseAfter(SpecificErrorHandler)
-            questions() {
+            questions(): never {
                 throw new Error("Something is wrong... Cannot load questions");
             }
 
             @Get("/files")
             @UseAfter(SoftErrorHandler)
-            files() {
+            files(): never {
                 throw new Error("Something is wrong... Cannot load files");
             }
 
             @Get("/photos")
-            photos() {
+            photos(): string {
                 return "1234";
             }
 
             @Get("/stories")
-            stories() {
+            stories(): never {
                 throw new ToJsonError(503, "sorry, try it again later", "impatient user");
             }
         }

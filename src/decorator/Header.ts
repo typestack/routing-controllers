@@ -5,7 +5,7 @@ import {getMetadataArgsStorage} from "../index";
  * Must be applied on a controller action.
  */
 export function Header(name: string, value: string): Function {
-    return function (object: Object, methodName: string) {
+    return function (object: Record<string, any>, methodName: string): void {
         getMetadataArgsStorage().responseHandlers.push({
             type: "header",
             target: object.constructor,

@@ -24,13 +24,13 @@ getMetadataArgsStorage().reset();
 @JsonController()
 class TestUserController {
     @Post("/users")
-    postUsers(@Body() user: User) {
+    postUsers(@Body() user: User): string {
         initializedUser = user;
         return "";
     }
 
     @Post(new RegExp("/(prefix|regex)/users"))
-    postUsersWithRegex(@Body() user: User) {
+    postUsersWithRegex(@Body() user: User): string {
         initializedUser = user;
         return "";
     }

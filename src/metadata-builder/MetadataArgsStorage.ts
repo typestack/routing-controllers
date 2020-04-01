@@ -142,7 +142,7 @@ export class MetadataArgsStorage {
     /**
      * Removes all saved metadata.
      */
-    reset() {
+    reset(): void {
         this.controllers = [];
         this.middlewares = [];
         this.interceptors = [];

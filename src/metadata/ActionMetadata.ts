@@ -159,6 +159,26 @@ export class ActionMetadata {
     }
 
     // -------------------------------------------------------------------------
+    // Static Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Appends base route to a given regexp route.
+     */
+    // TODO: tidy me up
+    static appendBaseRoute(baseRoute: string, route: RegExp | string): any {
+        const prefix = `${baseRoute.length > 0 && !baseRoute.includes("/") ? "/" : ""}${baseRoute}`;
+        if (typeof route === "string")
+            return `${prefix}${route}`;
+
+        if (!baseRoute || baseRoute === "") return route;
+
+        const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
+
+        return new RegExp(fullPath, route.flags);
+    }
+
+    // -------------------------------------------------------------------------
     // Public Methods
     // -------------------------------------------------------------------------
 
@@ -166,7 +186,7 @@ export class ActionMetadata {
      * Builds everything action metadata needs.
      * Action metadata can be used only after its build.
      */
-    build(responseHandlers: ResponseHandlerMetadata[]) {
+    build(responseHandlers: ResponseHandlerMetadata[]): void {
         const classTransformerResponseHandler = responseHandlers.find(handler => handler.type === "response-class-transform-options");
         const undefinedResultHandler = responseHandlers.find(handler => handler.type === "on-undefined");
         const nullResultHandler = responseHandlers.find(handler => handler.type === "on-null");
@@ -179,15 +199,15 @@ export class ActionMetadata {
 
         if (classTransformerResponseHandler)
             this.responseClassTransformOptions = classTransformerResponseHandler.value;
-        
+
         this.undefinedResultCode = undefinedResultHandler
             ? undefinedResultHandler.value
             : this.options.defaults && this.options.defaults.undefinedResultCode;
-        
+
         this.nullResultCode = nullResultHandler
             ? nullResultHandler.value
             : this.options.defaults && this.options.defaults.nullResultCode;
-        
+
         if (successCodeHandler)
             this.successHttpCode = successCodeHandler.value;
         if (redirectHandler)
@@ -199,8 +219,8 @@ export class ActionMetadata {
         this.isBodyUsed = !!this.params.find(param => param.type === "body" || param.type === "body-param");
         this.isFilesUsed = !!this.params.find(param => param.type === "files");
         this.isFileUsed = !!this.params.find(param => param.type === "file");
-        this.isJsonTyped = (contentTypeHandler !== undefined 
-            ? /json/.test(contentTypeHandler.value)
+        this.isJsonTyped = (contentTypeHandler !== undefined
+            ? contentTypeHandler.value.includes("json")
             : this.controllerMetadata.type === "json"
         );
         this.fullRoute = this.buildFullRoute();
@@ -208,6 +228,19 @@ export class ActionMetadata {
 
         this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
         this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat((authorizedHandler && authorizedHandler.value) || []);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public Methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Calls action method.
+     * Action method is an action defined in a user controller.
+     */
+    callMethod(params: any[]): any {
+        const controllerInstance = this.controllerMetadata.instance;
+        return controllerInstance[this.method](...params);
     }
 
     // -------------------------------------------------------------------------
@@ -234,7 +267,7 @@ export class ActionMetadata {
     /**
      * Builds action response headers.
      */
-    private buildHeaders(responseHandlers: ResponseHandlerMetadata[]) {
+    private buildHeaders(responseHandlers: ResponseHandlerMetadata[]): { [name: string]: string } {
         const contentTypeHandler = responseHandlers.find(handler => handler.type === "content-type");
         const locationHandler = responseHandlers.find(handler => handler.type === "location");
 
@@ -251,37 +284,4 @@ export class ActionMetadata {
 
         return headers;
     }
-
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Calls action method.
-     * Action method is an action defined in a user controller.
-     */
-    callMethod(params: any[]) {
-        const controllerInstance = this.controllerMetadata.instance;
-        return controllerInstance[this.method].apply(controllerInstance, params);
-    }
-
-    // -------------------------------------------------------------------------
-    // Static Methods
-    // -------------------------------------------------------------------------
-
-    /**
-     * Appends base route to a given regexp route.
-     */
-    static appendBaseRoute(baseRoute: string, route: RegExp|string) {
-        const prefix = `${baseRoute.length > 0 && baseRoute.indexOf("/") < 0 ? "/" : ""}${baseRoute}`;
-        if (typeof route === "string")
-            return `${prefix}${route}`;
-
-        if (!baseRoute || baseRoute === "") return route;
-
-        const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
-        
-        return new RegExp(fullPath, route.flags);
-    }
-
 }

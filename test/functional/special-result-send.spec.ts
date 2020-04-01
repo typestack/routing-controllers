@@ -10,6 +10,7 @@ import {Server as HttpServer} from "http";
 import HttpStatusCodes from "http-status-codes";
 import DoneCallback = jest.DoneCallback;
 import {axios} from "../utilities/axios";
+import ReadableStream = NodeJS.ReadableStream;
 
 describe("special result value treatment", () => {
     let expressServer: HttpServer;
@@ -22,19 +23,19 @@ describe("special result value treatment", () => {
         class HandledController {
             @Get("/stream")
             @ContentType("text/plain")
-            getStream() {
+            getStream(): ReadableStream {
                 return createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt"));
             }
 
             @Get("/buffer")
             @ContentType("application/octet-stream")
-            getBuffer() {
+            getBuffer(): Buffer {
                 return Buffer.from(rawData);
             }
 
             @Get("/array")
             @ContentType("application/octet-stream")
-            getUIntArray() {
+            getUIntArray(): Uint8Array {
                 return new Uint8Array(rawData);
             }
         }
@@ -47,11 +48,11 @@ describe("special result value treatment", () => {
     it("should pipe stream to response", () => {
         expect.assertions(3);
         return axios.get("/stream")
-            .then(async (response: AxiosResponse) => {
-            expect(response.status).toEqual(HttpStatusCodes.OK);
-            expect(response.headers["content-type"]).toEqual("text/plain; charset=utf-8");
-            expect(response.data).toEqual("Hello World!");
-        });
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/plain; charset=utf-8");
+                expect(response.data).toEqual("Hello World!");
+            });
     });
 
     it("should send raw binary data from Buffer", () => {

@@ -17,7 +17,7 @@ export function Put(route?: string): Function;
  * Must be applied on a controller action.
  */
 export function Put(route?: string|RegExp): Function {
-    return function (object: Object, methodName: string) {
+    return function(object: Record<string, any>, methodName: string): void {
         getMetadataArgsStorage().actions.push({
             type: "put",
             target: object.constructor,

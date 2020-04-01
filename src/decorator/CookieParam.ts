@@ -6,7 +6,7 @@ import {getMetadataArgsStorage} from "../index";
  * Must be applied on a controller action parameter.
  */
 export function CookieParam(name: string, options?: ParamOptions) {
-    return function (object: Object, methodName: string, index: number) {
+    return function(object: Record<string, any>, methodName: string, index: number): void {
         getMetadataArgsStorage().params.push({
             type: "cookie",
             object: object,

@@ -21,35 +21,35 @@ describe("defaults", () => {
         @Controller()
         class ExpressController {
             @Get("/voidfunc")
-            voidFunc() {
+            voidFunc(): void {
                 // Empty
             }
 
             @Get("/promisevoidfunc")
-            promiseVoidFunc() {
+            promiseVoidFunc(): Promise<void> {
                 return Promise.resolve();
             }
 
             @Get("/paramfunc")
-            paramFunc(@QueryParam("x") x: number) {
+            paramFunc(@QueryParam("x") x: number): any {
                 return {
                     foo: "bar"
                 };
             }
 
             @Get("/nullfunc")
-            nullFunc(): string {
+            nullFunc(): null {
                 return null;
             }
 
             @Get("/overridefunc")
             @OnUndefined(HttpStatusCodes.NOT_ACCEPTABLE)
-            overrideFunc() {
+            overrideFunc(): void {
                 // Empty
             }
 
             @Get("/overrideparamfunc")
-            overrideParamFunc(@QueryParam("x", {required: false}) x: number) {
+            overrideParamFunc(@QueryParam("x", {required: false}) x: number): any {
                 return {
                     foo: "bar"
                 };

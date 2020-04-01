@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@types/body-parser": "1.19.0",
+    "@types/cookie": "^0.3.3",
     "@types/cors": "2.8.6",
     "@types/express": "4.17.4",
     "@types/express-session": "1.17.0",
@@ -51,12 +52,16 @@
     "@types/mustache-express": "1.2.1",
     "@types/node": "13.9.8",
     "@types/qs": "6.9.1",
+    "@typescript-eslint/eslint-plugin": "2.26.0",
+    "@typescript-eslint/parser": "2.26.0",
     "axios": "0.19.2",
     "body-parser": "1.19.0",
     "class-transformer": "0.2.3",
     "class-validator": "0.11.1",
     "copyfiles": "2.2.0",
     "cors": "2.8.5",
+    "eslint": "6.8.0",
+    "eslint-plugin-jest": "23.8.2",
     "express": "4.17.1",
     "express-session": "1.17.0",
     "handlebars": "4.7.3",
@@ -79,10 +84,10 @@
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
     "clean": "rimraf build coverage",
     "copy": "copyfiles -u 3 \"build/compiled/src/**/*\" build/package && copyfiles package.json README.md build/package",
-    "lint": "tslint --fix --format verbose --project tsconfig.json",
+    "lint": "eslint --config ./.eslintrc.js --ext .ts ./src ./test",
     "package": "npm run build && npm run copy && npm run public && rimraf build/compiled",
     "pretest": "npm run lint",
     "public": "json -I -f build/package/package.json -e 'this.private=false'",
-    "test": "rimraf coverage && cross-env jest --coverage"
+    "test": "rimraf coverage && jest --coverage"
   }
 }

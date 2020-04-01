@@ -19,7 +19,7 @@ describe("dynamic redirect", function () {
         @JsonController("/users")
         class TestController {
             @Get("/:id")
-            async getOne(@Param("id") id: string) {
+            getOne(@Param("id") id: string): any {
                 return {
                     login: id
                 };
@@ -30,18 +30,19 @@ describe("dynamic redirect", function () {
         class RedirectController {
             @Get("/template")
             @Redirect("/users/:owner")
-            template() {
+            template(): any {
                 return {owner: "pleerock", repo: "routing-controllers"};
             }
 
             @Get("/original")
             @Redirect("/users/pleerock")
-            original() {
+            original(): void {
+                // Empty
             }
 
             @Get("/override")
             @Redirect("https://api.github.com")
-            override() {
+            override(): string {
                 return "/users/pleerock";
             }
         }

@@ -733,7 +733,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -755,7 +755,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -796,7 +796,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -809,9 +809,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true
@@ -1022,7 +1022,7 @@ import {Middleware, ExpressMiddlewareInterface} from "routing-controllers";
 @Middleware({ type: "before" })
 export class LoggingMiddleware implements ExpressMiddlewareInterface {
 
-    use(request: any, response: any, next: (err: any) => any): void {
+    use(error: any, request: express.Request, response: express.Response, next: express.NextFunction): any: void {
         console.log("do something...");
         next();
     }

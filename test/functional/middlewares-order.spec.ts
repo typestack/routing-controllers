@@ -49,7 +49,7 @@ describe("loaded direct from array", () => {
         @Controller()
         class ExpressMiddlewareController {
             @Get("/test")
-            test() {
+            test(): string {
                 return "OK";
             }
         }
@@ -111,7 +111,7 @@ describe("specified by priority option", () => {
         @Controller()
         class ExpressMiddlewareController {
             @Get("/test")
-            test() {
+            test(): string {
                 return "OK";
             }
         }

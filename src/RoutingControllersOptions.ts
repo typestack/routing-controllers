@@ -1,7 +1,6 @@
 import {AuthorizationChecker} from "./AuthorizationChecker";
 import {ClassTransformOptions} from "class-transformer";
 import {CurrentUserChecker} from "./CurrentUserChecker";
-import { ParamOptions } from "./decorator-options/ParamOptions";
 import {ValidatorOptions} from "class-validator";
 
 /**
@@ -13,7 +12,7 @@ export interface RoutingControllersOptions {
      * Indicates if cors are enabled.
      * This requires installation of additional module (cors for express and kcors for koa).
      */
-    cors?: boolean|Object;
+    cors?: boolean | Record<string, any>;
 
     /**
      * Global route prefix, for example '/api'.
@@ -85,7 +84,7 @@ export interface RoutingControllersOptions {
      * Special function used to get currently authorized user.
      */
     currentUserChecker?: CurrentUserChecker;
-    
+
     /**
      * Default settings
      */

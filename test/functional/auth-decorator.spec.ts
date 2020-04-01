@@ -10,9 +10,9 @@ import {AxiosError, AxiosResponse} from "axios";
 import HttpStatusCodes from "http-status-codes";
 import {axios} from "../utilities/axios";
 
-const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
+const sleep = (time: number): Promise<void> => new Promise(resolve => setTimeout(resolve, time));
 
-describe("Controller responds with value when Authorization succeeds (async)", function () {
+describe("Controller responds with value when Authorization succeeds (async)", () => {
     let expressServer: HttpServer;
 
     beforeEach((done: DoneCallback) => {
@@ -22,19 +22,19 @@ describe("Controller responds with value when Authorization succeeds (async)", f
         class AuthController {
             @Authorized()
             @Get("/auth1")
-            auth1() {
+            auth1(): any {
                 return {test: "auth1"};
             }
 
             @Authorized(["role1"])
             @Get("/auth2")
-            auth2() {
+            auth2(): any {
                 return {test: "auth2"};
             }
 
             @Authorized()
             @Get("/auth3")
-            async auth3() {
+            async auth3(): Promise<any> {
                 await sleep(10);
                 return {test: "auth3"};
             }
@@ -88,26 +88,26 @@ describe("Controller responds with value when Authorization succeeds (sync)", ()
         class AuthController {
             @Authorized()
             @Get("/auth1")
-            auth1() {
+            auth1(): any {
                 return {test: "auth1"};
             }
 
             @Authorized(["role1"])
             @Get("/auth2")
-            auth2() {
+            auth2(): any {
                 return {test: "auth2"};
             }
 
             @Authorized()
             @Get("/auth3")
-            async auth3() {
+            async auth3(): Promise<any> {
                 await sleep(10);
                 return {test: "auth3"};
             }
         }
 
         expressServer = createExpressServer({
-            authorizationChecker: async (action: Action, roles?: string[]) => {
+            authorizationChecker: (action: Action, roles?: string[]) => {
                 return true;
             }
         }).listen(3001, done);
@@ -153,19 +153,19 @@ describe("Authorized Decorators Http Status Code", () => {
         class AuthController {
             @Authorized()
             @Get("/auth1")
-            auth1() {
+            auth1(): any {
                 return {test: "auth1"};
             }
 
             @Authorized(["role1"])
             @Get("/auth2")
-            auth2() {
+            auth2(): any {
                 return {test: "auth2"};
             }
         }
 
         expressServer = createExpressServer({
-            authorizationChecker: async (action: Action, roles?: string[]) => {
+            authorizationChecker: (action: Action, roles?: string[]) => {
                 return false;
             }
         }).listen(3001, done);
@@ -200,13 +200,13 @@ describe("Authorization checker allows to throw (async)", () => {
         class AuthController {
             @Authorized()
             @Get("/auth1")
-            auth1() {
+            auth1(): any {
                 return {test: "auth1"};
             }
         }
 
         expressServer = createExpressServer({
-            authorizationChecker: async (action: Action, roles?: string[]) => {
+            authorizationChecker: (action: Action, roles?: string[]) => {
                 throw new NotAcceptableError("Custom Error");
             }
         }).listen(3001, done);
@@ -236,13 +236,13 @@ describe("Authorization checker allows to throw (sync)", () => {
         class AuthController {
             @Authorized()
             @Get("/auth1")
-            auth1() {
+            auth1(): any {
                 return {test: "auth1"};
             }
         }
 
         expressServer = createExpressServer({
-            authorizationChecker: async (action: Action, roles?: string[]) => {
+            authorizationChecker: (action: Action, roles?: string[]) => {
                 throw new NotAcceptableError("Custom Error");
             }
         }).listen(3001, done);

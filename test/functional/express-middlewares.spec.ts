@@ -74,14 +74,14 @@ describe("express middlewares", () => {
         @Controller()
         class ExpressMiddlewareController {
             @Get("/blogs")
-            blogs() {
+            blogs(): string {
                 useGlobalCallOrder = "setFromController";
                 return "1234";
             }
 
             @Get("/questions")
             @UseBefore(TestLoggerMiddleware)
-            questions() {
+            questions(): string {
                 return "1234";
             }
 
@@ -91,7 +91,7 @@ describe("express middlewares", () => {
                 useCallOrder = "setFromUseBefore";
                 next();
             })
-            users() {
+            users(): string {
                 useCallOrder = "setFromController";
                 return "1234";
             }
@@ -102,7 +102,7 @@ describe("express middlewares", () => {
                 useCallOrder = "setFromUseAfter";
                 next();
             })
-            photos() {
+            photos(): string {
                 useCallOrder = "setFromController";
                 return "1234";
             }
@@ -118,14 +118,14 @@ describe("express middlewares", () => {
                 useCallOrder = "setFromUseAfter";
                 next();
             })
-            posts() {
+            posts(): string {
                 useCallOrder = "setFromController";
                 return "1234";
             }
 
             @Get("/customMiddlewareWichThrows")
             @UseBefore(TestCustomMiddlewareWhichThrows)
-            customMiddlewareWichThrows() {
+            customMiddlewareWichThrows(): string {
                 return "1234";
             }
         }

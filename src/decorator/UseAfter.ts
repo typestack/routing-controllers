@@ -23,7 +23,7 @@ export function UseAfter(...middlewares: Array<(request: any, response: any, nex
  * Must be set to controller action or controller class.
  */
 export function UseAfter(...middlewares: Array<Function|((request: any, response: any, next: Function) => any)>): Function {
-    return function (objectOrFunction: Object|Function, methodName?: string) {
+    return function(objectOrFunction: Record<string, any> | Function, methodName?: string): void {
         middlewares.forEach(middleware => {
             getMetadataArgsStorage().uses.push({
                 target: methodName ? objectOrFunction.constructor : objectOrFunction as Function,

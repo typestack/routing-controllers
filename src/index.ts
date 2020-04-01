@@ -105,34 +105,7 @@ export function getMetadataArgsStorage(): MetadataArgsStorage {
 /**
  * Registers all loaded actions in your express application.
  */
-export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
-    const driver = new ExpressDriver(expressApp);
-    return createServer(driver, options);
-}
-
-/**
- * Registers all loaded actions in your express application.
- */
-// TODO: Rename me to createExpressApplication
-// express is an application, express.listen returns an http/https server
-export function createExpressServer(options?: RoutingControllersOptions): ExpressApplication {
-    const driver = new ExpressDriver();
-    return createServer(driver, options);
-}
-
-/**
- * Registers all loaded actions in your application using selected driver.
- */
-export function createServer<T extends BaseDriver>(driver: T, options?: RoutingControllersOptions): any {
-    createExecutor(driver, options);
-    return driver.app;
-}
-
-/**
- * Registers all loaded actions in your express application.
- */
 export function createExecutor<T extends BaseDriver>(driver: T, options: RoutingControllersOptions = {}): void {
-
     // import all controllers and middlewares and error handlers (new way)
     let controllerClasses: Function[];
     if (options && options.controllers && options.controllers.length) {
@@ -207,10 +180,36 @@ export function createExecutor<T extends BaseDriver>(driver: T, options: Routing
 }
 
 /**
+ * Registers all loaded actions in your application using selected driver.
+ */
+export function createServer<T extends BaseDriver>(driver: T, options?: RoutingControllersOptions): any {
+    createExecutor(driver, options);
+    return driver.app;
+}
+
+/**
+ * Registers all loaded actions in your express application.
+ */
+export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
+    const driver = new ExpressDriver(expressApp);
+    return createServer(driver, options);
+}
+
+/**
+ * Registers all loaded actions in your express application.
+ */
+// TODO: Rename me to createExpressApplication
+// express is an application, express.listen returns an http/https server
+export function createExpressServer(options?: RoutingControllersOptions): ExpressApplication {
+    const driver = new ExpressDriver();
+    return createServer(driver, options);
+}
+
+/**
  * Registers custom parameter decorator used in the controller actions.
  */
 export function createParamDecorator(options: CustomParameterDecorator) {
-    return function(object: Object, method: string, index: number) {
+    return function(object: Record<string, any>, method: string, index: number): void {
         getMetadataArgsStorage().params.push({
             type: "custom-converter",
             object: object,

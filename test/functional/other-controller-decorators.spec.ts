@@ -36,19 +36,19 @@ describe("other controller decorators", () => {
         class OtherDectoratorsController {
             @Post("/users")
             @HttpCode(201)
-            getUsers() {
+            getUsers(): string {
                 return "<html><body>User has been created</body></html>";
             }
 
             @Get("/admin")
             @HttpCode(403)
-            getAdmin() {
+            getAdmin(): string {
                 return "<html><body>Access is denied</body></html>";
             }
 
             @Get("/posts/:id")
             @OnNull(404)
-            getPost(@Param("id") id: number) {
+            getPost(@Param("id") id: number): Promise<string> {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Post");
@@ -67,7 +67,7 @@ describe("other controller decorators", () => {
 
             @Get("/photos/:id")
             @OnUndefined(201)
-            getPhoto(@Param("id") id: number) {
+            getPhoto(@Param("id") id: number): Promise<string> {
                 if (id === 4) {
                     return undefined;
                 }
@@ -90,32 +90,32 @@ describe("other controller decorators", () => {
 
             @Get("/homepage")
             @ContentType("text/html; charset=utf-8")
-            getHomepage() {
+            getHomepage(): string {
                 return "<html><body>Hello world</body></html>";
             }
 
             @Get("/textpage")
             @ContentType("text/plain; charset=utf-8")
-            getTextpage() {
+            getTextpage(): string {
                 return "Hello text";
             }
 
             @Get("/userdash")
             @Header("authorization", "Barer abcdefg")
             @Header("development-mode", "enabled")
-            getUserdash() {
+            getUserdash(): string {
                 return "<html><body>Hello, User</body></html>";
             }
 
             @Get("/github")
             @Location("http://github.com")
-            getToGithub() {
+            getToGithub(): string {
                 return "<html><body>Hello, github</body></html>";
             }
 
             @Get("/github-redirect")
             @Redirect("http://github.com")
-            goToGithub() { // todo: need test for this one
+            goToGithub(): string { // todo: need test for this one
                 return "<html><body>Hello, github</body></html>";
             }
         }
@@ -124,7 +124,7 @@ describe("other controller decorators", () => {
         class JsonOtherDectoratorsController {
             @Get("/questions/:id")
             @OnUndefined(QuestionNotFoundError)
-            getPosts(@Param("id") id: number) {
+            getPosts(@Param("id") id: number): Promise<string> {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Question");

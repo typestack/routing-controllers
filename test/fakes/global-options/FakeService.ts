@@ -5,27 +5,27 @@ export class FakeService {
     questionErrorMiddlewareCalled = false;
     postMiddlewareCalled = false;
 
-    fileMiddleware() {
+    fileMiddleware(): void {
         this.fileMiddlewareCalled = true;
     }
 
-    videoMiddleware() {
+    videoMiddleware(): void {
         this.videoMiddlewareCalled = true;
     }
 
-    questionMiddleware() {
+    questionMiddleware(): void {
         this.questionMiddlewareCalled = true;
     }
 
-    questionErrorMiddleware() {
+    questionErrorMiddleware(): void {
         this.questionErrorMiddlewareCalled = true;
     }
 
-    postMiddleware() {
+    postMiddleware(): void {
         this.postMiddlewareCalled = true;
     }
 
-    reset() {
+    reset(): void {
         this.fileMiddlewareCalled = false;
         this.videoMiddlewareCalled = false;
         this.questionMiddlewareCalled = false;

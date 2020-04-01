@@ -18,7 +18,7 @@ export function UseInterceptor(...interceptors: Array<(action: Action, result: a
  * Must be set to controller action or controller class.
  */
 export function UseInterceptor(...interceptors: Array<Function|((action: Action, result: any) => any)>): Function {
-    return function (objectOrFunction: Object|Function, methodName?: string) {
+    return function(objectOrFunction: Record<string, any> | Function, methodName?: string): void {
         interceptors.forEach(interceptor => {
             getMetadataArgsStorage().useInterceptors.push({
                 interceptor: interceptor,

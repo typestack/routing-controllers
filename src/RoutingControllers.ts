@@ -108,7 +108,7 @@ export class RoutingControllers<T extends BaseDriver> {
     /**
      * Executes given controller action.
      */
-    protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
+    protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]): any {
 
         // compute all parameters
         const paramsPromises = actionMetadata.params
@@ -170,7 +170,9 @@ export class RoutingControllers<T extends BaseDriver> {
     protected prepareInterceptors(uses: InterceptorMetadata[]): Function[] {
         return uses.map(use => {
             if (use.interceptor.prototype && use.interceptor.prototype.intercept) { // if this is function instance of InterceptorInterface
-                return function (action: Action, result: any) {
+                return function (action: Action, result: any): any {
+                    // TODO: Fix this rule
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
                     return (getFromContainer(use.interceptor) as InterceptorInterface).intercept(action, result);
                 };
             }

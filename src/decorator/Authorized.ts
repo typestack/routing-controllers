@@ -29,7 +29,7 @@ export function Authorized(role: Function): Function;
  * Authorization logic must be defined in routing-controllers settings.
  */
 export function Authorized(roleOrRoles?: string|string[]|Function): Function {
-    return function (clsOrObject: Function|Object, method?: string) {
+    return function (clsOrObject: Function | Record<string, any>, method?: string): void {
         getMetadataArgsStorage().responseHandlers.push({
             type: "authorized",
             target: method ? clsOrObject.constructor : clsOrObject as Function,

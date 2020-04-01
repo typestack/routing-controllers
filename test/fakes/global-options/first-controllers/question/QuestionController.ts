@@ -3,9 +3,8 @@ import {Get} from "../../../../../src/decorator/Get";
 
 @JsonController()
 export class QuestionController {
-
     @Get("/questions")
-    getAll() {
+    getAll(): any {
         return [{
             id: 1,
             title: "#1"
@@ -14,5 +13,4 @@ export class QuestionController {
             title: "#2"
         }];
     }
-
 }

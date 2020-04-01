@@ -36,13 +36,13 @@ let expressServer: HttpServer;
 let paramUserId: number | undefined, paramFirstId: number | undefined, paramSecondId: number | undefined;
 let sessionTestElement: string | undefined;
 let queryParamSortBy: string | undefined, queryParamCount: string | undefined, queryParamLimit: number | undefined,
-    queryParamShowAll: boolean | undefined, queryParamFilter: Object | undefined;
+    queryParamShowAll: boolean | undefined, queryParamFilter: Record<string, any> | undefined;
 let queryParams1: { [key: string]: any } | undefined, queryParams2: { [key: string]: any } | undefined,
     queryParams3: { [key: string]: any } | undefined;
 let headerParamToken: string | undefined, headerParamCount: number | undefined, headerParamLimit: number | undefined,
-    headerParamShowAll: boolean | undefined, headerParamFilter: Object | undefined;
+    headerParamShowAll: boolean | undefined, headerParamFilter: Record<string, any> | undefined;
 let cookieParamToken: string | undefined, cookieParamCount: number | undefined, cookieParamLimit: number | undefined,
-    cookieParamShowAll: boolean | undefined, cookieParamFilter: Object | undefined;
+    cookieParamShowAll: boolean | undefined, cookieParamFilter: Record<string, any> | undefined;
 let body: string | undefined;
 let bodyParamName: string | undefined, bodyParamAge: number | undefined, bodyParamIsActive: boolean | undefined;
 let expressRequest: express.Request | undefined, expressResponse: express.Response | undefined;
@@ -325,26 +325,26 @@ beforeAll((done) => {
     @JsonController()
     class SecondUserActionParamsController {
         @Post("/posts")
-        postPost(@Body() question: any) {
+        postPost(@Body() question: any): any {
             body = question;
             return body;
         }
 
         @Post("/posts-with-required")
-        postRequiredPost(@Body({required: true}) post: string) {
+        postRequiredPost(@Body({required: true}) post: string): any {
             body = post;
             return body;
         }
 
         @Get("/posts-after")
-        getPostsAfter(@QueryParam("from", {required: true}) from: Date): any {
+        getPostsAfter(@QueryParam("from", {required: true}) from: Date): string {
             return from.toISOString();
         }
 
         @Post("/users")
         postUser(@BodyParam("name") name: string,
                  @BodyParam("age") age: number,
-                 @BodyParam("isActive") isActive: boolean): any {
+                 @BodyParam("isActive") isActive: boolean): null {
             bodyParamName = name;
             bodyParamAge = age;
             bodyParamIsActive = isActive;
@@ -354,7 +354,7 @@ beforeAll((done) => {
         @Post("/users-with-required")
         postUserWithRequired(@BodyParam("name", {required: true}) name: string,
                              @BodyParam("age", {required: true}) age: number,
-                             @BodyParam("isActive", {required: true}) isActive: boolean): any {
+                             @BodyParam("isActive", {required: true}) isActive: boolean): null {
             bodyParamName = name;
             bodyParamAge = age;
             bodyParamIsActive = isActive;
@@ -833,7 +833,7 @@ it("@Body using application/x-www-form-urlencoded should handle url encoded form
 
 it("@UploadedFile using multipart/form-data should provide uploaded file with the given name", () => {
     expect.assertions(3);
-    let form = new FormData();
+    const form = new FormData();
     form.append("myFile", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     return axios.post("/file", form, {
         headers: form.getHeaders()
@@ -846,7 +846,7 @@ it("@UploadedFile using multipart/form-data should provide uploaded file with th
 
 it("@UploadedFile with @Body should return both the file and the body", () => {
     expect.assertions(3);
-    let form = new FormData();
+    const form = new FormData();
     form.append("myFile", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     form.append("anotherField", "hello");
     form.append("andAnother", "world");
@@ -861,7 +861,7 @@ it("@UploadedFile with @Body should return both the file and the body", () => {
 
 it("@UploadedFile with @BodyParam should return both the file and the body param", () => {
     expect.assertions(3);
-    let form = new FormData();
+    const form = new FormData();
     form.append("myFile", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     form.append("testParam", "testParamOne");
     return axios.post("/file-with-body-param", form, {
@@ -875,7 +875,7 @@ it("@UploadedFile with @BodyParam should return both the file and the body param
 
 it("@UploadedFile with passed uploading options (limit) should throw an error", () => {
     expect.assertions(1);
-    let form = new FormData();
+    const form = new FormData();
     form.append("myFile", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     return axios.post("/file-with-limit", form, {
         headers: form.getHeaders()
@@ -886,7 +886,7 @@ it("@UploadedFile with passed uploading options (limit) should throw an error", 
 
 it("@UploadedFile when required is used files must be provided", () => {
     expect.assertions(4);
-    let form = new FormData();
+    const form = new FormData();
     form.append("myFile", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     return Promise.all<AxiosResponse | void>([
         axios.post("/file-with-required", form, {
@@ -906,7 +906,7 @@ it("@UploadedFile when required is used files must be provided", () => {
 
 it("@UploadedFiles should provide uploaded files with the given name", () => {
     expect.assertions(3);
-    let form = new FormData();
+    const form = new FormData();
     form.append("photos", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     form.append("photos", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-two.txt")));
     return axios.post("/photos", form, {
@@ -920,7 +920,7 @@ it("@UploadedFiles should provide uploaded files with the given name", () => {
 
 it("@UploadedFiles with passed uploading options (limit) should throw an error", () => {
     expect.assertions(1);
-    let form = new FormData();
+    const form = new FormData();
     form.append("photos", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-one.txt")));
     form.append("photos", fs.createReadStream(path.resolve(__dirname, "../resources/sample-text-file-two.txt")));
     return axios.post("/photos-with-limit", form, {
@@ -932,7 +932,7 @@ it("@UploadedFiles with passed uploading options (limit) should throw an error",
 
 it("@UploadedFiles when required is used files must be provided", () => {
     expect.assertions(1);
-    let form = new FormData();
+    const form = new FormData();
     return axios.post("/photos-with-required", undefined, {
         headers: form.getHeaders()
     }).catch((error: AxiosError) => {

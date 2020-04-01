@@ -106,7 +106,7 @@ describe("using custom container should be possible", () => {
         const fakeContainer = {
             services: [] as any,
 
-            get(service: any) {
+            get(service: any): any {
                 if (!this.services[service.name]) {
                     this.services[service.name] = new service();
                 }
