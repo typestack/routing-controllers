@@ -1,19 +1,17 @@
 import {CustomParameterDecorator} from "./CustomParameterDecorator";
 import {BaseDriver} from "./driver/BaseDriver";
 import {ExpressDriver} from "./driver/express/ExpressDriver";
-import {KoaDriver} from "./driver/koa/KoaDriver";
 import {MetadataArgsStorage} from "./metadata-builder/MetadataArgsStorage";
 import {RoutingControllers} from "./RoutingControllers";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
 import {ValidationOptions} from "class-validator";
 import {importClassesFromDirectories} from "./util/importClassesFromDirectories";
+import {Application as ExpressApplication} from "express";
 
 // -------------------------------------------------------------------------
 // Main exports
 // -------------------------------------------------------------------------
-
-export * from "./container";
-
+export * from "./util/container";
 export * from "./decorator/Authorized";
 export * from "./decorator/Body";
 export * from "./decorator/BodyParam";
@@ -21,7 +19,6 @@ export * from "./decorator/ContentType";
 export * from "./decorator/Controller";
 export * from "./decorator/CookieParam";
 export * from "./decorator/CookieParams";
-export * from "./decorator/Ctx";
 export * from "./decorator/CurrentUser";
 export * from "./decorator/Delete";
 export * from "./decorator/Get";
@@ -72,7 +69,6 @@ export * from "./http-error/UnauthorizedError";
 
 export * from "./driver/express/ExpressMiddlewareInterface";
 export * from "./driver/express/ExpressErrorMiddlewareInterface";
-export * from "./driver/koa/KoaMiddlewareInterface";
 export * from "./metadata-builder/MetadataArgsStorage";
 export * from "./metadata/ActionMetadata";
 export * from "./metadata/ControllerMetadata";
@@ -90,7 +86,6 @@ export * from "./InterceptorInterface";
 
 export * from "./driver/BaseDriver";
 export * from "./driver/express/ExpressDriver";
-export * from "./driver/koa/KoaDriver";
 
 // -------------------------------------------------------------------------
 // Main Functions
@@ -118,24 +113,10 @@ export function useExpressServer<T>(expressApp: T, options?: RoutingControllersO
 /**
  * Registers all loaded actions in your express application.
  */
-export function createExpressServer(options?: RoutingControllersOptions): any {
+// TODO: Rename me to createExpressApplication
+// express is an application, express.listen returns an http/https server
+export function createExpressServer(options?: RoutingControllersOptions): ExpressApplication {
     const driver = new ExpressDriver();
-    return createServer(driver, options);
-}
-
-/**
- * Registers all loaded actions in your koa application.
- */
-export function useKoaServer<T>(koaApp: T, options?: RoutingControllersOptions): T {
-    const driver = new KoaDriver(koaApp);
-    return createServer(driver, options);
-}
-
-/**
- * Registers all loaded actions in your koa application.
- */
-export function createKoaServer(options?: RoutingControllersOptions): any {
-    const driver = new KoaDriver();
     return createServer(driver, options);
 }
 

@@ -1,32 +1,33 @@
 import "reflect-metadata";
 import {JsonController} from "../../src/decorator/JsonController";
 import {Get} from "../../src/decorator/Get";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
+import {createExpressServer, getMetadataArgsStorage, HttpError} from "../../src/index";
 import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 import {Middleware} from "../../src/decorator/Middleware";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import {AxiosError, AxiosResponse} from "axios";
+import {Server as HttpServer} from "http";
+import HttpStatusCodes from "http-status-codes";
+import DoneCallback = jest.DoneCallback;
+import express from "express";
+import {axios} from "../utilities/axios";
 
 describe("custom express error handling", () => {
-
     let errorHandlerCalled: boolean;
+    let expressServer: HttpServer;
 
     beforeEach(() => {
-        errorHandlerCalled = undefined;
+        errorHandlerCalled = false;
     });
-    
-    before(() => {
 
-        // reset metadata args storage
+    beforeAll((done: DoneCallback) => {
         getMetadataArgsStorage().reset();
 
         @Middleware({ type: "after" })
         class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
-            error(error: any, req: any, res: any, next: any) {
+            error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
                 errorHandlerCalled = true;
-                
-                res.status(error.httpCode).send(error.message);
+                response.status(error.httpCode).send(error.message);
             }
         }
 
@@ -45,37 +46,30 @@ describe("custom express error handling", () => {
                 throw new NotFoundError("Videos were not found.");
             }
         }
+
+        expressServer = createExpressServer({
+            defaultErrorHandler: false
+        }).listen(3001, done);
     });
 
-    let app: any;
-    before(done => app = createExpressServer({defaultErrorHandler: false}).listen(3001, done));
-    after(done => app.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
     it("should not call global error handler middleware if there was no errors", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/blogs")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.empty;
-                expect(response).to.have.status(200);
+        expect.assertions(2);
+        return axios.get("/blogs")
+            .then((response: AxiosResponse) => {
+                expect(errorHandlerCalled).toBeFalsy();
+                expect(response.status).toEqual(HttpStatusCodes.OK);
             });
     });
 
     it("should call global error handler middleware", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/videos")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(response).to.have.status(404);
-            });
-    });
-
-    it("should be able to send response", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/videos")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(response).to.have.status(404);
-                expect(response.body).to.equals("Videos were not found.");
+        expect.assertions(3);
+        return axios.get("/videos")
+            .catch((error: AxiosError) => {
+                expect(errorHandlerCalled).toBeTruthy();
+                expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                expect(error.response.data).toEqual("Videos were not found.")
             });
     });
 });

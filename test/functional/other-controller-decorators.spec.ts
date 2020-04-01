@@ -3,8 +3,7 @@ import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Param} from "../../src/decorator/Param";
 import {Post} from "../../src/decorator/Post";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage, OnNull} from "../../src/index";
-import {assertRequest} from "./test-utils";
+import {createExpressServer, getMetadataArgsStorage, OnNull} from "../../src/index";
 import {HttpCode} from "../../src/decorator/HttpCode";
 import {ContentType} from "../../src/decorator/ContentType";
 import {Header} from "../../src/decorator/Header";
@@ -14,33 +13,33 @@ import {OnUndefined} from "../../src/decorator/OnUndefined";
 import {HttpError} from "../../src/http-error/HttpError";
 import {Action} from "../../src/Action";
 import {JsonController} from "../../src/decorator/JsonController";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import {AxiosError, AxiosResponse} from "axios";
+import {Server as HttpServer} from "http";
+import HttpStatusCodes from "http-status-codes";
+import DoneCallback = jest.DoneCallback;
+import {axios} from "../utilities/axios";
 
 describe("other controller decorators", () => {
-    before(() => {
+    let expressServer: HttpServer;
 
-        // reset metadata args storage
+    beforeAll((done: DoneCallback) => {
         getMetadataArgsStorage().reset();
 
         class QuestionNotFoundError extends HttpError {
-
             constructor(action: Action) {
                 super(404, `Question was not found!`);
                 Object.setPrototypeOf(this, QuestionNotFoundError.prototype);
             }
-
         }
 
         @Controller()
         class OtherDectoratorsController {
-            
             @Post("/users")
             @HttpCode(201)
             getUsers() {
                 return "<html><body>User has been created</body></html>";
             }
-            
+
             @Get("/admin")
             @HttpCode(403)
             getAdmin() {
@@ -72,7 +71,7 @@ describe("other controller decorators", () => {
                 if (id === 4) {
                     return undefined;
                 }
-                
+
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Photo");
@@ -119,131 +118,161 @@ describe("other controller decorators", () => {
             goToGithub() { // todo: need test for this one
                 return "<html><body>Hello, github</body></html>";
             }
-            
         }
 
         @JsonController()
         class JsonOtherDectoratorsController {
-
             @Get("/questions/:id")
             @OnUndefined(QuestionNotFoundError)
             getPosts(@Param("id") id: number) {
                 return new Promise((ok, fail) => {
                     if (id === 1) {
                         ok("Question");
-
                     } else {
                         ok(undefined);
                     }
                 });
             }
-
         }
+
+        expressServer = createExpressServer().listen(3001, done);
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
-    after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
-    after(done => koaApp.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    describe("should return httpCode set by @HttpCode decorator", () => {
-        assertRequest([3001, 3002], "post", "users", { name: "Umed" }, response => {
-            expect(response).to.have.status(201);
-            expect(response.body).to.be.eql("<html><body>User has been created</body></html>");
-        });
-
-        assertRequest([3001, 3002], "get", "admin", response => {
-            expect(response).to.have.status(403);
-            expect(response.body).to.be.eql("<html><body>Access is denied</body></html>");
-        });
+    it("should return httpCode set by @HttpCode decorator", () => {
+        expect.assertions(4);
+        return Promise.all<AxiosResponse | void>([
+            axios.post("/users", {
+                name: "Umed"
+            }).then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.CREATED);
+                expect(response.data).toEqual("<html><body>User has been created</body></html>");
+            }),
+            axios.get("/admin")
+                .catch((error: AxiosError) => {
+                    expect(error.response.status).toEqual(HttpStatusCodes.FORBIDDEN);
+                    expect(error.response.data).toEqual("<html><body>Access is denied</body></html>");
+                })
+        ]);
     });
 
-    describe("should return custom code when @OnNull", () => {
-        assertRequest([3001, 3002], "get", "posts/1", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.eql("Post");
-        });
-        assertRequest([3001, 3002], "get", "posts/2", response => {
-            expect(response).to.have.status(200);
-        });
-        assertRequest([3001, 3002], "get", "posts/3", response => {
-            expect(response).to.have.status(404);
-        });
-        assertRequest([3001, 3002], "get", "posts/4", response => {
-            expect(response).to.have.status(404); // this is expected because for undefined 404 is given by default
-        });
-        assertRequest([3001, 3002], "get", "posts/5", response => {
-            expect(response).to.have.status(404); // this is expected because for undefined 404 is given by default
-        });
-    });
-    
-    describe("should return custom error message and code when @OnUndefined is used with Error class", () => {
-        assertRequest([3001, 3002], "get", "questions/1", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.equal("Question");
-        });
-        assertRequest([3001, 3002], "get", "questions/2", response => {
-            expect(response).to.have.status(404);
-            expect(response.body.name).to.be.equal("QuestionNotFoundError");
-            expect(response.body.message).to.be.equal("Question was not found!");
-        });
-        assertRequest([3001, 3002], "get", "questions/3", response => {
-            expect(response).to.have.status(404); // because of null
-            expect(response.body.name).to.be.equal("QuestionNotFoundError");
-            expect(response.body.message).to.be.equal("Question was not found!");
-        });
+    it("should return custom code when @OnNull", () => {
+        expect.assertions(6);
+        return Promise.all<AxiosResponse | void>([
+            axios.get("/posts/1")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.OK);
+                    expect(response.data).toEqual("Post");
+                }),
+            axios.get("/posts/2")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.OK);
+                }),
+            axios.get("/posts/3")
+                .catch((error: AxiosError) => {
+                    expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                }),
+            axios.get("/posts/4")
+                .catch((error: AxiosError) => {
+                    // this is expected because for undefined 404 is given by default
+                    expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                }),
+            axios.get("/posts/5")
+                .catch((error: AxiosError) => {
+                    // this is expected because for undefined 404 is given by default
+                    expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                })
+        ]);
     });
 
-    describe("should return custom code when @OnUndefined", () => {
-        assertRequest([3001, 3002], "get", "photos/1", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.eql("Photo");
-        });
-        assertRequest([3001, 3002], "get", "photos/2", response => {
-            expect(response).to.have.status(200);
-        });
-        assertRequest([3001, 3002], "get", "photos/3", response => {
-            expect(response).to.have.status(204); // because of null
-        });
-        assertRequest([3001, 3002], "get", "photos/4", response => {
-            expect(response).to.have.status(201);
-        });
-        assertRequest([3001, 3002], "get", "photos/5", response => {
-            expect(response).to.have.status(201);
-        });
+    it("should return custom error message and code when @OnUndefined is used with Error class", () => {
+        expect.assertions(8);
+        return Promise.all<AxiosResponse | void>([
+            axios.get("/questions/1")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.OK);
+                    expect(response.data).toEqual("Question");
+                }),
+            axios.get("/questions/2")
+                .catch((error: AxiosError) => {
+                    expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                    expect(error.response.data.name).toEqual("QuestionNotFoundError");
+                    expect(error.response.data.message).toEqual("Question was not found!");
+                }),
+            axios.get("/questions/3")
+                .catch((error: AxiosError) => {
+                    expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+                    expect(error.response.data.name).toEqual("QuestionNotFoundError");
+                    expect(error.response.data.message).toEqual("Question was not found!");
+                })
+        ]);
     });
 
-    describe("should return content-type in the response when @ContentType is used", () => {
-        assertRequest([3001, 3002], "get", "homepage", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.eql("<html><body>Hello world</body></html>");
-        });
+    it("should return custom code when @OnUndefined", () => {
+        expect.assertions(6);
+        return Promise.all<AxiosResponse | void>([
+            axios.get("/photos/1")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.OK);
+                    expect(response.data).toEqual("Photo");
+                }),
+            axios.get("/photos/2")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.OK);
+                }),
+            axios.get("/photos/3")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.NO_CONTENT);
+                }),
+            axios.get("/photos/4")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.CREATED);
+                }),
+            axios.get("/photos/5")
+                .then((response: AxiosResponse) => {
+                    expect(response.status).toEqual(HttpStatusCodes.CREATED);
+                })
+        ]);
     });
 
-    describe("should return content-type in the response when @ContentType is used", () => {
-        assertRequest([3001, 3002], "get", "textpage", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/plain; charset=utf-8");
-            expect(response.body).to.be.eql("Hello text");
-        });
+    it("should return content-type in the response when @ContentType is used", () => {
+        expect.assertions(3);
+        return axios.get("/homepage")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>Hello world</body></html>");
+            });
     });
 
-    describe("should return response with custom headers when @Header is used", () => {
-        assertRequest([3001, 3002], "get", "userdash", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("authorization", "Barer abcdefg");
-            expect(response).to.have.header("development-mode", "enabled");
-            expect(response.body).to.be.eql("<html><body>Hello, User</body></html>");
-        });
+    it("should return content-type in the response when @ContentType is used", () => {
+        expect.assertions(3);
+        return axios.get("/textpage")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/plain; charset=utf-8");
+                expect(response.data).toEqual("Hello text");
+            });
     });
 
-    describe("should relocate to new location when @Location is used", () => {
-        assertRequest([3001, 3002], "get", "github", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("location", "http://github.com");
-        });
+    it("should return response with custom headers when @Header is used", () => {
+        expect.assertions(4);
+        return axios.get("/userdash")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["authorization"]).toEqual("Barer abcdefg");
+                expect(response.headers["development-mode"]).toEqual("enabled");
+                expect(response.data).toEqual("<html><body>Hello, User</body></html>");
+            });
     });
 
+    it("should relocate to new location when @Location is used", () => {
+        expect.assertions(2);
+        return axios.get("/github")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["location"]).toEqual("http://github.com");
+            });
+    });
 });

@@ -907,7 +907,7 @@ Here is example of creating middleware for express.js:
 
     export class MyMiddleware implements ExpressMiddlewareInterface { // interface implementation is optional
 
-        use(request: any, response: any, next?: (err?: any) => any): any {
+        use(request: express.Request, response: express.Response, next: express.NextFunction): any {
             console.log("do something...");
             next();
         }

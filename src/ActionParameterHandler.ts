@@ -44,8 +44,9 @@ export class ActionParameterHandler<T extends BaseDriver> {
         // get parameter value from request and normalize it
         const value = this.normalizeParamValue(this.driver.getParamFromRequest(action, param), param);
 
-        if (isPromiseLike(value))
+        if (isPromiseLike(value)) {
             return value.then(value => this.handleValue(value, action, param));
+        }
 
         return this.handleValue(value, action, param);
     }
@@ -73,9 +74,11 @@ export class ActionParameterHandler<T extends BaseDriver> {
 
         // check cases when parameter is required but its empty and throw errors in this case
         if (param.required) {
+            // TODO: Use lodash.isEmpty()?
             const isValueEmpty = value === null || value === undefined || value === "";
             const isValueEmptyObject = typeof value === "object" && Object.keys(value).length === 0;
 
+            // TODO: Change to switch?
             if (param.type === "body" && !param.name && (isValueEmpty || isValueEmptyObject)) { // body has a special check and error message
                 return Promise.reject(new ParamRequiredError(action, param));
 
@@ -175,14 +178,14 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 } else {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
-                
+
             case "date":
                 const parsedDate = new Date(value);
                 if (Number.isNaN(parsedDate.getTime())) {
                     throw new InvalidParamError(value, parameterName, parameterType);
                 }
                 return parsedDate;
-                
+
             case "string":
             default:
                 return value;
@@ -237,7 +240,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
                 .catch((validationErrors: ValidationError[]) => {
                     const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
                     error.errors = validationErrors;
-                    error.paramName = paramMetadata.name; 
+                    error.paramName = paramMetadata.name;
                     throw error;
                 });
         }

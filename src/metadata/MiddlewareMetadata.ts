@@ -1,8 +1,7 @@
 import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
 import {ExpressMiddlewareInterface} from "../driver/express/ExpressMiddlewareInterface";
 import {ExpressErrorMiddlewareInterface} from "../driver/express/ExpressErrorMiddlewareInterface";
-import {getFromContainer} from "../container";
-import {KoaMiddlewareInterface} from "../driver/koa/KoaMiddlewareInterface";
+import {getFromContainer} from "../util/container";
 
 /**
  * Middleware metadata.
@@ -27,7 +26,7 @@ export class MiddlewareMetadata {
      * Execution priority of the middleware.
      */
     priority: number;
-    
+
     /**
      * Indicates if middleware must be executed after routing action is executed.
      */
@@ -36,7 +35,7 @@ export class MiddlewareMetadata {
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    
+
     constructor(args: MiddlewareMetadataArgs) {
         this.global = args.global;
         this.target = args.target;
@@ -51,8 +50,7 @@ export class MiddlewareMetadata {
     /**
      * Gets middleware instance from the container.
      */
-    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface {
-        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface>(this.target);
+    get instance(): ExpressMiddlewareInterface | ExpressErrorMiddlewareInterface {
+        return getFromContainer<ExpressMiddlewareInterface | ExpressErrorMiddlewareInterface>(this.target);
     }
-    
 }

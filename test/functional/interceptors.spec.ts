@@ -1,20 +1,21 @@
 import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
+import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
 import {InterceptorInterface} from "../../src/InterceptorInterface";
 import {Interceptor} from "../../src/decorator/Interceptor";
 import {UseInterceptor} from "../../src/decorator/UseInterceptor";
 import {Controller} from "../../src/decorator/Controller";
 import {Get} from "../../src/decorator/Get";
 import {Action} from "../../src/Action";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import {AxiosResponse} from "axios";
+import {Server as HttpServer} from "http";
+import HttpStatusCodes from "http-status-codes";
+import DoneCallback = jest.DoneCallback;
+import {axios} from "../utilities/axios";
 
 describe("interceptor", () => {
+    let expressServer: HttpServer;
 
-    before(() => {
-
-        // reset metadata args storage
+    beforeAll((done: DoneCallback) => {
         getMetadataArgsStorage().reset();
 
         @Interceptor()
@@ -49,7 +50,6 @@ describe("interceptor", () => {
         @Controller()
         @UseInterceptor(ByeWordInterceptor)
         class HandledController {
-
             @Get("/users")
             @UseInterceptor((action: Action, result: any) => {
                 return result.replace(/hello/gi, "hello world");
@@ -79,55 +79,60 @@ describe("interceptor", () => {
             photos(): any {
                 return "<html><body>hello world</body></html>";
             }
-
         }
 
+        expressServer = createExpressServer().listen(3001, done);
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
-    after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
-    after(done => koaApp.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    describe("custom interceptor function should replace returned content", () => {
-        assertRequest([3001, 3002], "get", "users", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>damn hello world</body></html>");
-        });
+    it("custom interceptor function should replace returned content", () => {
+        expect.assertions(3);
+        return axios.get("/users")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>damn hello world</body></html>");
+            });
     });
 
-    describe("custom interceptor class should replace returned content", () => {
-        assertRequest([3001, 3002], "get", "posts", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>this post contains *** bad words</body></html>");
-        });
+    it("custom interceptor class should replace returned content", () => {
+        expect.assertions(3);
+        return axios.get("/posts")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>this post contains *** bad words</body></html>");
+            });
     });
 
-    describe("custom interceptor class used on the whole controller should replace returned content", () => {
-        assertRequest([3001, 3002], "get", "questions", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>hello world</body></html>");
-        });
+    it("custom interceptor class used on the whole controller should replace returned content", () => {
+        expect.assertions(3);
+        return axios.get("/questions")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>hello world</body></html>");
+            });
     });
 
-    describe("global interceptor class should replace returned content", () => {
-        assertRequest([3001, 3002], "get", "files", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>hello world</body></html>");
-        });
+    it("global interceptor class should replace returned content", () => {
+        expect.assertions(3);
+        return axios.get("/files")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>hello world</body></html>");
+            });
     });
 
-    describe("interceptors should support promises", () => {
-        assertRequest([3001, 3002], "get", "photos", response => {
-            expect(response).to.be.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>bye world</body></html>");
-        });
+    it("interceptors should support promises", () => {
+        expect.assertions(3);
+        return axios.get("/photos")
+            .then((response: AxiosResponse) => {
+                expect(response.status).toEqual(HttpStatusCodes.OK);
+                expect(response.headers["content-type"]).toEqual("text/html; charset=utf-8");
+                expect(response.data).toEqual("<html><body>bye world</body></html>");
+            });
     });
-
 });

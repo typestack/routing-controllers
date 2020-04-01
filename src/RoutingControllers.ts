@@ -6,7 +6,7 @@ import {InterceptorInterface} from "./InterceptorInterface";
 import {InterceptorMetadata} from "./metadata/InterceptorMetadata";
 import {MetadataBuilder} from "./metadata-builder/MetadataBuilder";
 import {RoutingControllersOptions} from "./RoutingControllersOptions";
-import {getFromContainer} from "./container";
+import {getFromContainer} from "./util/container";
 import {isPromiseLike} from "./util/isPromiseLike";
 import {runInSequence} from "./util/runInSequence";
 
@@ -124,7 +124,6 @@ export class RoutingControllers<T extends BaseDriver> {
             return this.handleCallMethodResult(result, actionMetadata, action, interceptorFns);
 
         }).catch(error => {
-
             // otherwise simply handle error without action execution
             return this.driver.handleError(error, actionMetadata, action);
         });

@@ -7,52 +7,48 @@ import {UseAfter} from "../../src/decorator/UseAfter";
 import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
 import {NotFoundError} from "../../src/http-error/NotFoundError";
 import {HttpError} from "../../src/http-error/HttpError";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import {AxiosError, AxiosResponse} from "axios";
+import {Server as HttpServer} from "http";
+import HttpStatusCodes from "http-status-codes";
+import DoneCallback = jest.DoneCallback;
+import express from "express";
+import {axios} from "../utilities/axios";
 
 describe("express error handling", () => {
-
-    let errorHandlerCalled: boolean,
-        errorHandledSpecifically: boolean;
+    let expressServer: HttpServer;
+    let errorHandlerCalled: boolean;
+    let errorHandledSpecifically: boolean;
 
     beforeEach(() => {
         errorHandlerCalled = undefined;
         errorHandledSpecifically = undefined;
     });
 
-    before(() => {
-
-        // reset metadata args storage
+    beforeAll((done: DoneCallback) => {
         getMetadataArgsStorage().reset();
 
         @Middleware({ type: "after" })
         class AllErrorsHandler implements ExpressErrorMiddlewareInterface {
-
-            error(error: any, request: any, response: any, next?: Function): any {
+            error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
                 errorHandlerCalled = true;
                 // ERROR HANDLED GLOBALLY
                 next(error);
             }
-
         }
 
         class SpecificErrorHandler implements ExpressErrorMiddlewareInterface {
-
-            error(error: any, request: any, response: any, next?: Function): any {
+            error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
                 errorHandledSpecifically = true;
                 // ERROR HANDLED SPECIFICALLY
                 next(error);
             }
-
         }
 
         class SoftErrorHandler implements ExpressErrorMiddlewareInterface {
-
-            error(error: any, request: any, response: any, next?: Function): any {
+            error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
                 // ERROR WAS IGNORED
                 next();
             }
-
         }
 
         class ToJsonError extends HttpError {
@@ -76,7 +72,6 @@ describe("express error handling", () => {
 
         @JsonController()
         class ExpressErrorHandlerController {
-
             @Get("/blogs")
             blogs() {
                 return {
@@ -108,11 +103,6 @@ describe("express error handling", () => {
             }
 
             @Get("/photos")
-            /*@UseAfter(function (error: any, request: any, response: any, next: Function) {
-                useAfter = true;
-                useCallOrder = "setFromUseAfter";
-                next();
-            })*/
             photos() {
                 return "1234";
             }
@@ -121,73 +111,70 @@ describe("express error handling", () => {
             stories() {
                 throw new ToJsonError(503, "sorry, try it again later", "impatient user");
             }
-
         }
+
+        expressServer = createExpressServer().listen(3001, done);
     });
 
-    let app: any;
-    before(done => app = createExpressServer().listen(3001, done));
-    after(done => app.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
     it("should not call global error handler middleware if there was no errors", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/blogs")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.empty;
-                expect(errorHandledSpecifically).to.be.empty;
-                expect(response).to.have.status(200);
+        expect.assertions(2);
+        return axios.get("/blogs")
+            .then((response: AxiosResponse) => {
+                expect(errorHandlerCalled).toBeFalsy();
+                expect(response.status).toEqual(HttpStatusCodes.OK);
             });
     });
 
     it("should call global error handler middleware", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/posts")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(errorHandledSpecifically).to.be.empty;
-                expect(response).to.have.status(500);
+        expect.assertions(3);
+        return axios.get("/posts")
+            .catch((error: AxiosError) => {
+                expect(errorHandlerCalled).toBeTruthy();
+                expect(errorHandledSpecifically).toBeFalsy();
+                expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
             });
     });
 
     it("should call global error handler middleware", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/videos")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(errorHandledSpecifically).to.be.empty;
-                expect(response).to.have.status(404);
+        expect.assertions(3);
+        return axios.get("/videos")
+            .catch((error: AxiosError) => {
+                expect(errorHandlerCalled).toBeTruthy();
+                expect(errorHandledSpecifically).toBeFalsy();
+                expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
             });
     });
 
     it("should call error handler middleware if used", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/questions")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(errorHandledSpecifically).to.be.true;
-                expect(response).to.have.status(500);
+        expect.assertions(3);
+        return axios.get("/questions")
+            .catch((error: AxiosError) => {
+                expect(errorHandlerCalled).toBeTruthy();
+                expect(errorHandledSpecifically).toBeTruthy();
+                expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
             });
     });
 
     it("should not execute next middleware if soft error handled specifically and stopped error bubbling", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/files")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.empty;
-                expect(errorHandledSpecifically).to.be.empty;
-                expect(response).to.have.status(500);
+        expect.assertions(3);
+        return axios.get("/files")
+            .catch((error: AxiosError) => {
+                expect(errorHandlerCalled).toBeFalsy();
+                expect(errorHandledSpecifically).toBeFalsy();
+                expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
             });
     });
 
     it("should process JsonErrors by their toJSON method if it exists", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/stories")
-            .then((response: any) => {
-                expect(response).to.have.status(503);
-                expect(response.body).to.have.property("status").and.equals(503);
-                expect(response.body).to.have.property("publicData").and.equals("sorry, try it again later (503)");
-                expect(response.body).to.not.have.property("secretData");
+        expect.assertions(4);
+        return axios.get("/stories")
+            .catch((error: AxiosError) => {
+                expect(error.response.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
+                expect(error.response.data.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
+                expect(error.response.data.publicData).toEqual("sorry, try it again later (503)");
+                expect(error.response.data.secretData).toBeUndefined();
             });
     });
-
 });

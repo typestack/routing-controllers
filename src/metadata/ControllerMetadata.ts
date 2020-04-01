@@ -1,7 +1,7 @@
 import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
-import {getFromContainer} from "../container";
+import {getFromContainer} from "../util/container";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {InterceptorMetadata} from "./InterceptorMetadata";
 
@@ -57,7 +57,7 @@ export class ControllerMetadata {
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    
+
     constructor(args: ControllerMetadataArgs) {
         this.target = args.target;
         this.route = args.route;

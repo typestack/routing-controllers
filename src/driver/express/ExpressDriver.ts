@@ -9,9 +9,11 @@ import {ExpressErrorMiddlewareInterface} from "./ExpressErrorMiddlewareInterface
 import {AccessDeniedError} from "../../error/AccessDeniedError";
 import {AuthorizationCheckerNotDefinedError} from "../../error/AuthorizationCheckerNotDefinedError";
 import {isPromiseLike} from "../../util/isPromiseLike";
-import {getFromContainer} from "../../container";
+import {getFromContainer} from "../../util/container";
 import {AuthorizationRequiredError} from "../../error/AuthorizationRequiredError";
 import {NotFoundError} from "../../index";
+import multer from "multer";
+import bodyParser from "body-parser";
 
 const cookie = require("cookie");
 const templateUrl = require("template-url");
@@ -101,9 +103,9 @@ export class ExpressDriver extends BaseDriver {
 
         if (actionMetadata.isBodyUsed) {
             if (actionMetadata.isJsonTyped) {
-                defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
+                defaultMiddlewares.push(bodyParser.json(actionMetadata.bodyExtraOptions));
             } else {
-                defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
+                defaultMiddlewares.push(bodyParser.text(actionMetadata.bodyExtraOptions));
             }
         }
 
@@ -138,8 +140,8 @@ export class ExpressDriver extends BaseDriver {
             });
         }
 
+        // TODO: handle multer errors gracefully instead of returning HTTP status code 500
         if (actionMetadata.isFileUsed || actionMetadata.isFilesUsed) {
-            const multer = this.loadMulter();
             actionMetadata.params
                 .filter(param => param.type === "file")
                 .forEach(param => {
@@ -338,7 +340,9 @@ export class ExpressDriver extends BaseDriver {
         else if (result instanceof Uint8Array) { // check if it's binary data (typed array)
             options.response.end(Buffer.from(result as any), "binary");
         }
-        else if (result.pipe instanceof Function) {
+        else if (typeof result.pipe === "function") {
+            // TODO: instanceof Function is false for pipe() - why?!
+            // else if (result.pipe instanceof Function) {
             result.pipe(options.response);
         }
         else { // send regular result
@@ -380,6 +384,11 @@ export class ExpressDriver extends BaseDriver {
                 response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
             }
         }
+
+        // This causes the following test to fail with an ECONNRESET
+        // @Session(param) should throw required error when param is empty
+        // See this Github issue:
+        // https://github.com/typestack/routing-controllers/issues/243
         options.next(error);
     }
 
@@ -438,27 +447,4 @@ export class ExpressDriver extends BaseDriver {
             throw new Error("Cannot load express. Try to install all required dependencies.");
         }
     }
-
-    /**
-     * Dynamically loads body-parser module.
-     */
-    protected loadBodyParser() {
-        try {
-            return require("body-parser");
-        } catch (e) {
-            throw new Error("body-parser package was not found installed. Try to install it: npm install body-parser --save");
-        }
-    }
-
-    /**
-     * Dynamically loads multer module.
-     */
-    protected loadMulter() {
-        try {
-            return require("multer");
-        } catch (e) {
-            throw new Error("multer package was not found installed. Try to install it: npm install multer --save");
-        }
-    }
-
 }

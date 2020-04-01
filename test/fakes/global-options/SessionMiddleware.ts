@@ -1,26 +1,26 @@
 import {ExpressMiddlewareInterface} from "../../../src/driver/express/ExpressMiddlewareInterface";
-import * as session from "express-session";
-
-const convert = require("koa-convert");
-const KoaSession = require("koa-session");
+import session from "express-session";
+import express from "express";
 
 export class SessionMiddleware implements ExpressMiddlewareInterface {
-    public use (requestOrContext: any, responseOrNext: any, next?: (err?: any) => any): any {
-        if (next) {
-            return this.expSession(requestOrContext, responseOrNext, next);
-        } else {
-            if (!this.koaSession) {
-                this.koaSession = convert(KoaSession(requestOrContext.app));
-            }
-            return this.koaSession(requestOrContext, responseOrNext);
-        }
-    }
-
-    private expSession = session({
-        secret: "19majkel94_helps_pleerock",
+    private static instance: SessionMiddleware;
+    private requestHandler: express.RequestHandler = session({
+        secret: "super-secret",
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: true
     });
 
-    private koaSession: any;
+    constructor() {
+        if (SessionMiddleware.instance) {
+            return SessionMiddleware.instance
+        }
+
+        SessionMiddleware.instance = this;
+    }
+
+    public use(request: express.Request, response: express.Response, next?: express.NextFunction): express.RequestHandler {
+        if (next) {
+            return this.requestHandler(request, response, next);
+        }
+    }
 }

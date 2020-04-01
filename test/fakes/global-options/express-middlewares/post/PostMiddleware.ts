@@ -1,13 +1,12 @@
 import {ExpressMiddlewareInterface} from "../../../../../src/driver/express/ExpressMiddlewareInterface";
 import {defaultFakeService} from "../../FakeService";
 import {Middleware} from "../../../../../src/decorator/Middleware";
+import express from "express";
 
 @Middleware({ type: "before" })
 export class PostMiddleware implements ExpressMiddlewareInterface {
-
-    use(request: any, response: any, next?: (err?: any) => any): any {
+    use(request: express.Request, response: express.Response, next: express.NextFunction): any {
         defaultFakeService.postMiddleware();
         next();
     }
-
 }
