@@ -1,7 +1,7 @@
 {
   "name": "routing-controllers",
-  "private": true,
-  "version": "0.8.0",
+  "private": false,
+  "version": "0.8.1-alpha.2",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -13,6 +13,14 @@
     {
       "name": "Michał Lytek",
       "url": "https://github.com/19majkel94"
+    },
+    {
+      "name": "Jonathas Morais",
+      "url": "https://github.com/jotamorais"
+    },
+    {
+      "name": "adenhertog",
+      "url": "https://github.com/adenhertog"
     }
   ],
   "repository": {
@@ -38,6 +46,10 @@
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
   },
+  "peerDependencies": {
+    "class-transformer": "^0.2.3",
+    "class-validator": "0.10.1"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.3",
     "@types/chai-as-promised": "7.1.2",
@@ -58,7 +70,7 @@
     "cross-env": "6.0.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
-    "handlebars": "^4.4.0",
+    "handlebars": "^4.7.3",
     "json": "^9.0.6",
     "kcors": "^2.2.2",
     "koa": "^2.8.2",
@@ -81,10 +93,6 @@
     "tslint": "^5.20.0",
     "typedi": "~0.8.0",
     "typescript": "~3.6.3"
-  },
-  "peerDependencies": {
-    "class-transformer": "^0.2.3",
-    "class-validator": "0.10.1"
   },
   "scripts": {
     "build": "rimraf build && echo Using TypeScript && tsc --version && tsc --pretty",
