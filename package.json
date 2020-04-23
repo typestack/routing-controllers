@@ -88,6 +88,6 @@
     "package": "npm run build && npm run copy && npm run public && rimraf build/compiled",
     "pretest": "npm run lint",
     "public": "json -I -f build/package/package.json -e 'this.private=false'",
-    "test": "rimraf coverage && jest --coverage"
+    "test": "rimraf coverage && jest --coverage --runInBand"
   }
 }
