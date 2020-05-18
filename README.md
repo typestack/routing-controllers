@@ -1264,7 +1264,7 @@ export class UserController {
 }
 ```
 If the param doesn't satisfy the requirements defined by class-validator decorators,
-an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
+an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/typestack/class-validator#validation-errors) array.
 
 If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
