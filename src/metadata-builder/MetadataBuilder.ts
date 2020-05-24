@@ -8,6 +8,7 @@ import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import { RoutingControllersOptions } from "../RoutingControllersOptions";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {getMetadataArgsStorage} from "../index";
+import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -79,21 +80,53 @@ export class MetadataBuilder {
         });
     }
 
+    // /**
+    //  * Creates action metadatas.
+    //  */
+    // protected createActions(controller: ControllerMetadata): ActionMetadata[] {
+    //     return getMetadataArgsStorage()
+    //         .filterActionsWithTarget(controller.target)
+    //         .map(actionArgs => {
+    //             const action = new ActionMetadata(controller, actionArgs, this.options);
+    //             action.params = this.createParams(action);
+    //             action.uses = this.createActionUses(action);
+    //             action.interceptors = this.createActionInterceptorUses(action);
+    //             action.build(this.createActionResponseHandlers(action));
+    //             return action;
+    //         });
+    // }
+
     /**
      * Creates action metadatas.
      */
     protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-        return getMetadataArgsStorage()
-            .filterActionsWithTarget(controller.target)
-            .map(actionArgs => {
-                const action = new ActionMetadata(controller, actionArgs, this.options);
-                action.params = this.createParams(action);
-                action.uses = this.createActionUses(action);
-                action.interceptors = this.createActionInterceptorUses(action);
-                action.build(this.createActionResponseHandlers(action));
-                return action;
-            });
+      let target = controller.target;
+      let actionsWithTarget: ActionMetadataArgs[] = [];
+
+      while (target) {
+        actionsWithTarget.push(
+          ...getMetadataArgsStorage()
+          .filterActionsWithTarget(target)
+          .filter(action => {
+            return actionsWithTarget
+            .map(a => a.method)
+            .indexOf(action.method) === -1;
+          })
+        );
+        target = Object.getPrototypeOf(target);
+      }
+
+      return actionsWithTarget
+      .map(actionArgs => {
+        const action = new ActionMetadata(controller, actionArgs, this.options);
+        action.params = this.createParams(action);
+        action.uses = this.createActionUses(action);
+        action.interceptors = this.createActionInterceptorUses(action);
+        action.build(this.createActionResponseHandlers(action));
+        return action;
+      });
     }
+
 
     /**
      * Creates param metadatas.
@@ -111,7 +144,7 @@ export class MetadataBuilder {
         let options = this.options.defaults && this.options.defaults.paramOptions;
         if (!options)
             return paramArgs;
-        
+
         if (paramArgs.required === undefined)
             paramArgs.required = options.required || false;
 
