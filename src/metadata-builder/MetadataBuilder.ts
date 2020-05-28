@@ -59,8 +59,7 @@ export class MetadataBuilder {
     protected createInterceptors(classes?: Function[]): InterceptorMetadata[] {
         const interceptors = !classes ? getMetadataArgsStorage().interceptors : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
         return interceptors.map(interceptorArgs => new InterceptorMetadata({
-            target: interceptorArgs.target,
-            method: undefined,
+            ...interceptorArgs,
             interceptor: interceptorArgs.target
         }));
     }
