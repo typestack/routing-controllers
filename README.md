@@ -42,6 +42,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Throw HTTP errors](#throw-http-errors)
       - [Enable CORS](#enable-cors)
       - [Default settings](#default-settings)
+      - [Selectively disabling request/response transform](#selectively-disable-requestresponse-transforming)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -831,6 +832,20 @@ const app = createExpressServer({
 app.listen(3000);
 ```
 
+#### Selectively disable request/response transform
+
+To disable `class-transformer` on a per-controller or per-route basis, use the `transformRequest` and `transformResponse` options on your controller and route decorators:
+
+```typescript
+@Controller("/users", {transformRequest: false, transformResponse: false})
+export class UserController {
+
+    @Get("/", {transformResponse: true}) {
+        // route option overrides controller option
+    }
+}
+```
+
 ## Using middlewares
 
 You can use any existing express / koa middleware, or create your own.
@@ -1219,7 +1234,7 @@ If its a class - then instance of this class will be created.
 This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
+If you want to disable it simply pass `classTransformer: false` to createExpressServer method. Alternatively you can disable transforming for [individual controllers or routes](#selectively-disable-requestresponse-transforming).
 
 ## Auto validating action params
 

@@ -1,3 +1,5 @@
+import {ControllerOptions} from "../../decorator-options/ControllerOptions";
+
 /**
  * Controller metadata used to storage information about registered controller.
  */
@@ -17,5 +19,10 @@ export interface ControllerMetadataArgs {
      * Controller type. Can be default or json-typed. Json-typed controllers operate with json requests and responses.
      */
     type: "default"|"json";
-    
+
+    /**
+     * Options that apply to all controller actions.
+     */
+    options: ControllerOptions;
+
 }

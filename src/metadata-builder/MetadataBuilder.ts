@@ -72,6 +72,7 @@ export class MetadataBuilder {
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
             controller.build(this.createControllerResponseHandlers(controller));
+            controller.options = controllerArgs.options;
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
             controller.interceptors = this.createControllerInterceptorUses(controller);
@@ -87,6 +88,7 @@ export class MetadataBuilder {
             .filterActionsWithTarget(controller.target)
             .map(actionArgs => {
                 const action = new ActionMetadata(controller, actionArgs, this.options);
+                action.options = {...controller.options, ...actionArgs.options};
                 action.params = this.createParams(action);
                 action.uses = this.createActionUses(action);
                 action.interceptors = this.createActionInterceptorUses(action);
@@ -111,7 +113,7 @@ export class MetadataBuilder {
         let options = this.options.defaults && this.options.defaults.paramOptions;
         if (!options)
             return paramArgs;
-        
+
         if (paramArgs.required === undefined)
             paramArgs.required = options.required || false;
 
