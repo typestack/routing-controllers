@@ -42,6 +42,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Throw HTTP errors](#throw-http-errors)
       - [Enable CORS](#enable-cors)
       - [Default settings](#default-settings)
+      - [Selectively disabling request/response transform](#selectively-disable-requestresponse-transforming)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -733,7 +734,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -755,7 +756,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -796,7 +797,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -809,9 +810,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true
@@ -820,6 +821,20 @@ const app = createExpressServer({
 });
 
 app.listen(3000);
+```
+
+#### Selectively disable request/response transform
+
+To disable `class-transformer` on a per-controller or per-route basis, use the `transformRequest` and `transformResponse` options on your controller and route decorators:
+
+```typescript
+@Controller("/users", {transformRequest: false, transformResponse: false})
+export class UserController {
+
+    @Get("/", {transformResponse: true}) {
+        // route option overrides controller option
+    }
+}
 ```
 
 ## Using middlewares
@@ -1210,7 +1225,7 @@ If its a class - then instance of this class will be created.
 This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
+If you want to disable it simply pass `classTransformer: false` to createExpressServer method. Alternatively you can disable transforming for [individual controllers or routes](#selectively-disable-requestresponse-transforming).
 
 ## Auto validating action params
 

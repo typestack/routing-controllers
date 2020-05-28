@@ -2,6 +2,7 @@ import {ActionMetadata} from "./ActionMetadata";
 import {ControllerMetadataArgs} from "./args/ControllerMetadataArgs";
 import {UseMetadata} from "./UseMetadata";
 import {getFromContainer} from "../container";
+import {ControllerOptions} from "../decorator-options/ControllerOptions";
 import {ResponseHandlerMetadata} from "./ResponseHandleMetadata";
 import {InterceptorMetadata} from "./InterceptorMetadata";
 import { Action } from "../Action";
@@ -36,6 +37,11 @@ export class ControllerMetadata {
     type: "default"|"json";
 
     /**
+     * Options that apply to all controller actions.
+     */
+    options: ControllerOptions;
+
+    /**
      * Middleware "use"-s applied to a whole controller.
      */
     uses: UseMetadata[];
@@ -58,11 +64,12 @@ export class ControllerMetadata {
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    
+
     constructor(args: ControllerMetadataArgs) {
         this.target = args.target;
         this.route = args.route;
         this.type = args.type;
+        this.options = args.options;
     }
 
     // -------------------------------------------------------------------------

@@ -85,7 +85,7 @@ export interface RoutingControllersOptions {
      * Special function used to get currently authorized user.
      */
     currentUserChecker?: CurrentUserChecker;
-    
+
     /**
      * Default settings
      */
