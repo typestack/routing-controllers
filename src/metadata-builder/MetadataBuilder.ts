@@ -8,6 +8,7 @@ import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import { RoutingControllersOptions } from "../RoutingControllersOptions";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {getMetadataArgsStorage} from "../index";
+import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -84,8 +85,21 @@ export class MetadataBuilder {
      * Creates action metadatas.
      */
     protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-        return getMetadataArgsStorage()
-            .filterActionsWithTarget(controller.target)
+        let target = controller.target;
+        let actionsWithTarget: ActionMetadataArgs[] = [];
+        while (target) {
+            actionsWithTarget.push(
+                ...getMetadataArgsStorage()
+                    .filterActionsWithTarget(target)
+                    .filter(action => {
+                        return actionsWithTarget
+                            .map(a => a.method)
+                            .indexOf(action.method) === -1;
+                    })
+            );
+            target = Object.getPrototypeOf(target);
+        }
+        return actionsWithTarget
             .map(actionArgs => {
                 const action = new ActionMetadata(controller, actionArgs, this.options);
                 action.options = {...controller.options, ...actionArgs.options};
