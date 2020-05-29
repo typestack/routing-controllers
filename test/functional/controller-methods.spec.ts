@@ -7,6 +7,7 @@ import {Head} from "../../src/decorator/Head";
 import {Delete} from "../../src/decorator/Delete";
 import {Patch} from "../../src/decorator/Patch";
 import {Put} from "../../src/decorator/Put";
+import {All} from "../../src/decorator/All";
 import {ContentType} from "../../src/decorator/ContentType";
 import {JsonController} from "../../src/decorator/JsonController";
 import {UnauthorizedError} from "../../src/http-error/UnauthorizedError";
@@ -51,6 +52,10 @@ describe("controller methods", () => {
             @Head("/users")
             head() {
                 return "<html><body>Removing user</body></html>";
+            }
+            @All("/users/me")
+            all() {
+                return "<html><body>Current user</body></html>";
             }
             @Method("post", "/categories")
             postCategories() {
@@ -194,6 +199,19 @@ describe("controller methods", () => {
             expect(response).to.have.header("content-type", "text/html; charset=utf-8");
             expect(response.body).to.be.undefined;
         });
+    });
+
+    describe("all respond with proper status code, headers and body content", () => {
+        const callback = (response: any) => {
+            expect(response).to.have.status(200);
+            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
+            expect(response.body).to.be.equal("<html><body>Current user</body></html>");
+        };
+
+        assertRequest([3001, 3002], "get", "users/me", callback);
+        assertRequest([3001, 3002], "put", "users/me", callback);
+        assertRequest([3001, 3002], "patch", "users/me", callback);
+        assertRequest([3001, 3002], "delete", "users/me", callback);
     });
 
     describe("custom method (post) respond with proper status code, headers and body content", () => {
