@@ -42,6 +42,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Throw HTTP errors](#throw-http-errors)
       - [Enable CORS](#enable-cors)
       - [Default settings](#default-settings)
+      - [Selectively disabling request/response transform](#selectively-disable-requestresponse-transforming)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -262,8 +263,17 @@ import {Controller, Req, Res, Get} from "routing-controllers";
 export class UserController {
 
     @Get("/users")
-    getAll(@Req() request: any, @Res() response: any) {
+    getAllUsers(@Req() request: any, @Res() response: any) {
         return response.send("Hello response!");
+    }
+
+    @Get("/posts")
+    getAllPosts(@Req() request: any, @Res() response: any) {
+        // some response functions don't return the response object,
+        // so it needs to be returned explicitly
+        response.redirect("/users");
+
+        return response;
     }
 
 }
@@ -733,7 +743,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -755,7 +765,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -796,7 +806,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -809,9 +819,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true
@@ -820,6 +830,20 @@ const app = createExpressServer({
 });
 
 app.listen(3000);
+```
+
+#### Selectively disable request/response transform
+
+To disable `class-transformer` on a per-controller or per-route basis, use the `transformRequest` and `transformResponse` options on your controller and route decorators:
+
+```typescript
+@Controller("/users", {transformRequest: false, transformResponse: false})
+export class UserController {
+
+    @Get("/", {transformResponse: true}) {
+        // route option overrides controller option
+    }
+}
 ```
 
 ## Using middlewares
@@ -1210,7 +1234,7 @@ If its a class - then instance of this class will be created.
 This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
+If you want to disable it simply pass `classTransformer: false` to createExpressServer method. Alternatively you can disable transforming for [individual controllers or routes](#selectively-disable-requestresponse-transforming).
 
 ## Auto validating action params
 
@@ -1264,7 +1288,7 @@ export class UserController {
 }
 ```
 If the param doesn't satisfy the requirements defined by class-validator decorators,
-an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
+an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/typestack/class-validator#validation-errors) array.
 
 If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
@@ -1486,7 +1510,8 @@ export class QuestionController {
 | `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
 | `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
 | `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@All(route: string\|RegExp)`                                  | `@All("/users/me") rewrite()`          | Methods marked with this decorator will register a request made with any HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.all("/users/me", rewrite)`      |
+| `@Method(methodName: string, route: string\|RegExp)`           | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 

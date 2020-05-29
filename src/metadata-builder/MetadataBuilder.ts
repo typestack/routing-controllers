@@ -8,6 +8,7 @@ import {ResponseHandlerMetadata} from "../metadata/ResponseHandleMetadata";
 import { RoutingControllersOptions } from "../RoutingControllersOptions";
 import {UseMetadata} from "../metadata/UseMetadata";
 import {getMetadataArgsStorage} from "../index";
+import {ActionMetadataArgs} from "../metadata/args/ActionMetadataArgs";
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -72,6 +73,7 @@ export class MetadataBuilder {
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
             controller.build(this.createControllerResponseHandlers(controller));
+            controller.options = controllerArgs.options;
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
             controller.interceptors = this.createControllerInterceptorUses(controller);
@@ -83,10 +85,24 @@ export class MetadataBuilder {
      * Creates action metadatas.
      */
     protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-        return getMetadataArgsStorage()
-            .filterActionsWithTarget(controller.target)
+        let target = controller.target;
+        let actionsWithTarget: ActionMetadataArgs[] = [];
+        while (target) {
+            actionsWithTarget.push(
+                ...getMetadataArgsStorage()
+                    .filterActionsWithTarget(target)
+                    .filter(action => {
+                        return actionsWithTarget
+                            .map(a => a.method)
+                            .indexOf(action.method) === -1;
+                    })
+            );
+            target = Object.getPrototypeOf(target);
+        }
+        return actionsWithTarget
             .map(actionArgs => {
                 const action = new ActionMetadata(controller, actionArgs, this.options);
+                action.options = {...controller.options, ...actionArgs.options};
                 action.params = this.createParams(action);
                 action.uses = this.createActionUses(action);
                 action.interceptors = this.createActionInterceptorUses(action);
@@ -111,7 +127,7 @@ export class MetadataBuilder {
         let options = this.options.defaults && this.options.defaults.paramOptions;
         if (!options)
             return paramArgs;
-        
+
         if (paramArgs.required === undefined)
             paramArgs.required = options.required || false;
 
