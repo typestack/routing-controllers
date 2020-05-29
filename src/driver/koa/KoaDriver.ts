@@ -132,9 +132,21 @@ export class KoaDriver extends BaseDriver {
             return executeCallback(options);
         };
 
+        // This ensures that a request is only processed once. Multiple routes may match a request
+        // e.g. GET /users/me matches both @All(/users/me) and @Get(/users/:id)), only the first matching route should
+        // be called.
+        // The following middleware only starts an action processing if the request has not been processed before.
+        const routeGuard = (context: any, next: () => Promise<any>) => {
+            if (!context.request.routingControllersStarted) {
+                context.request.routingControllersStarted = true;
+                return next();
+            }
+        };
+
         // finally register action in koa
         this.router[actionMetadata.type.toLowerCase()](...[
             route,
+            routeGuard,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,

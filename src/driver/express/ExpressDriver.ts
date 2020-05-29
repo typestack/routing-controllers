@@ -160,20 +160,28 @@ export class ExpressDriver extends BaseDriver {
         // prepare route and route handler function
         const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
         const routeHandler = function routeHandler(request: any, response: any, next: Function) {
-            // Express calls the "get" route automatically when we call the "head" route:
-            // Reference: https://expressjs.com/en/4x/api.html#router.METHOD
-            // This causes a double action execution on our side, which results in an unhandled rejection,
-            // saying: "Can't set headers after they are sent".
-            // The following line skips action processing when the request method does not match the action method.
-            if (request.method.toLowerCase() !== actionMetadata.type)
-                return next();
-
             return executeCallback({request, response, next});
+        };
+
+        // This ensures that a request is only processed once to prevent unhandled rejections saying
+        // "Can't set headers after they are sent"
+        // Some examples of reasons a request may cause multiple route calls:
+        // * Express calls the "get" route automatically when we call the "head" route:
+        //   Reference: https://expressjs.com/en/4x/api.html#router.METHOD
+        //   This causes a double execution on our side.
+        // * Multiple routes match the request (e.g. GET /users/me matches both @All(/users/me) and @Get(/users/:id)).
+        // The following middleware only starts an action processing if the request has not been processed before.
+        const routeGuard = function routeGuard(request: any, response: any, next: Function) {
+            if (!request.routingControllersStarted) {
+                request.routingControllersStarted = true;
+                return next();
+            }
         };
 
         // finally register action in express
         this.express[actionMetadata.type.toLowerCase()](...[
             route,
+            routeGuard,
             ...beforeMiddlewares,
             ...defaultMiddlewares,
             routeHandler,
