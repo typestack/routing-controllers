@@ -554,7 +554,7 @@ You can specify a custom ContentType header:
 
 ```typescript
 @Get("/users")
-@ContentType("text/cvs")
+@ContentType("text/csv")
 getUsers() {
     // ...
 }
