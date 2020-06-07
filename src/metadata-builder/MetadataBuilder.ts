@@ -73,6 +73,7 @@ export class MetadataBuilder {
         return controllers.map(controllerArgs => {
             const controller = new ControllerMetadata(controllerArgs);
             controller.build(this.createControllerResponseHandlers(controller));
+            controller.options = controllerArgs.options;
             controller.actions = this.createActions(controller);
             controller.uses = this.createControllerUses(controller);
             controller.interceptors = this.createControllerInterceptorUses(controller);
@@ -80,53 +81,35 @@ export class MetadataBuilder {
         });
     }
 
-    // /**
-    //  * Creates action metadatas.
-    //  */
-    // protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-    //     return getMetadataArgsStorage()
-    //         .filterActionsWithTarget(controller.target)
-    //         .map(actionArgs => {
-    //             const action = new ActionMetadata(controller, actionArgs, this.options);
-    //             action.params = this.createParams(action);
-    //             action.uses = this.createActionUses(action);
-    //             action.interceptors = this.createActionInterceptorUses(action);
-    //             action.build(this.createActionResponseHandlers(action));
-    //             return action;
-    //         });
-    // }
-
     /**
      * Creates action metadatas.
      */
     protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-      let target = controller.target;
-      let actionsWithTarget: ActionMetadataArgs[] = [];
-
-      while (target) {
-        actionsWithTarget.push(
-          ...getMetadataArgsStorage()
-          .filterActionsWithTarget(target)
-          .filter(action => {
-            return actionsWithTarget
-            .map(a => a.method)
-            .indexOf(action.method) === -1;
-          })
-        );
-        target = Object.getPrototypeOf(target);
-      }
-
-      return actionsWithTarget
-      .map(actionArgs => {
-        const action = new ActionMetadata(controller, actionArgs, this.options);
-        action.params = this.createParams(action);
-        action.uses = this.createActionUses(action);
-        action.interceptors = this.createActionInterceptorUses(action);
-        action.build(this.createActionResponseHandlers(action));
-        return action;
-      });
+        let target = controller.target;
+        let actionsWithTarget: ActionMetadataArgs[] = [];
+        while (target) {
+            actionsWithTarget.push(
+                ...getMetadataArgsStorage()
+                    .filterActionsWithTarget(target)
+                    .filter(action => {
+                        return actionsWithTarget
+                            .map(a => a.method)
+                            .indexOf(action.method) === -1;
+                    })
+            );
+            target = Object.getPrototypeOf(target);
+        }
+        return actionsWithTarget
+            .map(actionArgs => {
+                const action = new ActionMetadata(controller, actionArgs, this.options);
+                action.options = {...controller.options, ...actionArgs.options};
+                action.params = this.createParams(action);
+                action.uses = this.createActionUses(action);
+                action.interceptors = this.createActionInterceptorUses(action);
+                action.build(this.createActionResponseHandlers(action));
+                return action;
+            });
     }
-
 
     /**
      * Creates param metadatas.
