@@ -8,4 +8,12 @@ useExpressServer(app, {
 });
 app.listen(3001); // run express app
 
-console.log("Express server is running on port 3001. Open http://localhost:3001/blogs/ or http://localhost:3002/posts/");
+console.log(
+  "Possible GET endpoints you may see from a browser",
+  "http://localhost:3001/article",
+  "http://localhost:3001/article/1000",
+  "http://localhost:3001/product",
+  "http://localhost:3001/product/1000",
+  "http://localhost:3001/category",
+  "http://localhost:3001/category/1000",
+);
