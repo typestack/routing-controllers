@@ -5,7 +5,7 @@ import {MockedRepository} from "../repository/MockedRepository";
 const domain = "product";
 
 @Controller(`/${domain}`)
-export class CategoryController extends AbstractControllerTemplate {
+export class ProductController extends AbstractControllerTemplate {
   protected constructor() {
     super();
 
