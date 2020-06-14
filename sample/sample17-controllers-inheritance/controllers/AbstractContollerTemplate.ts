@@ -9,7 +9,13 @@ import {Body} from "../../../src/decorator/Body";
 import {MockedRepository} from "../repository/MockedRepository";
 import {IInstance} from "../interface/IInstance";
 
+/**
+ * @description the base controller class used by derivatives
+ */
 export abstract class AbstractControllerTemplate {
+  /**
+   * @description domain part of a system, also called object|entity|model
+   */
   protected domain: string;
   protected repository: MockedRepository;
 
