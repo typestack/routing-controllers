@@ -12,58 +12,58 @@
 </center>
 
 使用包含请求处理行为的函数类创建控制器。
-可以在[express.js][1]或[koa.js][2]中使用routing-controllers。
+可以在 [express.js][1] 或 [koa.js][2] 中使用 routing-controllers。
 
 # 目录
 
   * [安装](#安装)
   * [快速使用](#快速使用)
   * [更多用法](#更多用法)
-      - [使用json](#使用json)
-      - [返回Promise](#返回Promise)
-      - [使用Request和Response对象](#请求对象与响应对象)
-      - [预配置express/koa](#预配置express/koa)
+      - [使用 JSON](#使用JSON)
+      - [返回 Promise](#返回Promise)
+      - [使用 Request 和 Response 对象](#请求对象与响应对象)
+      - [预配置 express / Koa](#预配置express/koa)
       - [从目录加载控制器](#从目录加载控制器)
       - [全局路由前缀](#全局路由前缀)
       - [指定控制器路由前缀](#指定控制器路由前缀)
-      - [注入param参数](#注入param参数)
-      - [注入query参数](#注入query参数)
-      - [注入请求body](#注入请求body)
-      - [注入请求body参数](#注入请求body参数)
-      - [注入请求header参数](#注入请求header参数)
-      - [注入cookie参数](#注入cookie参数)
-      - [注入session对象](#注入session对象)
-      - [注入state对象](#注入state对象)
+      - [注入 param 参数](#注入param参数)
+      - [注入 query 参数](#注入query参数)
+      - [注入请求 Body](#注入请求body)
+      - [注入请求 Body 参数](#注入请求body参数)
+      - [注入请求 Header 参数](#注入请求header参数)
+      - [注入 Cookie 参数](#注入cookie参数)
+      - [注入 Session 对象](#注入session对象)
+      - [注入 state 对象](#注入state对象)
       - [注入上传文件](#注入上传文件)
       - [限制必填参数](#限制必填参数)
       - [参数转为对象](#参数转为对象)
-      - [设置ContentType](#设置ContentType)
-      - [设置Location](#设置Location)
+      - [设置 ContentType](#设置ContentType)
+      - [设置 Location](#设置Location)
       - [设置重定向](#设置重定向)
-      - [设置HTTP响应代码](#设置HTTP响应代码)
+      - [设置 HTTP 响应代码](#设置HTTP响应代码)
       - [管理空响应](#管理空响应)
-      - [自定义header](#自定义header)
+      - [自定义 Header](#自定义header)
       - [模板渲染](#模板渲染)
-      - [抛出HTTP错误](#抛出HTTP错误)
+      - [抛出 HTTP 错误](#抛出HTTP错误)
       - [允许跨域](#允许跨域)
       - [默认设置](#默认设置)
   * [使用中间件](#使用中间件)
     + [使用已有中间件](#使用已有中间件)
-    + [自行实现express中间件](#自行实现express中间件)
-    + [自行实现koa中间件](#自行实现koa中间件)
+    + [自行实现 express 中间件](#自行实现express中间件)
+    + [自行实现 Koa 中间件](#自行实现Koa中间件)
     + [全局中间件](#全局中间件)
     + [错误处理程序](#错误处理程序)
     + [从目录加载中间件，拦截器和控制器](#从目录加载中间件，拦截器和控制器)
   * [使用拦截器](#拦截器)
     + [函数式拦截器](#函数式拦截器)
-    + [class式拦截器](#class式拦截器)
+    + [class 式拦截器](#class式拦截器)
     + [全局拦截器](#全局拦截器)
   * [实例化参数](#实例化参数)
   * [参数自动校验](#参数自动校验)
   * [使用权限管理](#使用权限管理)
-      - [@Authorized装饰器](#@Authorized装饰器)
-      - [@CurrentUser装饰器](#@CurrentUser装饰器)
-  * [使用DI容器](#使用DI容器)
+      - [@Authorized 装饰器](#@Authorized装饰器)
+      - [@CurrentUser 装饰器](#@CurrentUser装饰器)
+  * [使用 DI 容器](#使用DI容器)
   * [自定义参数装饰器](#自定义参数装饰器)
   * [装饰器参考](#装饰器参考)
       - [控制器装饰器](#控制器装饰器)
@@ -84,7 +84,7 @@
 
     `npm install reflect-metadata`
 
-    并确认在使用routing-controllers前引入
+    并确认在使用 routing-controllers 前引入
 
     ```typescript
     import "reflect-metadata";
@@ -92,7 +92,7 @@
 
 3. 安装框架：
 
-    **a. 要在*express.js*中使用routing-controllers，需要安装以下依赖：**
+    **a. 在 *express.js* 中使用 routing-controllers，需要安装以下依赖：**
 
     `npm install express body-parser multer`
 
@@ -100,7 +100,7 @@
 
     `npm install -D @types/express @types/body-parser @types/multer`
 
-    **b. 要在*koa 2*中使用routing-controllers，需要安装以下依赖：**
+    **b. 在 *koa 2* 中使用 routing-controllers，需要安装以下依赖：**
 
     `npm install koa koa-router koa-bodyparser koa-multer`
 
@@ -161,7 +161,7 @@
     }
     ```
 
-    该类将在服务框架(express.js或koa)中注册被装饰的函数对应的路由。
+    该类将在服务框架（express.js 或 Koa）中注册被装饰的函数对应的路由。
 
 2. 新建文件 `app.ts`
 
@@ -179,17 +179,17 @@
     app.listen(3000)
     ```
 
-    > koa用户需替换`createExpressServer`为`createKoaServer`
+    > koa用户需替换 `createExpressServer` 为 `createKoaServer`
 
 3. 访问 `http://localhost:3000/users`。浏览器将显示 `This action returns all users`。访问 `http://localhost:3000/users/1` 将显示 `This action returns user #1`。
 
 ## 更多用例
 
-#### 使用json
+#### 使用 JSON
 
-对于一个总是返回json的REST API，可以用`@JsonController`代替`@Controller`。
-被装饰的控制器的路由响应数据将自动转换为JSON类型且`Content-Type`被设置为`application/json`。
-同时请求的`application/json`头信息也可以被解释，请求body将解析为JSON：
+对于一个总是返回 JSON 的 REST API，建议用 `@JsonController` 代替 `@Controller`。
+`@JsonController` 装饰的控制器路由的响应数据将自动转换为 JSON 类型且 `Content-Type` 被设置为 `application/json`。
+同时请求的 `application/json` 头信息也可以被解释，请求 Body 将解析为 JSON：
 
 ```typescript
 import { JsonController, Param, Body, Get, Post, Put, Delete } from "routing-controllers";
@@ -214,9 +214,9 @@ export class UserController {
 
 }
 ```
-#### 返回Promise
+#### 返回 Promise
 
-返回一个Promise，响应将等待该Promise回执后返回其结果。
+返回一个 Promise，响应将等待该 Promise 回执后返回其结果。
 
 ```typescript
 import { JsonController, Param, Body, Get, Post, Put, Delete } from "routing-controllers";
@@ -252,10 +252,10 @@ export class UserController {
 }
 ```
 
-#### 使用Request和Response对象
+#### 使用 Request 和 Response 对象
 
-直接使用框架的request对象和response对象。
-如果想自己处理响应，可以在方法中返回该response对象。
+直接使用框架的 Request 对象和 Response 对象。
+如果想自己处理响应，可以在方法中返回该 Response 对象。
 
 ```typescript
 import { Controller, Req, Res, Get } from "routing-controllers";
@@ -271,7 +271,7 @@ export class UserController {
 }
 ```
 
-`@Req()`装饰器注入了一个`Request`对象，`@Res()`装饰器注入了一个`Response`对象。
+`@Req()` 装饰器注入了一个 `Request` 对象，`@Res()` 装饰器注入了一个 `Response` 对象。
 如果安装了对应的类型声明，也可以对它们进行声明：
 
 ```typescript
@@ -289,11 +289,11 @@ export class UserController {
 }
 ```
 
-> 提示：koa用户可以用`@Ctx() context`注入koa的Context对象。
+> 提示：koa用户可以用 `@Ctx() context` 注入 Koa 的 Context 对象。
 
-#### 预配置express/koa
+#### 预配置 express / Koa
 
-需要自行创建express应用并单独配置，可以用`useExpressServer`代替`createExpressServer`实现：
+需要自行创建 express 应用并单独配置，可以用 `useExpressServer` 代替 `createExpressServer`：
 
 ```typescript
 import "reflect-metadata";
@@ -308,11 +308,11 @@ useExpressServer(app, { // 在routing-controllers注册已创建的express服务
 app.listen(3000); // 运行express服务
 ```
 
-> koa用户需用`useKoaServer`代替`useExpressServer`
+> koa用户需用 `useKoaServer` 代替 `useExpressServer`
 
 #### 从目录加载控制器
 
-在`createExpressServer`或`useExpressServer`中指定文件夹，即可加载该目录下所有控制器：
+在 `createExpressServer` 或 `useExpressServer` 中指定文件夹，即可加载该目录下所有控制器：
 
 ```typescript
 import "reflect-metadata";
@@ -323,11 +323,11 @@ createExpressServer({
 }).listen(3000); // 在express应用中注册控制器路由
 ```
 
-> koa用户需用`createKoaServer`代替`createExpressServer`
+> koa用户需用 `createKoaServer` 代替 `createExpressServer`
 
 #### 全局路由前缀
 
-要为所有路由添加前缀，比如`/api`，可以使用`routePrefix`配置项：
+要为所有路由添加前缀，比如 `/api`，可以使用 `routePrefix` 配置项：
 
 ```typescript
 import "reflect-metadata";
@@ -340,7 +340,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-> koa用户需用`createKoaServer`代替`createExpressServer`
+> koa用户需用 `createKoaServer` 代替 `createExpressServer`
 
 #### 指定控制器路由前缀
 
@@ -353,9 +353,9 @@ export class UserController {
 }
 ```
 
-#### 注入param参数
+#### 注入 param 参数
 
-用`@Param`装饰器注入param参数：
+用 `@Param` 装饰器注入 param 参数：
 
 ```typescript
 @Get("/users/:id")
@@ -363,11 +363,11 @@ getOne(@Param("id") id: number) { // 由于id被声明为number,将自动抛出"
 }
 ```
 
-`@Params()`装饰器可以注入所有param参数。
+`@Params()` 装饰器可以注入所有 param 参数。
 
-#### 注入query参数
+#### 注入 query 参数
 
-用`@QueryParam`装饰器注入query参数：
+用 `@QueryParam` 装饰器注入 query 参数：
 
 ```typescript
 @Get("/users")
@@ -375,7 +375,7 @@ getUsers(@QueryParam("limit") limit: number) {
 }
 ```
 
-`@QueryParams()`装饰器可以注入所有query参数。
+`@QueryParams()` 装饰器可以注入所有 query 参数。
 建议为这些参数执行校验。
 
 ```typescript
@@ -408,9 +408,9 @@ getUsers(@QueryParams() query: GetUserQuery) {
 }
 ```
 
-#### 注入请求body
+#### 注入请求 Body
 
-用`@Body`装饰器注入请求body：
+用 `@Body` 装饰器注入请求 Body：
 
 ```typescript
 @Post("/users")
@@ -418,13 +418,13 @@ saveUser(@Body() user: User) {
 }
 ```
 
-如果对`@Body()`装饰的参数声明了类的类型，
-routing-controllers将使用[class-transformer][4]去实例化请求body的数据。
-在创建服务时配置`{ classTransformer: false }`可以禁用该行为。
+如果对 `@Body()` 装饰的参数声明了类的类型，
+routing-controllers 将使用 [class-transformer][4] 去实例化请求 Body 的数据。
+在创建服务时配置 `{ classTransformer: false }` 可以禁用该行为。
 
-#### 注入请求body参数
+#### 注入请求 Body 参数
 
-用`@BodyParam`装饰器注入请求body参数：
+用 `@BodyParam` 装饰器注入请求 Body 参数：
 
 ```typescript
 @Post("/users")
@@ -432,9 +432,9 @@ saveUser(@BodyParam("name") userName: string) {
 }
 ```
 
-#### 注入请求header参数
+#### 注入请求 Header 参数
 
-用`@HeaderParam`装饰器注入请求header参数：
+用 `@HeaderParam` 装饰器注入请求 Header 参数：
 
 ```typescript
 @Post("/users")
@@ -442,11 +442,11 @@ saveUser(@HeaderParam("authorization") token: string) {
 }
 ```
 
-可以使用`@HeaderParams()`装饰器注入所有请求header参数。
+可以使用 `@HeaderParams()` 装饰器注入所有请求 Header 参数。
 
-#### 注入cookie参数
+#### 注入 Cookie 参数
 
-用`@CookieParam`装饰器注入cookie参数：
+用 `@CookieParam` 装饰器注入 Cookie 参数：
 
 ```typescript
 @Get("/users")
@@ -454,31 +454,31 @@ getUsers(@CookieParam("username") username: string) {
 }
 ```
 
-可以使用`@CookieParams()`装饰器注入所有cookie参数。
+可以使用 `@CookieParams()` 装饰器注入所有 Cookie 参数。
 
-#### 注入session对象
+#### 注入 Session 对象
 
-用`@SessionParam`注入一个session值：
+用 `@SessionParam` 注入一个 Session 值：
 
 ```typescript
 @Get("/login")
 savePost(@SessionParam("user") user: User, @Body() post: Post) {}
 ```
-可以使用无参数的`@Session()`装饰器注入session主体。
+可以使用无参数的 `@Session()` 装饰器注入 Session 主体。
 ```typescript
 @Get("/login")
 savePost(@Session() session: any, @Body() post: Post) {}
 ```
-被`@Session`装饰器装饰的参数默认为必填。如果你的方法中该参数是可选的，需要手动标记为非必填：
+被 `@Session` 装饰器装饰的参数默认为必填。如果你的方法中该参数是可选的，需要手动标记为非必填：
 ```typescript
 action(@Session("user", { required: false }) user: User){}
 ```
 
-Express使用[express-session][5] / Koa使用[koa-session][6]或[koa-generic-session][7]处理session，因此必须先安装这些模块才能使用`@Session`装饰器。
+Express 使用 [express-session][5] / Koa 使用 [koa-session][6] 或 [koa-generic-session][7] 处理 Session，因此必须先安装这些模块才能使用 `@Session` 装饰器。
 
-#### 注入state对象
+#### 注入 state 对象
 
-用`@State`装饰器注入state参数：
+用 `@State` 装饰器注入 state 参数：
 
 ```typescript
 @Get("/login")
@@ -486,12 +486,12 @@ savePost(@State("user") user: User, @Body() post: Post){
 }
 ```
 
-要注入整个state对象可以使用无参数的`@State()`。
-state功能只被Koa支持。
+要注入整个 state 对象可以使用无参数的 `@State()`。
+state 功能只被 Koa 支持。
 
 #### 注入上传文件
 
-用`@UploadedFile`装饰器注入上传的文件：
+用 `@UploadedFile` 装饰器注入上传的文件：
 
 ```typescript
 @Post("/files")
@@ -499,7 +499,7 @@ saveFile(@UploadFile("fileName") file: any) {
 }
 ```
 
-也可以指定multer上传配置：
+也可以指定 multer 上传配置：
 
 ```typescript
 // 为保持代码整洁，最好将该函数抽离到单独的文件中
@@ -524,13 +524,13 @@ saveFile(@UploadedFile("fileName", { options: fileUploadOptions }) file: any) {
 }
 ```
 
-可以使用`@UploadFiles`装饰器注入所有上传的文件。
-Routing-controllers使用[multer][3]处理文件上传。
-如果安装了multers的文件定义声明，可用`files: File[]`类型声明代替`any[]`。
+可以使用 `@UploadFiles` 装饰器注入所有上传的文件。
+Routing-controllers 使用 [multer][3] 处理文件上传。
+如果安装了 multers 的文件定义声明，可用 `files: File[]` 类型声明代替 `any[]`。
 
 #### 限制必填参数
 
-在装饰器配置`required: true`限制参数为必填：
+在装饰器配置 `required: true` 限制参数为必填：
 
 ```typescript
 @Post("/users")
@@ -539,18 +539,18 @@ save(@Body({ required: true }) user: any) {
 }
 ```
 
-可以在其它任何参数装饰器中限制必填参数，如`@QueryParam`, `@BodyParam`等。
-如果请求中没有必填参数，routing-controllers将抛出一个错误。
+可以在其它任何参数装饰器中限制必填参数，如 `@QueryParam`, `@BodyParam` 等。
+如果请求中没有必填参数，routing-controllers 将抛出一个错误。
 
 #### 参数转为对象
 
 如果对被装饰的参数声明了类的类型，
-routing-controllers将使用[class-transformer][4]实例化该参数。
+routing-controllers 将使用 [class-transformer][4] 实例化该参数。
 [点击这里](#实例化参数)了解更多。
 
-#### 设置ContentType
+#### 设置 ContentType
 
-为路由设置ContentType：
+为路由设置 ContentType：
 
 ```typescript
 @Get("/users")
@@ -560,9 +560,9 @@ getUsers() {
 }
 ```
 
-#### 设置Location
+#### 设置 Location
 
-为路由设置Location：
+为路由设置 Location：
 
 ```typescript
 @Get("/users")
@@ -607,9 +607,9 @@ getUsers() {
 }
 ```
 
-#### 设置HTTP响应代码
+#### 设置 HTTP 响应代码
 
-可以显式设置HTTP响应代码：
+可以显式设置 HTTP 响应代码：
 
 ```typescript
 @HttpCode(201)
@@ -621,8 +621,8 @@ saveUser(@Body() user: User) {
 
 #### 管理空响应
 
-对于返回`void`或`Promise<void>`或`undefined`的控制器方法，将自动向客户端抛出404错误。
-`@OnUndefined`装饰器可用于设置这种情况下的状态码。
+对于返回 `void` 或 `Promise<void>` 或 `undefined` 的控制器方法，将自动向客户端抛出 404 错误。
+`@OnUndefined` 装饰器可用于设置这种情况下的状态码。
 
 ```typescript
 @Delete("/users/:id")
@@ -632,8 +632,8 @@ async remove(@Param("id") id: number): Promise<void> {
 }
 ```
 
-对于返回值可能为undefined的情况，`@OnUndefined`也可以发挥作用。
-下面例子中，当用户id不存在时`findOneById`返回undefined，该路由将返回404代码，如果存在则返回200代码：
+对于返回值可能为 undefined 的情况，`@OnUndefined` 也可以发挥作用。
+下面例子中，当用户 id 不存在时 `findOneById` 返回 undefined，该路由将返回 404 代码，如果存在则返回 200 代码：
 
 ```typescript
 @Get("/users/:id")
@@ -643,7 +643,7 @@ getOne(@Param("id") id: number) {
 }
 ```
 
-当结果为undefined时也可以返回一个错误类：
+当结果为 undefined 时也可以返回一个错误类：
 
 ```typescript
 import { HttpError } from "routing-controllers";
@@ -663,11 +663,11 @@ saveUser(@Param("id") id: number) {
 }
 ```
 
-如果控制器方法返回`null`可以用`@OnNull`装饰器替代。
+如果控制器方法返回 `null` 可以用 `@OnNull` 装饰器替代。
 
-#### 自定义header
+#### 自定义 Header
 
-定义任意header信息：
+定义任意 Header 信息：
 
 ```typescript
 @Get("/users/:id")
@@ -692,11 +692,11 @@ getOne() {
 }
 ```
 
-服务端渲染功能需要正确配置express / koa。
-Koa用户应使用第三方渲染工具如[koa-views](https://github.com/queckezz/koa-views/)，
-koa-views是唯一经过测试的渲染中间件。
+服务端渲染功能需要正确配置 express / Koa。
+Koa 用户应使用第三方渲染工具如 [koa-views](https://github.com/queckezz/koa-views/)，
+koa-views 是唯一经过测试的渲染中间件。
 
-#### 抛出HTTP错误
+#### 抛出 HTTP 错误
 
 返回指定错误：
 
@@ -712,7 +712,7 @@ getOne(@Param("id") id: number) {
 }
 ```
 
-当请求中的id未查询到用户，将返回以下404响应：
+当请求中的 id 未查询到用户，将返回以下 404 响应：
 
 ```json
 {
@@ -733,8 +733,8 @@ getOne(@Param("id") id: number) {
 * UnauthorizedError
 
 
-可以继承`HttpError`类自行创建使用error。
-也可实现一个toJson函数定义返回给客户端的数据。
+可以继承 `HttpError` 类自行创建使用 error。
+也可实现一个 toJson 函数定义返回给客户端的数据。
 
 ```typescript
 class DbError extends HttpError {
@@ -759,7 +759,7 @@ class DbError extends HttpError {
 
 #### 允许跨域
 
-跨域是目前大部分web-api应用使用的特性，配置routing-controllers允许跨域：
+跨域是目前大部分 web-api 应用使用的特性，配置 routing-controllers 允许跨域：
 
 ```typescript
 import "reflect-metadata";
@@ -774,8 +774,8 @@ const app = createExpressServer({
 app.listen(3000);
 ```
 
-使用cors需要先安装对应模块。
-express用户需要`npm i cors`，koa用户需要`npm i kcors`。
+使用 cors 需要先安装对应模块。
+express 用户需要 `npm i cors`，Koa 用户需要 `npm i kcors`。
 可以如下例进行配置：
 
 ```typescript
@@ -795,7 +795,7 @@ app.listen(3000);
 
 #### 默认设置
 
-在routing-controllers配置中覆写默认状态码。
+在 routing-controllers 配置中覆写默认状态码。
 
 ```typescript
 import "reflect-metadata";
@@ -823,14 +823,14 @@ app.listen(3000);
 
 ## 使用中间件
 
-`@Middleware`装饰器用于自定义中间件，
-`@UseBefore`和`@UseAfter`装饰器使用任何已有的或自定义的express / koa中间件。。
+`@Middleware` 装饰器用于自定义中间件，
+`@UseBefore` 和 `@UseAfter` 装饰器使用任何已有的或自定义的 express / Koa 中间件。
 
 ### 使用已有中间件
 
-有多个方式使用中间件，以[compression](https://github.com/expressjs/compression)为例：
+有多个方式使用中间件，以 [compression](https://github.com/expressjs/compression) 为例：
 
-1. 安装compression中间件：`npm install compression`
+1. 安装 compression 中间件：`npm install compression`
 2. 在方法中使用中间件：
 
     ```typescript
@@ -846,7 +846,7 @@ app.listen(3000);
     }
     ```
 
-    通过这种方式，compression中间件将只应用于`getOne`方法，并在路由方法执行 *前* 执行，要在方法执行 *后* 执行中间件，应使用`@UseAfter`。
+    通过这种方式，compression 中间件将只应用于 `getOne` 方法，并在路由方法执行 *前* 执行，要在方法执行 *后* 执行中间件，应使用 `@UseAfter`。
 
 3. 在控制器中使用中间件：
 
@@ -861,9 +861,9 @@ app.listen(3000);
     }
     ```
 
-    使用这种方式，compression中间件将应用于`UserController`控制器下所有方法，且在方法执行前执行。同样可以使用`@UseAfter`装饰器在方法执行后应用中间件。
+    使用这种方式，compression 中间件将应用于 `UserController` 控制器下所有方法，且在方法执行前执行。同样可以使用 `@UseAfter` 装饰器在方法执行后应用中间件。
  
- 4. 要全局使用compression模块，可以在服务引导时注册中间件：
+ 4. 要全局使用 compression 模块，可以在服务引导时注册中间件：
 
     ```typescript
     import "reflect-metadata";
@@ -877,11 +877,11 @@ app.listen(3000);
     app.use(compression());
     app.listen(3000) // 运行express应用
     ```
-    或者，自定义一个[全局中间件](#全局中间件)，代理执行compression模块。
+    或者，自定义一个[全局中间件](#全局中间件)，代理执行 compression 模块。
 
-### 自行实现express中间件
+### 自行实现 express 中间件
 
-实现express.js中间件：
+实现 express.js 中间件：
 
 1. 两种方式：
 
@@ -935,12 +935,12 @@ app.listen(3000);
     }
     ```
 
-    `@UseBefore`在路由每次执行前执行。
-    `@UseAfter`在路由每次执行后执行。
+    `@UseBefore` 在路由每次执行前执行。
+    `@UseAfter` 在路由每次执行后执行。
 
-### 自行实现koa中间件
+### 自行实现 Koa 中间件
 
-实现koa.js的中间件：
+实现 koa.js 的中间件：
 
 1. 两种方式：
 
@@ -1003,13 +1003,13 @@ app.listen(3000);
     }
     ```
 
-    `@UseBefore`在路由每次执行前执行。
-    `@UseAfter`在路由每次执行后执行。
+    `@UseBefore` 在路由每次执行前执行。
+    `@UseAfter` 在路由每次执行后执行。
 
 ### 全局中间件
 
 全局中间件在所有请求之前执行，
-用`@Middleware`装饰器创建全局中间件并声明该中间件是在控制器方法之前还是之后执行。
+用 `@Middleware` 装饰器创建全局中间件并声明该中间件是在控制器方法之前还是之后执行。
 
 ```typescript
 import { Middleware, ExpressMiddlewareInterface } from "routing-controllers";
@@ -1025,7 +1025,7 @@ export class LoggingMiddleware implements ExpressMiddlewareInterface {
 }
 ```
 
-必须在routing-controllers初始化时指定要使用的全局中间件：
+必须在 routing-controllers 初始化时指定要使用的全局中间件：
 
 ```typescript
 import "reflect-metadata";
@@ -1041,10 +1041,10 @@ createExpressServer({
 
 ### 错误处理程序
 
-错误处理程序只能在express中使用，
-错误处理程序工作方式与中间件相同，但接口声明为`ExpressErrorMiddlewareInterface`;
+错误处理程序只能在 express 中使用，
+错误处理程序工作方式与中间件相同，但接口声明为 `ExpressErrorMiddlewareInterface`;
 
-1. 创建一个类并声明接口为`ErrorMiddlewareInterface`：
+1. 创建一个类并声明接口为 `ErrorMiddlewareInterface`：
 
     ```typescript
     import { Middleware, ExpressErrorMiddlewareInterface } from "routing-controllers";
@@ -1060,8 +1060,8 @@ createExpressServer({
     }
     ```
 
-自定义的错误处理程序在默认错误处理后被调用，因此不能修改响应码或headers。
-要阻止该行为，需要在createExpressServer或useExpressServer中配置`defaultErrorHandler`选项禁用默认错误处理。
+自定义的错误处理程序在默认错误处理后被调用，因此不能修改响应码或 Headers。
+要阻止该行为，需要在 createExpressServer 或 useExpressServer 中配置 `defaultErrorHandler` 选项禁用默认错误处理。
     
 ```typescript
 createExpressServer({
@@ -1071,7 +1071,7 @@ createExpressServer({
 
 ### 从目录加载中间件，拦截器和控制器
 
-从文件夹加载中间件。可以使用glob patterns匹配模式：
+从文件夹加载中间件。可以使用 glob patterns 匹配模式：
 
 ```typescript
 import "reflect-metadata";
@@ -1091,7 +1091,7 @@ createExpressServer({
 
 ### 函数式拦截器
 
-最简单的方式是通过`@UseInterceptor`直接用函数实现拦截器。
+最简单的方式是通过 `@UseInterceptor` 直接用函数实现拦截器。
 
 ```typescript
 import { Get, Param, UseInterceptor } from "routing-controllers";
@@ -1109,12 +1109,12 @@ getOne(@Param("id") id: number) {
 }
 ```
 
-也可以在控制器中使用`@UseInterceptor`装饰器。
+也可以在控制器中使用 `@UseInterceptor` 装饰器。
 当用于控制器时，拦截器将作用于该控制器下所有路由。
 
-### class式拦截器
+### class 式拦截器
 
-可以声明一个拦截器类并通过`@UseInterceptor`装饰器应用：
+可以声明一个拦截器类并通过 `@UseInterceptor` 装饰器应用：
 
 ```typescript
 import { Interceptor, InterceptorInterface, Action } from "routing-controllers";
@@ -1145,7 +1145,7 @@ getOne(@Param("id") id: number) {
 
 ### 全局拦截器
 
-创建一个拦截器类并用`@Interceptor`装饰来实现一个影响所有控制器的全局拦截器：
+创建一个拦截器类并用 `@Interceptor` 装饰来实现一个影响所有控制器的全局拦截器：
 
 ```typescript
 import { Interceptor, InterceptorInterface, Action } from "routing-controllers";
@@ -1162,9 +1162,9 @@ export class NameCorrectionInterceptor implements InterceptorInterface {
 
 ## 实例化参数
 
-有时候需要将用户发送的json对象解析为特定的类而不是简单的字面对象。
-可以用[class-transformer][4]实现。
-需要在服务引导时配置`classTransformer: true`开启该功能：
+有时候需要将用户发送的 JSON 对象解析为特定的类而不是简单的字面对象。
+可以用 [class-transformer][4] 实现。
+需要在服务引导时配置 `classTransformer: true` 开启该功能：
 
 ```typescript
 import "reflect-metadata";
@@ -1175,7 +1175,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-现在，当解析参数时，如果对其声明了一个类的类型，routing-controllers将根据用户发送的数据创建一个实例：
+现在，当解析参数时，如果对其声明了一个类的类型，routing-controllers 将根据用户发送的数据创建一个实例：
 
 ```typescript
 export class User {
@@ -1197,21 +1197,21 @@ export class UserController {
 }
 ```
 
-如果`User`是一个接口，只会创建一个简单字面对象。
+如果 `User` 是一个接口，只会创建一个简单字面对象。
 如果是一个类，将创建该类的实例。
 
-该功能默认开启，作用于`@Body`， `@Param`， `@QueryParam`， `@BodyParam`以及其它装饰器上。
-可以在createExpressServer函数中设置`classTransformer: false`来关闭这个功能。
+该功能默认开启，作用于 `@Body`， `@Param`， `@QueryParam`， `@BodyParam` 以及其它装饰器上。
+可以在 createExpressServer 函数中设置 `classTransformer: false` 来关闭这个功能。
 
-学习class-transformer和如何处理更复杂的对象结构[戳这里][4]。
+学习 class-transformer 和如何处理更复杂的对象结构[戳这里][4]。
 
 
 ## 参数自动校验
 
-有时候不仅需要解析json对象为类的实例。
-比如，`class-transformer`不会核对属性的类型，因此可能会出现Typescript运行时报错。同样你可能需要校验这些对象，如密码是否够长或电子邮件格式是否正确。
+有时候不仅需要解析 JSON 对象为类的实例。
+比如，`class-transformer` 不会核对属性的类型，因此可能会出现 Typescript 运行时报错。同样你可能需要校验这些对象，如密码是否够长或电子邮件格式是否正确。
 
-感谢[class-validator][9]我们可以轻松实现这一需求。该功能默认*开启*。如果要关闭，在应用引导时配置`validation: false`：
+感谢 [class-validator][9] 我们可以轻松实现这一需求。该功能默认 *开启*。如果要关闭，在应用引导时配置 `validation: false`：
 ```typescript
 import "reflect-metadata";
 import { createExpressServer } from "routing-controllers";
@@ -1221,7 +1221,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-在部分参数中启用，可以在对应装饰器中配置`validate: true`：
+在部分参数中启用，可以在对应装饰器中配置 `validate: true`：
 
 ```typescript
 @Post("/login")
@@ -1241,7 +1241,7 @@ export class User {
 
 }
 ```
-如果没有class-validator的使用经验，可以[在这里][9]学习如何使用和处理更复杂的对象校验。
+如果没有 class-validator 的使用经验，可以[在这里][9]学习如何使用和处理更复杂的对象校验。
 
 现在，如果指定一个类的类型，你的方法参数将不仅仅是该类的实例(用户发送的数据)，它们同样会被校验，因此你不必担心如邮箱格式错误或密码太短以及其它函数参数校验的问题。
 
@@ -1258,18 +1258,18 @@ export class UserController {
 }
 ```
 
-如果参数不满足class-validator装饰器定义的校验，
-将抛出一个错误并被routing-controllers捕获，客户端将收到400错误和详细的[Validation errors](https://github.com/pleerock/class-validator#validation-errors)报错序列。
+如果参数不满足 class-validator 装饰器定义的校验，
+将抛出一个错误并被 routing-controllers 捕获，客户端将收到 400 错误和详细的 [Validation errors](https://github.com/pleerock/class-validator#validation-errors) 报错序列。
 
-要专门配置校验（如组别，跳过忽略属性等）或转换（如组别，排除前缀，版本等）。可以用createExpressServer中的`validation`配置项进行全局配置，或用`validate`对函数参数进行单独配置 - `@Body({ validate: localOptions })`。
+要专门配置校验（如组别，跳过忽略属性等）或转换（如组别，排除前缀，版本等）。可以用 createExpressServer 中的 `validation` 配置项进行全局配置，或用 `validate` 对函数参数进行单独配置 - `@Body({ validate: localOptions })`。
 
 ## 使用权限管理
 
-Routing-controllers附带两个装饰器实现在应用中的鉴权。
+Routing-controllers 附带两个装饰器实现在应用中的鉴权。
 
-#### `@Authorized`装饰器
+#### `@Authorized` 装饰器
 
-使用`@Authorized`装饰器需要配置routing-controllers：
+使用 `@Authorized` 装饰器需要配置 routing-controllers：
 
 ```typescript
 import "reflect-metadata";
@@ -1295,7 +1295,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-在路由中使用`@Authorized`：
+在路由中使用 `@Authorized`：
 
 ```typescript
 @JsonController()
@@ -1314,9 +1314,9 @@ export class SomeController {
 }
 ```
 
-#### `@CurrentUser`装饰器
+#### `@CurrentUser` 装饰器
 
-使用`@CurrentUser`装饰器需要配置routing-controllers：
+使用 `@CurrentUser` 装饰器需要配置 routing-controllers：
 
 ```typescript
 import "reflect-metadata"
@@ -1333,7 +1333,7 @@ createExpressServer({
 }).listen(3000);
 ```
 
-在控制器方法中使用`@CurrentUser`：
+在控制器方法中使用 `@CurrentUser`：
 
 ```typescript
 @JsonController()
@@ -1350,13 +1350,13 @@ export class QuestionController {
 }
 ```
 
-如果标记`@CurrentUser`为`required`，当currentUserChecker返回空数据时，routing-controllers将抛出authorization必填的错误。
+如果标记 `@CurrentUser` 为 `required`，当 currentUserChecker 返回空数据时，routing-controllers 将抛出 authorization 必填的错误。
 
-## 使用DI容器
+## 使用 DI 容器
 
-`routing-controllers`支持外部DI容器注入服务到控制器，中间件和错误处理程序中。
+`routing-controllers` 支持外部 DI 容器注入服务到控制器，中间件和错误处理程序中。
 容器必须在应用引导时配置。
-这里展示如何整合[typedi](https://github.com/pleerock/typedi)到routing-controllers：
+这里展示如何整合 [typedi](https://github.com/pleerock/typedi) 到 routing-controllers：
 
 ```typescript
 import "reflect-metadata"
@@ -1389,7 +1389,7 @@ export class UsersController {
 }
 ```
 
-对于没有暴露`get(xxx)`函数的其他IoC提供者，可以用`IocAdapter`创建一个IoC适配器，如下：
+对于没有暴露 `get(xxx)` 函数的其他 IoC 提供者，可以用 `IocAdapter` 创建一个 IoC 适配器，如下：
 
 ```typescript
 // inversify-adapter.ts
@@ -1410,7 +1410,7 @@ class InversifyAdapter implements IocAdapter {
 }
 ```
 
-并通知Routing Controllers使用：
+并通知 Routing Controllers 使用：
 ```typescript
 // 应用启动的某个位置
 import { useContainer } from "routing-controllers";
@@ -1424,7 +1424,7 @@ useContainer(inversifyAdapter)
 
 ## 自定义参数装饰器
 
-这里简单展示如何定制装饰器"session user"：
+这里简单展示如何定制装饰器 "session user"：
 
 ```typescript
 import { createParamDecorator } from "routing-controllers";
@@ -1463,45 +1463,45 @@ export class QuestionController {
 
 | 名称 | 例子 | 描述 |
 |-----|-----|------|
-| `@Controller(baseRoute: string)` | `@Controller("/users") class SomeController` | 被装饰的类将注册为控制器，该类下被装饰的函数将注册为路由。baseRoute将作为该控制器所有路由的前缀。 |
-| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | 被装饰的类将注册为控制器，该类下被装饰的函数将注册为路由。与@Controller不同的是，@JsonController自动将路由返回结果转换为json对象(使用JSON.parse)并设置响应的content-type为application/json发送到客户端。baseRoute将作为该控制器所有路由的前缀。 |
+| `@Controller(baseRoute: string)` | `@Controller("/users") class SomeController` | 被装饰的类将注册为控制器，该类下被装饰的函数将注册为路由。baseRoute 将作为该控制器所有路由的前缀。 |
+| `@JsonController(baseRoute: string)` | `@JsonController("/users") class SomeJsonController` | 被装饰的类将注册为控制器，该类下被装饰的函数将注册为路由。与 @Controller 不同的是，@JsonController 自动将路由返回结果转换为 JSON 对象（使用JSON.parse）并设置响应的 content-type 为 application/json 发送到客户端。baseRoute 将作为该控制器所有路由的前缀。 |
 
 
 #### 控制器函数装饰器
 
-| 名称 | 例子 | 描述 | express方式对比 |
+| 名称 | 例子 | 描述 | express 方式对比 |
 |-----|------|-----|---------------|
-| `@Get(route: string\|RegExp)` | `@Get("/users") all()` | 被装饰的函数将注册一个GET类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.get("/users", all)` |
-| `@Post(route: string\|RegExp)` | `@Post("/users") save()` | 被装饰的函数将注册一个POST类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.post("/users", save)` |
-| `@Put(route: string\|RegExp)` | `@Put("/users/:id") update()` | 被装饰的函数将注册一个PUT类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.put("/users/:id", update)` |
-| `@Patch(route: string\|RegExp)` | `@Patch("/users/:id") patch()` | 被装饰的函数将注册一个PATCH类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.patch("/users/:id", patch)` |
-| `@Delete(route: string\|RegExp)` | `@Delete("/users/:id") delete()` | 被装饰的函数将注册一个DELETE类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.delete("/users/:id", delete)` |
-| `@Head(route: string\|RegExp)` | `@Head("/users/:id) head()` | 被装饰的函数将注册一个HEAD类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.head("/users/:id", head)` |
-| `@Method(methodName: string, route: string\|RegExp)` | `@Method("move", "/users/:id") move()` | 被装饰的函数将注册一个`methodName`定义的请求类型的请求到给定路由。可以指定响应为json类型或常规类型。 | `app.move("/users/:id", move)` |
+| `@Get(route: string\|RegExp)` | `@Get("/users") all()` | 被装饰的函数将注册一个 GET 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.get("/users", all)` |
+| `@Post(route: string\|RegExp)` | `@Post("/users") save()` | 被装饰的函数将注册一个 POST 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.post("/users", save)` |
+| `@Put(route: string\|RegExp)` | `@Put("/users/:id") update()` | 被装饰的函数将注册一个 PUT 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.put("/users/:id", update)` |
+| `@Patch(route: string\|RegExp)` | `@Patch("/users/:id") patch()` | 被装饰的函数将注册一个 PATCH 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.patch("/users/:id", patch)` |
+| `@Delete(route: string\|RegExp)` | `@Delete("/users/:id") delete()` | 被装饰的函数将注册一个 DELETE 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.delete("/users/:id", delete)` |
+| `@Head(route: string\|RegExp)` | `@Head("/users/:id) head()` | 被装饰的函数将注册一个 HEAD 类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.head("/users/:id", head)` |
+| `@Method(methodName: string, route: string\|RegExp)` | `@Method("move", "/users/:id") move()` | 被装饰的函数将注册一个 `methodName` 定义的请求类型的请求到给定路由。可以指定响应为 JSON 类型或常规类型。 | `app.move("/users/:id", move)` |
 
 
 #### 函数参数装饰器
 
-| 名称 | 例子 | 描述 | express方式对比 |
+| 名称 | 例子 | 描述 | express 方式对比 |
 |-----|------|-----|----------------|
-| `@Req()` | `getAll(@Req() request: Request)` | 注入Request对象。 | `function(request, response)` |
-| `@Res()` | `getAll(@Res() response: Response)` | 注入Response对象。 | `function(request, response)` |
-| `@Ctx()` | `getAll(@Ctx() context: Context)` | 注入Context对象(仅限Koa)。 | `function(ctx)`(koa方式) |
-| `@Param(name: string, options?: ParamOptions)` | `get(@Param("id") id: number)` | 注入一个param参数。 | `request.params.id` |
-| `@Params()` | `get(@Params() params: any)` | 注入所有param参数。 | `request.params` |
-| `@QueryParam(name: string, options?: ParamOptions)` | `get(@QueryParam("id") id: number)` | 注入一个query参数。 | `request.query.id` |
-| `@QueryParams()` | `get(@QueryParams() params: any)` | 注入所有query参数。 | `request.query` |
-| `@HeaderParam(name: string, options?: ParamOptions)` | `get(@HeaderParam("token") token: string)` | 注入一个请求header。 | `request.headers.token` |
-| `@HeaderParams()` | `get(@HeaderParams() params: any)` | 注入所有请求header。 | `request.headers` |
-| `@CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam("username") username: string)` | 注入一个cookie参数。 | `request.cookie("username")` |
-| `@CookieParams()` | `get(@CookieParams() params: any)` | 注入所有cookie。 | `request.cookies` |
-| `@Session()` | `get(@Session() session: any)` | 注入整个session对象。 | `request.session` |
-| `@SessionParam(name: string)` | `get(@SessionParam("user") user: User)` | 注入一个session的属性。 | `request.session.user` |
-| `@State(name?: string)` | `get(@State() session: StateType)` | 注入一个state内的对象(或者整个state)。 | `ctx.state`(koa方式) |
-| `@Body(options?: BodyOptions)` | `post(@Body() body: any)` | 注入请求body，options中可以配置解析的中间件。 | `request.body` |
-| `@BodyParam(name: string, options?: ParamOptions)` | `post(@BodyParam("name") name: string)` | 注入一个请求body的参数。 | `request.body.name` |
-| `@UploadFile(name: string, options?: UploadOptions)` | `post(@UploadOptions("filename") file: any)` | 注入一个上传的文件。options中可以指定底层的上传中间件配置。 | `request.file.file`(使用multer) |
-| `@UploadFiles(name: string, options: UploadOptions)` | `post(@UploadFiles("filename") files: any:[])` | 注入所有上传的文件。options中可以指定底层的上传中间件配置。 | `request.files`(使用multer) |
+| `@Req()` | `getAll(@Req() request: Request)` | 注入 Request 对象。 | `function(request, response)` |
+| `@Res()` | `getAll(@Res() response: Response)` | 注入 Response 对象。 | `function(request, response)` |
+| `@Ctx()` | `getAll(@Ctx() context: Context)` | 注入 Context 对象（仅限 Koa）。 | `function(ctx)`（Koa 方式） |
+| `@Param(name: string, options?: ParamOptions)` | `get(@Param("id") id: number)` | 注入一个 param 参数。 | `request.params.id` |
+| `@Params()` | `get(@Params() params: any)` | 注入所有 param 参数。 | `request.params` |
+| `@QueryParam(name: string, options?: ParamOptions)` | `get(@QueryParam("id") id: number)` | 注入一个 query 参数。 | `request.query.id` |
+| `@QueryParams()` | `get(@QueryParams() params: any)` | 注入所有 query 参数。 | `request.query` |
+| `@HeaderParam(name: string, options?: ParamOptions)` | `get(@HeaderParam("token") token: string)` | 注入一个请求 Header。 | `request.headers.token` |
+| `@HeaderParams()` | `get(@HeaderParams() params: any)` | 注入所有请求  Header。 | `request.headers` |
+| `@CookieParam(name: string, options?: ParamOptions)` | `get(@CookieParam("username") username: string)` | 注入一个 Cookie 参数。 | `request.cookie("username")` |
+| `@CookieParams()` | `get(@CookieParams() params: any)` | 注入所有 Cookie。 | `request.cookies` |
+| `@Session()` | `get(@Session() session: any)` | 注入整个 Session 对象。 | `request.session` |
+| `@SessionParam(name: string)` | `get(@SessionParam("user") user: User)` | 注入一个 Session 的属性。 | `request.session.user` |
+| `@State(name?: string)` | `get(@State() session: StateType)` | 注入一个 state 内的对象（或者整个 state）。 | `ctx.state`（ Koa 方式) |
+| `@Body(options?: BodyOptions)` | `post(@Body() body: any)` | 注入请求 Body，options 中可以配置解析的中间件。 | `request.body` |
+| `@BodyParam(name: string, options?: ParamOptions)` | `post(@BodyParam("name") name: string)` | 注入一个请求 Body 的参数。 | `request.body.name` |
+| `@UploadFile(name: string, options?: UploadOptions)` | `post(@UploadOptions("filename") file: any)` | 注入一个上传的文件。options 中可以指定底层的上传中间件配置。 | `request.file.file`（使用 multer） |
+| `@UploadFiles(name: string, options: UploadOptions)` | `post(@UploadFiles("filename") files: any:[])` | 注入所有上传的文件。options 中可以指定底层的上传中间件配置。 | `request.files`（使用 multer） |
 
 #### 中间件和拦截器装饰器
 
@@ -1517,29 +1517,29 @@ export class QuestionController {
 
 | 名称 | 例子 | 描述 |
 |-----|------|-----|
-| `@Authorized(roles?: string\|string[])` | `@Authorized("SUPER_ADMIN")` get() | 在被装饰路由中对用户鉴权。`currentUserChecker`应在routing-controllers配置中定义。 |
-| `@CurrentUser(options?: {required?: boolean })` | get(@CurrentUser({ required: true }) user: User) | 注入当前已鉴权的用户。`currentUserChecker`应在routing-controllers配置中定义。 |
-| `@Header(headerName: string, headerValue: string)` | `@Header("Catch-Control", "private")` get() | 为响应设置任意header信息。 |
-| `@ContentType(contentType: string)` | `@ContentType("text/csv")` get() | 设置响应Content-Type。 |
-| `@Location(url: string)` | `@Location("http://github.com")` get() | 设置响应Location。 |
+| `@Authorized(roles?: string\|string[])` | `@Authorized("SUPER_ADMIN")` get() | 在被装饰路由中对用户鉴权。`currentUserChecker` 应在 routing-controllers 配置中定义。 |
+| `@CurrentUser(options?: {required?: boolean })` | get(@CurrentUser({ required: true }) user: User) | 注入当前已鉴权的用户。`currentUserChecker` 应在 routing-controllers 配置中定义。 |
+| `@Header(headerName: string, headerValue: string)` | `@Header("Catch-Control", "private")` get() | 为响应设置任意 Header 信息。 |
+| `@ContentType(contentType: string)` | `@ContentType("text/csv")` get() | 设置响应 Content-Type。 |
+| `@Location(url: string)` | `@Location("http://github.com")` get() | 设置响应 Location。 |
 | `@Redirect(url: string)` | `@Redirect("http://github.com")` get() | 设置响应重定向。 |
-| `@HttpCode(code: number)` | `@HttpCode(201)` post() | 设置HTTP响应代码。 |
-| `@OnNull(codeOrError: number\|Error)` | `@OnNull(201)` | 设置控制器方法返回null时的HTTP码或响应报错。 |
-| `@OnUndefined(codeOrError: number\|Error)` | `@OnUndefined(201)` | 设置控制器方法返回undefined时的HTTP码或响应报错。 |
-| `@ResponseClassTransformOptions(options: ClassTransformOptions)` | `@ResponseClassTransformOptions(/*...*/)` get() | 当使用class-transformer的[ClassToPlain](4)转换响应结果时，该装饰器用于传递配置给class-transformer。 |
-| `@Render(template: string)` | `@Render("user-list.html")` get() | 渲染给定html模板。控制器返回的数据将作为模板变量。 |
+| `@HttpCode(code: number)` | `@HttpCode(201)` post() | 设置 HTTP 响应代码。 |
+| `@OnNull(codeOrError: number\|Error)` | `@OnNull(201)` | 设置控制器方法返回 null 时的 HTTP 码或响应报错。 |
+| `@OnUndefined(codeOrError: number\|Error)` | `@OnUndefined(201)` | 设置控制器方法返回 undefined 时的 HTTP 码或响应报错。 |
+| `@ResponseClassTransformOptions(options: ClassTransformOptions)` | `@ResponseClassTransformOptions(/*...*/)` get() | 当使用 class-transformer 的 [ClassToPlain](4) 转换响应结果时，该装饰器用于传递配置给 class-transformer。 |
+| `@Render(template: string)` | `@Render("user-list.html")` get() | 渲染给定 html 模板。控制器返回的数据将作为模板变量。 |
 
 ## 示例
 
-* [express中使用routing-controllers](https://github.com/pleerock/routing-controllers-express-demo)
-* [koa中使用routing-controllers](https://github.com/pleerock/routing-controllers-koa-demo)
-* [angular2中使用routing-controllers](https://github.com/pleerock/routing-controllers-angular2-demo)
-* [node微服务中使用routing-controllers](https://github.com/swimlane/node-microservice-demo)
+* [express 中使用 routing-controllers](https://github.com/pleerock/routing-controllers-express-demo)
+* [Koa 中使用 routing-controllers](https://github.com/pleerock/routing-controllers-koa-demo)
+* [angular2 中使用 routing-controllers](https://github.com/pleerock/routing-controllers-angular2-demo)
+* [node 微服务中使用 routing-controllers](https://github.com/swimlane/node-microservice-demo)
 * [功能用法示例](https://github.com/pleerock/routing-controllers/tree/master/sample)
 
 ## 发行说明
 
-[点击这里](CHANGELOG.md)查看重大修改和发行说明
+[点击这里](../../CHANGELOG.md)查看重大修改和发行说明
 
 [1]: http://expressjs.com/
 [2]: http://koajs.com/
