@@ -55,6 +55,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     + [Interceptor classes](#interceptor-classes)
     + [Global interceptors](#global-interceptors)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
+  * [Controller inheritance](#controller-inheritance)
   * [Auto validating action params](#auto-validating-action-params)
   * [Using authorization features](#using-authorization-features)
       - [@Authorized decorator](#authorized-decorator)
@@ -1235,6 +1236,33 @@ This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and ot
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
 If you want to disable it simply pass `classTransformer: false` to createExpressServer method. Alternatively you can disable transforming for [individual controllers or routes](#selectively-disable-requestresponse-transforming).
+
+## Controller Inheritance
+Often your application may need to have an option to inherit controller from another to reuse code and void duplication. 
+A good example of the use is the CRUD operations which can be hidden inside `AbstractBaseController` with the possibility to add new and overload methods, the template method pattern.
+  
+```typescript
+@Controller(`/product`)
+class ProductController extends AbstractControllerTemplate {}
+@Controller(`/category`)
+class CategoryController extends AbstractControllerTemplate {}
+abstract class AbstractControllerTemplate {
+    @Post()
+    public create() {}
+    
+    @Read()
+    public read() {}
+    
+    @Put()
+    public update() {}
+    
+    @Delete()
+    public delete() {}
+}
+
+```  
+https://en.wikipedia.org/wiki/Template_method_pattern
+
 
 ## Auto validating action params
 
