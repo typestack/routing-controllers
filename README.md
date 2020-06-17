@@ -617,7 +617,7 @@ You can use template to generate the Redirect header:
 @Redirect("http://github.com/:owner/:repo")
 getUsers() {
     return {
-        owner: "pleerock",
+        owner: "typestack",
         repo: "routing-controllers"
     };
 }
