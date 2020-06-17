@@ -24,7 +24,7 @@ export class MetadataBuilder {
     /**
      * Builds controller metadata from a registered controller metadata args.
      */
-    buildControllerMetadata(classes?: Function[]) {
+    buildControllerMetadata(classes?: Function[]): ControllerMetadata[] {
         return this.createControllers(classes);
     }
 
