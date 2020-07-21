@@ -47,6 +47,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
       - [Throw HTTP errors](#throw-http-errors)
       - [Enable CORS](#enable-cors)
       - [Default settings](#default-settings)
+      - [Selectively disabling request/response transform](#selectively-disable-requestresponse-transforming)
   * [Using middlewares](#using-middlewares)
     + [Use exist middleware](#use-exist-middleware)
     + [Creating your own express middleware](#creating-your-own-express-middleware)
@@ -59,6 +60,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
     + [Interceptor classes](#interceptor-classes)
     + [Global interceptors](#global-interceptors)
   * [Creating instances of classes from action params](#creating-instances-of-classes-from-action-params)
+  * [Controller inheritance](#controller-inheritance)
   * [Auto validating action params](#auto-validating-action-params)
   * [Using authorization features](#using-authorization-features)
       - [@Authorized decorator](#authorized-decorator)
@@ -267,8 +269,17 @@ import { Controller, Req, Res, Get } from "routing-controllers";
 export class UserController {
 
     @Get("/users")
-    getAll(@Req() request: any, @Res() response: any) {
+    getAllUsers(@Req() request: any, @Res() response: any) {
         return response.send("Hello response!");
+    }
+
+    @Get("/posts")
+    getAllPosts(@Req() request: any, @Res() response: any) {
+        // some response functions don't return the response object,
+        // so it needs to be returned explicitly
+        response.redirect("/users");
+
+        return response;
     }
 
 }
@@ -559,7 +570,7 @@ You can specify a custom ContentType header:
 
 ```typescript
 @Get("/users")
-@ContentType("text/cvs")
+@ContentType("text/csv")
 getUsers() {
     // ...
 }
@@ -606,7 +617,7 @@ You can use template to generate the Redirect header:
 @Redirect("http://github.com/:owner/:repo")
 getUsers() {
     return {
-        owner: "pleerock",
+        owner: "typestack",
         repo: "routing-controllers"
     };
 }
@@ -739,7 +750,7 @@ There are set of prepared errors you can use:
 * UnauthorizedError
 
 
-You can also create and use your own errors by extending `HttpError` class.  
+You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.
 
 ```typescript
@@ -761,7 +772,7 @@ class DbError extends HttpError {
         }
     }
 }
-``` 
+```
 
 #### Enable CORS
 
@@ -802,7 +813,7 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options. 
+You can override default status code in routing-controllers options.
 
 ```typescript
 import "reflect-metadata";
@@ -815,9 +826,9 @@ const app = createExpressServer({
         //with this option, null will return 404 by default
         nullResultCode: 404,
 
-        //with this option, void or Promise<void> will return 204 by default 
+        //with this option, void or Promise<void> will return 204 by default
         undefinedResultCode: 204,
-        
+
         paramOptions: {
             //with this option, argument will be required by default
             required: true
@@ -826,6 +837,20 @@ const app = createExpressServer({
 });
 
 app.listen(3000);
+```
+
+#### Selectively disable request/response transform
+
+To disable `class-transformer` on a per-controller or per-route basis, use the `transformRequest` and `transformResponse` options on your controller and route decorators:
+
+```typescript
+@Controller("/users", {transformRequest: false, transformResponse: false})
+export class UserController {
+
+    @Get("/", {transformResponse: true}) {
+        // route option overrides controller option
+    }
+}
 ```
 
 ## Using middlewares
@@ -1216,7 +1241,34 @@ If its a class - then instance of this class will be created.
 This technique works with `@Body`, `@Param`, `@QueryParam`, `@BodyParam`, and other decorators.
 Learn more about class-transformer and how to handle more complex object constructions [here][4].
 This behaviour is enabled by default.
-If you want to disable it simply pass `classTransformer: false` to createExpressServer method.
+If you want to disable it simply pass `classTransformer: false` to createExpressServer method. Alternatively you can disable transforming for [individual controllers or routes](#selectively-disable-requestresponse-transforming).
+
+## Controller Inheritance
+Often your application may need to have an option to inherit controller from another to reuse code and void duplication. 
+A good example of the use is the CRUD operations which can be hidden inside `AbstractBaseController` with the possibility to add new and overload methods, the template method pattern.
+  
+```typescript
+@Controller(`/product`)
+class ProductController extends AbstractControllerTemplate {}
+@Controller(`/category`)
+class CategoryController extends AbstractControllerTemplate {}
+abstract class AbstractControllerTemplate {
+    @Post()
+    public create() {}
+    
+    @Read()
+    public read() {}
+    
+    @Put()
+    public update() {}
+    
+    @Delete()
+    public delete() {}
+}
+
+```  
+https://en.wikipedia.org/wiki/Template_method_pattern
+
 
 ## Auto validating action params
 
@@ -1270,7 +1322,7 @@ export class UserController {
 }
 ```
 If the param doesn't satisfy the requirements defined by class-validator decorators,
-an error will be thrown and captured by routing-controllers, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/pleerock/class-validator#validation-errors) array.
+an error will be thrown and captured by routing-controller, so the client will receive 400 Bad Request and JSON with nice detailed [Validation errors](https://github.com/typestack/class-validator#validation-errors) array.
 
 If you need special options for validation (groups, skipping missing properties, etc.) or transforming (groups, excluding prefixes, versions, etc.), you can pass them as global config as `validation ` in createExpressServer method or as a local `validate` setting for method parameter - `@Body({ validate: localOptions })`.
 
@@ -1371,7 +1423,7 @@ If you mark `@CurrentUser` as `required` and currentUserChecker logic will retur
 
 `routing-controllers` supports a DI container out of the box. You can inject your services into your controllers,
 middlewares and error handlers. Container must be setup during application bootstrap.
-Here is example how to integrate routing-controllers with [typedi](https://github.com/pleerock/typedi):
+Here is example how to integrate routing-controllers with [typedi](https://github.com/typestack/typedi):
 
 ```typescript
 import "reflect-metadata";
@@ -1492,7 +1544,8 @@ export class QuestionController {
 | `@Patch(route: string\|RegExp)`                                | `@Patch("/users/:id") patch()`         | Methods marked with this decorator will register a request made with PATCH HTTP Method to a given route. In action options you can specify if action should response json or regular text response.               | `app.patch("/users/:id", patch)`     |
 | `@Delete(route: string\|RegExp)`                               | `@Delete("/users/:id") delete()`       | Methods marked with this decorator will register a request made with DELETE HTTP Method to a given route. In action options you can specify if action should response json or regular text response.              | `app.delete("/users/:id", delete)`   |
 | `@Head(route: string\|RegExp)`                                 | `@Head("/users/:id") head()`           | Methods marked with this decorator will register a request made with HEAD HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                | `app.head("/users/:id", head)`       |
-| `@Method(methodName: string, route: string\|RegExp)`            | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
+| `@All(route: string\|RegExp)`                                  | `@All("/users/me") rewrite()`          | Methods marked with this decorator will register a request made with any HTTP Method to a given route. In action options you can specify if action should response json or regular text response.                 | `app.all("/users/me", rewrite)`      |
+| `@Method(methodName: string, route: string\|RegExp)`           | `@Method("move", "/users/:id") move()` | Methods marked with this decorator will register a request made with given `methodName` HTTP Method to a given route. In action options you can specify if action should response json or regular text response.  | `app.move("/users/:id", move)`       |
 
 #### Method Parameter Decorators
 
@@ -1531,7 +1584,7 @@ export class QuestionController {
 
 | Signature                                                          | Example                                                   | Description                                                                                                                                    |
 |--------------------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@Authorized(roles?: string\|string[])`                            | `@Authorized("SUPER_ADMIN")` get()                        | Checks if user is authorized and has given roles on a given route. `currentUserChecker` should be defined in routing-controllers options.      |                                                              |
+| `@Authorized(roles?: string\|string[])`                            | `@Authorized("SUPER_ADMIN")` get()                        | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options.      |                                                              |
 | `@CurrentUser(options?: { required?: boolean })`                   | get(@CurrentUser({ required: true }) user: User)          | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers options.                                      |
 | `@Header(headerName: string, headerValue: string)`                 | `@Header("Cache-Control", "private")` get()               | Allows to explicitly set any HTTP header returned in the response.                                                                             |
 | `@ContentType(contentType: string)`                                | `@ContentType("text/csv")` get()                          | Allows to explicitly set HTTP Content-Type returned in the response.                                                                           |
@@ -1545,11 +1598,11 @@ export class QuestionController {
 
 ## Samples
 
-* Take a look on [routing-controllers with express](https://github.com/pleerock/routing-controllers-express-demo) which is using routing-controllers.
-* Take a look on [routing-controllers with koa](https://github.com/pleerock/routing-controllers-koa-demo) which is using routing-controllers.
-* Take a look on [routing-controllers with angular 2](https://github.com/pleerock/routing-controllers-angular2-demo) which is using routing-controllers.
+* Take a look on [routing-controllers with express](https://github.com/typestack/routing-controllers-express-demo) which is using routing-controllers.
+* Take a look on [routing-controllers with koa](https://github.com/typestack/routing-controllers-koa-demo) which is using routing-controllers.
+* Take a look on [routing-controllers with angular 2](https://github.com/typestack/routing-controllers-angular2-demo) which is using routing-controllers.
 * Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using routing-controllers.
-* Take a look on samples in [./sample](https://github.com/pleerock/routing-controllers/tree/master/sample) for more examples
+* Take a look on samples in [./sample](https://github.com/typestack/routing-controllers/tree/master/sample) for more examples
 of usage.
 
 ## Release notes
@@ -1559,9 +1612,9 @@ See information about breaking changes and release notes [here](CHANGELOG.md).
 [1]: http://expressjs.com/
 [2]: http://koajs.com/
 [3]: https://github.com/expressjs/multer
-[4]: https://github.com/pleerock/class-transformer
+[4]: https://github.com/typestack/class-transformer
 [5]: https://www.npmjs.com/package/express-session
 [6]: https://www.npmjs.com/package/koa-session
 [7]: https://www.npmjs.com/package/koa-generic-session
 [8]: http://koajs.com/#ctx-state
-[9]: https://github.com/pleerock/class-validator
+[9]: https://github.com/typestack/class-validator
