@@ -1,11 +1,9 @@
 export class Photo {
+  id: number;
 
-    id: number;
+  url: string;
 
-    url: string;
-    
-    isUrlEmpty() {
-        return !this.url;
-    }
-
+  isUrlEmpty() {
+    return !this.url;
+  }
 }

@@ -1,17 +1,15 @@
-import {HttpError} from "./HttpError";
+import { HttpError } from './HttpError';
 
 /**
  * Exception for 403 HTTP error.
  */
 export class ForbiddenError extends HttpError {
-    name = "ForbiddenError";
+  name = 'ForbiddenError';
 
-    constructor(message?: string) {
-        super(403);
-        Object.setPrototypeOf(this, ForbiddenError.prototype);
+  constructor(message?: string) {
+    super(403);
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
 
-        if (message)
-            this.message = message;
-    }
-
+    if (message) this.message = message;
+  }
 }
