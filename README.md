@@ -1,10 +1,9 @@
 # routing-controllers
 
-[![Build Status](https://travis-ci.org/typestack/routing-controllers.svg?branch=master)](https://travis-ci.org/typestack/routing-controllers)
-[![codecov](https://codecov.io/gh/typestack/routing-controllers/branch/master/graph/badge.svg)](https://codecov.io/gh/typestack/routing-controllers)
+![Build Status](https://github.com/typestack/routing-controllers/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/typestack/routing-controllers/branch/develop/graph/badge.svg)](https://codecov.io/gh/typestack/routing-controllers)
 [![npm version](https://badge.fury.io/js/routing-controllers.svg)](https://badge.fury.io/js/routing-controllers)
 [![Dependency Status](https://david-dm.org/typestack/routing-controllers.svg)](https://david-dm.org/typestack/routing-controllers)
-[![Join the chat at https://gitter.im/typestack/routing-controllers](https://badges.gitter.im/typestack/routing-controllers.svg)](https://gitter.im/typestack/routing-controllers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <center>
 <span>English</span> | 
