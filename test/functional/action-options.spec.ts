@@ -5,22 +5,25 @@ import { JsonController } from '../../src/decorator/JsonController';
 import { Post } from '../../src/decorator/Post';
 import { Body } from '../../src/decorator/Body';
 import { createExpressServer, createKoaServer, getMetadataArgsStorage } from '../../src/index';
-import { assertRequest } from './test-utils';
-const expect = require('chakram').expect;
+import { axios } from '../utilities/axios';
+import { AxiosError, AxiosResponse } from 'axios';
+
 
 describe('action options', () => {
   let initializedUser: any;
+  let expressApp: any;
   let User: any;
 
-  after(() => {
+  afterAll((done) => {
     defaultMetadataStorage.clear();
+    expressApp.close(done)
   });
 
   beforeEach(() => {
     initializedUser = undefined;
   });
 
-  before(() => {
+  beforeAll((done) => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
 
@@ -58,50 +61,37 @@ describe('action options', () => {
         return handler(user);
       }
     }
+
+    expressApp = createExpressServer().listen(3001, done)
   });
 
-  let expressApp: any, koaApp: any;
-  before(done => (expressApp = createExpressServer().listen(3001, done)));
-  after(done => expressApp.close(done));
-  before(done => (koaApp = createKoaServer().listen(3002, done)));
-  after(done => koaApp.close(done));
-
   it('should use controller options when action transform options are not set', () => {
-    assertRequest([3001, 3002], 'post', 'default', { firstName: 'Umed', lastName: 'Khudoiberdiev' }, response => {
-      expect(initializedUser).to.be.instanceOf(User);
-      expect(initializedUser.lastName).to.be.undefined;
-      expect(response).to.have.status(200);
-      expect(response.body.lastName).to.equal('default');
+    expect.assertions(4);
+    return axios.post('/default', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
+      expect(initializedUser).toBeInstanceOf(User);
+      expect(initializedUser.lastName).toBeUndefined();
+      expect(response.status).toBe(200);
+      expect(response.data.lastName).toBe('default');
     });
   });
 
   it('should override controller options with action transformRequest option', () => {
-    assertRequest(
-      [3001, 3002],
-      'post',
-      'transformRequestOnly',
-      { firstName: 'Umed', lastName: 'Khudoiberdiev' },
-      response => {
-        expect(initializedUser).to.be.instanceOf(User);
-        expect(initializedUser.lastName).to.be.undefined;
-        expect(response).to.have.status(200);
-        expect(response.body.lastName).to.equal('default');
-      }
-    );
+    expect.assertions(4);
+    return axios.post('/transformRequestOnly', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
+      expect(initializedUser).toBeInstanceOf(User);
+      expect(initializedUser.lastName).toBeUndefined();
+      expect(response.status).toBe(200);
+      expect(response.data.lastName).toBe('default');
+    });
   });
 
   it('should override controller options with action transformResponse option', () => {
-    assertRequest(
-      [3001, 3002],
-      'post',
-      'transformResponseOnly',
-      { firstName: 'Umed', lastName: 'Khudoiberdiev' },
-      response => {
-        expect(initializedUser).not.to.be.instanceOf(User);
-        expect(initializedUser.lastName).to.exist;
-        expect(response).to.have.status(200);
-        expect(response.body.lastName).to.be.undefined;
-      }
-    );
+    expect.assertions(4);
+    return axios.post('/transformResponseOnly', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
+      expect(initializedUser).not.toBeInstanceOf(User);
+      expect(initializedUser.lastName).not.toBeUndefined();
+      expect(response.status).toBe(200);
+      expect(response.data.lastName).toBeUndefined();
+    });
   });
 });

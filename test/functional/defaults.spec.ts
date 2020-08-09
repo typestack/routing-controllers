@@ -1,114 +1,113 @@
 import 'reflect-metadata';
-import { createExpressServer, createKoaServer, getMetadataArgsStorage } from '../../src/index';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { Controller } from '../../src/decorator/Controller';
 import { Get } from '../../src/decorator/Get';
 import { QueryParam } from '../../src/decorator/QueryParam';
 import { OnUndefined } from '../../src/decorator/OnUndefined';
-import { assertRequest } from './test-utils';
-
-const chakram = require('chakram');
-const expect = chakram.expect;
+import { AxiosError, AxiosResponse } from 'axios';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import DoneCallback = jest.DoneCallback;
+import { axios } from '../utilities/axios';
 
 describe('defaults', () => {
-  before(() => {
-    // reset metadata args storage
+  let expressServer: HttpServer;
+  const defaultUndefinedResultCode = 204;
+  const defaultNullResultCode = 404;
+
+  beforeAll((done: DoneCallback) => {
     getMetadataArgsStorage().reset();
 
     @Controller()
     class ExpressController {
       @Get('/voidfunc')
-      voidfunc() {}
+      voidFunc(): void {
+        // Empty
+      }
 
       @Get('/promisevoidfunc')
-      promisevoidfunc() {
+      promiseVoidFunc(): Promise<void> {
         return Promise.resolve();
       }
 
       @Get('/paramfunc')
-      paramfunc(@QueryParam('x') x: number) {
-        return { foo: 'bar' };
+      paramFunc(@QueryParam('x') x: number): any {
+        return {
+          foo: 'bar',
+        };
       }
 
       @Get('/nullfunc')
-      nullfunc(): string {
+      nullFunc(): null {
         return null;
       }
 
       @Get('/overridefunc')
-      @OnUndefined(404)
-      overridefunc() {}
+      @OnUndefined(HttpStatusCodes.NOT_ACCEPTABLE)
+      overrideFunc(): void {
+        // Empty
+      }
 
       @Get('/overrideparamfunc')
-      overrideparamfunc(@QueryParam('x', { required: false }) x: number) {
-        return { foo: 'bar' };
+      overrideParamFunc(@QueryParam('x', { required: false }) x: number): any {
+        return {
+          foo: 'bar',
+        };
       }
     }
+
+    expressServer = createExpressServer({
+      defaults: {
+        nullResultCode: defaultNullResultCode,
+        undefinedResultCode: defaultUndefinedResultCode,
+        paramOptions: {
+          required: true,
+        },
+      },
+    }).listen(3001, done);
   });
 
-  let defaultUndefinedResultCode = 204;
-  let defaultNullResultCode = 404;
-  let expressApp: any;
-  let kuaApp: any;
-  before(
-    done =>
-      (expressApp = createExpressServer({
-        defaults: {
-          nullResultCode: defaultNullResultCode,
-          undefinedResultCode: defaultUndefinedResultCode,
-          paramOptions: {
-            required: true,
-          },
-        },
-      }).listen(3001, done))
-  );
-  before(
-    done =>
-      (kuaApp = createKoaServer({
-        defaults: {
-          nullResultCode: defaultNullResultCode,
-          undefinedResultCode: defaultUndefinedResultCode,
-          paramOptions: {
-            required: true,
-          },
-        },
-      }).listen(3002, done))
-  );
-  after(done => expressApp.close(done));
-  after(done => kuaApp.close(done));
+  afterAll((done: DoneCallback) => expressServer.close(done));
 
   it('should return undefinedResultCode from defaults config for void function', () => {
-    assertRequest([3001, 3002], 'get', 'voidfunc', res => {
-      expect(res).to.have.status(defaultUndefinedResultCode);
+    expect.assertions(1);
+    return axios.get('/voidfunc').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(defaultUndefinedResultCode);
     });
   });
 
   it('should return undefinedResultCode from defaults config for promise void function', () => {
-    assertRequest([3001, 3002], 'get', 'promisevoidfunc', res => {
-      expect(res).to.have.status(defaultUndefinedResultCode);
+    expect.assertions(1);
+    return axios.get('/promisevoidfunc').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(defaultUndefinedResultCode);
     });
   });
 
   it('should return 400 from required paramOptions', () => {
-    assertRequest([3001, 3002], 'get', 'paramfunc', res => {
-      expect(res).to.have.status(400);
+    expect.assertions(1);
+    return axios.get('/paramfunc').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     });
   });
 
   it('should return nullResultCode from defaults config', () => {
-    assertRequest([3001, 3002], 'get', 'nullfunc', res => {
-      expect(res).to.have.status(defaultNullResultCode);
+    expect.assertions(1);
+    return axios.get('/nullfunc').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(defaultNullResultCode);
     });
   });
 
   it('should return status code from OnUndefined annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overridefunc', res => {
-      expect(res).to.have.status(404);
+    expect.assertions(1);
+    return axios.get('/overridefunc').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
     });
   });
 
   it('should mark arg optional from QueryParam annotation', () => {
-    assertRequest([3001, 3002], 'get', 'overrideparamfunc', res => {
-      expect(res).to.have.status(200);
+    expect.assertions(1);
+    return axios.get('/overrideparamfunc').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
     });
   });
 });

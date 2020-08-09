@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { JsonController } from '../../src/decorator/JsonController';
-import { createExpressServer, createKoaServer, getMetadataArgsStorage } from '../../src/index';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { assertRequest } from './test-utils';
 import { Expose } from 'class-transformer';
 import { defaultMetadataStorage } from 'class-transformer/storage';
@@ -8,8 +8,9 @@ import { Get } from '../../src/decorator/Get';
 import { QueryParam } from '../../src/decorator/QueryParam';
 import { ResponseClassTransformOptions } from '../../src/decorator/ResponseClassTransformOptions';
 import { RoutingControllersOptions } from '../../src/RoutingControllersOptions';
-const chakram = require('chakram');
-const expect = chakram.expect;
+import { axios } from '../utilities/axios';
+import { AxiosError, AxiosResponse } from 'axios';
+
 
 describe('class transformer options', () => {
   class UserFilter {
@@ -17,7 +18,7 @@ describe('class transformer options', () => {
   }
 
   let UserModel: any;
-  before(() => {
+  beforeAll(() => {
     class User {
       id: number;
       _firstName: string;
@@ -31,7 +32,7 @@ describe('class transformer options', () => {
     UserModel = User;
   });
 
-  after(() => {
+  afterAll(() => {
     defaultMetadataStorage.clear();
   });
 
@@ -41,7 +42,7 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    before(() => {
+    beforeAll(() => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -58,24 +59,25 @@ describe('class transformer options', () => {
       }
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => (expressApp = createExpressServer().listen(3001, done)));
-    after(done => expressApp.close(done));
-    before(done => (koaApp = createKoaServer().listen(3002, done)));
-    after(done => koaApp.close(done));
+    let expressApp: any;
+    beforeAll(done => (expressApp = createExpressServer().listen(3001, done)));
+    afterAll(done => expressApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
-        id: 1,
-        _firstName: 'Umed',
-        _lastName: 'Khudoiberdiev',
-        name: 'Umed Khudoiberdiev',
-      });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
-        keyword: 'Um',
-        __somethingPrivate: 'blablabla',
+    it('technical wrapper', () => {
+      expect.assertions(4);
+      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual({
+          id: 1,
+          _firstName: 'Umed',
+          _lastName: 'Khudoiberdiev',
+          name: 'Umed Khudoiberdiev',
+        });
+        expect(requestFilter).toBeInstanceOf(UserFilter);
+        expect(requestFilter).toEqual({
+          keyword: 'Um',
+          __somethingPrivate: 'blablabla',
+        });
       });
     });
   });
@@ -86,7 +88,7 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    before(() => {
+    beforeAll(() => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -113,20 +115,21 @@ describe('class transformer options', () => {
     };
 
     let expressApp: any, koaApp: any;
-    before(done => (expressApp = createExpressServer(options).listen(3001, done)));
-    after(done => expressApp.close(done));
-    before(done => (koaApp = createKoaServer(options).listen(3002, done)));
-    after(done => koaApp.close(done));
+    beforeAll(done => (expressApp = createExpressServer(options).listen(3001, done)));
+    afterAll(done => expressApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
-        id: 1,
-        name: 'Umed Khudoiberdiev',
-      });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
-        keyword: 'Um',
+    it('technical wrapper', () => {
+      expect.assertions(4);
+      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual({
+          id: 1,
+          name: 'Umed Khudoiberdiev',
+        });
+        expect(requestFilter).toBeInstanceOf(UserFilter);
+        expect(requestFilter).toEqual({
+          keyword: 'Um',
+        });
       });
     });
   });
@@ -137,7 +140,7 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    before(() => {
+    beforeAll(() => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -155,21 +158,22 @@ describe('class transformer options', () => {
       }
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => (expressApp = createExpressServer().listen(3001, done)));
-    after(done => expressApp.close(done));
-    before(done => (koaApp = createKoaServer().listen(3002, done)));
-    after(done => koaApp.close(done));
+    let expressApp: any;
+    beforeAll(done => (expressApp = createExpressServer().listen(3001, done)));
+    afterAll(done => expressApp.close(done));
 
-    assertRequest([3001, 3002], 'get', 'user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}', response => {
-      expect(response).to.have.status(200);
-      expect(response.body).to.be.eql({
-        id: 1,
-        name: 'Umed Khudoiberdiev',
-      });
-      expect(requestFilter).to.be.instanceOf(UserFilter);
-      expect(requestFilter).to.be.eql({
-        keyword: 'Um',
+    it('technical wrapper', () => {
+      expect.assertions(4);
+      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
+        expect(response.status).toBe(200);
+        expect(response.data).toEqual({
+          id: 1,
+          name: 'Umed Khudoiberdiev',
+        });
+        expect(requestFilter).toBeInstanceOf(UserFilter);
+        expect(requestFilter).toEqual({
+          keyword: 'Um',
+        });
       });
     });
   });

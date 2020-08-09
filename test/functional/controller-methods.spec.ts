@@ -7,80 +7,90 @@ import { Head } from '../../src/decorator/Head';
 import { Delete } from '../../src/decorator/Delete';
 import { Patch } from '../../src/decorator/Patch';
 import { Put } from '../../src/decorator/Put';
-import { All } from '../../src/decorator/All';
 import { ContentType } from '../../src/decorator/ContentType';
 import { JsonController } from '../../src/decorator/JsonController';
 import { UnauthorizedError } from '../../src/http-error/UnauthorizedError';
-import { createExpressServer, createKoaServer, getMetadataArgsStorage } from '../../src/index';
-import { assertRequest } from './test-utils';
-const chakram = require('chakram');
-const expect = chakram.expect;
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { AxiosError, AxiosResponse } from 'axios';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import DoneCallback = jest.DoneCallback;
+import { axios } from '../utilities/axios';
 
 describe('controller methods', () => {
-  before(() => {
-    // reset metadata args storage
+  let expressServer: HttpServer;
+
+  beforeAll((done: DoneCallback) => {
     getMetadataArgsStorage().reset();
 
     @Controller()
     class UserController {
       @Get('/users')
-      getAll() {
+      getAll(): string {
         return '<html><body>All users</body></html>';
       }
+
       @Post('/users')
-      post() {
+      post(): string {
         return '<html><body>Posting user</body></html>';
       }
+
       @Put('/users')
-      put() {
+      put(): string {
         return '<html><body>Putting user</body></html>';
       }
+
       @Patch('/users')
-      patch() {
+      patch(): string {
         return '<html><body>Patching user</body></html>';
       }
+
       @Delete('/users')
-      delete() {
+      delete(): string {
         return '<html><body>Removing user</body></html>';
       }
+
       @Head('/users')
-      head() {
+      head(): string {
         return '<html><body>Removing user</body></html>';
       }
-      @All('/users/me')
-      all() {
-        return '<html><body>Current user</body></html>';
-      }
+
       @Method('post', '/categories')
-      postCategories() {
+      postCategories(): string {
         return '<html><body>Posting categories</body></html>';
       }
+
       @Method('delete', '/categories')
-      getCategories() {
+      getCategories(): string {
         return '<html><body>Get categories</body></html>';
       }
+
       @Get('/users/:id')
-      getUserById() {
+      getUserById(): string {
         return '<html><body>One user</body></html>';
       }
+
       @Get(/\/categories\/[\d+]/)
-      getCategoryById() {
+      getCategoryById(): string {
         return '<html><body>One category</body></html>';
       }
+
       @Get('/posts/:id(\\d+)')
-      getPostById() {
+      getPostById(): string {
         return '<html><body>One post</body></html>';
       }
+
       @Get('/posts-from-db')
-      getPostFromDb() {
+      getPostFromDb(): Promise<string> {
         return new Promise((ok, fail) => {
           setTimeout(() => {
             ok('<html><body>resolved after half second</body></html>');
           }, 500);
         });
       }
+
       @Get('/posts-from-failed-db')
-      getPostFromFailedDb() {
+      getPostFromFailedDb(): Promise<string> {
         return new Promise((ok, fail) => {
           setTimeout(() => {
             fail('<html><body>cannot connect to a database</body></html>');
@@ -95,6 +105,7 @@ describe('controller methods', () => {
       returnUndefined(): undefined {
         return undefined;
       }
+
       @Get('/null')
       returnNull(): null {
         return null;
@@ -107,6 +118,7 @@ describe('controller methods', () => {
       returnUndefined(): undefined {
         return undefined;
       }
+
       @Get('/null')
       returnNull(): null {
         return null;
@@ -138,213 +150,209 @@ describe('controller methods', () => {
         throw new UnauthorizedError();
       }
     }
+
+    expressServer = createExpressServer().listen(3001, done);
   });
 
-  let expressApp: any, koaApp: any;
-  before(done => (expressApp = createExpressServer().listen(3001, done)));
-  after(done => expressApp.close(done));
-  before(done => (koaApp = createKoaServer().listen(3002, done)));
-  after(done => koaApp.close(done));
+  afterAll((done: DoneCallback) => expressServer.close(done));
 
-  describe('get should respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'get', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>All users</body></html>');
+  it('get should respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.get('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>All users</body></html>');
     });
   });
 
-  describe('post respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'post', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Posting user</body></html>');
+  it('post respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.post('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Posting user</body></html>');
     });
   });
 
-  describe('put respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'put', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Putting user</body></html>');
+  it('put respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.put('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Putting user</body></html>');
     });
   });
 
-  describe('patch respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'patch', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Patching user</body></html>');
+  it('patch respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.patch('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Patching user</body></html>');
     });
   });
 
-  describe('delete respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'delete', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Removing user</body></html>');
+  it('delete respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.delete('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Removing user</body></html>');
     });
   });
 
-  describe('head respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'head', 'users', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.undefined;
+  it('head respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.head('/users').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('');
     });
   });
 
-  describe('all respond with proper status code, headers and body content', () => {
-    const callback = (response: any) => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Current user</body></html>');
-    };
-
-    assertRequest([3001, 3002], 'get', 'users/me', callback);
-    assertRequest([3001, 3002], 'put', 'users/me', callback);
-    assertRequest([3001, 3002], 'patch', 'users/me', callback);
-    assertRequest([3001, 3002], 'delete', 'users/me', callback);
-  });
-
-  describe('custom method (post) respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'post', 'categories', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Posting categories</body></html>');
+  it('custom method (post) respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.post('/categories').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Posting categories</body></html>');
     });
   });
 
-  describe('custom method (delete) respond with proper status code, headers and body content', () => {
-    assertRequest([3001, 3002], 'delete', 'categories', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>Get categories</body></html>');
+  it('custom method (delete) respond with proper status code, headers and body content', () => {
+    expect.assertions(3);
+    return axios.delete('/categories').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>Get categories</body></html>');
     });
   });
 
-  describe('route should work with parameter', () => {
-    assertRequest([3001, 3002], 'get', 'users/umed', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>One user</body></html>');
+  it('route should work with parameter', () => {
+    expect.assertions(3);
+    return axios.get('/users/umed').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>One user</body></html>');
     });
   });
 
-  describe('route should work with regexp parameter', () => {
-    assertRequest([3001, 3002], 'get', 'categories/1', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>One category</body></html>');
+  it('route should work with regexp parameter', () => {
+    return axios.get('/categories/1').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>One category</body></html>');
     });
   });
 
-  describe('should respond with 404 when regexp does not match', () => {
-    assertRequest([3001, 3002], 'get', 'categories/umed', response => {
-      expect(response).to.have.status(404);
+  it('should respond with 404 when regexp does not match', () => {
+    expect.assertions(1);
+    return axios.get('/categories/umed').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
     });
   });
 
-  describe('route should work with string regexp parameter', () => {
-    assertRequest([3001, 3002], 'get', 'posts/1', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>One post</body></html>');
+  it('route should work with string regexp parameter', () => {
+    expect.assertions(3);
+    return axios.get('/posts/1').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>One post</body></html>');
     });
   });
 
-  describe('should respond with 404 when regexp does not match', () => {
-    assertRequest([3001, 3002], 'get', 'posts/U', response => {
-      expect(response).to.have.status(404);
+  it('should respond with 404 when regexp does not match', () => {
+    expect.assertions(1);
+    return axios.get('/posts/U').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
     });
   });
 
-  describe('should return result from a promise', () => {
-    assertRequest([3001, 3002], 'get', 'posts-from-db', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>resolved after half second</body></html>');
+  it('should return result from a promise', () => {
+    expect.assertions(3);
+    return axios.get('/posts-from-db').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>resolved after half second</body></html>');
     });
   });
 
-  describe('should respond with 500 if promise failed', () => {
-    assertRequest([3001, 3002], 'get', 'posts-from-failed-db', response => {
-      expect(response).to.have.status(500);
-      expect(response).to.have.header('content-type', 'text/html; charset=utf-8');
-      expect(response.body).to.be.equal('<html><body>cannot connect to a database</body></html>');
+  it('should respond with 500 if promise failed', () => {
+    expect.assertions(3);
+    return axios.get('/posts-from-failed-db').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(error.response.data).toEqual('<html><body>cannot connect to a database</body></html>');
     });
   });
 
-  describe('should respond with 204 No Content when null returned in action', () => {
-    assertRequest([3001, 3002], 'get', 'return/normal/null', response => {
-      expect(response).to.have.status(204);
-      expect(response).to.not.have.header('content-type');
-      expect(response.body).to.not.exist;
-    });
-    assertRequest([3001, 3002], 'get', 'return/json/null', response => {
-      expect(response).to.have.status(204);
-      expect(response).to.not.have.header('content-type');
-      expect(response.body).to.not.exist;
+  it('should respond with 204 No Content when null returned in action', () => {
+    expect.assertions(6);
+    return Promise.all<AxiosResponse | void>([
+      axios.get('/return/normal/null').then((response: AxiosResponse) => {
+        expect(response.status).toEqual(HttpStatusCodes.NO_CONTENT);
+        expect(response.headers['content-type']).toBeUndefined();
+        expect(response.data).toEqual('');
+      }),
+      axios.get('/return/json/null').then((response: AxiosResponse) => {
+        expect(response.status).toEqual(HttpStatusCodes.NO_CONTENT);
+        expect(response.headers['content-type']).toBeUndefined();
+        expect(response.data).toEqual('');
+      }),
+    ]);
+  });
+
+  it('should respond with 404 Not Found text when undefined returned in action', () => {
+    expect.assertions(2);
+    return axios.get('/return/normal/undefined').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
     });
   });
 
-  describe('should respond with 404 Not Found text when undefined returned in action', () => {
-    assertRequest([3001, 3002], 'get', 'return/normal/undefined', response => {
-      expect(response).to.have.status(404);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/text/);
-      });
+  it('should respond with 404 Not Found JSON when undefined returned in action', () => {
+    expect.assertions(2);
+    return axios.get('/return/json/undefined').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
     });
   });
 
-  describe('should respond with 404 Not Found JSON when undefined returned in action', () => {
-    assertRequest([3001, 3002], 'get', 'return/json/undefined', response => {
-      expect(response).to.have.status(404);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/application\/json/);
-      });
+  it("should respond with 200 and text/html even in json controller's method", () => {
+    expect.assertions(3);
+    return axios.get('/json-controller/text-html').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html>Test</html>');
     });
   });
 
-  describe("should respond with 200 and text/html even in json controller's method", () => {
-    assertRequest([3001, 3002], 'get', 'json-controller/text-html', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/text\/html/);
-      });
-      expect(response.body).to.equals('<html>Test</html>');
+  it("should respond with 200 and text/plain even in json controller's method", () => {
+    expect.assertions(3);
+    return axios.get('/json-controller/text-plain').then((response: AxiosResponse) => {
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/plain; charset=utf-8');
+      expect(response.data).toEqual('Test');
     });
   });
 
-  describe("should respond with 200 and text/plain even in json controller's method", () => {
-    assertRequest([3001, 3002], 'get', 'json-controller/text-plain', response => {
-      expect(response).to.have.status(200);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/text\/plain/);
-      });
-      expect(response.body).to.equals('Test');
+  it("should respond with 401 and text/html when UnauthorizedError throwed even in json controller's method", () => {
+    expect.assertions(4);
+    return axios.get('/json-controller/text-plain-error').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
+      expect(error.response.headers['content-type']).toEqual('text/plain; charset=utf-8');
+      expect(typeof error.response.data).toEqual('string');
+      expect(error.response.data).toMatch(/UnauthorizedError/);
     });
   });
 
-  describe("should respond with 401 and text/html when UnauthorizedError throwed even in json controller's method", () => {
-    assertRequest([3001, 3002], 'get', 'json-controller/text-plain-error', response => {
-      expect(response).to.have.status(401);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/text\/plain/);
-      });
-      expect(typeof response.body).to.equals('string');
-      expect(response.body).to.match(/UnauthorizedError.HttpError/);
-    });
-  });
-
-  describe("should respond with 401 and aplication/json when UnauthorizedError throwed in standard json controller's method", () => {
-    assertRequest([3001, 3002], 'get', 'json-controller/json-error', response => {
-      expect(response).to.have.status(401);
-      expect(response).to.have.header('content-type', (contentType: string) => {
-        expect(contentType).to.match(/application\/json/);
-      });
-      expect(typeof response.body).to.equals('object');
-      expect(response.body.name).to.equals('UnauthorizedError');
+  it("should respond with 401 and aplication/json when UnauthorizedError is thrown in standard json controller's method", () => {
+    expect.assertions(4);
+    return axios.get('/json-controller/json-error').catch((error: AxiosError) => {
+      expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
+      expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
+      expect(typeof error.response.data).toEqual('object');
+      expect(error.response.data.name).toEqual('UnauthorizedError');
     });
   });
 });

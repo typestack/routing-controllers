@@ -16,7 +16,7 @@ export class SessionMiddleware implements ExpressMiddlewareInterface {
     }
   }
 
-  private expSession = session({
+  private expSession = (session as any)({
     secret: '19majkel94_helps_pleerock',
     resave: false,
     saveUninitialized: true,
