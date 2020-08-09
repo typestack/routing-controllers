@@ -8,7 +8,7 @@
 
 <center>
 <span>English</span> | 
-<a href="https://github.com/typestack/routing-controllers/tree/master/lang/chinese#routing-controllers">中文</a>
+[中文](./docs/lang/chinese/README.md)
 </center>
 
 Allows to create controller classes with methods as actions that handle requests.
