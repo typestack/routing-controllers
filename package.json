@@ -35,7 +35,8 @@
     "lint:check": "eslint --max-warnings 0 --ext .ts src/",
     "test": "jest --coverage --verbose",
     "test:watch": "jest --watch",
-    "test:ci": "jest --runInBand --no-cache --coverage --verbose"
+    "test:ci": "jest --runInBand --no-cache --coverage --verbose",
+    "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors  --runInBand --no-coverage --watch"
   },
   "dependencies": {
     "cookie": "^0.4.0",
@@ -85,6 +86,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "^26.1.4",
     "ts-node": "^8.10.2",
+    "ts-node-dev": "1.0.0-pre.44",
     "tslint": "^6.1.2",
     "typedi": "~0.8.0",
     "typescript": "^3.9.7"

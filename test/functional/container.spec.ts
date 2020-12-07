@@ -1,14 +1,13 @@
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
 import 'reflect-metadata';
+import { Container, Service } from 'typedi';
+import { Get } from '../../src/decorator/Get';
 import { JsonController } from '../../src/decorator/JsonController';
 import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
-import { Container, Service } from 'typedi';
 import { useContainer } from '../../src/util/container';
-import { Get } from '../../src/decorator/Get';
-import { Server as HttpServer } from 'http';
-import DoneCallback = jest.DoneCallback;
-import { AxiosResponse } from 'axios';
-import HttpStatusCodes from 'http-status-codes';
 import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
 describe('using typedi container should be possible', () => {
   let expressServer: HttpServer;
@@ -53,7 +52,8 @@ describe('using typedi container should be possible', () => {
     @Service()
     @JsonController()
     class TestContainerController {
-      constructor(private questionRepository: QuestionRepository, private postRepository: PostRepository) {}
+      private questionRepository: QuestionRepository = new QuestionRepository();
+      private postRepository: PostRepository = new PostRepository();
 
       @Get('/questions')
       questions(): any[] {
@@ -74,36 +74,40 @@ describe('using typedi container should be possible', () => {
     expressServer.close(done);
   });
 
-  it('typedi container', () => {
+  it('typedi container', async () => {
     expect.assertions(4);
-    return Promise.all<AxiosResponse | void>([
-      axios.get('/questions').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'question #1',
-          },
-          {
-            id: 2,
-            title: 'question #2',
-          },
-        ]);
-      }),
-      axios.get('/posts').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'post #1',
-          },
-          {
-            id: 2,
-            title: 'post #2',
-          },
-        ]);
-      }),
-    ]);
+    let response
+
+    try {
+      response = await axios.get('/questions');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'question #1',
+        },
+        {
+          id: 2,
+          title: 'question #2',
+        },
+      ]);
+
+      response = await axios.get('/posts')
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'post #1',
+        },
+        {
+          id: 2,
+          title: 'post #2',
+        },
+      ]);
+    }
+    catch (err) {
+      console.log(err);
+    }
   });
 });
 
@@ -159,7 +163,8 @@ describe('using custom container should be possible', () => {
 
     @JsonController()
     class TestContainerController {
-      constructor(private questionRepository: QuestionRepository, private postRepository: PostRepository) {}
+      private questionRepository: QuestionRepository = new QuestionRepository();
+      private postRepository: PostRepository = new PostRepository();
 
       @Get('/questions')
       questions(): any[] {
@@ -172,9 +177,6 @@ describe('using custom container should be possible', () => {
       }
     }
 
-    const postRepository = new PostRepository();
-    const questionRepository = new QuestionRepository();
-    fakeContainer.services['TestContainerController'] = new TestContainerController(questionRepository, postRepository);
     expressServer = createExpressServer().listen(3001, done);
   });
 
@@ -183,36 +185,40 @@ describe('using custom container should be possible', () => {
     expressServer.close(done);
   });
 
-  it('custom container', () => {
+  it('custom container', async () => {
     expect.assertions(4);
-    return Promise.all<AxiosResponse | void>([
-      axios.get('/questions').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'question #1',
-          },
-          {
-            id: 2,
-            title: 'question #2',
-          },
-        ]);
-      }),
-      axios.get('/posts').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'post #1',
-          },
-          {
-            id: 2,
-            title: 'post #2',
-          },
-        ]);
-      }),
-    ]);
+    let response;
+
+    try {
+      response = await axios.get('/questions')
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'question #1',
+        },
+        {
+          id: 2,
+          title: 'question #2',
+        },
+      ]);
+
+      response = await axios.get('/posts');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'post #1',
+        },
+        {
+          id: 2,
+          title: 'post #2',
+        },
+      ]);
+    }
+    catch (err) {
+      console.log(err);
+    }
   });
 });
 
@@ -264,7 +270,8 @@ describe('using custom container with fallback should be possible', () => {
 
     @JsonController()
     class TestContainerController {
-      constructor(private questionRepository: QuestionRepository, private postRepository: PostRepository) {}
+      private questionRepository: QuestionRepository = new QuestionRepository();
+      private postRepository: PostRepository = new PostRepository();
 
       @Get('/questions')
       questions(): any[] {
@@ -294,9 +301,6 @@ describe('using custom container with fallback should be possible', () => {
       }
     }
 
-    const postRepository = new PostRepository();
-    const questionRepository = new QuestionRepository();
-    fakeContainer.services['TestContainerController'] = new TestContainerController(questionRepository, postRepository);
     expressServer = createExpressServer().listen(3001, done);
   });
 
@@ -305,49 +309,53 @@ describe('using custom container with fallback should be possible', () => {
     expressServer.close(done);
   });
 
-  it('custom container with fallback', () => {
+  it('custom container with fallback', async () => {
     expect.assertions(6);
-    return Promise.all<AxiosResponse | void>([
-      axios.get('/questions').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'question #1',
-          },
-          {
-            id: 2,
-            title: 'question #2',
-          },
-        ]);
-      }),
-      axios.get('/posts').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'post #1',
-          },
-          {
-            id: 2,
-            title: 'post #2',
-          },
-        ]);
-      }),
-      axios.get('/photos').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'photo #1',
-          },
-          {
-            id: 2,
-            title: 'photo #2',
-          },
-        ]);
-      }),
-    ]);
+    let response;
+
+    try {
+      response = await axios.get('/questions');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'question #1',
+        },
+        {
+          id: 2,
+          title: 'question #2',
+        },
+      ]);
+
+      response = await axios.get('/posts');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'post #1',
+        },
+        {
+          id: 2,
+          title: 'post #2',
+        },
+      ]);
+
+      response = await axios.get('/photos');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'photo #1',
+        },
+        {
+          id: 2,
+          title: 'photo #2',
+        },
+      ]);
+    }
+    catch (err) {
+      console.log(err);
+    }
   });
 });
 
@@ -379,7 +387,6 @@ describe('using custom container with fallback and fallback on throw error shoul
         ];
       }
     }
-
     class PostRepository {
       findPosts(): any[] {
         return [
@@ -401,7 +408,8 @@ describe('using custom container with fallback and fallback on throw error shoul
 
     @JsonController()
     class TestContainerController {
-      constructor(private questionRepository: QuestionRepository, private postRepository: PostRepository) {}
+      private questionRepository: QuestionRepository = new QuestionRepository();
+      private postRepository: PostRepository = new PostRepository();
 
       @Get('/questions')
       questions(): any[] {
@@ -431,9 +439,7 @@ describe('using custom container with fallback and fallback on throw error shoul
       }
     }
 
-    const postRepository = new PostRepository();
-    const questionRepository = new QuestionRepository();
-    fakeContainer.services['TestContainerController'] = new TestContainerController(questionRepository, postRepository);
+    // fakeContainer.services['TestContainerController'] = new TestContainerController(questionRepository, postRepository);
     expressServer = createExpressServer().listen(3001, done);
   });
 
@@ -442,48 +448,52 @@ describe('using custom container with fallback and fallback on throw error shoul
     expressServer.close(done);
   });
 
-  it('custom container with fallback and fallback on throw error', () => {
+  it('custom container with fallback and fallback on throw error', async () => {
     expect.assertions(6);
-    return Promise.all<AxiosResponse | void>([
-      axios.get('/questions').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'question #1',
-          },
-          {
-            id: 2,
-            title: 'question #2',
-          },
-        ]);
-      }),
-      axios.get('/posts').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'post #1',
-          },
-          {
-            id: 2,
-            title: 'post #2',
-          },
-        ]);
-      }),
-      axios.get('/photos').then((response: AxiosResponse) => {
-        expect(response.status).toEqual(HttpStatusCodes.OK);
-        expect(response.data).toEqual([
-          {
-            id: 1,
-            title: 'photo #1',
-          },
-          {
-            id: 2,
-            title: 'photo #2',
-          },
-        ]);
-      }),
-    ]);
-  });
+    let response;
+
+    try {
+      response = await axios.get('/questions');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'question #1',
+        },
+        {
+          id: 2,
+          title: 'question #2',
+        },
+      ]);
+
+      response = await axios.get('/posts');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'post #1',
+        },
+        {
+          id: 2,
+          title: 'post #2',
+        },
+      ]);
+
+      response = await axios.get('/photos');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          title: 'photo #1',
+        },
+        {
+          id: 2,
+          title: 'photo #2',
+        },
+      ]);
+    } catch (err) {
+      // Handle Error Here
+      console.error(err);
+    }
+  })
 });
