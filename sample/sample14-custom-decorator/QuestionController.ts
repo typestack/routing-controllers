@@ -1,4 +1,3 @@
-
 import { Get } from '../../src/decorator/Get';
 import { JsonController } from '../../src/decorator/JsonController';
 import { UserFromSession } from './UserFromSession';

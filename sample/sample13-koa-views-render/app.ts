@@ -1,4 +1,3 @@
-
 import * as Koa from 'koa';
 
 import { useKoaServer } from '../../src/index';

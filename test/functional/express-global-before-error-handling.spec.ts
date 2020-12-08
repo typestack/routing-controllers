@@ -63,12 +63,11 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/answers');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandlerName).toEqual('CustomError');
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-      };
+      }
     });
   });
 });

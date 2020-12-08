@@ -13,7 +13,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('loaded direct from array', () => {
-
     let middlewaresOrder: number[];
 
     beforeEach(() => {

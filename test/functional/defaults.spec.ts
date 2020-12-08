@@ -8,12 +8,10 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
 
-
 describe(``, () => {
   let expressServer: HttpServer;
 
   describe('defaults', () => {
-
     const defaultUndefinedResultCode = 204;
     const defaultNullResultCode = 404;
 
@@ -87,8 +85,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/paramfunc');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
       }
     });
@@ -97,8 +94,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/nullfunc');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(defaultNullResultCode);
       }
     });
@@ -107,8 +103,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/overridefunc');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
       }
     });
@@ -118,5 +113,5 @@ describe(``, () => {
       const response = await axios.get('/overrideparamfunc');
       expect(response.status).toEqual(HttpStatusCodes.OK);
     });
-  })
+  });
 });

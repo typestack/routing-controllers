@@ -14,7 +14,6 @@ describe(``, () => {
   let expressServer: any;
 
   describe('json-controller methods', () => {
-
     beforeAll(done => {
       getMetadataArgsStorage().reset();
 
@@ -182,7 +181,7 @@ describe(``, () => {
       const response = await axios.head('/users');
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-      expect(response.data).toBe("");
+      expect(response.data).toBe('');
     });
 
     it('custom method (post) respond with proper status code, headers and body content', async () => {
@@ -231,8 +230,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/b1');
-      }
-      catch (err) {
+      } catch (err) {
         expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -252,11 +250,9 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/posts/U');
-      }
-      catch (err) {
+      } catch (err) {
         expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
-
     });
 
     it('should return result from a promise', async () => {
@@ -270,20 +266,17 @@ describe(``, () => {
       });
     });
 
-
     it('should respond with 500 if promise failed', async () => {
       expect.assertions(3);
       try {
         await axios.get('/posts-from-failed-db');
-      }
-      catch (err) {
+      } catch (err) {
         expect(err.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(err.response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(err.response.data).toEqual({
           code: 10954,
           message: 'Cannot connect to db',
         });
-
       }
     });
   });

@@ -77,8 +77,7 @@ describe(``, () => {
         expect(initializedUser.lastName).toBeUndefined();
         expect(response.status).toBe(200);
         expect(response.data.lastName).toBeUndefined();
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });
@@ -91,8 +90,7 @@ describe(``, () => {
         expect(initializedUser.lastName).toBeUndefined();
         expect(response.status).toBe(200);
         expect(response.data.lastName).toBeUndefined();
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });
@@ -105,8 +103,7 @@ describe(``, () => {
         expect(initializedUser.lastName).toBeDefined();
         expect(response.status).toBe(200);
         expect(response.data.lastName).toBeDefined();
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });

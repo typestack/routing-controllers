@@ -87,7 +87,6 @@
    并确认在使用 routing-controllers 前引入
 
    ```typescript
-   
    ```
 
 3. 安装框架：
@@ -164,7 +163,7 @@
 2. 新建文件 `app.ts`
 
    ```typescript
-    // 引入必要库
+   // 引入必要库
    import { createExpressServer } from 'routing-controllers';
    import { UserController } from './UserController';
 
@@ -287,7 +286,6 @@ export class UserController {
 需要自行创建 express 应用并单独配置，可以用 `useExpressServer` 代替 `createExpressServer`：
 
 ```typescript
-
 import { useExpressServer } from 'routing-controllers';
 
 let express = require('express'); // 或者引入类型声明
@@ -307,7 +305,6 @@ app.listen(3000); // 运行express服务
 在 `createExpressServer` 或 `useExpressServer` 中指定文件夹，即可加载该目录下所有控制器：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -322,7 +319,6 @@ createExpressServer({
 要为所有路由添加前缀，比如 `/api`，可以使用 `routePrefix` 配置项：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './controller/UserController';
 
@@ -757,7 +753,6 @@ class DbError extends HttpError {
 跨域是目前大部分 web-api 应用使用的特性，配置 routing-controllers 允许跨域：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -774,7 +769,6 @@ express 用户需要 `npm i cors`，Koa 用户需要 `npm i kcors`。
 可以如下例进行配置：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -793,7 +787,6 @@ app.listen(3000);
 在 routing-controllers 配置中覆写默认状态码。
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -858,7 +851,6 @@ app.listen(3000);
 4. 要全局使用 compression 模块，可以在服务引导时注册中间件：
 
    ```typescript
-   
    import { createExpressServer } from 'routing-controllers';
    import { UserController } from './UserController';
    // 必须在调用createExpressServer前加载控制器
@@ -1017,7 +1009,6 @@ export class LoggingMiddleware implements ExpressMiddlewareInterface {
 必须在 routing-controllers 初始化时指定要使用的全局中间件：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 import { LoggingMiddleware } from './LoggingMiddleware';
@@ -1061,7 +1052,6 @@ createExpressServer({
 从文件夹加载中间件。可以使用 glob patterns 匹配模式：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 createExpressServer({
   controllers: [__dirname + '/controllers/**/*.js'],
@@ -1150,7 +1140,6 @@ export class NameCorrectionInterceptor implements InterceptorInterface {
 需要在服务引导时配置 `classTransformer: true` 开启该功能：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -1194,7 +1183,6 @@ export class UserController {
 感谢 [class-validator][9] 我们可以轻松实现这一需求。该功能默认 _开启_。如果要关闭，在应用引导时配置 `validation: false`：
 
 ```typescript
-
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -1251,7 +1239,6 @@ Routing-controllers 附带两个装饰器实现在应用中的鉴权。
 使用 `@Authorized` 装饰器需要配置 routing-controllers：
 
 ```typescript
-
 import { createExpressServer, Action } from 'routing-controllers';
 
 createExpressServer({
@@ -1292,7 +1279,6 @@ export class SomeController {
 使用 `@CurrentUser` 装饰器需要配置 routing-controllers：
 
 ```typescript
-
 import { createExpressServer, Action } from 'routing-controllers';
 
 createExpressServer({
@@ -1328,7 +1314,6 @@ export class QuestionController {
 这里展示如何整合 [typedi](https://github.com/pleerock/typedi) 到 routing-controllers：
 
 ```typescript
-
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 

@@ -31,7 +31,6 @@ import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
-
   let expressServer: HttpServer;
   let paramUserId: number | undefined, paramFirstId: number | undefined, paramSecondId: number | undefined;
   let sessionTestElement: string | undefined;
@@ -91,7 +90,7 @@ describe(``, () => {
 
   beforeAll(done => {
     getMetadataArgsStorage().reset();
-   class NestedQueryClass {
+    class NestedQueryClass {
       @Min(5)
       num: number;
 
@@ -212,7 +211,9 @@ describe(``, () => {
       }
 
       @Get('/photos-params-optional')
-      getPhotosWithOptionalQuery(@QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass): string {
+      getPhotosWithOptionalQuery(
+        @QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass
+      ): string {
         queryParams3 = query;
         return `<html><body>hello</body></html>`;
       }
@@ -224,7 +225,9 @@ describe(``, () => {
       }
 
       @Get('/photos-with-json')
-      getPhotosWithJsonParam(@QueryParam('filter', { parse: true }) filter: { keyword: string; limit: number }): string {
+      getPhotosWithJsonParam(
+        @QueryParam('filter', { parse: true }) filter: { keyword: string; limit: number }
+      ): string {
         queryParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -248,7 +251,9 @@ describe(``, () => {
       }
 
       @Get('/posts-with-json')
-      getPostsWithJsonParam(@HeaderParam('filter', { parse: true }) filter: { keyword: string; limit: number }): string {
+      getPostsWithJsonParam(
+        @HeaderParam('filter', { parse: true }) filter: { keyword: string; limit: number }
+      ): string {
         headerParamFilter = filter;
         return `<html><body>hello</body></html>`;
       }
@@ -393,11 +398,10 @@ describe(``, () => {
         credentials: true,
       },
     }).listen(3001, done);
-
   });
 
   afterAll((done: DoneCallback) => {
-    expressServer.close(done)
+    expressServer.close(done);
   });
 
   it('@Req and @Res should be provided as Request and Response objects', async () => {
@@ -440,10 +444,9 @@ describe(``, () => {
     expect.assertions(1);
     try {
       await axios.get('/not-use-session');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    };
+    }
   });
 
   it('@Session should return a value from session', async () => {
@@ -452,7 +455,6 @@ describe(``, () => {
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(response.data).toEqual('<html><body>@Session</body></html>');
-
 
     const response1 = await axios.get('/session', {
       withCredentials: true,
@@ -503,10 +505,9 @@ describe(``, () => {
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {
     expect.assertions(9);
-    const response = await axios
-      .get(
-        '/photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D'
-      );
+    const response = await axios.get(
+      '/photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D'
+    );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(queryParams1.sortBy).toEqual('name');
@@ -561,15 +562,13 @@ describe(``, () => {
 
     try {
       response = await axios.get('/photos-with-required?');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.get('/photos-with-required?limit');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
@@ -585,11 +584,9 @@ describe(``, () => {
     expect.assertions(2);
     try {
       const response = await axios.get('/posts-after/?from=InvalidDate');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
       expect(error.response.data.name).toEqual('ParamNormalizationError');
-
     }
   });
 
@@ -602,14 +599,13 @@ describe(``, () => {
   });
 
   it('@HeaderParam should give a proper values from request headers', async () => {
-    const response = await axios
-      .get('/posts', {
-        headers: {
-          token: '31ds31das231sad12',
-          count: 20,
-          showAll: false,
-        },
-      });
+    const response = await axios.get('/posts', {
+      headers: {
+        token: '31ds31das231sad12',
+        count: 20,
+        showAll: false,
+      },
+    });
     expect(headerParamToken).toEqual('31ds31das231sad12');
     expect(headerParamCount).toEqual(20);
     expect(headerParamShowAll).toEqual(false);
@@ -619,12 +615,11 @@ describe(``, () => {
 
   it('@HeaderParam when required is params must be provided and they should not be empty', async () => {
     expect.assertions(3);
-    const response = await axios
-      .get('/posts-with-required', {
-        headers: {
-          limit: 0,
-        },
-      });
+    const response = await axios.get('/posts-with-required', {
+      headers: {
+        limit: 0,
+      },
+    });
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(headerParamLimit).toEqual(0);
@@ -633,37 +628,32 @@ describe(``, () => {
   it('@HeaderParam should fail with invalid request options', async () => {
     expect.assertions(1);
     try {
-      await axios
-        .get('/posts-with-required', {
-          headers: {
-            filter: '',
-          },
-        })
-    }
-    catch (error) {
+      await axios.get('/posts-with-required', {
+        headers: {
+          filter: '',
+        },
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
-    };
+    }
   });
 
   it('@HeaderParam should fail with missing required params', async () => {
     expect.assertions(1);
     try {
       await axios.get('/posts-with-required');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
-    };
+    }
   });
 
   it('for @HeaderParam when parseJson flag is used query param must be converted to object', async () => {
     expect.assertions(3);
-    const response = await axios
-      .get('/posts-with-json', {
-        headers: {
-          filter: '{"keyword": "name", "limit": 5}',
-        },
-      })
-      ;
+    const response = await axios.get('/posts-with-json', {
+      headers: {
+        filter: '{"keyword": "name", "limit": 5}',
+      },
+    });
     expect(headerParamFilter).toEqual({ keyword: 'name', limit: 5 });
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -671,13 +661,12 @@ describe(``, () => {
 
   it('@CookieParam should give a proper values from request headers', async () => {
     expect.assertions(5);
-    const response = await axios
-      .get('/questions', {
-        headers: {
-          Cookie: 'token=31ds31das231sad12; count=20; showAll=false',
-        },
-        withCredentials: true,
-      });
+    const response = await axios.get('/questions', {
+      headers: {
+        Cookie: 'token=31ds31das231sad12; count=20; showAll=false',
+      },
+      withCredentials: true,
+    });
     expect(cookieParamToken).toEqual('31ds31das231sad12');
     expect(cookieParamCount).toEqual(20);
     expect(cookieParamShowAll).toEqual(false);
@@ -699,8 +688,7 @@ describe(``, () => {
 
     try {
       response = await axios.get('questions-with-required');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
@@ -746,9 +734,8 @@ describe(``, () => {
         headers: {
           'Content-type': 'text/plain',
         },
-      })
-    }
-    catch (error) {
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
@@ -757,9 +744,8 @@ describe(``, () => {
         headers: {
           'Content-type': 'text/plain',
         },
-      })
-    }
-    catch (error) {
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
@@ -780,8 +766,7 @@ describe(``, () => {
 
     try {
       response = await axios.post('posts-with-required');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
@@ -802,15 +787,13 @@ describe(``, () => {
 
     try {
       response = await axios.post('/users-with-required');
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.post('/users-with-required', { name: '', age: 27, isActive: false });
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
@@ -818,16 +801,14 @@ describe(``, () => {
     expect(response.status).toEqual(HttpStatusCodes.NO_CONTENT);
 
     try {
-      response = await axios.post('/users-with-required', { name: 'Johny', age: undefined, isActive: false })
-    }
-    catch (error) {
+      response = await axios.post('/users-with-required', { name: 'Johny', age: undefined, isActive: false });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.post('/users-with-required', { name: 'Johny', age: 27, isActive: undefined });
-    }
-    catch (error) {
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
@@ -836,19 +817,20 @@ describe(``, () => {
 
     response = await axios.post('/users-with-required', { name: 'Johny', age: 27, isActive: true });
     expect(response.status).toEqual(HttpStatusCodes.NO_CONTENT);
-
   });
 
   it('@Body using application/x-www-form-urlencoded should handle url encoded form data', async () => {
     expect.assertions(3);
-    const response = await axios.post('/form-data-body', qs.stringify({
-      testObject: {
-        testNested: {
-          testString: 'this is a urlencoded form-data test',
-          testNumber: 5,
+    const response = await axios.post(
+      '/form-data-body',
+      qs.stringify({
+        testObject: {
+          testNested: {
+            testString: 'this is a urlencoded form-data test',
+            testNumber: 5,
+          },
         },
-      },
-    }),
+      }),
       {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       }
@@ -907,11 +889,10 @@ describe(``, () => {
     try {
       const response = await axios.post('/file-with-limit', form, {
         headers: form.getHeaders(),
-      })
-    }
-    catch (error) {
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    };
+    }
   });
 
   it('@UploadedFile when required is used files must be provided', async () => {
@@ -929,9 +910,8 @@ describe(``, () => {
     try {
       response = await axios.post('/file-with-required', undefined, {
         headers: form.getHeaders(),
-      })
-    }
-    catch (error) {
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
@@ -956,14 +936,12 @@ describe(``, () => {
     form.append('photos', fs.createReadStream(path.resolve(__dirname, '../resources/sample-text-file.txt')));
 
     try {
-      const response = await axios
-        .post('/photos-with-limit', form, {
-          headers: form.getHeaders(),
-        })
-    }
-    catch (error) {
+      const response = await axios.post('/photos-with-limit', form, {
+        headers: form.getHeaders(),
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    };
+    }
   });
 
   it('@UploadedFiles when required is used files must be provided', async () => {
@@ -971,13 +949,11 @@ describe(``, () => {
     const form = new FormData();
 
     try {
-      const response = await axios
-        .post('/photos-with-required', undefined, {
-          headers: form.getHeaders(),
-        })
-    }
-    catch (error) {
+      const response = await axios.post('/photos-with-required', undefined, {
+        headers: form.getHeaders(),
+      });
+    } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    };
+    }
   });
 });

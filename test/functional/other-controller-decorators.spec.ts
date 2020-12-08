@@ -21,7 +21,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('other controller decorators', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -144,8 +143,7 @@ describe(``, () => {
 
       try {
         await axios.get('/admin');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.FORBIDDEN);
         expect(error.response.data).toEqual('<html><body>Access is denied</body></html>');
       }
@@ -162,23 +160,20 @@ describe(``, () => {
 
       try {
         await axios.get('/posts/3');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
 
       try {
         await axios.get('/posts/4');
-      }
-      catch (error) {
+      } catch (error) {
         // this is expected because for undefined 404 is given by default
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
 
       try {
         await axios.get('/posts/5');
-      }
-      catch (error) {
+      } catch (error) {
         // this is expected because for undefined 404 is given by default
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
@@ -192,8 +187,7 @@ describe(``, () => {
 
       try {
         await axios.get('/questions/2');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data.name).toEqual('QuestionNotFoundError');
         expect(error.response.data.message).toEqual('Question was not found!');
@@ -201,8 +195,7 @@ describe(``, () => {
 
       try {
         await axios.get('/questions/3');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data.name).toEqual('QuestionNotFoundError');
         expect(error.response.data.message).toEqual('Question was not found!');
@@ -258,7 +251,6 @@ describe(``, () => {
       const response = await axios.get('/github');
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.headers['location']).toEqual('http://github.com');
-
     });
   });
 });

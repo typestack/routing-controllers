@@ -1,4 +1,3 @@
-
 import { createReadStream } from 'fs';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';
@@ -15,7 +14,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('special result value treatment', () => {
-
     const rawData = [0xff, 0x66, 0xaa, 0xcc];
 
     beforeAll((done: DoneCallback) => {

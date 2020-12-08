@@ -15,7 +15,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('template rendering', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 

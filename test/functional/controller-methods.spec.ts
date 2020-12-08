@@ -15,12 +15,10 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
 
-
 describe(``, () => {
   let expressServer: HttpServer;
 
   describe('controller methods', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -240,8 +238,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/umed');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -258,10 +255,9 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/posts/U');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
-      };
+      }
     });
 
     it('should return result from a promise', async () => {
@@ -276,12 +272,11 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/posts-from-failed-db');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
         expect(error.response.data).toEqual('<html><body>cannot connect to a database</body></html>');
-      };
+      }
     });
 
     it('should respond with 204 No Content when null returned in action', async () => {
@@ -301,23 +296,21 @@ describe(``, () => {
     it('should respond with 404 Not Found text when undefined returned in action', async () => {
       expect.assertions(2);
       try {
-        await axios.get('/return/normal/undefined')
-      }
-      catch (error) {
+        await axios.get('/return/normal/undefined');
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
-      };
+      }
     });
 
     it('should respond with 404 Not Found JSON when undefined returned in action', async () => {
       expect.assertions(2);
       try {
         await axios.get('/return/json/undefined');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
-      };
+      }
     });
 
     it("should respond with 200 and text/html even in json controller's method", async () => {
@@ -340,26 +333,24 @@ describe(``, () => {
       expect.assertions(4);
       try {
         await axios.get('/json-controller/text-plain-error');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
         expect(error.response.headers['content-type']).toEqual('text/plain; charset=utf-8');
         expect(typeof error.response.data).toEqual('string');
         expect(error.response.data).toMatch(/UnauthorizedError/);
-      };
+      }
     });
 
     it("should respond with 401 and aplication/json when UnauthorizedError is thrown in standard json controller's method", async () => {
       expect.assertions(4);
       try {
         await axios.get('/json-controller/json-error');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
         expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
         expect(typeof error.response.data).toEqual('object');
         expect(error.response.data.name).toEqual('UnauthorizedError');
-      };
+      }
     });
   });
 });

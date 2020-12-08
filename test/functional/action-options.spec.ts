@@ -19,7 +19,7 @@ describe(``, () => {
     lastName: string;
   }
 
-  beforeAll((done) => {
+  beforeAll(done => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
 
@@ -49,12 +49,12 @@ describe(``, () => {
       }
     }
 
-    expressApp = createExpressServer().listen(3001, done)
+    expressApp = createExpressServer().listen(3001, done);
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     defaultMetadataStorage.clear();
-    expressApp.close(done)
+    expressApp.close(done);
   });
 
   beforeEach(() => {
@@ -87,5 +87,4 @@ describe(``, () => {
     expect(response.status).toBe(200);
     expect(response.data.lastName).toBeUndefined();
   });
-
 });

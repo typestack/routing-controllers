@@ -1,4 +1,3 @@
-
 import { createExpressServer } from '../../src/index';
 import './BlogController';
 import './CompressionMiddleware';

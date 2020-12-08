@@ -9,11 +9,9 @@ import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
-
   let expressServer: HttpServer;
 
   describe('using typedi container should be possible', () => {
-
     beforeEach((done: DoneCallback) => {
       // reset metadata args storage
       useContainer(Container);
@@ -78,7 +76,7 @@ describe(``, () => {
 
     it('typedi container', async () => {
       expect.assertions(4);
-      let response
+      let response;
 
       try {
         response = await axios.get('/questions');
@@ -94,7 +92,7 @@ describe(``, () => {
           },
         ]);
 
-        response = await axios.get('/posts')
+        response = await axios.get('/posts');
         expect(response.status).toEqual(HttpStatusCodes.OK);
         expect(response.data).toEqual([
           {
@@ -106,15 +104,13 @@ describe(``, () => {
             title: 'post #2',
           },
         ]);
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });
   });
 
   describe('using custom container should be possible', () => {
-
     beforeEach((done: DoneCallback) => {
       const fakeContainer = {
         services: [] as any,
@@ -191,7 +187,7 @@ describe(``, () => {
       let response;
 
       try {
-        response = await axios.get('/questions')
+        response = await axios.get('/questions');
         expect(response.status).toEqual(HttpStatusCodes.OK);
         expect(response.data).toEqual([
           {
@@ -216,15 +212,13 @@ describe(``, () => {
             title: 'post #2',
           },
         ]);
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });
   });
 
   describe('using custom container with fallback should be possible', () => {
-
     beforeEach((done: DoneCallback) => {
       const fakeContainer = {
         services: [] as any,
@@ -352,15 +346,13 @@ describe(``, () => {
             title: 'photo #2',
           },
         ]);
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
       }
     });
   });
 
   describe('using custom container with fallback and fallback on throw error should be possible', () => {
-
     beforeEach((done: DoneCallback) => {
       const fakeContainer = {
         services: [] as any,
@@ -494,6 +486,6 @@ describe(``, () => {
         // Handle Error Here
         console.error(err);
       }
-    })
+    });
   });
-})
+});

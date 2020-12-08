@@ -1,4 +1,3 @@
-
 import { createExpressServer } from '../../src/index';
 import { QuestionController } from './QuestionController';
 import { Action } from '../../src/Action';

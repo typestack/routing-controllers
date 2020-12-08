@@ -8,7 +8,6 @@ import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
-
   let expressServer: HttpServer;
   let user: any = { firstName: 'Umed', lastName: 'Khudoiberdiev' };
   let initializedUser: User;
@@ -30,7 +29,6 @@ describe(``, () => {
 
     describe('useClassTransformer default value', () => {
       beforeEach((done: DoneCallback) => {
-
         @JsonController()
         class TestUserController {
           @Post('/users')
@@ -38,7 +36,7 @@ describe(``, () => {
             initializedUser = user;
             return '';
           }
-      
+
           @Post(new RegExp('/(prefix|regex)/users'))
           postUsersWithRegex(@Body() user: User): string {
             initializedUser = user;
@@ -53,7 +51,7 @@ describe(``, () => {
       });
 
       afterEach((done: DoneCallback) => {
-        expressServer.close(done)
+        expressServer.close(done);
       });
 
       it('useClassTransformer by default must be set to true', async () => {
@@ -66,7 +64,6 @@ describe(``, () => {
 
     describe('when useClassTransformer is set to true', () => {
       beforeEach((done: DoneCallback) => {
-
         @JsonController()
         class TestUserController {
           @Post('/users')
@@ -74,7 +71,7 @@ describe(``, () => {
             initializedUser = user;
             return '';
           }
-      
+
           @Post(new RegExp('/(prefix|regex)/users'))
           postUsersWithRegex(@Body() user: User): string {
             initializedUser = user;
@@ -90,7 +87,7 @@ describe(``, () => {
       });
 
       afterEach((done: DoneCallback) => {
-        expressServer.close(done)
+        expressServer.close(done);
       });
 
       it('useClassTransformer is enabled', async () => {
@@ -103,7 +100,6 @@ describe(``, () => {
 
     describe('when useClassTransformer is set to false', () => {
       beforeEach((done: DoneCallback) => {
-
         @JsonController()
         class TestUserController {
           @Post('/users')
@@ -111,7 +107,7 @@ describe(``, () => {
             initializedUser = user;
             return '';
           }
-      
+
           @Post(new RegExp('/(prefix|regex)/users'))
           postUsersWithRegex(@Body() user: User): string {
             initializedUser = user;
@@ -127,7 +123,7 @@ describe(``, () => {
       });
 
       afterEach((done: DoneCallback) => {
-        expressServer.close(done)
+        expressServer.close(done);
       });
 
       it('useClassTransformer is disabled', async () => {
@@ -140,7 +136,6 @@ describe(``, () => {
 
     describe('when routePrefix is used all controller routes should be appended by it', () => {
       beforeEach((done: DoneCallback) => {
-
         @JsonController()
         class TestUserController {
           @Post('/users')
@@ -148,7 +143,7 @@ describe(``, () => {
             initializedUser = user;
             return '';
           }
-      
+
           @Post(new RegExp('/(prefix|regex)/users'))
           postUsersWithRegex(@Body() user: User): string {
             initializedUser = user;
@@ -164,7 +159,7 @@ describe(``, () => {
       });
 
       afterEach((done: DoneCallback) => {
-        expressServer.close(done)
+        expressServer.close(done);
       });
 
       it('routePrefix is enabled', async () => {

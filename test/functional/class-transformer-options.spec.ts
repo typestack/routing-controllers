@@ -40,7 +40,7 @@ describe('', () => {
       requestFilter = undefined;
     });
 
-    beforeAll((done) => {
+    beforeAll(done => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -56,11 +56,11 @@ describe('', () => {
         }
       }
 
-      expressServer = createExpressServer().listen(3001, done)
+      expressServer = createExpressServer().listen(3001, done);
     });
 
     afterAll(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('technical wrapper', async () => {
@@ -87,7 +87,7 @@ describe('', () => {
       requestFilter = undefined;
     });
 
-    beforeAll((done) => {
+    beforeAll(done => {
       getMetadataArgsStorage().reset();
 
       const options: RoutingControllersOptions = {
@@ -112,12 +112,11 @@ describe('', () => {
         }
       }
 
-      expressServer = createExpressServer(options).listen(3001, done)
-
+      expressServer = createExpressServer(options).listen(3001, done);
     });
 
     afterAll(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('technical wrapper', async () => {
@@ -141,7 +140,7 @@ describe('', () => {
       requestFilter = undefined;
     });
 
-    beforeAll((done) => {
+    beforeAll(done => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -158,11 +157,11 @@ describe('', () => {
         }
       }
 
-      expressServer = createExpressServer().listen(3001, done)
+      expressServer = createExpressServer().listen(3001, done);
     });
 
     afterAll(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('technical wrapper', async () => {

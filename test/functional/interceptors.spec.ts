@@ -14,7 +14,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('interceptor', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 

@@ -11,7 +11,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('loading all controllers from the given directories', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
       expressServer = createExpressServer({
@@ -58,7 +57,6 @@ describe(``, () => {
   });
 
   describe('loading all express middlewares and error handlers from the given directories', () => {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -99,15 +97,14 @@ describe(``, () => {
       expect.assertions(6);
       try {
         await axios.get('/articles');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(defaultFakeService.postMiddlewareCalled).toBeTruthy();
         expect(defaultFakeService.questionMiddlewareCalled).toBeTruthy();
         expect(defaultFakeService.questionErrorMiddlewareCalled).toBeTruthy();
         expect(defaultFakeService.fileMiddlewareCalled).toBeFalsy();
         expect(defaultFakeService.videoMiddlewareCalled).toBeFalsy();
-      };
+      }
     });
   });
 });

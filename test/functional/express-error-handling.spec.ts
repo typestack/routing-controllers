@@ -16,7 +16,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('express error handling', () => {
-
     let errorHandlerCalled: boolean;
     let errorHandledSpecifically: boolean;
 
@@ -130,61 +129,56 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/posts');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-      };
+      }
     });
 
     it('should call global error handler middleware', async () => {
       expect.assertions(3);
       try {
         await axios.get('/videos');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
-      };
+      }
     });
 
     it('should call error handler middleware if used', async () => {
       expect.assertions(3);
       try {
         await axios.get('/questions');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeTruthy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-      };
+      }
     });
 
     it('should not execute next middleware if soft error handled specifically and stopped error bubbling', async () => {
       expect.assertions(3);
       try {
         await axios.get('/files');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeFalsy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
-      };
+      }
     });
 
     it('should process JsonErrors by their toJSON method if it exists', async () => {
       expect.assertions(4);
       try {
         await axios.get('/stories');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
         expect(error.response.data.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
         expect(error.response.data.publicData).toEqual('sorry, try it again later (503)');
         expect(error.response.data.secretData).toBeUndefined();
-      };
+      }
     });
   });
 });

@@ -65,12 +65,11 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/videos');
-      }
-      catch (error) {
+      } catch (error) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data).toEqual('Videos were not found.');
-      };
+      }
     });
   });
 });

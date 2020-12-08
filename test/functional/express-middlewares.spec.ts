@@ -16,7 +16,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('express middlewares', () => {
-
     let useBefore: boolean,
       useAfter: boolean,
       useCustom: boolean,
@@ -181,8 +180,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/customMiddlewareWichThrows');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
       }
     });

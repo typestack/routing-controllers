@@ -12,7 +12,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('dynamic redirect', function () {
-
     beforeAll((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 

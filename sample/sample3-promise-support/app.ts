@@ -1,4 +1,3 @@
-
 import * as express from 'express';
 import { useExpressServer } from '../../src/index';
 import './BlogController'; // this can be require("./BlogController") actually

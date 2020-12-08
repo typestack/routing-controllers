@@ -11,11 +11,9 @@ import DoneCallback = jest.DoneCallback;
 const sleep = (time: number): Promise<void> => new Promise(resolve => setTimeout(resolve, time));
 
 describe(``, () => {
-  
   let expressServer: HttpServer;
 
   describe('Controller responds with value when Authorization succeeds (async)', () => {
-
     beforeEach((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -74,7 +72,6 @@ describe(``, () => {
   });
 
   describe('Controller responds with value when Authorization succeeds (sync)', () => {
-
     beforeEach((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -132,7 +129,6 @@ describe(``, () => {
   });
 
   describe('Authorized Decorators Http Status Code', () => {
-
     beforeEach((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -164,25 +160,22 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/auth1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
-      };
+      }
     });
 
     it('with roles', async () => {
       expect.assertions(1);
       try {
         await axios.get('/auth2');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.FORBIDDEN);
-      };
+      }
     });
   });
 
   describe('Authorization checker allows to throw (async)', () => {
-
     beforeEach((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -208,17 +201,15 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/auth1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
         expect(error.response.data).toHaveProperty('name', 'NotAcceptableError');
         expect(error.response.data).toHaveProperty('message', 'Custom Error');
-      };
+      }
     });
   });
 
   describe('Authorization checker allows to throw (sync)', () => {
-
     beforeEach((done: DoneCallback) => {
       // reset metadata args storage
       getMetadataArgsStorage().reset();
@@ -245,12 +236,11 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/auth1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
         expect(error.response.data).toHaveProperty('name', 'NotAcceptableError');
         expect(error.response.data).toHaveProperty('message', 'Custom Error');
-      };
+      }
     });
   });
-})
+});

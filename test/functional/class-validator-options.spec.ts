@@ -56,17 +56,20 @@ describe(``, () => {
     });
 
     afterEach((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should not use any options if not set', async () => {
       expect.assertions(4);
-      const response = await axios.get('/user?' + qs.stringify({
-        filter: {
-          keyword: 'Um',
-          __somethingPrivate: 'blablabla',
-        },
-      }));
+      const response = await axios.get(
+        '/user?' +
+          qs.stringify({
+            filter: {
+              keyword: 'Um',
+              __somethingPrivate: 'blablabla',
+            },
+          })
+      );
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data).toEqual({
         id: 1,
@@ -114,17 +117,20 @@ describe(``, () => {
     });
 
     afterEach((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should apply global options', async () => {
       expect.assertions(4);
-      const response = await axios.get('/user?' + qs.stringify({
-        filter: {
-          keyword: 'Um',
-          __somethingPrivate: 'blablabla',
-        },
-      }));
+      const response = await axios.get(
+        '/user?' +
+          qs.stringify({
+            filter: {
+              keyword: 'Um',
+              __somethingPrivate: 'blablabla',
+            },
+          })
+      );
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data).toEqual({
         id: 1,
@@ -164,17 +170,20 @@ describe(``, () => {
     });
 
     afterEach((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should apply local options', async () => {
       expect.assertions(4);
-      const response = await axios.get('/user?' + qs.stringify({
-        filter: {
-          keyword: 'Um',
-          __somethingPrivate: 'blablabla',
-        },
-      }));
+      const response = await axios.get(
+        '/user?' +
+          qs.stringify({
+            filter: {
+              keyword: 'Um',
+              __somethingPrivate: 'blablabla',
+            },
+          })
+      );
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data).toEqual({
         id: 1,
@@ -186,4 +195,4 @@ describe(``, () => {
       });
     });
   }); //----- end local options
-})
+});

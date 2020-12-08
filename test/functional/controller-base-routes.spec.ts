@@ -10,7 +10,6 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('controller > base routes functionality', () => {
-
     beforeEach((done: DoneCallback) => {
       getMetadataArgsStorage().reset();
 
@@ -70,30 +69,27 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/1/users/1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
-      };
+      }
     });
 
     it('wrong route should respond with 404 error', async () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
-      };
+      }
     });
 
     it('wrong route should respond with 404 error', async () => {
       expect.assertions(1);
       try {
         await axios.get('/users/1');
-      }
-      catch (error) {
+      } catch (error) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
-      };
+      }
     });
   });
 });

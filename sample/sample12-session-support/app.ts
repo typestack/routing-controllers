@@ -1,4 +1,3 @@
-
 import { useExpressServer } from '../../src/index';
 import * as express from 'express';
 import * as session from 'express-session';
