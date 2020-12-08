@@ -1,5 +1,5 @@
-import {getMetadataArgsStorage} from "../index";
-import {ControllerOptions} from "../decorator-options/ControllerOptions";
+import { getMetadataArgsStorage } from '../index';
+import { ControllerOptions } from '../decorator-options/ControllerOptions';
 
 /**
  * Defines a class as a controller.
@@ -10,12 +10,12 @@ import {ControllerOptions} from "../decorator-options/ControllerOptions";
  * @param options Extra options that apply to all controller actions
  */
 export function Controller(baseRoute?: string, options?: ControllerOptions): Function {
-    return function (object: Function) {
-        getMetadataArgsStorage().controllers.push({
-            type: "default",
-            target: object,
-            route: baseRoute,
-            options
-        });
-    };
+  return function (object: Function) {
+    getMetadataArgsStorage().controllers.push({
+      type: 'default',
+      target: object,
+      route: baseRoute,
+      options,
+    });
+  };
 }

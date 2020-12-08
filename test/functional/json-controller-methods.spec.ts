@@ -1,278 +1,283 @@
-import "reflect-metadata";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Get} from "../../src/decorator/Get";
-import {Post} from "../../src/decorator/Post";
-import {Method} from "../../src/decorator/Method";
-import {Head} from "../../src/decorator/Head";
-import {Delete} from "../../src/decorator/Delete";
-import {Patch} from "../../src/decorator/Patch";
-import {Put} from "../../src/decorator/Put";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import HttpStatusCodes from 'http-status-codes';
+import { Delete } from '../../src/decorator/Delete';
+import { Get } from '../../src/decorator/Get';
+import { Head } from '../../src/decorator/Head';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Method } from '../../src/decorator/Method';
+import { Patch } from '../../src/decorator/Patch';
+import { Post } from '../../src/decorator/Post';
+import { Put } from '../../src/decorator/Put';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
 
-describe("json-controller methods", () => {
+describe(``, () => {
+  let expressServer: any;
 
-    before(() => {
+  describe('json-controller methods', () => {
+    beforeAll(done => {
+      getMetadataArgsStorage().reset();
 
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
-
-        @JsonController()
-        class JsonUserController {
-            @Get("/users")
-            getAll() {
-                return [{
-                    id: 1,
-                    name: "Umed"
-                }, {
-                    id: 2,
-                    name: "Bakha"
-                }];
-            }
-            @Post("/users")
-            post() {
-                return {
-                    status: "saved"
-                };
-            }
-            @Put("/users")
-            put() {
-                return {
-                    status: "updated"
-                };
-            }
-            @Patch("/users")
-            patch() {
-                return {
-                    status: "patched"
-                };
-            }
-            @Delete("/users")
-            delete() {
-                return {
-                    status: "removed"
-                };
-            }
-            @Head("/users")
-            head() {
-                return {
-                    thisWillNot: "beSent"
-                };
-            }
-            @Method("post", "/categories")
-            postCategories() {
-                return {
-                    status: "posted"
-                };
-            }
-            @Method("delete", "/categories")
-            getCategories() {
-                return {
-                    status: "removed"
-                };
-            }
-            @Get("/users/:id")
-            getUserById() {
-                return {
-                    id: 1,
-                    name: "Umed"
-                };
-            }
-            @Get(/\/categories\/[\d+]/)
-            getCategoryById() {
-                return {
-                    id: 1,
-                    name: "People"
-                };
-            }
-            @Get("/posts/:id(\\d+)")
-            getPostById() {
-                return {
-                    id: 1,
-                    title: "About People"
-                };
-            }
-            @Get("/posts-from-db")
-            getPostFromDb() {
-                return new Promise((ok, fail) => {
-                    setTimeout(() => {
-                        ok({
-                            id: 1,
-                            title: "Hello database post"
-                        });
-                    }, 500);
-                });
-            }
-            @Get("/posts-from-failed-db")
-            getPostFromFailedDb() {
-                return new Promise((ok, fail) => {
-                    setTimeout(() => {
-                        fail({
-                            code: 10954,
-                            message: "Cannot connect to db"
-                        });
-                    }, 500);
-                });
-            }
+      @JsonController()
+      class JsonUserController {
+        @Get('/users')
+        getAll() {
+          return [
+            { id: 1, name: 'Umed' },
+            { id: 2, name: 'Bakha' },
+          ];
         }
-    });
 
-    let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
-    after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
-    after(done => koaApp.close(done));
-
-    describe("get should respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "get", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.instanceOf(Array);
-            expect(response.body).to.be.eql([{
+        @Post('/users')
+        post() {
+          return {
+            status: 'saved',
+          };
+        }
+        @Put('/users')
+        put() {
+          return {
+            status: 'updated',
+          };
+        }
+        @Patch('/users')
+        patch() {
+          return {
+            status: 'patched',
+          };
+        }
+        @Delete('/users')
+        delete() {
+          return {
+            status: 'removed',
+          };
+        }
+        @Head('/users')
+        head() {
+          return {
+            thisWillNot: 'beSent',
+          };
+        }
+        @Method('post', '/categories')
+        postCategories() {
+          return {
+            status: 'posted',
+          };
+        }
+        @Method('delete', '/categories')
+        getCategories() {
+          return {
+            status: 'removed',
+          };
+        }
+        @Get('/users/:id')
+        getUserById() {
+          return {
+            id: 1,
+            name: 'Umed',
+          };
+        }
+        @Get(/\/categories\/[\d+]/)
+        getCategoryById() {
+          return {
+            id: 1,
+            name: 'People',
+          };
+        }
+        @Get('/posts/:id(\\d+)')
+        getPostById() {
+          return {
+            id: 1,
+            title: 'About People',
+          };
+        }
+        @Get('/posts-from-db')
+        getPostFromDb() {
+          return new Promise((ok, fail) => {
+            setTimeout(() => {
+              ok({
                 id: 1,
-                name: "Umed"
-            }, {
-                id: 2,
-                name: "Bakha"
-            }]);
-        });
-    });
-    
-    describe("post respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "post", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "saved"
-            });
-        });
-    });
-    
-    describe("put respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "put", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "updated"
-            });
-        });
-    });
-    
-    describe("patch respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "patch", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "patched"
-            });
-        });
-    });
-    
-    describe("delete respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "delete", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "removed"
-            });
-        });
-    });
-
-    describe("head respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "head", "users", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.undefined;
-        });
-    });
-
-    describe("custom method (post) respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "post", "categories", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "posted"
-            });
-        });
-    });
-
-    describe("custom method (delete) respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "delete", "categories", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                status: "removed"
-            });
-        });
-    });
-
-    describe("route should work with parameter", () => {
-        assertRequest([3001, 3002], "get", "users/umed", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                id: 1,
-                name: "Umed"
-            });
-        });
-    });
-
-    describe("route should work with regexp parameter", () => {
-        assertRequest([3001, 3002], "get", "categories/1", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                id: 1,
-                name: "People"
-            });
-        });
-    });
-
-    describe("should respond with 404 when regexp does not match", () => {
-        assertRequest([3001, 3002], "get", "categories/umed", response => {
-            expect(response).to.have.status(404);
-        });
-    });
-
-    describe("route should work with string regexp parameter", () => {
-        assertRequest([3001, 3002], "get", "posts/1", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                id: 1,
-                title: "About People"
-            });
-        });
-    });
-
-    describe("should respond with 404 when regexp does not match", () => {
-        assertRequest([3001, 3002], "get", "posts/U", response => {
-            expect(response).to.have.status(404);
-        });
-    });
-
-    describe("should return result from a promise", () => {
-        assertRequest([3001, 3002], "get", "posts-from-db", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
-                id: 1,
-                title: "Hello database post"
-            });
-        });
-    });
-
-    describe("should respond with 500 if promise failed", () => {
-        assertRequest([3001, 3002], "get", "posts-from-failed-db", response => {
-            expect(response).to.have.status(500);
-            expect(response).to.have.header("content-type", "application/json; charset=utf-8");
-            expect(response.body).to.be.eql({
+                title: 'Hello database post',
+              });
+            }, 500);
+          });
+        }
+        @Get('/posts-from-failed-db')
+        getPostFromFailedDb() {
+          return new Promise((ok, fail) => {
+            setTimeout(() => {
+              fail({
                 code: 10954,
-                message: "Cannot connect to db"
-            });
-        });
+                message: 'Cannot connect to db',
+              });
+            }, 500);
+          });
+        }
+      }
+
+      expressServer = createExpressServer().listen(3001, done);
     });
 
+    afterAll(done => expressServer.close(done));
+
+    it('get should respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual([
+        {
+          id: 1,
+          name: 'Umed',
+        },
+        {
+          id: 2,
+          name: 'Bakha',
+        },
+      ]);
+    });
+
+    it('post respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.post('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'saved',
+      });
+    });
+
+    it('put respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.put('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'updated',
+      });
+    });
+
+    it('patch respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.patch('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'patched',
+      });
+    });
+
+    it('delete respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.delete('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'removed',
+      });
+    });
+
+    it('head respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.head('/users');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toBe('');
+    });
+
+    it('custom method (post) respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.post('/categories');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'posted',
+      });
+    });
+
+    it('custom method (delete) respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.delete('/categories');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        status: 'removed',
+      });
+    });
+
+    it('route should work with parameter', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/users/umed');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        id: 1,
+        name: 'Umed',
+      });
+    });
+
+    it('route should work with regexp parameter', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/categories/1');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        id: 1,
+        name: 'People',
+      });
+    });
+
+    it('should respond with 404 when regexp does not match', async () => {
+      expect.assertions(1);
+      try {
+        await axios.get('/categories/b1');
+      } catch (err) {
+        expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
+    });
+
+    it('route should work with string regexp parameter', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/posts/1');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        id: 1,
+        title: 'About People',
+      });
+    });
+
+    it('should respond with 404 when regexp does not match', async () => {
+      expect.assertions(1);
+      try {
+        await axios.get('/posts/U');
+      } catch (err) {
+        expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
+    });
+
+    it('should return result from a promise', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/posts-from-db');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+      expect(response.data).toEqual({
+        id: 1,
+        title: 'Hello database post',
+      });
+    });
+
+    it('should respond with 500 if promise failed', async () => {
+      expect.assertions(3);
+      try {
+        await axios.get('/posts-from-failed-db');
+      } catch (err) {
+        expect(err.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(err.response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(err.response.data).toEqual({
+          code: 10954,
+          message: 'Cannot connect to db',
+        });
+      }
+    });
+  });
 });

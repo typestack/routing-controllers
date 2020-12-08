@@ -1,29 +1,26 @@
-import {ForbiddenError} from "../../src/http-error/ForbiddenError";
-import {Controller} from "../../src/decorator/Controller";
-import {Get} from "../../src/decorator/Get";
-import {Param} from "../../src/decorator/Param";
-import {ContentType} from "../../src/decorator/ContentType";
+import { ForbiddenError } from '../../src/http-error/ForbiddenError';
+import { Controller } from '../../src/decorator/Controller';
+import { Get } from '../../src/decorator/Get';
+import { Param } from '../../src/decorator/Param';
+import { ContentType } from '../../src/decorator/ContentType';
 
 @Controller()
 export class BlogController {
+  @Get('/blogs')
+  @ContentType('application/json')
+  getAll() {
+    console.log('hello blog');
+    return [
+      { id: 1, firstName: 'First', secondName: 'blog' },
+      { id: 2, firstName: 'Second', secondName: 'blog' },
+    ];
+  }
 
-    @Get("/blogs")
-    @ContentType("application/json")
-    getAll() {
-        console.log("hello blog");
-        return [
-            { id: 1, firstName: "First", secondName: "blog" },
-            { id: 2, firstName: "Second", secondName: "blog" }
-        ];
-    }
+  @Get('/blogs/:id')
+  @ContentType('application/json')
+  getOne(@Param('id') id: number) {
+    if (!id) throw new ForbiddenError();
 
-    @Get("/blogs/:id")
-    @ContentType("application/json")
-    getOne(@Param("id") id: number) {
-        if (!id)
-            throw new ForbiddenError();
-
-        return "THIS STRING will BE not SO BIG";
-    }
-
+    return 'THIS STRING will BE not SO BIG';
+  }
 }

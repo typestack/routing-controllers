@@ -1,58 +1,58 @@
-import {MiddlewareMetadataArgs} from "./args/MiddlewareMetadataArgs";
-import {ExpressMiddlewareInterface} from "../driver/express/ExpressMiddlewareInterface";
-import {ExpressErrorMiddlewareInterface} from "../driver/express/ExpressErrorMiddlewareInterface";
-import {getFromContainer} from "../container";
-import {KoaMiddlewareInterface} from "../driver/koa/KoaMiddlewareInterface";
+import { MiddlewareMetadataArgs } from './args/MiddlewareMetadataArgs';
+import { ExpressMiddlewareInterface } from '../driver/express/ExpressMiddlewareInterface';
+import { ExpressErrorMiddlewareInterface } from '../driver/express/ExpressErrorMiddlewareInterface';
+import { getFromContainer } from '../container';
+import { KoaMiddlewareInterface } from '../driver/koa/KoaMiddlewareInterface';
 
 /**
  * Middleware metadata.
  */
 export class MiddlewareMetadata {
+  // -------------------------------------------------------------------------
+  // Properties
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Properties
-    // -------------------------------------------------------------------------
+  /**
+   * Indicates if this middleware is global, thous applied to all routes.
+   */
+  global: boolean;
 
-    /**
-     * Indicates if this middleware is global, thous applied to all routes.
-     */
-    global: boolean;
+  /**
+   * Object class of the middleware class.
+   */
+  target: Function;
 
-    /**
-     * Object class of the middleware class.
-     */
-    target: Function;
+  /**
+   * Execution priority of the middleware.
+   */
+  priority: number;
 
-    /**
-     * Execution priority of the middleware.
-     */
-    priority: number;
-    
-    /**
-     * Indicates if middleware must be executed after routing action is executed.
-     */
-    type: "before"|"after";
+  /**
+   * Indicates if middleware must be executed after routing action is executed.
+   */
+  type: 'before' | 'after';
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-    
-    constructor(args: MiddlewareMetadataArgs) {
-        this.global = args.global;
-        this.target = args.target;
-        this.priority = args.priority;
-        this.type = args.type;
-    }
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
+  constructor(args: MiddlewareMetadataArgs) {
+    this.global = args.global;
+    this.target = args.target;
+    this.priority = args.priority;
+    this.type = args.type;
+  }
 
-    /**
-     * Gets middleware instance from the container.
-     */
-    get instance(): ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface {
-        return getFromContainer<ExpressMiddlewareInterface|KoaMiddlewareInterface|ExpressErrorMiddlewareInterface>(this.target);
-    }
-    
+  // -------------------------------------------------------------------------
+  // Accessors
+  // -------------------------------------------------------------------------
+
+  /**
+   * Gets middleware instance from the container.
+   */
+  get instance(): ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface {
+    return getFromContainer<ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface>(
+      this.target
+    );
+  }
 }
