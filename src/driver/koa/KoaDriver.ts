@@ -13,7 +13,9 @@ import { RoleChecker } from '../../RoleChecker';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { HttpError, NotFoundError } from '../../index';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const templateUrl = require('template-url');
 
 /**
@@ -39,9 +41,11 @@ export class KoaDriver extends BaseDriver {
    * Initializes the things driver needs before routes and middleware registration.
    */
   initialize() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const bodyParser = require('koa-bodyparser');
     this.koa.use(bodyParser());
     if (this.cors) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const cors = require('kcors');
       if (this.cors === true) {
         this.koa.use(cors());
@@ -82,7 +86,7 @@ export class KoaDriver extends BaseDriver {
 
           const handleError = (result: any) => {
             if (!result) {
-              let error =
+              const error =
                 actionMetadata.authorizedRoles.length === 0
                   ? new AuthorizationRequiredError(action)
                   : new AccessDeniedError(action);
@@ -118,6 +122,7 @@ export class KoaDriver extends BaseDriver {
           defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
         });
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       defaultMiddlewares.push(this.fixMulterRequestAssignment);
     }
 
@@ -330,7 +335,7 @@ export class KoaDriver extends BaseDriver {
         // if this is function instance of MiddlewareInterface
         middlewareFunctions.push(async (context: any, next: (err?: any) => Promise<any>) => {
           try {
-            return await (getFromContainer(use.middleware) as KoaMiddlewareInterface).use(context, next);
+            return await (getFromContainer(use.middleware)).use(context, next);
           } catch (error) {
             return await this.handleError(error, undefined, {
               request: context.request,

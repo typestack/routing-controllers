@@ -13,7 +13,9 @@ import { getFromContainer } from '../../container';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { NotFoundError } from '../../index';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const templateUrl = require('template-url');
 
 /**
@@ -39,6 +41,7 @@ export class ExpressDriver extends BaseDriver {
    */
   initialize() {
     if (this.cors) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const cors = require('cors');
       if (this.cors === true) {
         this.express.use(cors());
@@ -114,7 +117,7 @@ export class ExpressDriver extends BaseDriver {
 
           const handleError = (result: any) => {
             if (!result) {
-              let error =
+              const error =
                 actionMetadata.authorizedRoles.length === 0
                   ? new AuthorizationRequiredError(action)
                   : new AccessDeniedError(action);
@@ -186,6 +189,7 @@ export class ExpressDriver extends BaseDriver {
   /**
    * Registers all routes in the framework.
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   registerRoutes() {}
 
   /**
@@ -392,7 +396,7 @@ export class ExpressDriver extends BaseDriver {
         // if this is function instance of MiddlewareInterface
         middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
           try {
-            const useResult = (getFromContainer(use.middleware) as ExpressMiddlewareInterface).use(
+            const useResult = (getFromContainer(use.middleware)).use(
               request,
               response,
               next
@@ -412,7 +416,7 @@ export class ExpressDriver extends BaseDriver {
       } else if (use.middleware.prototype && use.middleware.prototype.error) {
         // if this is function instance of ErrorMiddlewareInterface
         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-          return (getFromContainer(use.middleware) as ExpressErrorMiddlewareInterface).error(
+          return (getFromContainer(use.middleware)).error(
             error,
             request,
             response,
@@ -433,6 +437,7 @@ export class ExpressDriver extends BaseDriver {
     if (require) {
       if (!this.express) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
           this.express = require('express')();
         } catch (e) {
           throw new Error('express package was not found installed. Try to install it: npm install express --save');

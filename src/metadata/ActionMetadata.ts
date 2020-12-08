@@ -169,6 +169,24 @@ export class ActionMetadata {
   }
 
   // -------------------------------------------------------------------------
+  // Static Methods
+  // -------------------------------------------------------------------------
+
+  /**
+   * Appends base route to a given regexp route.
+   */
+  static appendBaseRoute(baseRoute: string, route: RegExp | string) {
+    const prefix = `${baseRoute.length > 0 && baseRoute.indexOf('/') < 0 ? '/' : ''}${baseRoute}`;
+    if (typeof route === 'string') return `${prefix}${route}`;
+
+    if (!baseRoute || baseRoute === '') return route;
+
+    const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
+
+    return new RegExp(fullPath, route.flags);
+  }
+
+  // -------------------------------------------------------------------------
   // Public Methods
   // -------------------------------------------------------------------------
 
@@ -221,6 +239,20 @@ export class ActionMetadata {
   }
 
   // -------------------------------------------------------------------------
+  // Public Methods
+  // -------------------------------------------------------------------------
+
+  /**
+   * Calls action method.
+   * Action method is an action defined in a user controller.
+   */
+  callMethod(params: any[], action: Action) {
+    const controllerInstance = this.controllerMetadata.getInstance(action);
+    // eslint-disable-next-line prefer-spread
+    return controllerInstance[this.method].apply(controllerInstance, params);
+  }
+
+  // -------------------------------------------------------------------------
   // Private Methods
   // -------------------------------------------------------------------------
 
@@ -259,34 +291,4 @@ export class ActionMetadata {
     return headers;
   }
 
-  // -------------------------------------------------------------------------
-  // Public Methods
-  // -------------------------------------------------------------------------
-
-  /**
-   * Calls action method.
-   * Action method is an action defined in a user controller.
-   */
-  callMethod(params: any[], action: Action) {
-    const controllerInstance = this.controllerMetadata.getInstance(action);
-    return controllerInstance[this.method].apply(controllerInstance, params);
-  }
-
-  // -------------------------------------------------------------------------
-  // Static Methods
-  // -------------------------------------------------------------------------
-
-  /**
-   * Appends base route to a given regexp route.
-   */
-  static appendBaseRoute(baseRoute: string, route: RegExp | string) {
-    const prefix = `${baseRoute.length > 0 && baseRoute.indexOf('/') < 0 ? '/' : ''}${baseRoute}`;
-    if (typeof route === 'string') return `${prefix}${route}`;
-
-    if (!baseRoute || baseRoute === '') return route;
-
-    const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
-
-    return new RegExp(fullPath, route.flags);
-  }
 }

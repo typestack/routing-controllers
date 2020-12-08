@@ -1,12 +1,11 @@
 import { Action } from './Action';
-import { ActionMetadata } from './metadata/ActionMetadata';
 import { ActionParameterHandler } from './ActionParameterHandler';
-import { BaseDriver } from './driver/BaseDriver';
-import { InterceptorInterface } from './InterceptorInterface';
-import { InterceptorMetadata } from './metadata/InterceptorMetadata';
-import { MetadataBuilder } from './metadata-builder/MetadataBuilder';
-import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { getFromContainer } from './container';
+import { BaseDriver } from './driver/BaseDriver';
+import { MetadataBuilder } from './metadata-builder/MetadataBuilder';
+import { ActionMetadata } from './metadata/ActionMetadata';
+import { InterceptorMetadata } from './metadata/InterceptorMetadata';
+import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { isPromiseLike } from './util/isPromiseLike';
 import { runInSequence } from './util/runInSequence';
 
@@ -176,7 +175,7 @@ export class RoutingControllers<T extends BaseDriver> {
       if (use.interceptor.prototype && use.interceptor.prototype.intercept) {
         // if this is function instance of InterceptorInterface
         return function (action: Action, result: any) {
-          return (getFromContainer(use.interceptor, action) as InterceptorInterface).intercept(action, result);
+          return (getFromContainer(use.interceptor, action)).intercept(action, result);
         };
       }
       return use.interceptor;

@@ -94,7 +94,7 @@ export class MetadataBuilder {
    */
   protected createActions(controller: ControllerMetadata): ActionMetadata[] {
     let target = controller.target;
-    let actionsWithTarget: ActionMetadataArgs[] = [];
+    const actionsWithTarget: ActionMetadataArgs[] = [];
     while (target) {
       actionsWithTarget.push(
         ...getMetadataArgsStorage()
@@ -125,17 +125,6 @@ export class MetadataBuilder {
       .map(paramArgs => new ParamMetadata(action, this.decorateDefaultParamOptions(paramArgs)));
   }
 
-  /**
-   * Decorate paramArgs with default settings
-   */
-  private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
-    let options = this.options.defaults && this.options.defaults.paramOptions;
-    if (!options) return paramArgs;
-
-    if (paramArgs.required === undefined) paramArgs.required = options.required || false;
-
-    return paramArgs;
-  }
 
   /**
    * Creates response handler metadatas for action.
@@ -189,5 +178,17 @@ export class MetadataBuilder {
     return getMetadataArgsStorage()
       .filterInterceptorUsesWithTargetAndMethod(controller.target, undefined)
       .map(useArgs => new InterceptorMetadata(useArgs));
+  }
+
+  /**
+   * Decorate paramArgs with default settings
+   */
+  private decorateDefaultParamOptions(paramArgs: ParamMetadataArgs) {
+    const options = this.options.defaults && this.options.defaults.paramOptions;
+    if (!options) return paramArgs;
+
+    if (paramArgs.required === undefined) paramArgs.required = options.required || false;
+
+    return paramArgs;
   }
 }

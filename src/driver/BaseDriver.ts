@@ -87,40 +87,6 @@ export abstract class BaseDriver {
    */
   currentUserChecker?: CurrentUserChecker;
 
-  /**
-   * Initializes the things driver needs before routes and middleware registration.
-   */
-  abstract initialize(): void;
-
-  /**
-   * Registers given middleware.
-   */
-  abstract registerMiddleware(middleware: MiddlewareMetadata): void;
-
-  /**
-   * Registers action in the driver.
-   */
-  abstract registerAction(action: ActionMetadata, executeCallback: (options: Action) => any): void;
-
-  /**
-   * Registers all routes in the framework.
-   */
-  abstract registerRoutes(): void;
-
-  /**
-   * Gets param from the request.
-   */
-  abstract getParamFromRequest(actionOptions: Action, param: ParamMetadata): any;
-
-  /**
-   * Defines an algorithm of how to handle error during executing controller action.
-   */
-  abstract handleError(error: any, action: ActionMetadata, options: Action): any;
-
-  /**
-   * Defines an algorithm of how to handle success result of executing controller action.
-   */
-  abstract handleSuccess(result: any, action: ActionMetadata, options: Action): void;
 
   // -------------------------------------------------------------------------
   // Protected Methods
@@ -194,16 +160,51 @@ export abstract class BaseDriver {
 
   protected merge(obj1: any, obj2: any): any {
     const result: any = {};
-    for (let i in obj1) {
+    for (const i in obj1) {
       if (i in obj2 && typeof obj1[i] === 'object' && i !== null) {
         result[i] = this.merge(obj1[i], obj2[i]);
       } else {
         result[i] = obj1[i];
       }
     }
-    for (let i in obj2) {
+    for (const i in obj2) {
       result[i] = obj2[i];
     }
     return result;
   }
+
+  /**
+   * Initializes the things driver needs before routes and middleware registration.
+   */
+  abstract initialize(): void;
+
+  /**
+   * Registers given middleware.
+   */
+  abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+
+  /**
+   * Registers action in the driver.
+   */
+  abstract registerAction(action: ActionMetadata, executeCallback: (options: Action) => any): void;
+
+  /**
+   * Registers all routes in the framework.
+   */
+  abstract registerRoutes(): void;
+
+  /**
+   * Gets param from the request.
+   */
+  abstract getParamFromRequest(actionOptions: Action, param: ParamMetadata): any;
+
+  /**
+   * Defines an algorithm of how to handle error during executing controller action.
+   */
+  abstract handleError(error: any, action: ActionMetadata, options: Action): any;
+
+  /**
+   * Defines an algorithm of how to handle success result of executing controller action.
+   */
+  abstract handleSuccess(result: any, action: ActionMetadata, options: Action): void;
 }

@@ -54,7 +54,8 @@ export class ParamRequiredError extends BadRequestError {
         paramName = 'Parameter is';
     }
 
-    const uri = action.request.method + ' ' + action.request.url; // todo: check it it works in koa
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const uri = `${action.request.method} ${action.request.url}`; // todo: check it it works in koa
     this.message = `${paramName} required for request on ${uri}`;
   }
 }
