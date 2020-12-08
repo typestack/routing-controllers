@@ -412,7 +412,12 @@ export class ExpressDriver extends BaseDriver {
       } else if (use.middleware.prototype && use.middleware.prototype.error) {
         // if this is function instance of ErrorMiddlewareInterface
         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-          return getFromContainer<ExpressErrorMiddlewareInterface>(use.middleware).error(error, request, response, next);
+          return getFromContainer<ExpressErrorMiddlewareInterface>(use.middleware).error(
+            error,
+            request,
+            response,
+            next
+          );
         });
       } else {
         middlewareFunctions.push(use.middleware);
