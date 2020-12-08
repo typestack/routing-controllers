@@ -1,44 +1,31 @@
-import 'reflect-metadata';
 import { Exclude, Expose } from 'class-transformer';
 import { defaultMetadataStorage } from 'class-transformer/storage';
+import { Body } from '../../src/decorator/Body';
 import { JsonController } from '../../src/decorator/JsonController';
 import { Post } from '../../src/decorator/Post';
-import { Body } from '../../src/decorator/Body';
-import { createExpressServer, createKoaServer, getMetadataArgsStorage } from '../../src/index';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
-import { AxiosError, AxiosResponse } from 'axios';
 
-
-describe('action options', () => {
-  let initializedUser: any;
+describe(``, () => {
   let expressApp: any;
-  let User: any;
+  let initializedUser: any;
+  let user: any = { firstName: 'Umed', lastName: 'Khudoiberdiev' };
 
-  afterAll((done) => {
-    defaultMetadataStorage.clear();
-    expressApp.close(done)
-  });
+  @Exclude()
+  class UserModel {
+    @Expose()
+    firstName: string;
 
-  beforeEach(() => {
-    initializedUser = undefined;
-  });
+    lastName: string;
+  }
 
   beforeAll((done) => {
     // reset metadata args storage
     getMetadataArgsStorage().reset();
 
-    @Exclude()
-    class UserModel {
-      @Expose()
-      firstName: string;
-
-      lastName: string;
-    }
-    User = UserModel;
-
     function handler(user: UserModel) {
       initializedUser = user;
-      const ret = new User();
+      const ret = new UserModel();
       ret.firstName = user.firstName;
       ret.lastName = user.lastName || 'default';
       return ret;
@@ -65,33 +52,40 @@ describe('action options', () => {
     expressApp = createExpressServer().listen(3001, done)
   });
 
-  it('should use controller options when action transform options are not set', () => {
-    expect.assertions(4);
-    return axios.post('/default', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
-      expect(initializedUser).toBeInstanceOf(User);
-      expect(initializedUser.lastName).toBeUndefined();
-      expect(response.status).toBe(200);
-      expect(response.data.lastName).toBe('default');
-    });
+  afterAll((done) => {
+    defaultMetadataStorage.clear();
+    expressApp.close(done)
   });
 
-  it('should override controller options with action transformRequest option', () => {
-    expect.assertions(4);
-    return axios.post('/transformRequestOnly', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
-      expect(initializedUser).toBeInstanceOf(User);
-      expect(initializedUser.lastName).toBeUndefined();
-      expect(response.status).toBe(200);
-      expect(response.data.lastName).toBe('default');
-    });
+  beforeEach(() => {
+    initializedUser = undefined;
   });
 
-  it('should override controller options with action transformResponse option', () => {
+  it('should use controller options when action transform options are not set', async () => {
     expect.assertions(4);
-    return axios.post('/transformResponseOnly', { firstName: 'Umed', lastName: 'Khudoiberdiev' }).then((response: AxiosResponse) => {
-      expect(initializedUser).not.toBeInstanceOf(User);
-      expect(initializedUser.lastName).not.toBeUndefined();
-      expect(response.status).toBe(200);
-      expect(response.data.lastName).toBeUndefined();
-    });
+    const response = await axios.post('/default', user);
+    expect(initializedUser).toBeInstanceOf(UserModel);
+    expect(initializedUser.lastName).toBeUndefined();
+    expect(response.status).toBe(200);
+    expect(response.data.lastName).toBe('default');
   });
+
+  it('should override controller options with action transformRequest option', async () => {
+    expect.assertions(4);
+    const response = await axios.post('/transformRequestOnly', user);
+    expect(initializedUser).toBeInstanceOf(UserModel);
+    expect(initializedUser.lastName).toBeUndefined();
+    expect(response.status).toBe(200);
+    expect(response.data.lastName).toBe('default');
+  });
+
+  it('should override controller options with action transformResponse option', async () => {
+    expect.assertions(4);
+    const response = await axios.post('/transformResponseOnly', user);
+    expect(initializedUser).not.toBeInstanceOf(UserModel);
+    expect(initializedUser.lastName).not.toBeUndefined();
+    expect(response.status).toBe(200);
+    expect(response.data.lastName).toBeUndefined();
+  });
+
 });

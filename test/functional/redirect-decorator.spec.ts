@@ -1,76 +1,74 @@
-import 'reflect-metadata';
-import { Get } from '../../src/decorator/Get';
-import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
-import { Redirect } from '../../src/decorator/Redirect';
-import { JsonController } from '../../src/decorator/JsonController';
-import { Param } from '../../src/decorator/Param';
-import { AxiosResponse } from 'axios';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';
-import DoneCallback = jest.DoneCallback;
+import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Param } from '../../src/decorator/Param';
+import { Redirect } from '../../src/decorator/Redirect';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe('dynamic redirect', function () {
+describe(``, () => {
   let expressServer: HttpServer;
 
-  beforeAll((done: DoneCallback) => {
-    getMetadataArgsStorage().reset();
+  describe('dynamic redirect', function () {
 
-    @JsonController('/users')
-    class TestController {
-      @Get('/:id')
-      getOne(@Param('id') id: string): any {
-        return {
-          login: id,
-        };
-      }
-    }
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
 
-    @JsonController()
-    class RedirectController {
-      @Get('/template')
-      @Redirect('/users/:owner')
-      template(): any {
-        return { owner: 'pleerock', repo: 'routing-controllers' };
+      @JsonController('/users')
+      class TestController {
+        @Get('/:id')
+        getOne(@Param('id') id: string): any {
+          return {
+            login: id,
+          };
+        }
       }
 
-      @Get('/original')
-      @Redirect('/users/pleerock')
-      original(): void {
-        // Empty
+      @JsonController()
+      class RedirectController {
+        @Get('/template')
+        @Redirect('/users/:owner')
+        template(): any {
+          return { owner: 'pleerock', repo: 'routing-controllers' };
+        }
+
+        @Get('/original')
+        @Redirect('/users/pleerock')
+        original(): void {
+          // Empty
+        }
+
+        @Get('/override')
+        @Redirect('https://api.github.com')
+        override(): string {
+          return '/users/pleerock';
+        }
       }
 
-      @Get('/override')
-      @Redirect('https://api.github.com')
-      override(): string {
-        return '/users/pleerock';
-      }
-    }
+      expressServer = createExpressServer().listen(3001, done);
+    });
 
-    expressServer = createExpressServer().listen(3001, done);
-  });
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-  afterAll((done: DoneCallback) => expressServer.close(done));
-
-  it('using template', () => {
-    expect.assertions(2);
-    return axios.get('/template').then((response: AxiosResponse) => {
+    it('using template', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/template');
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data.login).toEqual('pleerock');
     });
-  });
 
-  it('using override', () => {
-    expect.assertions(2);
-    return axios.get('/override').then((response: AxiosResponse) => {
+    it('using override', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/override');
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data.login).toEqual('pleerock');
     });
-  });
 
-  it('using original', () => {
-    expect.assertions(2);
-    return axios.get('/original').then((response: AxiosResponse) => {
+    it('using original', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/original');
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data.login).toEqual('pleerock');
     });

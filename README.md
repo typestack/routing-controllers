@@ -88,7 +88,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
    and make sure to import it before you use routing-controllers:
 
    ```typescript
-   import 'reflect-metadata';
+   
    ```
 
 3. Install framework:
@@ -165,7 +165,7 @@ In prior versions, these were direct dependencies, but now they are peer depende
 2. Create a file `app.ts`
 
    ```typescript
-   import 'reflect-metadata'; // this shim is required
+    // this shim is required
    import { createExpressServer } from 'routing-controllers';
    import { UserController } from './UserController';
 
@@ -301,7 +301,7 @@ If you have, or if you want to create and configure express app separately,
 you can use `useExpressServer` instead of `createExpressServer` function:
 
 ```typescript
-import 'reflect-metadata';
+
 import { useExpressServer } from 'routing-controllers';
 
 let express = require('express'); // or you can import it if you have installed typings
@@ -322,7 +322,7 @@ You can load all controllers from directories, by specifying array of directorie
 `createExpressServer` or `useExpressServer`:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -337,7 +337,7 @@ createExpressServer({
 If you want to prefix all your routes, e.g. `/api` you can use `routePrefix` option:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './controller/UserController';
 
@@ -774,7 +774,7 @@ Since CORS is a feature that is used almost in any web-api application,
 you can enable it in routing-controllers options.
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -791,7 +791,7 @@ For express its `npm i cors`, for koa its `npm i kcors`.
 You can pass cors options as well:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -810,7 +810,7 @@ app.listen(3000);
 You can override default status code in routing-controllers options.
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 
@@ -894,7 +894,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
 
    ```typescript
-   import 'reflect-metadata';
+   
    import { createExpressServer } from 'routing-controllers';
    import { UserController } from './UserController'; // we need to "load" our controller before call createExpressServer. this is required
    let compression = require('compression');
@@ -1053,7 +1053,7 @@ export class LoggingMiddleware implements ExpressMiddlewareInterface {
 To enable this middleware, specify it during routing-controllers initialization:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from './UserController';
 import { LoggingMiddleware } from './LoggingMiddleware';
@@ -1097,7 +1097,7 @@ createExpressServer({
 Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 createExpressServer({
   controllers: [__dirname + '/controllers/**/*.js'],
@@ -1187,7 +1187,7 @@ You have ability to do this using [class-transformer][4].
 To use it simply specify a `classTransformer: true` option on application bootstrap:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -1259,7 +1259,7 @@ E.g. `class-transformer` doesn't check whether the property's types are correct,
 It can be done easily thanks to integration with [class-validator][9]. This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly e.g. by passing `validation: false` option on application bootstrap:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
@@ -1318,7 +1318,7 @@ Routing-controllers comes with two decorators helping you to organize authorizat
 To make `@Authorized` decorator to work you need to setup special routing-controllers options:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer, Action } from 'routing-controllers';
 
 createExpressServer({
@@ -1360,7 +1360,7 @@ export class SomeController {
 To make `@CurrentUser` decorator to work you need to setup special routing-controllers options:
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer, Action } from 'routing-controllers';
 
 createExpressServer({
@@ -1397,7 +1397,7 @@ middlewares and error handlers. Container must be setup during application boots
 Here is example how to integrate routing-controllers with [typedi](https://github.com/typestack/typedi):
 
 ```typescript
-import 'reflect-metadata';
+
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
 

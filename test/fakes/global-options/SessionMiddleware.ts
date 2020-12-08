@@ -1,5 +1,5 @@
 import { ExpressMiddlewareInterface } from '../../../src/driver/express/ExpressMiddlewareInterface';
-import * as session from 'express-session';
+import session from 'express-session';
 
 const convert = require('koa-convert');
 const KoaSession = require('koa-session');

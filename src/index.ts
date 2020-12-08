@@ -112,8 +112,8 @@ export function getMetadataArgsStorage(): MetadataArgsStorage {
 /**
  * Registers all loaded actions in your express application.
  */
-export function useExpressServer<T>(expressApp: T, options?: RoutingControllersOptions): T {
-  const driver = new ExpressDriver(expressApp);
+export function useExpressServer<T>(expressServer: T, options?: RoutingControllersOptions): T {
+  const driver = new ExpressDriver(expressServer);
   return createServer(driver, options);
 }
 

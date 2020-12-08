@@ -7,4 +7,5 @@ module.exports = {
       tsConfig: 'tsconfig.spec.json',
     },
   },
+  setupFilesAfterEnv: ["./jest.setup.js"]
 };

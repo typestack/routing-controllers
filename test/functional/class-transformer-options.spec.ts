@@ -1,18 +1,16 @@
-import 'reflect-metadata';
-import { JsonController } from '../../src/decorator/JsonController';
-import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
-import { assertRequest } from './test-utils';
 import { Expose } from 'class-transformer';
 import { defaultMetadataStorage } from 'class-transformer/storage';
 import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
 import { QueryParam } from '../../src/decorator/QueryParam';
 import { ResponseClassTransformOptions } from '../../src/decorator/ResponseClassTransformOptions';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { RoutingControllersOptions } from '../../src/RoutingControllersOptions';
 import { axios } from '../utilities/axios';
-import { AxiosError, AxiosResponse } from 'axios';
 
+describe('', () => {
+  let expressServer: any;
 
-describe('class transformer options', () => {
   class UserFilter {
     keyword: string;
   }
@@ -42,7 +40,7 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    beforeAll(() => {
+    beforeAll((done) => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -57,27 +55,28 @@ describe('class transformer options', () => {
           return user;
         }
       }
+
+      expressServer = createExpressServer().listen(3001, done)
     });
 
-    let expressApp: any;
-    beforeAll(done => (expressApp = createExpressServer().listen(3001, done)));
-    afterAll(done => expressApp.close(done));
+    afterAll(done => {
+      expressServer.close(done)
+    });
 
-    it('technical wrapper', () => {
+    it('technical wrapper', async () => {
       expect.assertions(4);
-      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
-        expect(response.status).toBe(200);
-        expect(response.data).toEqual({
-          id: 1,
-          _firstName: 'Umed',
-          _lastName: 'Khudoiberdiev',
-          name: 'Umed Khudoiberdiev',
-        });
-        expect(requestFilter).toBeInstanceOf(UserFilter);
-        expect(requestFilter).toEqual({
-          keyword: 'Um',
-          __somethingPrivate: 'blablabla',
-        });
+      const response = await axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}');
+      expect(response.status).toBe(200);
+      expect(response.data).toEqual({
+        id: 1,
+        _firstName: 'Umed',
+        _lastName: 'Khudoiberdiev',
+        name: 'Umed Khudoiberdiev',
+      });
+      expect(requestFilter).toBeInstanceOf(UserFilter);
+      expect(requestFilter).toEqual({
+        keyword: 'Um',
+        __somethingPrivate: 'blablabla',
       });
     });
   });
@@ -88,8 +87,17 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    beforeAll(() => {
+    beforeAll((done) => {
       getMetadataArgsStorage().reset();
+
+      const options: RoutingControllersOptions = {
+        classToPlainTransformOptions: {
+          excludePrefixes: ['_'],
+        },
+        plainToClassTransformOptions: {
+          excludePrefixes: ['__'],
+        },
+      };
 
       @JsonController()
       class ClassTransformUserController {
@@ -103,33 +111,26 @@ describe('class transformer options', () => {
           return user;
         }
       }
+
+      expressServer = createExpressServer(options).listen(3001, done)
+
     });
 
-    const options: RoutingControllersOptions = {
-      classToPlainTransformOptions: {
-        excludePrefixes: ['_'],
-      },
-      plainToClassTransformOptions: {
-        excludePrefixes: ['__'],
-      },
-    };
+    afterAll(done => {
+      expressServer.close(done)
+    });
 
-    let expressApp: any, koaApp: any;
-    beforeAll(done => (expressApp = createExpressServer(options).listen(3001, done)));
-    afterAll(done => expressApp.close(done));
-
-    it('technical wrapper', () => {
+    it('technical wrapper', async () => {
       expect.assertions(4);
-      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
-        expect(response.status).toBe(200);
-        expect(response.data).toEqual({
-          id: 1,
-          name: 'Umed Khudoiberdiev',
-        });
-        expect(requestFilter).toBeInstanceOf(UserFilter);
-        expect(requestFilter).toEqual({
-          keyword: 'Um',
-        });
+      const response = await axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}');
+      expect(response.status).toBe(200);
+      expect(response.data).toEqual({
+        id: 1,
+        name: 'Umed Khudoiberdiev',
+      });
+      expect(requestFilter).toBeInstanceOf(UserFilter);
+      expect(requestFilter).toEqual({
+        keyword: 'Um',
       });
     });
   });
@@ -140,7 +141,7 @@ describe('class transformer options', () => {
       requestFilter = undefined;
     });
 
-    beforeAll(() => {
+    beforeAll((done) => {
       getMetadataArgsStorage().reset();
 
       @JsonController()
@@ -156,24 +157,25 @@ describe('class transformer options', () => {
           return user;
         }
       }
+
+      expressServer = createExpressServer().listen(3001, done)
     });
 
-    let expressApp: any;
-    beforeAll(done => (expressApp = createExpressServer().listen(3001, done)));
-    afterAll(done => expressApp.close(done));
+    afterAll(done => {
+      expressServer.close(done)
+    });
 
-    it('technical wrapper', () => {
+    it('technical wrapper', async () => {
       expect.assertions(4);
-      return axios.get('/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}').then((response: AxiosResponse) => {
-        expect(response.status).toBe(200);
-        expect(response.data).toEqual({
-          id: 1,
-          name: 'Umed Khudoiberdiev',
-        });
-        expect(requestFilter).toBeInstanceOf(UserFilter);
-        expect(requestFilter).toEqual({
-          keyword: 'Um',
-        });
+      const response = await axios.get(`/user?filter={"keyword": "Um", "__somethingPrivate": "blablabla"}`);
+      expect(response.status).toBe(200);
+      expect(response.data).toEqual({
+        id: 1,
+        name: 'Umed Khudoiberdiev',
+      });
+      expect(requestFilter).toBeInstanceOf(UserFilter);
+      expect(requestFilter).toEqual({
+        keyword: 'Um',
       });
     });
   });

@@ -33,10 +33,10 @@
     "prettier:check": "prettier --check \"**/*.{ts,md}\"",
     "lint:fix": "eslint --max-warnings 0 --fix --ext .ts src/",
     "lint:check": "eslint --max-warnings 0 --ext .ts src/",
-    "test": "jest --coverage --verbose",
+    "test": "jest --verbose --runInBand",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --no-cache --coverage --verbose",
-    "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors  --runInBand --no-coverage --watch"
+    "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors --runInBand --no-coverage --watch"
   },
   "dependencies": {
     "cookie": "^0.4.0",

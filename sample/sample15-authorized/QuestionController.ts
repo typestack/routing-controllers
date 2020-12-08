@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+
 import { Get } from '../../src/decorator/Get';
 import { JsonController } from '../../src/decorator/JsonController';
 import { Authorized } from '../../src/decorator/Authorized';

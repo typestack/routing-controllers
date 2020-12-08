@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+
 import { createExpressServer } from '../../src/index';
 
 // base directory. we use it because file in "required" in another module

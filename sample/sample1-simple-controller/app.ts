@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+
 import { createExpressServer } from '../../src/index';
 
 require('./UserController');
