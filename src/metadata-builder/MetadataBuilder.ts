@@ -125,7 +125,6 @@ export class MetadataBuilder {
       .map(paramArgs => new ParamMetadata(action, this.decorateDefaultParamOptions(paramArgs)));
   }
 
-
   /**
    * Creates response handler metadatas for action.
    */

@@ -290,5 +290,4 @@ export class ActionMetadata {
 
     return headers;
   }
-
 }

@@ -335,7 +335,7 @@ export class KoaDriver extends BaseDriver {
         // if this is function instance of MiddlewareInterface
         middlewareFunctions.push(async (context: any, next: (err?: any) => Promise<any>) => {
           try {
-            return await (getFromContainer(use.middleware)).use(context, next);
+            return await getFromContainer(use.middleware).use(context, next);
           } catch (error) {
             return await this.handleError(error, undefined, {
               request: context.request,

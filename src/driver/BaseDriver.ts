@@ -87,7 +87,6 @@ export abstract class BaseDriver {
    */
   currentUserChecker?: CurrentUserChecker;
 
-
   // -------------------------------------------------------------------------
   // Protected Methods
   // -------------------------------------------------------------------------
