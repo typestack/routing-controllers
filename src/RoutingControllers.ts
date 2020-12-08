@@ -2,6 +2,7 @@ import { Action } from './Action';
 import { ActionParameterHandler } from './ActionParameterHandler';
 import { getFromContainer } from './container';
 import { BaseDriver } from './driver/BaseDriver';
+import { InterceptorInterface } from './InterceptorInterface';
 import { MetadataBuilder } from './metadata-builder/MetadataBuilder';
 import { ActionMetadata } from './metadata/ActionMetadata';
 import { InterceptorMetadata } from './metadata/InterceptorMetadata';
@@ -175,7 +176,7 @@ export class RoutingControllers<T extends BaseDriver> {
       if (use.interceptor.prototype && use.interceptor.prototype.intercept) {
         // if this is function instance of InterceptorInterface
         return function (action: Action, result: any) {
-          return getFromContainer(use.interceptor, action).intercept(action, result);
+          return getFromContainer<InterceptorInterface>(use.interceptor, action).intercept(action, result);
         };
       }
       return use.interceptor;

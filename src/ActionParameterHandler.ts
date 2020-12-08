@@ -19,7 +19,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
   // Constructor
   // -------------------------------------------------------------------------
 
-  constructor(private driver: T) {}
+  constructor(private driver: T) { }
 
   // -------------------------------------------------------------------------
   // Public Methods
@@ -194,7 +194,6 @@ export class ActionParameterHandler<T extends BaseDriver> {
         throw new ParameterParseJsonError(paramMetadata.name, value);
       }
     }
-
     return value;
   }
 
@@ -212,7 +211,6 @@ export class ActionParameterHandler<T extends BaseDriver> {
       const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
       value = plainToClass(paramMetadata.targetType, value, options);
     }
-
     return value;
   }
 
@@ -220,27 +218,23 @@ export class ActionParameterHandler<T extends BaseDriver> {
    * Perform class-validation if enabled.
    */
   protected validateValue(value: any, paramMetadata: ParamMetadata): Promise<any> | any {
-    const isValidationEnabled =
-      paramMetadata.validate instanceof Object ||
-      paramMetadata.validate === true ||
-      (this.driver.enableValidation === true && paramMetadata.validate !== false);
-    const shouldValidate =
-      paramMetadata.targetType && paramMetadata.targetType !== Object && value instanceof paramMetadata.targetType;
+    const isValidationEnabled = (paramMetadata.validate instanceof Object || paramMetadata.validate === true)
+      || (this.driver.enableValidation === true && paramMetadata.validate !== false);
+    const shouldValidate = paramMetadata.targetType
+      && (paramMetadata.targetType !== Object)
+      && (value instanceof paramMetadata.targetType);
 
     if (isValidationEnabled && shouldValidate) {
-      const options = paramMetadata.validate instanceof Object ? paramMetadata.validate : this.driver.validationOptions;
+      const options = Object.assign({}, this.driver.validationOptions, paramMetadata.validate);
       return validate(value, options)
         .then(() => value)
         .catch((validationErrors: ValidationError[]) => {
-          const error: any = new BadRequestError(
-            `Invalid ${paramMetadata.type}, check 'errors' property for more info.`
-          );
+          const error: any = new BadRequestError(`Invalid ${paramMetadata.type}, check 'errors' property for more info.`);
           error.errors = validationErrors;
           error.paramName = paramMetadata.name;
           throw error;
         });
     }
-
     return value;
   }
 }

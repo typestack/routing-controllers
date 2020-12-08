@@ -391,12 +391,12 @@ export class ExpressDriver extends BaseDriver {
    */
   protected prepareMiddlewares(uses: UseMetadata[]) {
     const middlewareFunctions: Function[] = [];
-    uses.forEach(use => {
+    uses.forEach((use: UseMetadata) => {
       if (use.middleware.prototype && use.middleware.prototype.use) {
         // if this is function instance of MiddlewareInterface
         middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
           try {
-            const useResult = getFromContainer(use.middleware).use(request, response, next);
+            const useResult = getFromContainer<ExpressMiddlewareInterface>(use.middleware).use(request, response, next);
             if (isPromiseLike(useResult)) {
               useResult.catch((error: any) => {
                 this.handleError(error, undefined, { request, response, next });
@@ -412,7 +412,7 @@ export class ExpressDriver extends BaseDriver {
       } else if (use.middleware.prototype && use.middleware.prototype.error) {
         // if this is function instance of ErrorMiddlewareInterface
         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-          return getFromContainer(use.middleware).error(error, request, response, next);
+          return getFromContainer<ExpressErrorMiddlewareInterface>(use.middleware).error(error, request, response, next);
         });
       } else {
         middlewareFunctions.push(use.middleware);
