@@ -1,4 +1,4 @@
-import {getMetadataArgsStorage} from "../index";
+import { getMetadataArgsStorage } from '../index';
 
 /**
  * Sets response HTTP status code.
@@ -7,12 +7,12 @@ import {getMetadataArgsStorage} from "../index";
  * Must be applied on a controller action.
  */
 export function HttpCode(code: number): Function {
-    return function (object: Object, methodName: string) {
-        getMetadataArgsStorage().responseHandlers.push({
-            type: "success-code",
-            target: object.constructor,
-            method: methodName,
-            value: code
-        });
-    };
+  return function (object: Object, methodName: string) {
+    getMetadataArgsStorage().responseHandlers.push({
+      type: 'success-code',
+      target: object.constructor,
+      method: methodName,
+      value: code,
+    });
+  };
 }

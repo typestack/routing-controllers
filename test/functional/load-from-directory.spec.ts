@@ -1,158 +1,110 @@
-import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {defaultFakeService} from "../fakes/global-options/FakeService";
-import {Controller} from "../../src/decorator/Controller";
-import {Get} from "../../src/decorator/Get";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Controller } from '../../src/decorator/Controller';
+import { Get } from '../../src/decorator/Get';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { defaultFakeService } from '../fakes/global-options/FakeService';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("controllers and middlewares bulk loading from directories", () => {
+describe(``, () => {
+  let expressServer: HttpServer;
 
-    describe("loading all controllers from the given directories", () => {
-
-        before(() => getMetadataArgsStorage().reset());
-
-        const serverOptions = {
-            controllers: [
-                __dirname + "/../fakes/global-options/first-controllers/**/*{.js,.ts}",
-                __dirname + "/../fakes/global-options/second-controllers/*{.js,.ts}"
-            ]
-        };
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(serverOptions).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(serverOptions).listen(3002, done));
-        after(done => koaApp.close(done));
-
-        assertRequest([3001, 3002], "get", "posts", response => {
-            expect(response.body).to.be.eql([{ id: 1, title: "#1" }, { id: 2, title: "#2" }]);
-        });
-
-        assertRequest([3001, 3002], "get", "questions", response => {
-            expect(response.body).to.be.eql([{ id: 1, title: "#1" }, { id: 2, title: "#2" }]);
-        });
-
-        assertRequest([3001, 3002], "get", "answers", response => {
-            expect(response.body).to.be.eql([{ id: 1, title: "#1" }, { id: 2, title: "#2" }]);
-        });
-
-        assertRequest([3001, 3002], "get", "photos", response => {
-            expect(response.body).to.be.eql("Hello photos");
-        });
-
-        assertRequest([3001, 3002], "get", "videos", response => {
-            expect(response.body).to.be.eql("Hello videos");
-        });
+  describe('loading all controllers from the given directories', () => {
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
+      expressServer = createExpressServer({
+        controllers: [
+          __dirname + '/../fakes/global-options/first-controllers/**/*{.js,.ts}',
+          __dirname + '/../fakes/global-options/second-controllers/*{.js,.ts}',
+        ],
+      }).listen(3001, done);
     });
 
-    describe("loading all express middlewares and error handlers from the given directories", () => {
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-        before(() => getMetadataArgsStorage().reset());
+    it('should load all controllers', async () => {
+      expect.assertions(10);
+      let response = await axios.get('/posts');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        { id: 1, title: '#1' },
+        { id: 2, title: '#2' },
+      ]);
 
-        before(() => {
-            @Controller()
-            class ExpressMiddlewareDirectoriesController {
+      response = await axios.get('/questions');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        { id: 1, title: '#1' },
+        { id: 2, title: '#2' },
+      ]);
 
-                @Get("/publications")
-                publications(): any[] {
-                    return [];
-                }
+      response = await axios.get('/answers');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual([
+        { id: 1, title: '#1' },
+        { id: 2, title: '#2' },
+      ]);
 
-                @Get("/articles")
-                articles(): any[] {
-                    throw new Error("Cannot load articles");
-                }
+      response = await axios.get('/photos');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual('Hello photos');
 
-            }
-        });
+      response = await axios.get('/videos');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual('Hello videos');
+    });
+  });
 
-        const serverOptions = {
-            middlewares: [
-                __dirname + "/../fakes/global-options/express-middlewares/**/*{.js,.ts}"
-            ],
-        };
-        let expressApp: any;
-        before(done => expressApp = createExpressServer(serverOptions).listen(3001, done));
-        after(done => expressApp.close(done));
+  describe('loading all express middlewares and error handlers from the given directories', () => {
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
 
-        beforeEach(() => defaultFakeService.reset());
+      @Controller()
+      class ExpressMiddlewareDirectoriesController {
+        @Get('/publications')
+        publications(): any[] {
+          return [];
+        }
 
-        assertRequest([3001], "get", "publications", response => {
-            expect(response).to.have.status(200);
-            expect(defaultFakeService.postMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.questionMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.fileMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.videoMiddlewareCalled).to.be.false;
-        });
+        @Get('/articles')
+        articles(): any[] {
+          throw new Error('Cannot load articles');
+        }
+      }
 
-        assertRequest([3001], "get", "articles", response => {
-            expect(response).to.have.status(500);
-            expect(defaultFakeService.postMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.questionMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.fileMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.videoMiddlewareCalled).to.be.false;
-        });
-
+      expressServer = createExpressServer({
+        middlewares: [__dirname + '/../fakes/global-options/express-middlewares/**/*{.js,.ts}'],
+      }).listen(3001, done);
     });
 
-    describe("loading all koa middlewares from the given directories", () => {
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-        before(() => getMetadataArgsStorage().reset());
+    beforeEach(() => defaultFakeService.reset());
 
-        before(() => {
-            @Controller()
-            class KoaMiddlewareDirectoriesController {
-
-                @Get("/publications")
-                publications(): any[] {
-                    return [];
-                }
-
-                @Get("/articles")
-                articles(): any[] {
-                    throw new Error("Cannot load articles");
-                }
-
-            }
-        });
-
-        const serverOptions = {
-            middlewares: [
-                __dirname + "/../fakes/global-options/koa-middlewares/**/*{.js,.ts}"
-            ]
-        };
-        let koaApp: any;
-        before(done => koaApp = createKoaServer(serverOptions).listen(3002, done));
-        after(done => koaApp.close(done));
-
-        beforeEach(() => defaultFakeService.reset());
-
-        assertRequest([3002], "get", "publications", response => {
-            expect(response).to.have.status(200);
-            expect(defaultFakeService.postMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.questionMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.fileMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.videoMiddlewareCalled).to.be.true;
-        });
-
-        assertRequest([3002], "get", "articles", response => {
-            // expect(response).to.have.status(500);
-            expect(defaultFakeService.postMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.questionMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.questionErrorMiddlewareCalled).to.be.false;
-            expect(defaultFakeService.fileMiddlewareCalled).to.be.true;
-            expect(defaultFakeService.videoMiddlewareCalled).to.be.true;
-        });
-
+    it('should succeed', async () => {
+      expect.assertions(6);
+      const response = await axios.get('/publications');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(defaultFakeService.postMiddlewareCalled).toBeTruthy();
+      expect(defaultFakeService.questionMiddlewareCalled).toBeTruthy();
+      expect(defaultFakeService.questionErrorMiddlewareCalled).toBeFalsy();
+      expect(defaultFakeService.fileMiddlewareCalled).toBeFalsy();
+      expect(defaultFakeService.videoMiddlewareCalled).toBeFalsy();
     });
 
+    it('should fail', async () => {
+      expect.assertions(6);
+      try {
+        await axios.get('/articles');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(defaultFakeService.postMiddlewareCalled).toBeTruthy();
+        expect(defaultFakeService.questionMiddlewareCalled).toBeTruthy();
+        expect(defaultFakeService.questionErrorMiddlewareCalled).toBeTruthy();
+        expect(defaultFakeService.fileMiddlewareCalled).toBeFalsy();
+        expect(defaultFakeService.videoMiddlewareCalled).toBeFalsy();
+      }
+    });
+  });
 });
-
-
-/*
-fakeContainer.services[(FakeService as any).name] = sinon.stub(new FakeService());
-// container: fakeContainer*/

@@ -1,89 +1,75 @@
-import "reflect-metadata";
-import {Get} from "../../src/decorator/Get";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {Redirect} from "../../src/decorator/Redirect";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Param} from "../../src/decorator/Param";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Param } from '../../src/decorator/Param';
+import { Redirect } from '../../src/decorator/Redirect';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("dynamic redirect", function () {
+describe(``, () => {
+  let expressServer: HttpServer;
 
-    before(() => {
+  describe('dynamic redirect', function () {
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
 
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
+      @JsonController('/users')
+      class TestController {
+        @Get('/:id')
+        getOne(@Param('id') id: string): any {
+          return {
+            login: id,
+          };
+        }
+      }
 
-        @JsonController("/users")
-        class TestController {
-
-            @Get("/:id")
-            async getOne(@Param("id") id: string) {
-                return {
-                    login: id
-                };
-            }
-
-
+      @JsonController()
+      class RedirectController {
+        @Get('/template')
+        @Redirect('/users/:owner')
+        template(): any {
+          return { owner: 'pleerock', repo: 'routing-controllers' };
         }
 
-        @JsonController()
-        class RedirectController {
-
-            @Get("/template")
-            @Redirect("/users/:owner")
-            template() {
-                return {owner: "pleerock", repo: "routing-controllers"};
-            }
-
-            @Get("/original")
-            @Redirect("/users/pleerock")
-            original() {
-            }
-
-            @Get("/override")
-            @Redirect("https://api.github.com")
-            override() {
-                return "/users/pleerock";
-            }
-
+        @Get('/original')
+        @Redirect('/users/pleerock')
+        original(): void {
+          // Empty
         }
+
+        @Get('/override')
+        @Redirect('https://api.github.com')
+        override(): string {
+          return '/users/pleerock';
+        }
+      }
+
+      expressServer = createExpressServer().listen(3001, done);
     });
 
-    let expressApp: any;
-    before(done => {
-        const server = createExpressServer();
-        expressApp = server.listen(3001, done);
-    });
-    after(done => expressApp.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    let koaApp: any;
-    before(done => {
-        const server = createKoaServer();
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
-
-    describe("using template", () => {
-        assertRequest([3001, 3002], "get", "template", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
-        });
+    it('using template', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/template');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data.login).toEqual('pleerock');
     });
 
-    describe("using override", () => {
-        assertRequest([3001, 3002], "get", "override", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
-        });
+    it('using override', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/override');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data.login).toEqual('pleerock');
     });
 
-    describe("using original", () => {
-        assertRequest([3001, 3002], "get", "original", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).has.property("login", "pleerock");
-        });
+    it('using original', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/original');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data.login).toEqual('pleerock');
     });
-
+  });
 });

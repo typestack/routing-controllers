@@ -4,19 +4,15 @@
  * default error handler will catch it and give in your response given code and message .
  */
 export class HttpError extends Error {
+  httpCode: number;
 
-    httpCode: number;
+  constructor(httpCode: number, message?: string) {
+    super();
+    Object.setPrototypeOf(this, HttpError.prototype);
 
-    constructor(httpCode: number, message?: string) {
-        super();
-        Object.setPrototypeOf(this, HttpError.prototype);
-        
-        if (httpCode)
-            this.httpCode = httpCode;
-        if (message)
-            this.message = message;
+    if (httpCode) this.httpCode = httpCode;
+    if (message) this.message = message;
 
-        this.stack = new Error().stack;
-    }
-
+    this.stack = new Error().stack;
+  }
 }

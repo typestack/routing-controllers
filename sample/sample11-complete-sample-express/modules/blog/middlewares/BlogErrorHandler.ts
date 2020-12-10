@@ -1,12 +1,10 @@
-import {ExpressErrorMiddlewareInterface} from "../../../../../src/driver/express/ExpressErrorMiddlewareInterface";
-import {Middleware} from "../../../../../src/decorator/Middleware";
+import { ExpressErrorMiddlewareInterface } from '../../../../../src/driver/express/ExpressErrorMiddlewareInterface';
+import { Middleware } from '../../../../../src/decorator/Middleware';
 
-@Middleware({ type: "after" })
+@Middleware({ type: 'after' })
 export class BlogErrorHandler implements ExpressErrorMiddlewareInterface {
-
-    error(error: any, request: any, response: any, next?: Function): void {
-        console.log("Error handled on blog handler: ", error);
-        next(error);
-    }
-    
+  error(error: any, request: any, response: any, next?: Function): void {
+    console.log('Error handled on blog handler: ', error);
+    next(error);
+  }
 }

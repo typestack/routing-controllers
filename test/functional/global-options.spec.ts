@@ -1,127 +1,177 @@
-import "reflect-metadata";
-import {Exclude, Expose} from "class-transformer";
-import {defaultMetadataStorage} from "class-transformer/storage";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Post} from "../../src/decorator/Post";
-import {Body} from "../../src/decorator/Body";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-const expect = require("chakram").expect;
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Body } from '../../src/decorator/Body';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Post } from '../../src/decorator/Post';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("routing-controllers global options", () => {
+describe(``, () => {
+  let expressServer: HttpServer;
+  let user: any = { firstName: 'Umed', lastName: 'Khudoiberdiev' };
+  let initializedUser: User;
 
-    let initializedUser: any;
-    let User: any;
+  class User {
+    firstName: string;
+    lastName: string;
 
-    after(() => {
-        defaultMetadataStorage.clear();
-    });
+    getName(): string {
+      return this.firstName + ' ' + this.lastName;
+    }
+  }
 
+  describe('routing-controllers global options', () => {
     beforeEach(() => {
-        initializedUser = undefined;
+      getMetadataArgsStorage().reset();
+      initializedUser = undefined;
     });
 
-    before(() => {
-
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
-
-        @Exclude()
-        class UserModel {
-            @Expose()
-            firstName: string;
-
-            lastName: string;
-        }
-        User = UserModel;
-
+    describe('useClassTransformer default value', () => {
+      beforeEach((done: DoneCallback) => {
         @JsonController()
         class TestUserController {
+          @Post('/users')
+          postUsers(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
 
-            @Post("/users")
-            postUsers(@Body() user: UserModel) {
-                initializedUser = user;
-                const ret = new User();
-                ret.firstName = user.firstName;
-                ret.lastName = user.lastName;
-                return ret;
-            }
-
-            @Post(new RegExp("/(prefix|regex)/users"))
-            postUsersWithRegex(@Body() user: UserModel) {
-                initializedUser = user;
-                return "";
-            }
-
+          @Post(new RegExp('/(prefix|regex)/users'))
+          postUsersWithRegex(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
         }
+
+        expressServer = createExpressServer({
+          controllers: [TestUserController],
+          validation: false,
+        }).listen(3001, done);
+      });
+
+      afterEach((done: DoneCallback) => {
+        expressServer.close(done);
+      });
+
+      it('useClassTransformer by default must be set to true', async () => {
+        expect.assertions(2);
+        const response = await axios.post('/users', user);
+        expect(initializedUser).toBeInstanceOf(User);
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+      });
     });
 
-    describe("useClassTransformer by default must be set to true", () => {
+    describe('when useClassTransformer is set to true', () => {
+      beforeEach((done: DoneCallback) => {
+        @JsonController()
+        class TestUserController {
+          @Post('/users')
+          postUsers(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
 
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer().listen(3002, done));
-        after(done => koaApp.close(done));
+          @Post(new RegExp('/(prefix|regex)/users'))
+          postUsersWithRegex(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
+        }
 
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.be.undefined;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.undefined;
-        });
+        expressServer = createExpressServer({
+          controllers: [TestUserController],
+          classTransformer: true,
+          validation: false,
+        }).listen(3001, done);
+      });
+
+      afterEach((done: DoneCallback) => {
+        expressServer.close(done);
+      });
+
+      it('useClassTransformer is enabled', async () => {
+        expect.assertions(2);
+        const response = await axios.post('/users', user);
+        expect(initializedUser).toBeInstanceOf(User);
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+      });
     });
 
-    describe("when useClassTransformer is set to true", () => {
+    describe('when useClassTransformer is set to false', () => {
+      beforeEach((done: DoneCallback) => {
+        @JsonController()
+        class TestUserController {
+          @Post('/users')
+          postUsers(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
 
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ classTransformer: true }).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ classTransformer: true }).listen(3002, done));
-        after(done => koaApp.close(done));
+          @Post(new RegExp('/(prefix|regex)/users'))
+          postUsersWithRegex(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
+        }
 
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.be.undefined;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.undefined;
-        });
+        expressServer = createExpressServer({
+          controllers: [TestUserController],
+          classTransformer: false,
+          validation: false,
+        }).listen(3001, done);
+      });
+
+      afterEach((done: DoneCallback) => {
+        expressServer.close(done);
+      });
+
+      it('useClassTransformer is disabled', async () => {
+        expect.assertions(2);
+        const response = await axios.post('/users', user);
+        expect(initializedUser).not.toBeInstanceOf(User);
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+      });
     });
 
-    describe("when useClassTransformer is set to false", () => {
+    describe('when routePrefix is used all controller routes should be appended by it', () => {
+      beforeEach((done: DoneCallback) => {
+        @JsonController()
+        class TestUserController {
+          @Post('/users')
+          postUsers(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
 
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer({ classTransformer: false }).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer({ classTransformer: false }).listen(3002, done));
-        after(done => koaApp.close(done));
+          @Post(new RegExp('/(prefix|regex)/users'))
+          postUsersWithRegex(@Body() user: User): string {
+            initializedUser = user;
+            return '';
+          }
+        }
 
-        assertRequest([3001, 3002], "post", "users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).not.to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.exist;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.exist;
-        });
+        expressServer = createExpressServer({
+          controllers: [TestUserController],
+          routePrefix: 'api',
+          validation: false,
+        }).listen(3001, done);
+      });
+
+      afterEach((done: DoneCallback) => {
+        expressServer.close(done);
+      });
+
+      it('routePrefix is enabled', async () => {
+        expect.assertions(4);
+        let response = await axios.post('/api/users', user);
+        expect(initializedUser).toBeInstanceOf(User);
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+
+        response = await axios.post('/api/regex/users', user);
+        expect(initializedUser).toBeInstanceOf(User);
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+      });
     });
-
-    describe("when routePrefix is used all controller routes should be appended by it", () => {
-
-        let apps: any[] = [];
-        before(done => apps.push(createExpressServer({ routePrefix: "/api" }).listen(3001, done)));
-        before(done => apps.push(createExpressServer({ routePrefix: "api" }).listen(3002, done)));
-        before(done => apps.push(createKoaServer({ routePrefix: "/api" }).listen(3003, done)));
-        before(done => apps.push(createKoaServer({ routePrefix: "api" }).listen(3004, done)));
-        after(done => { apps.forEach(app => app.close()); done(); });
-
-        assertRequest([3001, 3002, 3003, 3004], "post", "api/users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(response).to.have.status(200);
-        });
-
-        assertRequest([3001, 3002, 3003, 3004], "post", "api/regex/users", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(response).to.have.status(200);
-        });
-    });
-
+  });
 });

@@ -1,81 +1,75 @@
-import "reflect-metadata";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Get} from "../../src/decorator/Get";
-import {createExpressServer, getMetadataArgsStorage} from "../../src/index";
-import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
-import {NotFoundError} from "../../src/http-error/NotFoundError";
-import {Middleware} from "../../src/decorator/Middleware";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import express from 'express';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Middleware } from '../../src/decorator/Middleware';
+import { ExpressErrorMiddlewareInterface } from '../../src/driver/express/ExpressErrorMiddlewareInterface';
+import { NotFoundError } from '../../src/http-error/NotFoundError';
+import { createExpressServer, getMetadataArgsStorage, HttpError } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("custom express error handling", () => {
+describe(``, () => {
+  let expressServer: HttpServer;
 
+  describe('custom express error handling', () => {
     let errorHandlerCalled: boolean;
 
     beforeEach(() => {
-        errorHandlerCalled = undefined;
+      errorHandlerCalled = false;
     });
-    
-    before(() => {
 
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
 
-        @Middleware({ type: "after" })
-        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
-            error(error: any, req: any, res: any, next: any) {
-                errorHandlerCalled = true;
-                
-                res.status(error.httpCode).send(error.message);
-            }
+      @Middleware({ type: 'after' })
+      class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
+        error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
+          errorHandlerCalled = true;
+          response.status(error.httpCode).send(error.message);
+        }
+      }
+
+      @JsonController()
+      class ExpressErrorHandlerController {
+        @Get('/blogs')
+        blogs(): any {
+          return {
+            id: 1,
+            title: 'About me',
+          };
         }
 
-        @JsonController()
-        class ExpressErrorHandlerController {
-            @Get("/blogs")
-            blogs() {
-                return {
-                    id: 1,
-                    title: "About me"
-                };
-            }
-
-            @Get("/videos")
-            videos() {
-                throw new NotFoundError("Videos were not found.");
-            }
+        @Get('/videos')
+        videos(): never {
+          throw new NotFoundError('Videos were not found.');
         }
+      }
+
+      expressServer = createExpressServer({
+        defaultErrorHandler: false,
+      }).listen(3001, done);
     });
 
-    let app: any;
-    before(done => app = createExpressServer({defaultErrorHandler: false}).listen(3001, done));
-    after(done => app.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    it("should not call global error handler middleware if there was no errors", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/blogs")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.empty;
-                expect(response).to.have.status(200);
-            });
+    it('should not call global error handler middleware if there was no errors', async () => {
+      expect.assertions(2);
+      const response = await axios.get('/blogs');
+      expect(errorHandlerCalled).toBeFalsy();
+      expect(response.status).toEqual(HttpStatusCodes.OK);
     });
 
-    it("should call global error handler middleware", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/videos")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(response).to.have.status(404);
-            });
+    it('should call global error handler middleware', async () => {
+      expect.assertions(3);
+      try {
+        await axios.get('/videos');
+      } catch (error) {
+        expect(errorHandlerCalled).toBeTruthy();
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+        expect(error.response.data).toEqual('Videos were not found.');
+      }
     });
-
-    it("should be able to send response", () => {
-        return chakram
-            .get("http://127.0.0.1:3001/videos")
-            .then((response: any) => {
-                expect(errorHandlerCalled).to.be.true;
-                expect(response).to.have.status(404);
-                expect(response.body).to.equals("Videos were not found.");
-            });
-    });
+  });
 });

@@ -1,256 +1,271 @@
-import "reflect-metadata";
-import {Length} from "class-validator";
-import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {defaultMetadataStorage} from "class-transformer/storage";
-import {Get} from "../../src/decorator/Get";
-import {QueryParam} from "../../src/decorator/QueryParam";
-import {ResponseClassTransformOptions} from "../../src/decorator/ResponseClassTransformOptions";
-import {RoutingControllersOptions} from "../../src/RoutingControllersOptions";
+import { Expose } from 'class-transformer';
+import { defaultMetadataStorage } from 'class-transformer/storage';
+import { Length } from 'class-validator';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import qs from 'qs';
+import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
+import { QueryParam } from '../../src/decorator/QueryParam';
+import {
+  createExpressServer,
+  getMetadataArgsStorage,
+  ResponseClassTransformOptions,
+  RoutingControllersOptions,
+} from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-const chakram = require("chakram");
-const expect = chakram.expect;
+describe(``, () => {
+  let expressServer: HttpServer;
+  let requestFilter: UserFilter;
 
-describe("parameters auto-validation", () => {
+  class UserFilter {
+    @Length(5, 15)
+    keyword: string;
+  }
 
-    class UserFilter {
-        @Length(5, 15)
-        keyword: string;
+  class UserModel {
+    id: number;
+    _firstName: string;
+    _lastName: string;
+
+    @Expose()
+    get name(): string {
+      return this._firstName + ' ' + this._lastName;
     }
+  }
 
-    class UserModel {
-        id: number;
-        _firstName: string;
-        _lastName: string;
+  afterAll(() => defaultMetadataStorage.clear());
 
-        get name(): string {
-            return this._firstName + " " + this._lastName;
+  describe('no options', () => {
+    beforeEach((done: DoneCallback) => {
+      requestFilter = undefined;
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class UserController {
+        @Get('/user')
+        getUsers(@QueryParam('filter') filter: UserFilter): any {
+          requestFilter = filter;
+          const user = new UserModel();
+          user.id = 1;
+          user._firstName = 'Umed';
+          user._lastName = 'Khudoiberdiev';
+          return user;
         }
-    }
+      }
 
-    after(() => {
-        defaultMetadataStorage.clear();
+      expressServer = createExpressServer({
+        validation: false,
+      }).listen(3001, done);
     });
 
-    describe("should apply global validation enable", () => {
+    afterEach((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
+    it('should not use any options if not set', async () => {
+      expect.assertions(4);
+      const response = await axios.get(
+        '/user?' +
+          qs.stringify({
+            filter: {
+              keyword: 'Um',
+              __somethingPrivate: 'blablabla',
+            },
+          })
+      );
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({
+        id: 1,
+        _firstName: 'Umed',
+        _lastName: 'Khudoiberdiev',
+        name: 'Umed Khudoiberdiev',
+      });
+      expect(requestFilter).toBeInstanceOf(UserFilter);
+      expect(requestFilter).toEqual({
+        keyword: 'Um',
+        __somethingPrivate: 'blablabla',
+      });
+    }); // ------ end no options
+  });
 
-        before(() => {
-            getMetadataArgsStorage().reset();
+  describe('global options', () => {
+    describe('should merge local validation options with global validation options prioritizing local', () => {
+      beforeEach(done => {
+        requestFilter = undefined;
+        getMetadataArgsStorage().reset();
 
-            @JsonController()
-            class ClassTransformUserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-
-            }
-        });
+        @JsonController()
+        class ClassTransformUserController {
+          @Get('/user')
+          getUsers(@QueryParam('filter', { validate: { skipMissingProperties: false } }) filter: UserFilter): any {
+            requestFilter = filter;
+            const user = new UserModel();
+            user.id = 1;
+            user._firstName = 'Umed';
+            user._lastName = 'Khudoiberdiev';
+            return user;
+          }
+        }
 
         const options: RoutingControllersOptions = {
-            validation: true
+          validation: {
+            whitelist: true,
+            skipMissingProperties: true,
+          },
         };
 
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(options).listen(3002, done));
-        after(done => koaApp.close(done));
+        expressServer = createExpressServer(options).listen(3001, done);
+      });
 
-        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
-            expect(response).to.have.status(400);
-            expect(requestFilter).to.be.undefined;
+      afterEach(done => {
+        expressServer.close(done);
+      });
+
+      it(`succeed`, async () => {
+        const response = await axios.get(
+          '/user?' +
+            qs.stringify({
+              filter: {
+                keyword: 'aValidKeyword',
+                notKeyword: 'Um',
+                __somethingPrivate: 'blablabla',
+              },
+            })
+        );
+        expect(response.status).toEqual(200);
+        expect(requestFilter).toEqual({
+          keyword: 'aValidKeyword',
         });
+      });
     });
 
-    describe("should apply local validation enable", () => {
+    describe('should pass the valid param after validation', () => {
+      beforeEach(done => {
+        requestFilter = undefined;
+        getMetadataArgsStorage().reset();
 
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            getMetadataArgsStorage().reset();
-
-            @JsonController()
-            class ClassTransformUserController {
-
-                @Get("/user")
-                @ResponseClassTransformOptions({ excludePrefixes: ["_"] })
-                getUsers(@QueryParam("filter", { validate: true }) filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-
-            }
-        });
-
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer().listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer().listen(3002, done));
-        after(done => koaApp.close(done));
-
-        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
-            expect(response).to.have.status(400);
-            expect(requestFilter).to.be.undefined;
-        });
-    });
-
-    describe("should apply global validation options", () => {
-
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            getMetadataArgsStorage().reset();
-
-            @JsonController()
-            class ClassTransformUserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-
-            }
-        });
+        @JsonController()
+        class UserController {
+          @Get('/user')
+          getUsers(@QueryParam('filter') filter: UserFilter): any {
+            requestFilter = filter;
+            const user = new UserModel();
+            user.id = 1;
+            user._firstName = 'Umed';
+            user._lastName = 'Khudoiberdiev';
+            return user;
+          }
+        }
 
         const options: RoutingControllersOptions = {
-            validation: {
-                skipMissingProperties: true
-            }
+          validation: true,
         };
 
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(options).listen(3002, done));
-        after(done => koaApp.close(done));
+        expressServer = createExpressServer(options).listen(3001, done);
+      });
 
-        assertRequest([3001, 3002], "get", "user?filter={\"notKeyword\": \"Um\", \"__somethingPrivate\": \"blablabla\"}", response => {
-            expect(response).to.have.status(200);
-            expect(requestFilter).to.have.property("notKeyword");
+      afterEach(done => {
+        expressServer.close(done);
+      });
+
+      it(`succeed`, async () => {
+        const response = await axios.get(
+          '/user?' +
+            qs.stringify({
+              filter: {
+                keyword: 'aValidKeyword',
+                notKeyword: 'Um',
+                __somethingPrivate: 'blablabla',
+              },
+            })
+        );
+
+        expect(response.status).toEqual(200);
+        expect(response.data).toMatchObject({
+          id: 1,
+          _firstName: 'Umed',
+          _lastName: 'Khudoiberdiev',
         });
+        expect(requestFilter).toBeInstanceOf(UserFilter);
+        expect(requestFilter).toMatchObject({
+          keyword: 'aValidKeyword',
+          __somethingPrivate: 'blablabla',
+        });
+      });
+
+      it('should contain param name on validation failed', async () => {
+        expect.assertions(2);
+        try {
+          await axios.get(
+            '/user?' +
+              qs.stringify({
+                filter: {
+                  keyword: 'Um',
+                  __somethingPrivate: 'blablabla',
+                },
+              })
+          );
+        } catch (error) {
+          expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+          expect(error.response.data.errors[0].property).toBe(`keyword`);
+        }
+      });
+    }); // ----- end global options
+  });
+
+  describe('local options', () => {
+    let requestFilter: UserFilter;
+
+    beforeEach((done: DoneCallback) => {
+      requestFilter = undefined;
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class ClassTransformUserController {
+        @Get('/user')
+        @ResponseClassTransformOptions({ excludePrefixes: ['_'] })
+        getUsers(@QueryParam('filter', { transform: { excludePrefixes: ['__'] } }) filter: UserFilter): any {
+          requestFilter = filter;
+          const user = new UserModel();
+          user.id = 1;
+          user._firstName = 'Umed';
+          user._lastName = 'Khudoiberdiev';
+          return user;
+        }
+      }
+
+      expressServer = createExpressServer({
+        validation: false,
+      }).listen(3001, done);
     });
 
-    describe("should pass the valid param after validation", () => {
-
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            getMetadataArgsStorage().reset();
-
-            @JsonController()
-            class UserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-
-            }
-        });
-
-        const options: RoutingControllersOptions = {
-            validation: true
-        };
-
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(options).listen(3002, done));
-        after(done => koaApp.close(done));
-
-        assertRequest([3001, 3002], "get", "user?filter={\"keyword\": \"Umedi\", \"__somethingPrivate\": \"blablabla\"}", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.be.eql({
-                id: 1,
-                _firstName: "Umed",
-                _lastName: "Khudoiberdiev"
-            });
-            expect(requestFilter).to.be.instanceOf(UserFilter);
-            expect(requestFilter).to.be.eql({
-                keyword: "Umedi",
-                __somethingPrivate: "blablabla",
-            });
-        });
+    afterEach((done: DoneCallback) => {
+      expressServer.close(done);
     });
 
-    describe("should contain param name on validation failed", () => {
-
-        let requestFilter: any;
-        beforeEach(() => {
-            requestFilter = undefined;
-        });
-
-        before(() => {
-            getMetadataArgsStorage().reset();
-
-            @JsonController()
-            class UserController {
-
-                @Get("/user")
-                getUsers(@QueryParam("filter") filter: UserFilter): any {
-                    requestFilter = filter;
-                    const user = new UserModel();
-                    user.id = 1;
-                    user._firstName = "Umed";
-                    user._lastName = "Khudoiberdiev";
-                    return user;
-                }
-            }
-        });
-
-        const options: RoutingControllersOptions = {
-            validation: true
-        };
-
-        let expressApp: any, koaApp: any;
-        before(done => expressApp = createExpressServer(options).listen(3001, done));
-        after(done => expressApp.close(done));
-        before(done => koaApp = createKoaServer(options).listen(3002, done));
-        after(done => koaApp.close(done));
-
-        const invalidFilter = {
-            keyword: "aa"
-        };
-
-        assertRequest([3001, 3002], "get", `user?filter=${JSON.stringify(invalidFilter)}`, response => {
-            expect(response).to.have.status(400);
-            expect(response.body.paramName).to.equal("filter");
-        });
+    it('should apply local options', async () => {
+      expect.assertions(4);
+      const response = await axios.get(
+        '/user?' +
+          qs.stringify({
+            filter: {
+              keyword: 'Um',
+              __somethingPrivate: 'blablabla',
+            },
+          })
+      );
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({
+        id: 1,
+        name: 'Umed Khudoiberdiev',
+      });
+      expect(requestFilter).toBeInstanceOf(UserFilter);
+      expect(requestFilter).toEqual({
+        keyword: 'Um',
+      });
     });
+  }); //----- end local options
 });
