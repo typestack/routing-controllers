@@ -72,7 +72,7 @@
     "form-data": "^3.0.0",
     "handlebars": "^4.7.6",
     "http-status-codes": "^2.1.4",
-    "husky": "^4.2.5",
+    "husky": "^4.3.6",
     "jest": "^26.2.2",
     "kcors": "^2.2.2",
     "koa-convert": "^1.2.0",
