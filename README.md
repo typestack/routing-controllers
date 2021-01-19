@@ -1402,12 +1402,15 @@ That's it, now you can inject your services into your controllers:
 
 ```typescript
 @Controller()
+@Service()
 export class UsersController {
   constructor(private userRepository: UserRepository) {}
 
   // ... controller actions
 }
 ```
+
+Note: As TypeDI@0.9.0 won't create instances for unknown classes, you have to decorate your Controller as a `Service()` as well. See [#642](https://github.com/typestack/routing-controllers/issues/642)
 
 For other IoC providers that don't expose a `get(xxx)` function, you can create an IoC adapter using `IocAdapter` like so:
 
