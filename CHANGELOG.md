@@ -3,6 +3,7 @@
 ### 0.9.0
 
 #### Features
+
 - Add support for wildcard "all" routes (ref [#536])
 - Controller inheritance - Added missing tests, code samples, and updated documentation (ref [#578][#301])
 - Added a useResponseClassTransformer global option (ref [#329])
@@ -12,6 +13,7 @@
 - Updated project tooling (ref [##618])
 
 #### Fixes
+
 - Input-validation bypass vulnerability (ref [#518])
 - Fixed issue that would cause multiple route executions per request (ref [#568])
 - Fixed export of SessionParam at index (ref [#526])
@@ -22,13 +24,14 @@
 - Through [#329], it should fix performance issue with big json result (ref [#226])
 - Through [#329], it should fix problem with mongoose model serialization (ref [#149])
 - Local ValidationOptions are not overwriting global defaults (ref [#618])
- 
+
 #### Documentation
+
 - Added TypeDI service decorator to example in README (ref [#643])
 - Translate document to Chinese (ref [#574])
 - Fix typo in README (ref [#571])
 - Add another example for using the response directly (ref [#546])
-  
+
 ### 0.8.0 [BREAKING CHANGES]
 
 - [class-transformer](https://github.com/typestack/class-transformer) and [class-validator](https://github.com/typestack/class-validator) are now peer dependencies.
