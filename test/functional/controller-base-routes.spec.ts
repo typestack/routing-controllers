@@ -1,83 +1,95 @@
-import "reflect-metadata";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {Controller} from "../../src/decorator/Controller";
-import {Get} from "../../src/decorator/Get";
-const expect = require("chakram").expect;
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Controller } from '../../src/decorator/Controller';
+import { Get } from '../../src/decorator/Get';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("controller > base routes functionality", () => {
-    before(() => {
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
+describe(``, () => {
+  let expressServer: HttpServer;
 
-        @Controller("/posts")
-        class PostController {
-            @Get("/")
-            getAll() {
-                return "<html><body>All posts</body></html>";
-            }
-            @Get("/:id(\\d+)")
-            getUserById() {
-                return "<html><body>One post</body></html>";
-            }
-            @Get(/\/categories\/(\d+)/)
-            getCategoryById() {
-                return "<html><body>One post category</body></html>";
-            }
-            @Get("/:postId(\\d+)/users/:userId(\\d+)")
-            getPostById() {
-                return "<html><body>One user</body></html>";
-            }
+  describe('controller > base routes functionality', () => {
+    beforeEach((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
+
+      @Controller('/posts')
+      class PostController {
+        @Get('/')
+        getAll(): string {
+          return '<html><body>All posts</body></html>';
         }
 
+        @Get('/:id(\\d+)')
+        getUserById(): string {
+          return '<html><body>One post</body></html>';
+        }
+
+        @Get(/\/categories\/(\d+)/)
+        getCategoryById(): string {
+          return '<html><body>One post category</body></html>';
+        }
+
+        @Get('/:postId(\\d+)/users/:userId(\\d+)')
+        getPostById(): string {
+          return '<html><body>One user</body></html>';
+        }
+      }
+
+      expressServer = createExpressServer().listen(3001, done);
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
-    after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
-    after(done => koaApp.close(done));
+    afterEach((done: DoneCallback) => expressServer.close(done));
 
-    describe("get should respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "get", "posts", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>All posts</body></html>");
-        });
+    it('get should respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/posts');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>All posts</body></html>');
     });
 
-    describe("get should respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "get", "posts/1", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>One post</body></html>");
-        });
+    it('get should respond with proper status code, headers and body content', async () => {
+      expect.assertions(3);
+      const response = await axios.get('/posts/1');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>One post</body></html>');
     });
 
-    describe("get should respond with proper status code, headers and body content", () => {
-        assertRequest([3001, 3002], "get", "posts/1/users/2", response => {
-            expect(response).to.have.status(200);
-            expect(response).to.have.header("content-type", "text/html; charset=utf-8");
-            expect(response.body).to.be.equal("<html><body>One user</body></html>");
-        });
+    it('get should respond with proper status code, headers and body content - 2nd pass', async () => {
+      expect.assertions(3);
+      const response = await axios.get('posts/1/users/2');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+      expect(response.data).toEqual('<html><body>One user</body></html>');
     });
 
-    describe("wrong route should respond with 404 error", () => {
-        assertRequest([3001, 3002], "get", "1/users/1", response => {
-            expect(response).to.have.status(404);
-        });
+    it('wrong route should respond with 404 error', async () => {
+      expect.assertions(1);
+      try {
+        await axios.get('/1/users/1');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
     });
 
-    describe("wrong route should respond with 404 error", () => {
-        assertRequest([3001, 3002], "get", "categories/1", response => {
-            expect(response).to.have.status(404);
-        });
+    it('wrong route should respond with 404 error', async () => {
+      expect.assertions(1);
+      try {
+        await axios.get('/categories/1');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
     });
 
-    describe("wrong route should respond with 404 error", () => {
-        assertRequest([3001, 3002], "get", "users/1", response => {
-            expect(response).to.have.status(404);
-        });
+    it('wrong route should respond with 404 error', async () => {
+      expect.assertions(1);
+      try {
+        await axios.get('/users/1');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
     });
-    
+  });
 });

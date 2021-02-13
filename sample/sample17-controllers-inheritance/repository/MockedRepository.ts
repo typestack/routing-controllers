@@ -1,5 +1,5 @@
-import {IInstance} from "../interface/IInstance";
-import {IPayload} from "../interface/IPayload";
+import { IInstance } from '../interface/IInstance';
+import { IPayload } from '../interface/IPayload';
 
 export class MockedRepository {
   protected domain: string;
@@ -15,15 +15,15 @@ export class MockedRepository {
     return Promise.resolve([
       {
         id: 10020,
-        type: this.domain
+        type: this.domain,
       },
       {
         id: 10001,
-        type: this.domain
+        type: this.domain,
       },
       {
         id: 10002,
-        type: this.domain
+        type: this.domain,
       },
     ]);
   }
@@ -32,24 +32,20 @@ export class MockedRepository {
    * @description Dummy method to create a new item in storage and return its instance
    */
   public create(payload: IPayload): Promise<IInstance> {
-    return Promise.resolve(
-      {
-        id: 10000,
-        type: this.domain
-      }
-    );
+    return Promise.resolve({
+      id: 10000,
+      type: this.domain,
+    });
   }
 
   /**
    * @description Dummy method to find item in storage
    */
   public find(id: number): Promise<IInstance> {
-    return Promise.resolve(
-      {
-        id: id,
-        type: this.domain
-      }
-    );
+    return Promise.resolve({
+      id: id,
+      type: this.domain,
+    });
   }
 
   /**
@@ -63,13 +59,9 @@ export class MockedRepository {
    * @description Dummy method to update item in storage by id
    */
   public update(id: number, payload: IPayload): Promise<IInstance> {
-    return Promise.resolve(
-      {
-        id: 10000,
-        type: this.domain
-      }
-    );
+    return Promise.resolve({
+      id: 10000,
+      type: this.domain,
+    });
   }
-
 }
-

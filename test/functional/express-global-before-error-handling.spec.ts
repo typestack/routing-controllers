@@ -1,74 +1,73 @@
-import "reflect-metadata";
-import {JsonController} from "../../src/decorator/JsonController";
-import {createExpressServer} from "../../src/index";
-import {Get} from "../../src/decorator/Get";
-import {Middleware} from "../../src/decorator/Middleware";
-import {ExpressErrorMiddlewareInterface} from "../../src/driver/express/ExpressErrorMiddlewareInterface";
-import {ExpressMiddlewareInterface} from "../../src/driver/express/ExpressMiddlewareInterface";
+import express from 'express';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import { Get } from '../../src/decorator/Get';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Middleware } from '../../src/decorator/Middleware';
+import { ExpressErrorMiddlewareInterface } from '../../src/driver/express/ExpressErrorMiddlewareInterface';
+import { ExpressMiddlewareInterface } from '../../src/driver/express/ExpressMiddlewareInterface';
+import { createExpressServer } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
+describe(``, () => {
+  let expressServer: HttpServer;
 
-const chakram = require("chakram");
-const expect = chakram.expect;
-
-describe("custom express global before middleware error handling", () => {
-
-    class CustomError extends Error {
-      name = "CustomError";
-      message = "custom error message!";
-    }
-
+  describe('custom express global before middleware error handling', () => {
     let errorHandlerCalled: boolean;
     let errorHandlerName: string;
+    class CustomError extends Error {
+      name = 'CustomError';
+      message = 'custom error message!';
+    }
 
     beforeEach(() => {
-        errorHandlerCalled = undefined;
-        errorHandlerName = undefined;
+      errorHandlerCalled = undefined;
+      errorHandlerName = undefined;
     });
 
-    before(() => {
-
-
-        @Middleware({ type: "before" })
-        class GlobalBeforeMiddleware implements ExpressMiddlewareInterface {
-            use(request: any, response: any, next?: Function): any {
-              throw new CustomError();
-            }
+    beforeAll((done: DoneCallback) => {
+      @Middleware({ type: 'before' })
+      class GlobalBeforeMiddleware implements ExpressMiddlewareInterface {
+        use(request: express.Request, response: express.Response, next: express.NextFunction): any {
+          throw new CustomError();
         }
+      }
 
-        @Middleware({ type: "after" })
-        class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
-            error(error: any, req: any, res: any, next: any) {
-                errorHandlerCalled = true;
-                errorHandlerName = error.name;
-                res.status(error.httpCode || 500).send(error.message);
-            }
+      @Middleware({ type: 'after' })
+      class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
+        error(error: any, req: any, res: any, next: any): void {
+          errorHandlerCalled = true;
+          errorHandlerName = error.name;
+          res.status(error.httpCode || 500).send(error.message);
         }
+      }
 
-        @JsonController()
-        class ExpressErrorHandlerController {
-
-          @Get("/answers")
-          answers() {
-            return {
-                id: 1,
-                title: "My answer"
-            };
-          }
+      @JsonController()
+      class ExpressErrorHandlerController {
+        @Get('/answers')
+        answers(): any {
+          return {
+            id: 1,
+            title: 'My answer',
+          };
         }
+      }
+
+      expressServer = createExpressServer().listen(3001, done);
     });
 
-    let app: any;
-    before(done => app = createExpressServer({defaultErrorHandler: false}).listen(3001, done));
-    after(done => app.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    it("should call global error handler middleware with CustomError", () => {
-        return chakram
-          .get("http://127.0.0.1:3001/answers")
-          .then((response: any) => {
-              expect(errorHandlerCalled).to.be.true;
-              expect(errorHandlerName).to.equals("CustomError");
-              expect(response).to.have.status(500);
-          });
+    it('should call global error handler middleware with CustomError', async () => {
+      expect.assertions(3);
+      try {
+        await axios.get('/answers');
+      } catch (error) {
+        expect(errorHandlerCalled).toBeTruthy();
+        expect(errorHandlerName).toEqual('CustomError');
+        expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      }
     });
-
+  });
 });

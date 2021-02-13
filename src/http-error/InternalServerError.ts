@@ -1,17 +1,15 @@
-import {HttpError} from "./HttpError";
+import { HttpError } from './HttpError';
 
 /**
  * Exception for 500 HTTP error.
  */
 export class InternalServerError extends HttpError {
-    name = "InternalServerError";
+  name = 'InternalServerError';
 
-    constructor(message: string) {
-        super(500);
-        Object.setPrototypeOf(this, InternalServerError.prototype);
+  constructor(message: string) {
+    super(500);
+    Object.setPrototypeOf(this, InternalServerError.prototype);
 
-        if (message)
-            this.message = message;
-    }
-
+    if (message) this.message = message;
+  }
 }

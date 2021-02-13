@@ -1,88 +1,76 @@
-import "reflect-metadata";
-import {Controller} from "../../src/decorator/Controller";
-import {Get} from "../../src/decorator/Get";
-import {Res} from "../../src/decorator/Res";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-import {Render} from "../../src/decorator/Render";
-const chakram = require("chakram");
-const expect = chakram.expect;
+import express, { Application as ExpressApplication } from 'express';
+import { Server as HttpServer } from 'http';
+import HttpStatusCodes from 'http-status-codes';
+import mustacheExpress from 'mustache-express';
+import path from 'path';
+import { Controller } from '../../src/decorator/Controller';
+import { Get } from '../../src/decorator/Get';
+import { Render } from '../../src/decorator/Render';
+import { Res } from '../../src/decorator/Res';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
-describe("template rendering", () => {
+describe(``, () => {
+  let expressServer: HttpServer;
 
-    before(() => {
+  describe('template rendering', () => {
+    beforeAll((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
 
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
-
-        @Controller()
-        class RenderController {
-
-            @Get("/index")
-            @Render("render-test-spec.html")
-            index() {
-                return {
-                    name: "Routing-controllers"
-                };
-            }
-
-            @Get("/locals")
-            @Render("render-test-locals-spec.html")
-            locals(@Res() res: any) {
-                res.locals.myVariable = "my-variable";
-
-                return {
-                    name: "Routing-controllers"
-                };
-            }
-
+      @Controller()
+      class RenderController {
+        @Get('/index')
+        @Render('render-test-spec.html')
+        index(): any {
+          return {
+            name: 'Routing-controllers',
+          };
         }
+
+        @Get('/locals')
+        @Render('render-test-locals-spec.html')
+        locals(@Res() res: any): any {
+          res.locals.myVariable = 'my-variable';
+
+          return {
+            name: 'Routing-controllers',
+          };
+        }
+      }
+
+      const resourcePath: string = path.resolve(__dirname, '../resources');
+      const expressApplication: ExpressApplication = createExpressServer();
+      expressApplication.engine('html', mustacheExpress());
+      expressApplication.set('view engine', 'html');
+      expressApplication.set('views', resourcePath);
+      expressApplication.use(express.static(resourcePath));
+      expressServer = expressApplication.listen(3001, done);
     });
 
-    let expressApp: any;
-    before(done => {
-        const path = __dirname + "/../resources";
-        const server = createExpressServer();
-        const mustacheExpress = require("mustache-express");
-        server.engine("html", mustacheExpress());
-        server.set("view engine", "html");
-        server.set("views", path);
-        server.use(require("express").static(path));
-        expressApp = server.listen(3001, done);
-    });
-    after(done => expressApp.close(done));
+    afterAll((done: DoneCallback) => expressServer.close(done));
 
-    let koaApp: any;
-    before(done => {
-        const path = __dirname + "/../resources";
-        const server = createKoaServer();
-        let koaViews = require("koa-views");
-        server.use(koaViews(path, { map: { html: "handlebars" } } ));
-        koaApp = server.listen(3002, done);
-    });
-    after(done => koaApp.close(done));
-
-    describe("should render a template and use given variables", () => {
-        assertRequest([3001, 3002], "get", "index", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.contain("<html>");
-            expect(response.body).to.contain("<body>");
-            expect(response.body).to.contain("Routing-controllers");
-            expect(response.body).to.contain("</body>");
-            expect(response.body).to.contain("</html>");
-        });
+    it('should render a template and use given variables', async () => {
+      expect.assertions(6);
+      const response = await axios.get('/index');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toContain('<html>');
+      expect(response.data).toContain('<body>');
+      expect(response.data).toContain('Routing-controllers');
+      expect(response.data).toContain('</body>');
+      expect(response.data).toContain('</html>');
     });
 
-    describe("Express should render a template with given variables and locals variables", () => {
-        assertRequest([3001], "get", "locals", response => {
-            expect(response).to.have.status(200);
-            expect(response.body).to.contain("<html>");
-            expect(response.body).to.contain("<body>");
-            expect(response.body).to.contain("Routing-controllers");
-            expect(response.body).to.contain("my-variable");
-            expect(response.body).to.contain("</body>");
-            expect(response.body).to.contain("</html>");
-        });
+    it('should render a template with given variables and locals variables', async () => {
+      expect.assertions(7);
+      const response = await axios.get('/locals');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toContain('<html>');
+      expect(response.data).toContain('<body>');
+      expect(response.data).toContain('Routing-controllers');
+      expect(response.data).toContain('my-variable');
+      expect(response.data).toContain('</body>');
+      expect(response.data).toContain('</html>');
     });
-
+  });
 });

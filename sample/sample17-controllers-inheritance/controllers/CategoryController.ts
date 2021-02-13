@@ -1,8 +1,8 @@
-import {Controller} from "../../../src/decorator/Controller";
-import {AbstractControllerTemplate} from "./AbstractContollerTemplate";
-import {MockedRepository} from "../repository/MockedRepository";
+import { Controller } from '../../../src/decorator/Controller';
+import { AbstractControllerTemplate } from './AbstractContollerTemplate';
+import { MockedRepository } from '../repository/MockedRepository';
 
-const domain = "category";
+const domain = 'category';
 
 @Controller(`/${domain}`)
 export class CategoryController extends AbstractControllerTemplate {

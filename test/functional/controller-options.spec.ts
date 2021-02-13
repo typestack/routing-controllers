@@ -1,99 +1,111 @@
-import "reflect-metadata";
-import {Exclude, Expose} from "class-transformer";
-import {defaultMetadataStorage} from "class-transformer/storage";
-import {JsonController} from "../../src/decorator/JsonController";
-import {Post} from "../../src/decorator/Post";
-import {Body} from "../../src/decorator/Body";
-import {createExpressServer, createKoaServer, getMetadataArgsStorage} from "../../src/index";
-import {assertRequest} from "./test-utils";
-const expect = require("chakram").expect;
+import { Exclude, Expose } from 'class-transformer';
+import { defaultMetadataStorage } from 'class-transformer/storage';
+import { Body } from '../../src/decorator/Body';
+import { JsonController } from '../../src/decorator/JsonController';
+import { Post } from '../../src/decorator/Post';
+import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
+import { axios } from '../utilities/axios';
 
-describe("controller options", () => {
+describe(``, () => {
+  let expressServer: any;
 
+  describe('controller options', () => {
     let initializedUser: any;
-    let User: any;
+    let user: any = { firstName: 'Umed', lastName: 'Khudoiberdiev' };
 
-    after(() => {
-        defaultMetadataStorage.clear();
+    @Exclude()
+    class UserModel {
+      @Expose()
+      firstName: string;
+
+      lastName: string;
+    }
+
+    beforeAll(done => {
+      // reset metadata args storage
+      getMetadataArgsStorage().reset();
+
+      function handler(user: UserModel) {
+        initializedUser = user;
+        const ret = new UserModel();
+        ret.firstName = user.firstName;
+        ret.lastName = user.lastName;
+        return ret;
+      }
+
+      @JsonController('/default')
+      class DefaultController {
+        @Post('/')
+        postUsers(@Body() user: UserModel) {
+          return handler(user);
+        }
+      }
+
+      @JsonController('/transform', { transformRequest: true, transformResponse: true })
+      class TransformController {
+        @Post('/')
+        postUsers(@Body() user: UserModel) {
+          return handler(user);
+        }
+      }
+
+      @JsonController('/noTransform', { transformRequest: false, transformResponse: false })
+      class NoTransformController {
+        @Post('/')
+        postUsers(@Body() user: UserModel) {
+          return handler(user);
+        }
+      }
+
+      expressServer = createExpressServer().listen(3001, done);
+    });
+
+    afterAll(done => {
+      defaultMetadataStorage.clear();
+      expressServer.close(done);
     });
 
     beforeEach(() => {
-        initializedUser = undefined;
+      initializedUser = undefined;
     });
 
-    before(() => {
-
-        // reset metadata args storage
-        getMetadataArgsStorage().reset();
-
-        @Exclude()
-        class UserModel {
-            @Expose()
-            firstName: string;
-
-            lastName: string;
-        }
-        User = UserModel;
-
-        function handler(user: UserModel) {
-            initializedUser = user;
-            const ret = new User();
-            ret.firstName = user.firstName;
-            ret.lastName = user.lastName;
-            return ret;
-        }
-
-        @JsonController("/default")
-        class DefaultController {
-            @Post("/")
-            postUsers(@Body() user: UserModel) { return handler(user); }
-        }
-
-        @JsonController("/transform", {transformRequest: true, transformResponse: true})
-        class TransformController {
-            @Post("/")
-            postUsers(@Body() user: UserModel) { return handler(user); }
-        }
-
-        @JsonController("/noTransform", {transformRequest: false, transformResponse: false})
-        class NoTransformController {
-            @Post("/")
-            postUsers(@Body() user: UserModel) { return handler(user); }
-        }
-
+    it('controller transform is enabled by default', async () => {
+      expect.assertions(4);
+      try {
+        const response = await axios.post('/default', user);
+        expect(initializedUser).toBeInstanceOf(UserModel);
+        expect(initializedUser.lastName).toBeUndefined();
+        expect(response.status).toBe(200);
+        expect(response.data.lastName).toBeUndefined();
+      } catch (err) {
+        console.log(err);
+      }
     });
 
-    let expressApp: any, koaApp: any;
-    before(done => expressApp = createExpressServer().listen(3001, done));
-    after(done => expressApp.close(done));
-    before(done => koaApp = createKoaServer().listen(3002, done));
-    after(done => koaApp.close(done));
-
-    describe("controller transform is enabled by default", () => {
-        assertRequest([3001, 3002], "post", "default", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.be.undefined;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.undefined;
-        });
+    it('when controller transform is enabled', async () => {
+      expect.assertions(4);
+      try {
+        const response = await axios.post('/transform', user);
+        expect(initializedUser).toBeInstanceOf(UserModel);
+        expect(initializedUser.lastName).toBeUndefined();
+        expect(response.status).toBe(200);
+        expect(response.data.lastName).toBeUndefined();
+      } catch (err) {
+        console.log(err);
+      }
     });
 
-    describe("when controller transform is enabled", () => {
-        assertRequest([3001, 3002], "post", "transform", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.be.undefined;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.be.undefined;
-        });
+    it('when controller transform is disabled', async () => {
+      expect.assertions(4);
+      try {
+        const response = await axios.post('/noTransform', user);
+        expect(initializedUser).toMatchObject(user);
+        expect(initializedUser.lastName).toBeDefined();
+        expect(response.status).toBe(200);
+        expect(response.data.lastName).toBeDefined();
+      } catch (err) {
+        console.log(err);
+      }
     });
-
-    describe("when controller transform is disabled", () => {
-        assertRequest([3001, 3002], "post", "noTransform", { firstName: "Umed", lastName: "Khudoiberdiev" }, response => {
-            expect(initializedUser).not.to.be.instanceOf(User);
-            expect(initializedUser.lastName).to.exist;
-            expect(response).to.have.status(200);
-            expect(response.body.lastName).to.exist;
-        });
-    });
-
+  });
 });
