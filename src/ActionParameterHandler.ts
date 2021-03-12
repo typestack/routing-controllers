@@ -188,10 +188,14 @@ export class ActionParameterHandler<T extends BaseDriver> {
    */
   protected parseValue(value: any, paramMetadata: ParamMetadata): any {
     if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch (error) {
-        throw new ParameterParseJsonError(paramMetadata.name, value);
+      if (paramMetadata.type === 'queries' && paramMetadata.targetName === 'array') {
+        return [value];
+      } else {
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          throw new ParameterParseJsonError(paramMetadata.name, value);
+        }
       }
     }
     return value;

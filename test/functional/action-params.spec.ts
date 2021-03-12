@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { IsBoolean, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsBoolean, IsString, MaxLength, Min, ValidateNested, IsArray, IsNumber, IsDate } from 'class-validator';
 import express from 'express';
 import FormData from 'form-data';
 import fs from 'fs';
@@ -29,6 +29,7 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { SessionMiddleware } from '../fakes/global-options/SessionMiddleware';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
+import { Type } from 'class-transformer';
 
 describe(``, () => {
   let expressServer: HttpServer;
@@ -116,6 +117,20 @@ describe(``, () => {
 
       @ValidateNested()
       myObject: NestedQueryClass;
+
+      @IsArray()
+      @IsString({ each: true })
+      multipleStringValues?: string[];
+
+      @IsArray()
+      @IsNumber(undefined, { each: true })
+      @Type(() => Number)
+      multipleNumberValues?: number[];
+
+      @IsArray()
+      @IsDate({ each: true })
+      @Type(() => Date)
+      multipleDateValues?: Date[];
     }
 
     @Controller()
@@ -493,20 +508,71 @@ describe(``, () => {
   */
 
   it("@QueryParams should give a proper values from request's query parameters", async () => {
-    expect.assertions(6);
-    const response = await axios.get('/photos-params?sortBy=name&count=2&limit=10&showAll');
+    expect.assertions(9);
+    const response = await axios.get(
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'multipleStringValues=a&' +
+        'multipleStringValues=b&' +
+        'multipleNumberValues=1&' +
+        'multipleNumberValues=2.3&' +
+        'multipleDateValues=2017-02-01T00:00:00Z&' +
+        'multipleDateValues=2017-03-01T00:00:00Z'
+    );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(queryParams1.sortBy).toEqual('name');
     expect(queryParams1.count).toEqual('2');
     expect(queryParams1.limit).toEqual(10);
     expect(queryParams1.showAll).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleDateValues).toEqual([
+      new Date('2017-02-01T00:00:00Z'),
+      new Date('2017-03-01T00:00:00Z'),
+    ]);
+  });
+
+  it("@QueryParams should give a proper values from request's query parameters and one multiple value", async () => {
+    expect.assertions(9);
+    const response = await axios.get(
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'multipleStringValues=a&' +
+        'multipleNumberValues=1&' +
+        'multipleDateValues=2017-02-01T01:00:00Z'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParams1.sortBy).toEqual('name');
+    expect(queryParams1.count).toEqual('2');
+    expect(queryParams1.limit).toEqual(10);
+    expect(queryParams1.showAll).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a']);
+    expect(queryParams1.multipleNumberValues).toEqual([1]);
+    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
   });
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {
-    expect.assertions(9);
+    expect.assertions(12);
     const response = await axios.get(
-      '/photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D'
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D&' +
+        'multipleStringValues=a&' +
+        'multipleStringValues=b&' +
+        'multipleNumberValues=1&' +
+        'multipleNumberValues=2.3&' +
+        'multipleDateValues=2017-02-01T00:00:00Z'
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -517,6 +583,9 @@ describe(``, () => {
     expect(queryParams1.myObject.num).toEqual(5);
     expect(queryParams1.myObject.str).toEqual('five');
     expect(queryParams1.myObject.isFive).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T00:00:00Z')]);
   });
 
   it("@QueryParams should not validate request query parameters when it's turned off in validator options", async () => {
