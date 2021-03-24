@@ -1215,7 +1215,7 @@ If you want to disable it simply pass `classTransformer: false` to createExpress
 
 ## Controller Inheritance
 
-Often your application may need to have an option to inherit controller from another to reuse code and void duplication.
+Often your application may need to have an option to inherit controller from another to reuse code and avoid duplication.
 A good example of the use is the CRUD operations which can be hidden inside `AbstractBaseController` with the possibility to add new and overload methods, the template method pattern.
 
 ```typescript
