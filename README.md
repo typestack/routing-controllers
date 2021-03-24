@@ -379,7 +379,7 @@ getUsers(@QueryParam("limit") limit: number) {
 ```
 
 If you want to inject all query parameters use `@QueryParams()` decorator.
-The bigest benefit of this approach is that you can perform validation of the params.
+The biggest benefit of this approach is that you can perform validation of the params.
 
 ```typescript
 enum Roles {
