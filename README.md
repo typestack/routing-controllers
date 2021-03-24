@@ -1227,7 +1227,7 @@ abstract class AbstractControllerTemplate {
   @Post()
   public create() {}
 
-  @Read()
+  @Get()
   public read() {}
 
   @Put()
