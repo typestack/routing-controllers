@@ -66,4 +66,9 @@ export interface ParamMetadataArgs {
    * Explicitly set type which should be used for Body to perform transformation.
    */
   explicitType?: any;
+
+  /**
+   * Explicitly tell that the QueryParam is an array to force routing-controller to cast it
+   */
+  isArray?: boolean;
 }

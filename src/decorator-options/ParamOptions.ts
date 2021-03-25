@@ -32,4 +32,9 @@ export interface ParamOptions {
    * Explicitly set type which should be used for param to perform transformation.
    */
   type?: any;
+
+  /**
+   * Force value to be cast as an array.
+   */
+  isArray?: boolean;
 }

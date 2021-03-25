@@ -38,6 +38,7 @@ describe(``, () => {
   let queryParamSortBy: string | undefined,
     queryParamCount: string | undefined,
     queryParamLimit: number | undefined,
+    queryParamValues: any[] | undefined,
     queryParamShowAll: boolean | undefined,
     queryParamFilter: Record<string, any> | undefined;
   let queryParams1: { [key: string]: any } | undefined,
@@ -237,6 +238,30 @@ describe(``, () => {
       getPhotosWithIdRequired(@QueryParam('limit', { required: true }) limit: number): string {
         queryParamLimit = limit;
         return `<html><body>${limit}</body></html>`;
+      }
+
+      @Get('/photos-query-param-string-array')
+      getPhotosWithMultipleStringValuesRequired(
+        @QueryParam('multipleStringValues', { required: true }) values: string[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
+      }
+
+      @Get('/photos-query-param-number-array')
+      getPhotosWithMultipleNumberValuesRequired(
+        @QueryParam('multipleNumberValues', { required: true, type: Number, isArray: true }) values: number[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
+      }
+
+      @Get('/photos-query-param-date-array')
+      getPhotosWithMultipleDateValuesRequired(
+        @QueryParam('multipleDateValues', { required: true, type: Date, isArray: true }) values: Date[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
       }
 
       @Get('/photos-with-json')
@@ -619,6 +644,60 @@ describe(``, () => {
     expect(queryParamCount).toEqual('2');
     expect(queryParamLimit).toEqual(10);
     expect(queryParamShowAll).toEqual(true);
+  });
+
+  it('@QueryParam should give an array of string with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-string-array?multipleStringValues=a');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual(['a']);
+  });
+
+  it('@QueryParam should give an array of string with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-string-array?multipleStringValues=a&multipleStringValues=b&multipleStringValues=b'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual(['a', 'b', 'b']);
+  });
+
+  it('@QueryParam should give an array of number with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-number-array?multipleNumberValues=1');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([1]);
+  });
+
+  it('@QueryParam should give an array of number with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-number-array?multipleNumberValues=1&multipleNumberValues=2&multipleNumberValues=2'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([1, 2, 2]);
+  });
+
+  it('@QueryParam should give an array of date with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-date-array?multipleDateValues=2021-01-01');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([new Date('2021-01-01')]);
+  });
+
+  it('@QueryParam should give an array of date with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-date-array?multipleDateValues=2021-01-01&multipleDateValues=2020-01-01&multipleDateValues=2021-05-01'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([new Date('2021-01-01'), new Date('2020-01-01'), new Date('2021-05-01')]);
   });
 
   it('@QueryParam when required params must be provided and they should not be empty', async () => {
