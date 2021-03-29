@@ -29,7 +29,7 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { SessionMiddleware } from '../fakes/global-options/SessionMiddleware';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 describe(``, () => {
   let expressServer: HttpServer;
@@ -127,6 +127,11 @@ describe(``, () => {
       @IsNumber(undefined, { each: true })
       @Type(() => Number)
       multipleNumberValues?: number[];
+
+      @IsArray()
+      @IsBoolean({ each: true })
+      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      multipleBooleanValues?: boolean[];
 
       @IsArray()
       @IsDate({ each: true })
@@ -533,7 +538,7 @@ describe(``, () => {
   */
 
   it("@QueryParams should give a proper values from request's query parameters", async () => {
-    expect.assertions(9);
+    expect.assertions(10);
     const response = await axios.get(
       '/photos-params?' +
         'sortBy=name&' +
@@ -544,6 +549,8 @@ describe(``, () => {
         'multipleStringValues=b&' +
         'multipleNumberValues=1&' +
         'multipleNumberValues=2.3&' +
+        'multipleBooleanValues=false&' +
+        'multipleBooleanValues=true&' +
         'multipleDateValues=2017-02-01T00:00:00Z&' +
         'multipleDateValues=2017-03-01T00:00:00Z'
     );
@@ -555,6 +562,7 @@ describe(``, () => {
     expect(queryParams1.showAll).toEqual(true);
     expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
     expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
     expect(queryParams1.multipleDateValues).toEqual([
       new Date('2017-02-01T00:00:00Z'),
       new Date('2017-03-01T00:00:00Z'),
@@ -562,7 +570,7 @@ describe(``, () => {
   });
 
   it("@QueryParams should give a proper values from request's query parameters and one multiple value", async () => {
-    expect.assertions(9);
+    expect.assertions(10);
     const response = await axios.get(
       '/photos-params?' +
         'sortBy=name&' +
@@ -571,6 +579,7 @@ describe(``, () => {
         'showAll&' +
         'multipleStringValues=a&' +
         'multipleNumberValues=1&' +
+        'multipleBooleanValues=true&' +
         'multipleDateValues=2017-02-01T01:00:00Z'
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
@@ -581,11 +590,12 @@ describe(``, () => {
     expect(queryParams1.showAll).toEqual(true);
     expect(queryParams1.multipleStringValues).toEqual(['a']);
     expect(queryParams1.multipleNumberValues).toEqual([1]);
+    expect(queryParams1.multipleBooleanValues).toEqual([true]);
     expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
   });
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {
-    expect.assertions(12);
+    expect.assertions(13);
     const response = await axios.get(
       '/photos-params?' +
         'sortBy=name&' +
@@ -597,6 +607,8 @@ describe(``, () => {
         'multipleStringValues=b&' +
         'multipleNumberValues=1&' +
         'multipleNumberValues=2.3&' +
+        'multipleBooleanValues=false&' +
+        'multipleBooleanValues=true&' +
         'multipleDateValues=2017-02-01T00:00:00Z'
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
@@ -610,6 +622,7 @@ describe(``, () => {
     expect(queryParams1.myObject.isFive).toEqual(true);
     expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
     expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
     expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T00:00:00Z')]);
   });
 
