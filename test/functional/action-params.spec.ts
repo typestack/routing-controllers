@@ -139,6 +139,13 @@ describe(``, () => {
       multipleDateValues?: Date[];
     }
 
+    class QueryWhitelistClass {
+      @IsArray()
+      @IsBoolean({ each: true })
+      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      multipleBooleanValues?: boolean[];
+    }
+
     @Controller()
     class UserActionParamsController {
       @Get('/users')
@@ -234,6 +241,14 @@ describe(``, () => {
       @Get('/photos-params-optional')
       getPhotosWithOptionalQuery(
         @QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass
+      ): string {
+        queryParams3 = query;
+        return `<html><body>hello</body></html>`;
+      }
+
+      @Get('/photos-params-whitelist')
+      getPhotosWithWhitelistQuery(
+        @QueryParams({ validate: { whitelist: true, forbidNonWhitelisted: true } }) query: QueryWhitelistClass
       ): string {
         queryParams3 = query;
         return `<html><body>hello</body></html>`;
@@ -592,6 +607,14 @@ describe(``, () => {
     expect(queryParams1.multipleNumberValues).toEqual([1]);
     expect(queryParams1.multipleBooleanValues).toEqual([true]);
     expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
+  });
+
+  it("@QueryParams should give a proper values from request's query with validate whitelist option on", async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-params-whitelist?multipleBooleanValues=false');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParams3.multipleBooleanValues).toEqual([false]);
   });
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {

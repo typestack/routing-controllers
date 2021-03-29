@@ -132,6 +132,8 @@ export class ActionParameterHandler<T extends BaseDriver> {
         case 'date':
           const normalizedValue = this.normalizeStringValue(value, param.name, param.targetName);
           return param.isArray ? [normalizedValue] : normalizedValue;
+        case 'array':
+          return [value];
       }
     } else if (Array.isArray(value)) {
       return value.map(v => this.normalizeStringValue(v, param.name, param.targetName));
