@@ -1550,6 +1550,7 @@ export class QuestionController {
 - Take a look on [routing-controllers with koa](https://github.com/typestack/routing-controllers-koa-demo) which is using routing-controllers.
 - Take a look on [routing-controllers with angular 2](https://github.com/typestack/routing-controllers-angular2-demo) which is using routing-controllers.
 - Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using routing-controllers.
+- Take a look on [express-typescript-starter](https://github.com/kutia-software-company/express-typescript-starter) which is using routing-controllers.
 - Take a look on samples in [./sample](https://github.com/typestack/routing-controllers/tree/master/sample) for more examples
   of usage.
 
