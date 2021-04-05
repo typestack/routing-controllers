@@ -152,7 +152,15 @@ export class KoaDriver extends BaseDriver {
 
     // finally register action in koa
     this.router[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...authMiddlewares, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[
+        route,
+        routeGuard,
+        ...authMiddlewares,
+        ...beforeMiddlewares,
+        ...defaultMiddlewares,
+        routeHandler,
+        ...afterMiddlewares,
+      ]
     );
   }
 

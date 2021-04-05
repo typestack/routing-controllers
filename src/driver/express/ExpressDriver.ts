@@ -183,7 +183,15 @@ export class ExpressDriver extends BaseDriver {
 
     // finally register action in express
     this.express[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...authMiddlewares, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[
+        route,
+        routeGuard,
+        ...authMiddlewares,
+        ...beforeMiddlewares,
+        ...defaultMiddlewares,
+        routeHandler,
+        ...afterMiddlewares,
+      ]
     );
   }
 
