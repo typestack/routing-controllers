@@ -72,9 +72,10 @@ export class KoaDriver extends BaseDriver {
   registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
     // middlewares required for this action
     const defaultMiddlewares: any[] = [];
+    const authMiddlewares: any[] = [];
 
     if (actionMetadata.isAuthorizedUsed) {
-      defaultMiddlewares.push((context: any, next: Function) => {
+      authMiddlewares.push((context: any, next: Function) => {
         if (!this.authorizationChecker) throw new AuthorizationCheckerNotDefinedError();
 
         const action: Action = { request: context.request, response: context.response, context, next };
@@ -151,7 +152,7 @@ export class KoaDriver extends BaseDriver {
 
     // finally register action in koa
     this.router[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[route, routeGuard, ...authMiddlewares, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
     );
   }
 
