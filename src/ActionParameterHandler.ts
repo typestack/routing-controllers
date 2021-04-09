@@ -10,6 +10,7 @@ import { AuthorizationRequiredError } from './error/AuthorizationRequiredError';
 import { CurrentUserCheckerNotDefinedError } from './error/CurrentUserCheckerNotDefinedError';
 import { isPromiseLike } from './util/isPromiseLike';
 import { InvalidParamError } from './error/ParamNormalizationError';
+import {ParamType} from "./metadata/types/ParamType";
 
 /**
  * Handles action parameter.
@@ -96,11 +97,12 @@ export class ActionParameterHandler<T extends BaseDriver> {
   protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
     if (value === null || value === undefined) return value;
 
-    // if param value is an object and param type match, normalize its string properties
-    if (
-      typeof value === 'object' &&
-      ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type)
-    ) {
+    const isNormalisationNeeded = typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type);
+    const isTargetPrimitive = ['number', 'string', 'boolean'].indexOf(param.targetName) > -1;
+    const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
+
+      // if param value is an object and param type match, normalize its string properties
+    if (isNormalisationNeeded) {
       await Promise.all(
         Object.keys(value).map(async key => {
           const keyValue = value[key];
@@ -123,6 +125,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         })
       );
     }
+
     // if value is a string, normalize it to demanded type
     else if (typeof value === 'string') {
       switch (param.targetName) {
@@ -134,8 +137,12 @@ export class ActionParameterHandler<T extends BaseDriver> {
       }
     }
 
+      console.log(value);
+      console.log(param.targetName);
+
     // if target type is not primitive, transform and validate it
-    if (['number', 'string', 'boolean'].indexOf(param.targetName) === -1 && (param.parse || param.isTargetObject)) {
+
+    if (!isTargetPrimitive && isTransformationNeeded) {
       value = this.parseValue(value, param);
       value = this.transformValue(value, param);
       value = await this.validateValue(value, param);
