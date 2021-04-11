@@ -101,7 +101,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     const isTargetPrimitive = ['number', 'string', 'boolean'].indexOf(param.targetName) > -1;
     const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
 
-      // if param value is an object and param type match, normalize its string properties
+    // if param value is an object and param type match, normalize its string properties
     if (isNormalisationNeeded) {
       await Promise.all(
         Object.keys(value).map(async key => {
@@ -137,11 +137,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       }
     }
 
-      console.log(value);
-      console.log(param.targetName);
-
     // if target type is not primitive, transform and validate it
-
     if (!isTargetPrimitive && isTransformationNeeded) {
       value = this.parseValue(value, param);
       value = this.transformValue(value, param);
