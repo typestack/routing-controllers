@@ -1,9 +1,9 @@
 import {ActionParameterHandler} from "../src/ActionParameterHandler";
 import {
   Action,
-  ActionMetadata,
+  ActionMetadata, BaseDriver,
   ControllerMetadata,
-  createExpressServer,
+  createExpressServer, ExpressDriver,
   ParamMetadata,
   RoutingControllersOptions
 } from "../src";
@@ -19,7 +19,7 @@ describe("ActionParameterHandler", () => {
 
   it("handle", () => {
 
-    const driver = createExpressServer();
+    const driver = new ExpressDriver();
     const actionParameterHandler = new ActionParameterHandler(driver);
 
     // console.log(actionParameterHandler);
