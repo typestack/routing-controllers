@@ -1,47 +1,31 @@
 import {ActionParameterHandler} from "../src/ActionParameterHandler";
 import {
-  Action,
-  ActionMetadata, BaseDriver,
+  ActionMetadata,
   ControllerMetadata,
-  createExpressServer, ExpressDriver,
+  ExpressDriver,
   ParamMetadata,
-  RoutingControllersOptions
 } from "../src";
-import {IncomingMessage} from "http";
 import {ActionMetadataArgs} from "../src/metadata/args/ActionMetadataArgs";
 import {ControllerMetadataArgs} from "../src/metadata/args/ControllerMetadataArgs";
-
-const Socket = require("net").Socket;
 
 const expect = require("chakram").expect;
 
 describe("ActionParameterHandler", () => {
 
-  it("handle", () => {
-
+  it("handle", async () => {
     const driver = new ExpressDriver();
     const actionParameterHandler = new ActionParameterHandler(driver);
 
-    // console.log(actionParameterHandler);
-    const socket = new Socket();
     const action = {
-      request: new IncomingMessage(socket),
-      response: new IncomingMessage(socket)
+      request: {
+        params: {
+          id: "0b5ec98f-e26d-4414-b798-dcd35a5ef859"
+        },
+      },
+      response: {}
     };
-    action.request.headers = {
-      host: "0.0.0.0:3000",
-      connection: "keep-alive",
-      "cache-control": "max-age=0",
-      "upgrade-insecure-requests": "1",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36",
-      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-      "accept-encoding": "gzip, deflate",
-      "accept-language": "en,en-US;q=0.9,da;q=0.8,de;q=0.7,es;q=0.6,fr;q=0.5,ru;q=0.4,nl;q=0.3,sv;q=0.2,sl;q=0.1,pt;q=0.1,ro;q=0.1,nb;q=0.1,it;q=0.1,uk;q=0.1,gl;q=0.1,la;q=0.1"
-    };
-    action.request.url = "/api/products/04879b32-c329-48d7-a652-818794b684f1";
     const controllerMetadataArgs: ControllerMetadataArgs = {
       target: function () {
-
       },
       route: "",
       type: "json",
@@ -73,9 +57,9 @@ describe("ActionParameterHandler", () => {
       type: "param",
       name: "id",
       parse: undefined,
-      required: undefined,
-      transform: function () {
-
+      required: false,
+      transform: function (action, value) {
+        return value;
       },
       classTransform: undefined,
       validate: undefined,
@@ -84,10 +68,9 @@ describe("ActionParameterHandler", () => {
       },
     };
 
-    console.log(param);
+    const processedValue = await actionParameterHandler.handle(action, param);
 
-    actionParameterHandler.handle(action, param);
-
+    expect(processedValue).to.be.eq(action.request.params.id);
   });
-})
-;
+
+});
