@@ -7,9 +7,6 @@ const expect = require('chakram').expect;
 
 describe('ActionParameterHandler', () => {
   it('handle method keeps string(UUID) parameters untouched', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-
     const action = {
       request: {
         params: {
@@ -55,6 +52,8 @@ describe('ActionParameterHandler', () => {
       targetType: function () {},
     };
 
+    const driver = new ExpressDriver();
+    const actionParameterHandler = new ActionParameterHandler(driver);
     const processedValue = await actionParameterHandler.handle(action, param);
 
     expect(processedValue).to.be.eq(action.request.params.id);
