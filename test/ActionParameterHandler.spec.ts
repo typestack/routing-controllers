@@ -12,7 +12,7 @@ const expect = require("chakram").expect;
 
 describe("ActionParameterHandler", () => {
 
-  it("handle", async () => {
+  it("handle method keeps string(UUID) parameters untouched", async () => {
     const driver = new ExpressDriver();
     const actionParameterHandler = new ActionParameterHandler(driver);
 
@@ -24,6 +24,7 @@ describe("ActionParameterHandler", () => {
       },
       response: {}
     };
+
     const controllerMetadataArgs: ControllerMetadataArgs = {
       target: function () {
       },
