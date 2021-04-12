@@ -18,7 +18,6 @@ describe('ActionParameterHandler', () => {
       },
       response: {},
     };
-
     const controllerMetadataArgs: ControllerMetadataArgs = {
       target: function () {},
       route: '',
@@ -35,7 +34,6 @@ describe('ActionParameterHandler', () => {
       appendParams: undefined,
     };
     const actionMetadata = new ActionMetadata(controllerMetadata, args, {});
-
     const param: ParamMetadata = {
       targetName: 'product',
       isTargetObject: true,
