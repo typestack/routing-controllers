@@ -17,7 +17,7 @@ describe('ActionParameterHandler', () => {
     };
     const controllerMetadataArgs: ControllerMetadataArgs = {
       target: function () {},
-      route: '',
+      route: '/',
       type: 'json',
       options: {},
     };
