@@ -10,7 +10,6 @@ import { AuthorizationRequiredError } from './error/AuthorizationRequiredError';
 import { CurrentUserCheckerNotDefinedError } from './error/CurrentUserCheckerNotDefinedError';
 import { isPromiseLike } from './util/isPromiseLike';
 import { InvalidParamError } from './error/ParamNormalizationError';
-import {ParamType} from "./metadata/types/ParamType";
 
 /**
  * Handles action parameter.
@@ -97,7 +96,9 @@ export class ActionParameterHandler<T extends BaseDriver> {
   protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
     if (value === null || value === undefined) return value;
 
-    const isNormalisationNeeded = typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type);
+    const isNormalisationNeeded =
+      typeof value === 'object' &&
+      ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type);
     const isTargetPrimitive = ['number', 'string', 'boolean'].indexOf(param.targetName) > -1;
     const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
 
