@@ -5,10 +5,7 @@
 [![npm version](https://badge.fury.io/js/routing-controllers.svg)](https://badge.fury.io/js/routing-controllers)
 [![Dependency Status](https://david-dm.org/typestack/routing-controllers.svg)](https://david-dm.org/typestack/routing-controllers)
 
-<center>
-<span>English</span> | 
-[中文](./docs/lang/chinese/README.md)
-</center>
+English | [中文](./docs/lang/chinese/README.md)
 
 Allows to create controller classes with methods as actions that handle requests.
 You can use routing-controllers with [express.js][1] or [koa.js][2].
@@ -380,7 +377,7 @@ getUsers(@QueryParam("limit") limit: number) {
 ```
 
 If you want to inject all query parameters use `@QueryParams()` decorator.
-The bigest benefit of this approach is that you can perform validation of the params.
+The biggest benefit of this approach is that you can perform validation of the params.
 
 ```typescript
 enum Roles {
@@ -1216,7 +1213,7 @@ If you want to disable it simply pass `classTransformer: false` to createExpress
 
 ## Controller Inheritance
 
-Often your application may need to have an option to inherit controller from another to reuse code and void duplication.
+Often your application may need to have an option to inherit controller from another to reuse code and avoid duplication.
 A good example of the use is the CRUD operations which can be hidden inside `AbstractBaseController` with the possibility to add new and overload methods, the template method pattern.
 
 ```typescript
@@ -1228,7 +1225,7 @@ abstract class AbstractControllerTemplate {
   @Post()
   public create() {}
 
-  @Read()
+  @Get()
   public read() {}
 
   @Put()

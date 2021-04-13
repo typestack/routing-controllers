@@ -98,6 +98,7 @@ export class ExpressDriver extends BaseDriver {
   registerAction(actionMetadata: ActionMetadata, executeCallback: (options: Action) => any): void {
     // middlewares required for this action
     const defaultMiddlewares: any[] = [];
+    const authMiddlewares: any[] = [];
 
     if (actionMetadata.isBodyUsed) {
       if (actionMetadata.isJsonTyped) {
@@ -108,7 +109,7 @@ export class ExpressDriver extends BaseDriver {
     }
 
     if (actionMetadata.isAuthorizedUsed) {
-      defaultMiddlewares.push((request: any, response: any, next: Function) => {
+      authMiddlewares.push((request: any, response: any, next: Function) => {
         if (!this.authorizationChecker) throw new AuthorizationCheckerNotDefinedError();
 
         const action: Action = { request, response, next };
@@ -182,7 +183,15 @@ export class ExpressDriver extends BaseDriver {
 
     // finally register action in express
     this.express[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[
+        route,
+        routeGuard,
+        ...authMiddlewares,
+        ...beforeMiddlewares,
+        ...defaultMiddlewares,
+        routeHandler,
+        ...afterMiddlewares,
+      ]
     );
   }
 
