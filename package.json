@@ -1,5 +1,5 @@
 {
-  "name": "routing-controllers",
+  "name": "@reperiohealth/routing-controllers",
   "private": false,
   "version": "0.9.0",
   "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
@@ -26,9 +26,9 @@
   "scripts": {
     "build": "npm run build:cjs",
     "build:clean": "rimraf build",
-    "build:es2015": "tsc --project tsconfig.prod.esm2015.json",
-    "build:cjs": "tsc --project tsconfig.prod.cjs.json",
-    "build:types": "tsc --project tsconfig.prod.types.json",
+    "build:es2015": "npx tsc --project tsconfig.prod.esm2015.json",
+    "build:cjs": "npx tsc --project tsconfig.prod.cjs.json",
+    "build:types": "npx tsc --project tsconfig.prod.types.json",
     "prettier:fix": "prettier --write \"**/*.{ts,md}\"",
     "prettier:check": "prettier --check \"**/*.{ts,md}\"",
     "lint:fix": "eslint --max-warnings 0 --fix --ext .ts src/",
@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "cookie": "^0.4.0",
-    "express": "^4.17.1",
     "express-session": "^1.17.1",
     "glob": "^7.1.4",
     "reflect-metadata": "^0.1.13",
@@ -92,12 +91,12 @@
     "typescript": "^3.9.7"
   },
   "optionalDependencies": {
-    "express": "^4.17.1",
     "body-parser": "^1.19.0",
-    "multer": "^1.4.2",
+    "express": "^4.17.1",
     "koa": "^2.8.2",
     "koa-bodyparser": "^4.2.1",
+    "koa-multer": "^1.0.2",
     "koa-router": "^7.4.0",
-    "koa-multer": "^1.0.2"
+    "multer": "^1.4.2"
   }
 }
