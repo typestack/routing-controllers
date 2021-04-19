@@ -50,120 +50,107 @@ describe('ActionParameterHandler', () => {
       targetType: function () {},
     };
   };
+  const driver = new ExpressDriver();
+  const actionParameterHandler = new ActionParameterHandler(driver);
 
-  it('handle - should process string parameters', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata('uuid');
-
-    const action = {
-      request: {
-        params: {
-          uuid: '0b5ec98f-e26d-4414-b798-dcd35a5ef859',
+  describe('positive', () => {
+    it('handle - should process string parameters', async () => {
+      const param = buildParamMetadata('uuid');
+      const action = {
+        request: {
+          params: {
+            uuid: '0b5ec98f-e26d-4414-b798-dcd35a5ef859',
+          },
         },
-      },
-      response: {},
-    };
+        response: {},
+      };
 
-    const processedValue = await actionParameterHandler.handle(action, param);
+      const processedValue = await actionParameterHandler.handle(action, param);
 
-    expect(processedValue).to.be.eq(action.request.params.uuid);
-  });
+      expect(processedValue).to.be.eq(action.request.params.uuid);
+    });
 
-  it('handle - should process string parameters, returns empty if a given string is empty', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata('uuid');
-
-    const action = {
-      request: {
-        params: {
-          uuid: '',
+    it('handle - should process string parameters, returns empty if a given string is empty', async () => {
+      const param = buildParamMetadata('uuid');
+      const action = {
+        request: {
+          params: {
+            uuid: '',
+          },
         },
-      },
-      response: {},
-    };
+        response: {},
+      };
 
-    const processedValue = await actionParameterHandler.handle(action, param);
+      const processedValue = await actionParameterHandler.handle(action, param);
 
-    expect(processedValue).to.be.eq(action.request.params.uuid);
-  });
+      expect(processedValue).to.be.eq(action.request.params.uuid);
+    });
 
-  it('handle - should process number parameters', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata('id');
-
-    const action = {
-      request: {
-        params: {
-          id: 10000,
+    it('handle - should process number parameters', async () => {
+      const param = buildParamMetadata('id');
+      const action = {
+        request: {
+          params: {
+            id: 10000,
+          },
         },
-      },
-      response: {},
-    };
+        response: {},
+      };
 
-    const processedValue = await actionParameterHandler.handle(action, param);
+      const processedValue = await actionParameterHandler.handle(action, param);
 
-    expect(processedValue).to.be.eq(action.request.params.id);
+      expect(processedValue).to.be.eq(action.request.params.id);
+    });
+
+    it('handle - undefined on empty object provided', async () => {
+      const param = buildParamMetadata();
+      const action = {
+        request: {
+          params: {},
+        },
+        response: {},
+      };
+
+      const processedValue = await actionParameterHandler.handle(action, param);
+
+      expect(processedValue).to.be.eq(undefined);
+    });
   });
+  describe('negative', () => {
+    it('handle - throws error if the parameter is required', async () => {
+      const param = buildParamMetadata('uuid', 'param', true);
+      const action = {
+        request: {},
+        response: {},
+      };
+      let error;
 
-  it('handle - undefined on empty object provided', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata();
+      try {
+        await actionParameterHandler.handle(action, param);
+      } catch (e) {
+        error = e;
+      }
 
-    const action = {
-      request: {
-        params: {},
-      },
-      response: {},
-    };
+      expect(error.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
+    });
 
-    const processedValue = await actionParameterHandler.handle(action, param);
+    it('handle - throws error if the parameter is required, type file provided', async () => {
+      const param = buildParamMetadata('uuid', 'file', true);
+      const action = {
+        request: {},
+        response: {},
+      };
+      let error;
 
-    expect(processedValue).to.be.eq(undefined);
-  });
+      try {
+        await actionParameterHandler.handle(action, param);
+      } catch (e) {
+        error = e;
+      }
 
-  it('handle - throws error if the parameter is required', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata('uuid', 'param', true);
-
-    const action = {
-      request: {},
-      response: {},
-    };
-    let error;
-
-    try {
-      await actionParameterHandler.handle(action, param);
-    } catch (e) {
-      error = e;
-    }
-
-    expect(error.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
-  });
-
-  it('handle - throws error if the parameter is required, type file provided', async () => {
-    const driver = new ExpressDriver();
-    const actionParameterHandler = new ActionParameterHandler(driver);
-    const param = buildParamMetadata('uuid', 'file', true);
-
-    const action = {
-      request: {},
-      response: {},
-    };
-    let error;
-
-    try {
-      await actionParameterHandler.handle(action, param);
-    } catch (e) {
-      error = e;
-    }
-
-    expect(error.httpCode).to.be.eq(400);
-    expect(error.name).to.be.eq('ParamRequiredError');
-    expect(error.message).to.be.eq('Uploaded file "uuid" is required for request on undefined undefined');
+      expect(error.httpCode).to.be.eq(400);
+      expect(error.name).to.be.eq('ParamRequiredError');
+      expect(error.message).to.be.eq('Uploaded file "uuid" is required for request on undefined undefined');
+    });
   });
 });
