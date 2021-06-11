@@ -318,9 +318,10 @@ You can load all controllers from directories, by specifying array of directorie
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
 
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
+  controllers: [path.join(__dirname + '/controllers/*.js')],
 }).listen(3000); // register controllers routes in our express application
 ```
 
@@ -1086,10 +1087,12 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
+
 createExpressServer({
-  controllers: [__dirname + '/controllers/**/*.js'],
-  middlewares: [__dirname + '/middlewares/**/*.js'],
-  interceptors: [__dirname + '/interceptors/**/*.js'],
+  controllers: [path.join(__dirname, '/controllers/**/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/**/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/**/*.js')],
 }).listen(3000);
 ```
 
@@ -1382,6 +1385,7 @@ Here is example how to integrate routing-controllers with [typedi](https://githu
 ```typescript
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
+import path from 'path';
 
 // its important to set container before any operation you do with routing-controllers,
 // including importing controllers
@@ -1389,9 +1393,9 @@ useContainer(Container);
 
 // create and run server
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
-  middlewares: [__dirname + '/middlewares/*.js'],
-  interceptors: [__dirname + '/interceptors/*.js'],
+  controllers: [path.join(__dirname, '/controllers/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/*.js')],
 }).listen(3000);
 ```
 
