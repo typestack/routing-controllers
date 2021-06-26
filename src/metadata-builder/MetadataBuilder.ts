@@ -1,20 +1,21 @@
-import { ActionMetadata } from '../metadata/ActionMetadata';
-import { ControllerMetadata } from '../metadata/ControllerMetadata';
-import { InterceptorMetadata } from '../metadata/InterceptorMetadata';
-import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
-import { ParamMetadata } from '../metadata/ParamMetadata';
-import { ParamMetadataArgs } from '../metadata/args/ParamMetadataArgs';
-import { ResponseHandlerMetadata } from '../metadata/ResponseHandleMetadata';
-import { RoutingControllersOptions } from '../RoutingControllersOptions';
-import { UseMetadata } from '../metadata/UseMetadata';
-import { getMetadataArgsStorage } from '../index';
-import { ActionMetadataArgs } from '../metadata/args/ActionMetadataArgs';
+import {ActionMetadata} from '../metadata/ActionMetadata';
+import {ControllerMetadata} from '../metadata/ControllerMetadata';
+import {InterceptorMetadata} from '../metadata/InterceptorMetadata';
+import {MiddlewareMetadata} from '../metadata/MiddlewareMetadata';
+import {ParamMetadata} from '../metadata/ParamMetadata';
+import {ParamMetadataArgs} from '../metadata/args/ParamMetadataArgs';
+import {ResponseHandlerMetadata} from '../metadata/ResponseHandleMetadata';
+import {RoutingControllersOptions} from '../RoutingControllersOptions';
+import {UseMetadata} from '../metadata/UseMetadata';
+import {getMetadataArgsStorage} from '../index';
+import {ActionMetadataArgs} from '../metadata/args/ActionMetadataArgs';
 
 /**
  * Builds metadata from the given metadata arguments.
  */
 export class MetadataBuilder {
-  constructor(private options: RoutingControllersOptions) {}
+  constructor(private options: RoutingControllersOptions) {
+  }
 
   // -------------------------------------------------------------------------
   // Public Methods
@@ -80,6 +81,10 @@ export class MetadataBuilder {
       : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
+
+
+      console.log('--------- >', controller);
+
       controller.build(this.createControllerResponseHandlers(controller));
       controller.options = controllerArgs.options;
       controller.actions = this.createActions(controller);
@@ -96,18 +101,30 @@ export class MetadataBuilder {
     let target = controller.target;
     const actionsWithTarget: ActionMetadataArgs[] = [];
     while (target) {
+      const a = getMetadataArgsStorage()
+        .filterActionsWithTarget(target)
+        .filter(action => {
+          return actionsWithTarget.map(a => a.method).indexOf(action.method) === -1;
+        });
+
+      if (a.length) {
+        a[0].target = controller.target;
+        console.log('------------------- >', a);
+      }
+
       actionsWithTarget.push(
-        ...getMetadataArgsStorage()
-          .filterActionsWithTarget(target)
-          .filter(action => {
-            return actionsWithTarget.map(a => a.method).indexOf(action.method) === -1;
-          })
+        ...a
       );
+
       target = Object.getPrototypeOf(target);
     }
+
+    console.log('---- >', controller.target);
+    console.log('---- >', actionsWithTarget[0].target);
+
     return actionsWithTarget.map(actionArgs => {
       const action = new ActionMetadata(controller, actionArgs, this.options);
-      action.options = { ...controller.options, ...actionArgs.options };
+      action.options = {...controller.options, ...actionArgs.options};
       action.params = this.createParams(action);
       action.uses = this.createActionUses(action);
       action.interceptors = this.createActionInterceptorUses(action);
