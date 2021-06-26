@@ -78,7 +78,6 @@ export class MetadataBuilder {
     const controllers = !classes
       ? getMetadataArgsStorage().controllers
       : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
-
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
       controller.build(this.createControllerResponseHandlers(controller));
@@ -96,7 +95,6 @@ export class MetadataBuilder {
   protected createActions(controller: ControllerMetadata): ActionMetadata[] {
     let target = controller.target;
     const actionsWithTarget: ActionMetadataArgs[] = [];
-
     while (target) {
       const actions = getMetadataArgsStorage()
         .filterActionsWithTarget(target)
@@ -112,9 +110,6 @@ export class MetadataBuilder {
 
       target = Object.getPrototypeOf(target);
     }
-
-    // console.log('---- >', controller.target);
-    // console.log('---- >', actionsWithTarget[0].target);
 
     return actionsWithTarget.map(actionArgs => {
       const action = new ActionMetadata(controller, actionArgs, this.options);
