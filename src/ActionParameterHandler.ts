@@ -96,7 +96,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
   protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
     if (value === null || value === undefined) return value;
 
-    const isNormalisationNeeded =
+    const isNormalizationNeeded =
       typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].includes(param.type);
     const isTargetPrimitive = ['number', 'string', 'boolean'].includes(param.targetName);
     const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
