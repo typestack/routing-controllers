@@ -102,7 +102,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
 
     // if param value is an object and param type match, normalize its string properties
-    if (isNormalisationNeeded) {
+    if (isNormalizationNeeded) {
       await Promise.all(
         Object.keys(value).map(async key => {
           const keyValue = value[key];
