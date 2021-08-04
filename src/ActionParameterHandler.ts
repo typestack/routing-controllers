@@ -133,8 +133,13 @@ export class ActionParameterHandler<T extends BaseDriver> {
         case 'string':
         case 'boolean':
         case 'date':
-          return this.normalizeStringValue(value, param.name, param.targetName);
+          const normalizedValue = this.normalizeStringValue(value, param.name, param.targetName);
+          return param.isArray ? [normalizedValue] : normalizedValue;
+        case 'array':
+          return [value];
       }
+    } else if (Array.isArray(value)) {
+      return value.map(v => this.normalizeStringValue(v, param.name, param.targetName));
     }
 
     // if target type is not primitive, transform and validate it
@@ -191,10 +196,14 @@ export class ActionParameterHandler<T extends BaseDriver> {
    */
   protected parseValue(value: any, paramMetadata: ParamMetadata): any {
     if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch (error) {
-        throw new ParameterParseJsonError(paramMetadata.name, value);
+      if (['queries', 'query'].includes(paramMetadata.type) && paramMetadata.targetName === 'array') {
+        return [value];
+      } else {
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          throw new ParameterParseJsonError(paramMetadata.name, value);
+        }
       }
     }
     return value;
