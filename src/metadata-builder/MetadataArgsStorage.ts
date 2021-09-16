@@ -79,9 +79,11 @@ export class MetadataArgsStorage {
    * Filters registered controllers by a given classes.
    */
   filterControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
-    return this.controllers.filter(ctrl => {
-      return classes.filter(cls => ctrl.target === cls).length > 0;
-    });
+    return classes.reduce<ControllerMetadataArgs[]>((ctrls, cls) => {
+      const ctrl = this.controllers.find(ctrl => ctrl.target === cls);
+      if (ctrl) ctrls.push(ctrl);
+      return ctrls;
+    }, []);
   }
 
   /**
