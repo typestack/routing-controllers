@@ -244,11 +244,13 @@ export class KoaDriver extends BaseDriver {
       }
     } else if (action.renderedTemplate) {
       // if template is set then render it // TODO: not working in koa
-      const renderOptions = result && result instanceof Object ? result : {};
+      options.context.renderOptions = {
+        page : action.renderedTemplate,
+        locals : result && result instanceof Object ? result : {},
+      }
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      if(this.koa.middleware.indexOf(this.loadKoaViews) === -1) this.koa.use(this.loadKoaViews)
 
-      this.koa.use(async function (ctx: any, next: any) {
-        await ctx.render(action.renderedTemplate, renderOptions);
-      });
     } else if (result === undefined) {
       // throw NotFoundError on undefined response
       if (action.undefinedResultCode instanceof Function) {
@@ -415,5 +417,13 @@ export class KoaDriver extends BaseDriver {
     }
 
     return await next();
+  }
+
+  private async loadKoaViews(ctx: any, next: Function) {
+    if('renderOptions' in ctx){
+      return await ctx.render(ctx.renderOptions.page, ctx.renderOptions.locals)
+    }
+
+    return await next()
   }
 }
