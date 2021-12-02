@@ -318,9 +318,10 @@ You can load all controllers from directories, by specifying array of directorie
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
 
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
+  controllers: [path.join(__dirname + '/controllers/*.js')],
 }).listen(3000); // register controllers routes in our express application
 ```
 
@@ -375,6 +376,28 @@ getUsers(@QueryParam("limit") limit: number) {
 }
 ```
 
+You can use `isArray` option to get a query param array. This will cast the query param :
+
+```typescript
+@Get("/users/by-multiple-ids")
+getUsers(@QueryParam("ids", { isArray: true}) ids: string[]) {
+}
+```
+
+`GET /users/by-multiple-ids?ids=a` → `ids = ['a']`
+`GET /users/by-multiple-ids?ids=a&ids=b` → `ids = ['a', 'b']`
+
+You can combine use `isArray` option with `type` option to get a query param array of one type. This will cast the query param :
+
+```typescript
+@Get("/users/by-multiple-ids")
+getUsers(@QueryParam("ids", { isArray: true, type: Number}) ids: number[]) {
+}
+```
+
+`GET /users/by-multiple-ids?ids=1` → `ids = [1]`
+`GET /users/by-multiple-ids?ids=1&ids=3.5` → `ids = [1, 3.5]`
+
 If you want to inject all query parameters use `@QueryParams()` decorator.
 The biggest benefit of this approach is that you can perform validation of the params.
 
@@ -399,12 +422,17 @@ class GetUsersQuery {
     @IsBoolean()
     isActive: boolean;
 
+    @IsArray()
+    @IsNumber(undefined, { each: true })
+    @Type(() => Number)
+    ids: number[];
 }
 
 @Get("/users")
 getUsers(@QueryParams() query: GetUsersQuery) {
     // here you can access query.role, query.limit
     // and others valid query parameters
+    // query.ids will be an array, of numbers, even with one element
 }
 ```
 
@@ -507,7 +535,7 @@ You can also specify uploading options to multer this way:
 
 ```typescript
 // to keep code clean better to extract this function into separate file
-export const fileUploadOptions = () => {
+export const fileUploadOptions = () => ({
     storage: multer.diskStorage({
         destination: (req: any, file: any, cb: any) => { ...
         },
@@ -520,7 +548,7 @@ export const fileUploadOptions = () => {
         fieldNameSize: 255,
         fileSize: 1024 * 1024 * 2
     }
-};
+});
 
 // use options this way:
 @Post("/files")
@@ -1086,10 +1114,12 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
+
 createExpressServer({
-  controllers: [__dirname + '/controllers/**/*.js'],
-  middlewares: [__dirname + '/middlewares/**/*.js'],
-  interceptors: [__dirname + '/interceptors/**/*.js'],
+  controllers: [path.join(__dirname, '/controllers/**/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/**/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/**/*.js')],
 }).listen(3000);
 ```
 
@@ -1382,6 +1412,7 @@ Here is example how to integrate routing-controllers with [typedi](https://githu
 ```typescript
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
+import path from 'path';
 
 // its important to set container before any operation you do with routing-controllers,
 // including importing controllers
@@ -1389,9 +1420,9 @@ useContainer(Container);
 
 // create and run server
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
-  middlewares: [__dirname + '/middlewares/*.js'],
-  interceptors: [__dirname + '/interceptors/*.js'],
+  controllers: [path.join(__dirname, '/controllers/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/*.js')],
 }).listen(3000);
 ```
 
@@ -1532,7 +1563,7 @@ export class QuestionController {
 
 | Signature                                                        | Example                                           | Description                                                                                                                                 |
 | ---------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options. |  |
+| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options. |
 | `@CurrentUser(options?: { required?: boolean })`                 | get(@CurrentUser({ required: true }) user: User)  | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers options.                                   |
 | `@Header(headerName: string, headerValue: string)`               | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP header returned in the response.                                                                          |
 | `@ContentType(contentType: string)`                              | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-Type returned in the response.                                                                        |

@@ -79,6 +79,11 @@ export class ParamMetadata {
   transform: (action: Action, value?: any) => Promise<any> | any;
 
   /**
+   * If true, string values are cast to arrays
+   */
+  isArray?: boolean;
+
+  /**
    * Additional parameter options.
    * For example it can be uploader middleware options or body-parser middleware options.
    */
@@ -113,6 +118,7 @@ export class ParamMetadata {
     this.transform = args.transform;
     this.classTransform = args.classTransform;
     this.validate = args.validate;
+    this.isArray = args.isArray;
 
     if (args.explicitType) {
       this.targetType = args.explicitType;

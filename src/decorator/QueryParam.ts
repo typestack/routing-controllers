@@ -18,6 +18,7 @@ export function QueryParam(name: string, options?: ParamOptions): Function {
       classTransform: options ? options.transform : undefined,
       explicitType: options ? options.type : undefined,
       validate: options ? options.validate : undefined,
+      isArray: options?.isArray ?? false,
     });
   };
 }

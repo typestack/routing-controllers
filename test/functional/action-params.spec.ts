@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { IsBoolean, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
+import { IsBoolean, IsString, MaxLength, Min, ValidateNested, IsArray, IsNumber, IsDate } from 'class-validator';
 import express from 'express';
 import FormData from 'form-data';
 import fs from 'fs';
@@ -29,6 +29,7 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { SessionMiddleware } from '../fakes/global-options/SessionMiddleware';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
+import { Type, Transform } from 'class-transformer';
 
 describe(``, () => {
   let expressServer: HttpServer;
@@ -37,6 +38,7 @@ describe(``, () => {
   let queryParamSortBy: string | undefined,
     queryParamCount: string | undefined,
     queryParamLimit: number | undefined,
+    queryParamValues: any[] | undefined,
     queryParamShowAll: boolean | undefined,
     queryParamFilter: Record<string, any> | undefined;
   let queryParams1: { [key: string]: any } | undefined,
@@ -116,6 +118,32 @@ describe(``, () => {
 
       @ValidateNested()
       myObject: NestedQueryClass;
+
+      @IsArray()
+      @IsString({ each: true })
+      multipleStringValues?: string[];
+
+      @IsArray()
+      @IsNumber(undefined, { each: true })
+      @Type(() => Number)
+      multipleNumberValues?: number[];
+
+      @IsArray()
+      @IsBoolean({ each: true })
+      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      multipleBooleanValues?: boolean[];
+
+      @IsArray()
+      @IsDate({ each: true })
+      @Type(() => Date)
+      multipleDateValues?: Date[];
+    }
+
+    class QueryWhitelistClass {
+      @IsArray()
+      @IsBoolean({ each: true })
+      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      multipleBooleanValues?: boolean[];
     }
 
     @Controller()
@@ -218,10 +246,42 @@ describe(``, () => {
         return `<html><body>hello</body></html>`;
       }
 
+      @Get('/photos-params-whitelist')
+      getPhotosWithWhitelistQuery(
+        @QueryParams({ validate: { whitelist: true, forbidNonWhitelisted: true } }) query: QueryWhitelistClass
+      ): string {
+        queryParams3 = query;
+        return `<html><body>hello</body></html>`;
+      }
+
       @Get('/photos-with-required')
       getPhotosWithIdRequired(@QueryParam('limit', { required: true }) limit: number): string {
         queryParamLimit = limit;
         return `<html><body>${limit}</body></html>`;
+      }
+
+      @Get('/photos-query-param-string-array')
+      getPhotosWithMultipleStringValuesRequired(
+        @QueryParam('multipleStringValues', { required: true }) values: string[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
+      }
+
+      @Get('/photos-query-param-number-array')
+      getPhotosWithMultipleNumberValuesRequired(
+        @QueryParam('multipleNumberValues', { required: true, type: Number, isArray: true }) values: number[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
+      }
+
+      @Get('/photos-query-param-date-array')
+      getPhotosWithMultipleDateValuesRequired(
+        @QueryParam('multipleDateValues', { required: true, type: Date, isArray: true }) values: Date[]
+      ): string {
+        queryParamValues = values;
+        return `<html><body>${values}</body></html>`;
       }
 
       @Get('/photos-with-json')
@@ -493,20 +553,86 @@ describe(``, () => {
   */
 
   it("@QueryParams should give a proper values from request's query parameters", async () => {
-    expect.assertions(6);
-    const response = await axios.get('/photos-params?sortBy=name&count=2&limit=10&showAll');
+    expect.assertions(10);
+    const response = await axios.get(
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'multipleStringValues=a&' +
+        'multipleStringValues=b&' +
+        'multipleNumberValues=1&' +
+        'multipleNumberValues=2.3&' +
+        'multipleBooleanValues=false&' +
+        'multipleBooleanValues=true&' +
+        'multipleDateValues=2017-02-01T00:00:00Z&' +
+        'multipleDateValues=2017-03-01T00:00:00Z'
+    );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(queryParams1.sortBy).toEqual('name');
     expect(queryParams1.count).toEqual('2');
     expect(queryParams1.limit).toEqual(10);
     expect(queryParams1.showAll).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
+    expect(queryParams1.multipleDateValues).toEqual([
+      new Date('2017-02-01T00:00:00Z'),
+      new Date('2017-03-01T00:00:00Z'),
+    ]);
+  });
+
+  it("@QueryParams should give a proper values from request's query parameters and one multiple value", async () => {
+    expect.assertions(10);
+    const response = await axios.get(
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'multipleStringValues=a&' +
+        'multipleNumberValues=1&' +
+        'multipleBooleanValues=true&' +
+        'multipleDateValues=2017-02-01T01:00:00Z'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParams1.sortBy).toEqual('name');
+    expect(queryParams1.count).toEqual('2');
+    expect(queryParams1.limit).toEqual(10);
+    expect(queryParams1.showAll).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a']);
+    expect(queryParams1.multipleNumberValues).toEqual([1]);
+    expect(queryParams1.multipleBooleanValues).toEqual([true]);
+    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
+  });
+
+  it("@QueryParams should give a proper values from request's query with validate whitelist option on", async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-params-whitelist?multipleBooleanValues=false');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParams3.multipleBooleanValues).toEqual([false]);
   });
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {
-    expect.assertions(9);
+    expect.assertions(13);
     const response = await axios.get(
-      '/photos-params?sortBy=name&count=2&limit=10&showAll&myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D'
+      '/photos-params?' +
+        'sortBy=name&' +
+        'count=2&' +
+        'limit=10&' +
+        'showAll&' +
+        'myObject=%7B%22num%22%3A%205,%20%22str%22%3A%20%22five%22,%20%22isFive%22%3A%20true%7D&' +
+        'multipleStringValues=a&' +
+        'multipleStringValues=b&' +
+        'multipleNumberValues=1&' +
+        'multipleNumberValues=2.3&' +
+        'multipleBooleanValues=false&' +
+        'multipleBooleanValues=true&' +
+        'multipleDateValues=2017-02-01T00:00:00Z'
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -517,6 +643,10 @@ describe(``, () => {
     expect(queryParams1.myObject.num).toEqual(5);
     expect(queryParams1.myObject.str).toEqual('five');
     expect(queryParams1.myObject.isFive).toEqual(true);
+    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
+    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T00:00:00Z')]);
   });
 
   it("@QueryParams should not validate request query parameters when it's turned off in validator options", async () => {
@@ -550,6 +680,60 @@ describe(``, () => {
     expect(queryParamCount).toEqual('2');
     expect(queryParamLimit).toEqual(10);
     expect(queryParamShowAll).toEqual(true);
+  });
+
+  it('@QueryParam should give an array of string with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-string-array?multipleStringValues=a');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual(['a']);
+  });
+
+  it('@QueryParam should give an array of string with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-string-array?multipleStringValues=a&multipleStringValues=b&multipleStringValues=b'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual(['a', 'b', 'b']);
+  });
+
+  it('@QueryParam should give an array of number with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-number-array?multipleNumberValues=1');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([1]);
+  });
+
+  it('@QueryParam should give an array of number with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-number-array?multipleNumberValues=1&multipleNumberValues=2&multipleNumberValues=2'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([1, 2, 2]);
+  });
+
+  it('@QueryParam should give an array of date with only one query parameter', async () => {
+    expect.assertions(3);
+    const response = await axios.get('/photos-query-param-date-array?multipleDateValues=2021-01-01');
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([new Date('2021-01-01')]);
+  });
+
+  it('@QueryParam should give an array of date with multiple query parameters', async () => {
+    expect.assertions(3);
+    const response = await axios.get(
+      '/photos-query-param-date-array?multipleDateValues=2021-01-01&multipleDateValues=2020-01-01&multipleDateValues=2021-05-01'
+    );
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
+    expect(queryParamValues).toEqual([new Date('2021-01-01'), new Date('2020-01-01'), new Date('2021-05-01')]);
   });
 
   it('@QueryParam when required params must be provided and they should not be empty', async () => {
