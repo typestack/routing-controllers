@@ -163,7 +163,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         }
 
         const valueNumber = +value;
-        if (valueNumber === NaN) {
+        if (Number.isNaN(valueNumber)) {
           throw new InvalidParamError(value, parameterName, parameterType);
         }
 
