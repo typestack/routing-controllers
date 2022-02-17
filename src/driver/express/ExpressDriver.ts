@@ -253,7 +253,7 @@ export class ExpressDriver extends BaseDriver {
    */
   handleSuccess(result: any, action: ActionMetadata, options: Action): void {
     // if the action returned the response object itself, short-circuits
-    if (result && result === options.response) {
+    if (result && result === options.response || options.response.headersSent) {
       options.next();
       return;
     }
@@ -354,7 +354,7 @@ export class ExpressDriver extends BaseDriver {
    * Handles result of failed executed controller action.
    */
   handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
-    if (this.isDefaultErrorHandlingEnabled) {
+    if (this.isDefaultErrorHandlingEnabled && !options.response.headersSent) {
       const response: any = options.response;
 
       // set http code
