@@ -85,7 +85,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
    and make sure to import it before you use routing-controllers:
 
 ```typescript
-  import "reflect-metadata";
+import 'reflect-metadata';
 ```
 
 3. Install framework:
