@@ -64,7 +64,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     // check cases when parameter is required but its empty and throw errors in this case
     if (param.required) {
       const isValueEmpty = value === null || value === undefined || value === '';
-      const isValueEmptyObject = typeof value === 'object' && Object.keys(value).length === 0;
+      const isValueEmptyObject = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
 
       if (param.type === 'body' && !param.name && (isValueEmpty || isValueEmptyObject)) {
         // body has a special check and error message
