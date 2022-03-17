@@ -2,33 +2,13 @@
   "name": "routing-controllers",
   "private": false,
   "version": "0.8.1-alpha.2",
-  "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
+  "description": "Routing controllers fork to avoid having vulnerabilities with class-transformer and class-validator packages.",
   "license": "MIT",
   "readmeFilename": "README.md",
-  "author": {
-    "name": "Umed Khudoiberdiev",
-    "email": "pleerock.me@gmail.com"
-  },
-  "contributors": [
-    {
-      "name": "Michał Lytek",
-      "url": "https://github.com/19majkel94"
-    },
-    {
-      "name": "Jonathas Morais",
-      "url": "https://github.com/jotamorais"
-    },
-    {
-      "name": "adenhertog",
-      "url": "https://github.com/adenhertog"
-    }
-  ],
+  "contributors": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/pleerock/routing-controllers.git"
-  },
-  "bugs": {
-    "url": "https://github.com/pleerock/routing-controllers/issues"
+    "url": "https://github.com/renacargnelutti/routing-controllers.git"
   },
   "main": "index.js",
   "tags": [
@@ -47,8 +27,8 @@
     "template-url": "^1.0.0"
   },
   "peerDependencies": {
-    "class-transformer": "^0.2.3",
-    "class-validator": "0.10.1"
+    "@nestjs/class-transformer": "^0.4.0",
+    "@nestjs/class-validator": "^0.13.4"
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
@@ -63,8 +43,8 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chakram": "^1.5.0",
-    "class-transformer": "^0.2.3",
-    "class-validator": "0.10.1",
+    "@nestjs/class-transformer": "^0.4.0",
+    "@nestjs/class-validator": "^0.13.4",
     "copyfiles": "^2.1.1",
     "cors": "^2.8.5",
     "cross-env": "6.0.0",
