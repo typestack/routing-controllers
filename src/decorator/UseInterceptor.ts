@@ -3,14 +3,13 @@ import { Action } from '../Action';
 import { UseInterceptorMetadataArgs } from '../metadata/args/UseInterceptorMetadataArgs';
 
 /**
- * Specifies a given interceptor middleware or interceptor function, to which UseInterceptorMetadataArgs can be applied, to be used for controller or controller action. 
+ * Specifies a given interceptor middleware or interceptor function, to which UseInterceptorMetadataArgs can be applied, to be used for controller or controller action.
  * Must be set to controller action or controller class.
  */
 export function UseInterceptor(
   optionsOrInterceptor: Partial<UseInterceptorMetadataArgs> | Function,
   ...interceptors: Array<Function>
 ): Function;
-
 
 /**
  * Specifies a given interceptor middleware or interceptor function to be used for controller or controller action.
@@ -19,7 +18,7 @@ export function UseInterceptor(
 export function UseInterceptor(...interceptors: Array<Function>): Function;
 
 /**
- * Specifies a given interceptor middleware or interceptor function, to which UseInterceptorMetadataArgs can be applied, to be used for controller or controller action. 
+ * Specifies a given interceptor middleware or interceptor function, to which UseInterceptorMetadataArgs can be applied, to be used for controller or controller action.
  * Must be set to controller action or controller class.
  */
 export function UseInterceptor(
