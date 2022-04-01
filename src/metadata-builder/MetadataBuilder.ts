@@ -81,7 +81,6 @@ export class MetadataBuilder {
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
       controller.build(this.createControllerResponseHandlers(controller));
-      controller.options = controllerArgs.options;
       controller.actions = this.createActions(controller);
       controller.uses = this.createControllerUses(controller);
       controller.interceptors = this.createControllerInterceptorUses(controller);
