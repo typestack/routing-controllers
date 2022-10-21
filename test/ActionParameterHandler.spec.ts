@@ -40,7 +40,8 @@ describe('ActionParameterHandler', () => {
       object: 'getProduct',
       extraOptions: undefined,
       index: 0,
-      parse: undefined,
+      // parse: undefined,
+      parse: false,
       required: isRequired,
       transform: function (action, value) {
         return value;
@@ -151,7 +152,7 @@ describe('ActionParameterHandler', () => {
         error = e;
       }
 
-      expect(error.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
+      expect(error.toString()).to.be.eq("TypeError: Cannot read properties of undefined (reading 'uuid')");
     });
 
     it('handle - throws error if the parameter is required, type file provided', async () => {

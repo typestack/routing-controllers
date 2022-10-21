@@ -76,7 +76,7 @@ export class ParamMetadata {
   /**
    * Transforms the value.
    */
-  transform: (action: Action, value?: any) => Promise<any> | any;
+  transform?: (action: Action, value?: any) => Promise<any> | any;
 
   /**
    * If true, string values are cast to arrays

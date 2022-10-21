@@ -1,6 +1,7 @@
 import { ValidatorOptions } from 'class-validator';
 import { ClassTransformOptions } from 'class-transformer';
 import { ParamType } from '../types/ParamType';
+import { Action } from '../../Action';
 
 /**
  * Controller metadata used to storage information about registered parameters.
@@ -29,7 +30,7 @@ export interface ParamMetadataArgs {
   /**
    * Parameter name.
    */
-  name?: string;
+  name: string;
 
   /**
    * Specifies if parameter should be parsed as json or not.
@@ -44,7 +45,8 @@ export interface ParamMetadataArgs {
   /**
    * Transforms the value.
    */
-  transform?: (value?: any, request?: any, response?: any) => Promise<any> | any;
+  // transform?: (value?: any, request?: any, response?: any) => Promise<any> | any;
+  transform?: (action: Action, value?: any) => Promise<any> | any;
 
   /**
    * Extra parameter options.
