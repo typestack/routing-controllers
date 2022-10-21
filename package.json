@@ -39,9 +39,9 @@
     "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors --runInBand --no-coverage --watch"
   },
   "dependencies": {
-    "cookie": "^0.4.0",
-    "express": "^4.17.1",
-    "express-session": "^1.17.1",
+    "cookie": "^0.5.0",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "glob": "^7.1.4",
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
