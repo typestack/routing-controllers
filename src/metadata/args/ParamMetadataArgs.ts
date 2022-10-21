@@ -29,7 +29,7 @@ export interface ParamMetadataArgs {
   /**
    * Parameter name.
    */
-  name?: string;
+  name: string;
 
   /**
    * Specifies if parameter should be parsed as json or not.
