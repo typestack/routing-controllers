@@ -41,7 +41,7 @@ export class ParamMetadata {
   /**
    * Parameter name.
    */
-  name: string;
+  name?: string;
 
   /**
    * Parameter target type.
@@ -66,12 +66,12 @@ export class ParamMetadata {
   /**
    * Specifies if parameter should be parsed as json or not.
    */
-  parse: boolean;
+  parse?: boolean;
 
   /**
    * Indicates if this parameter is required or not
    */
-  required: boolean;
+  required?: boolean;
 
   /**
    * Transforms the value.

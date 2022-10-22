@@ -30,17 +30,17 @@ export interface ParamMetadataArgs {
   /**
    * Parameter name.
    */
-  name: string;
+  name?: string;
 
   /**
    * Specifies if parameter should be parsed as json or not.
    */
-  parse: boolean;
+  parse?: boolean;
 
   /**
    * Indicates if this parameter is required or not
    */
-  required: boolean;
+  required?: boolean;
 
   /**
    * Transforms the value.

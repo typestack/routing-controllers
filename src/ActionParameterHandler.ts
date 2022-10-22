@@ -1,4 +1,4 @@
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject as validate, ValidationError } from 'class-validator';
 import { Action } from './Action';
 import { BadRequestError } from './http-error/BadRequestError';
@@ -133,13 +133,13 @@ export class ActionParameterHandler<T extends BaseDriver> {
         case 'string':
         case 'boolean':
         case 'date':
-          const normalizedValue = this.normalizeStringValue(value, param.name, param.targetName);
+          const normalizedValue = this.normalizeStringValue(value, param.name ?? '', param.targetName);
           return param.isArray ? [normalizedValue] : normalizedValue;
         case 'array':
           return [value];
       }
     } else if (Array.isArray(value)) {
-      return value.map(v => this.normalizeStringValue(v, param.name, param.targetName));
+      return value.map(v => this.normalizeStringValue(v, param.name ?? '', param.targetName));
     }
 
     // if target type is not primitive, transform and validate it
@@ -202,7 +202,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         try {
           return JSON.parse(value);
         } catch (error) {
-          throw new ParameterParseJsonError(paramMetadata.name, value);
+          throw new ParameterParseJsonError(paramMetadata.name ?? '', value);
         }
       }
     }
@@ -221,7 +221,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       !(value instanceof paramMetadata.targetType)
     ) {
       const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
-      value = plainToClass(paramMetadata.targetType, value, options);
+      value = plainToInstance(paramMetadata.targetType, value, options);
     }
     return value;
   }
