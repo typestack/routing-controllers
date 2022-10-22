@@ -3,6 +3,7 @@ import { ActionMetadata, ControllerMetadata, ExpressDriver, ParamMetadata } from
 import { ActionMetadataArgs } from '../src/metadata/args/ActionMetadataArgs';
 import { ControllerMetadataArgs } from '../src/metadata/args/ControllerMetadataArgs';
 import { ParamType } from '../src/metadata/types/ParamType';
+import { AxiosError } from 'axios';
 
 const expect = require('chakram').expect;
 
@@ -131,7 +132,8 @@ describe('ActionParameterHandler', () => {
 
         await actionParameterHandler.handle(action, param);
       } catch (error) {
-        expect(error.toString()).to.be.eq(
+        const err = error as AxiosError;
+        expect(err.toString()).to.be.eq(
           'ParamRequiredError: Parameter "id" is required for request on undefined undefined'
         );
       }
@@ -149,10 +151,10 @@ describe('ActionParameterHandler', () => {
       try {
         await actionParameterHandler.handle(action, param);
       } catch (e) {
-        error = e;
+        error = e as AxiosError;
       }
 
-      expect(error.toString()).to.be.eq("TypeError: Cannot read properties of undefined (reading 'uuid')");
+      expect(error?.toString()).to.be.eq("TypeError: Cannot read properties of undefined (reading 'uuid')");
     });
 
     it('handle - throws error if the parameter is required, type file provided', async () => {
@@ -166,12 +168,13 @@ describe('ActionParameterHandler', () => {
       try {
         await actionParameterHandler.handle(action, param);
       } catch (e) {
-        error = e;
+        // error = e as AxiosError;
+        error = e as any;
       }
 
-      expect(error.httpCode).to.be.eq(400);
-      expect(error.name).to.be.eq('ParamRequiredError');
-      expect(error.message).to.be.eq('Uploaded file "uuid" is required for request on undefined undefined');
+      expect(error['httpCode']).to.be.eq(400);
+      expect(error?.name).to.be.eq('ParamRequiredError');
+      expect(error?.message).to.be.eq('Uploaded file "uuid" is required for request on undefined undefined');
     });
   });
 });

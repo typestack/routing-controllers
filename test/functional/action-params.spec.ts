@@ -28,6 +28,7 @@ import { UseBefore } from '../../src/decorator/UseBefore';
 import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { SessionMiddleware } from '../fakes/global-options/SessionMiddleware';
 import { axios } from '../utilities/axios';
+import { AxiosError } from 'axios';
 import DoneCallback = jest.DoneCallback;
 import { Type, Transform } from 'class-transformer';
 
@@ -130,7 +131,7 @@ describe(``, () => {
 
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(value => (Array.isArray(value.value) ? value.value.map(v => v !== 'false') : value.value !== 'false'))
       multipleBooleanValues?: boolean[];
 
       @IsArray()
@@ -142,7 +143,7 @@ describe(``, () => {
     class QueryWhitelistClass {
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(value => (Array.isArray(value.value) ? value.value.map(v => v !== 'false') : value.value !== 'false'))
       multipleBooleanValues?: boolean[];
     }
 
@@ -505,7 +506,8 @@ describe(``, () => {
     try {
       await axios.get('/not-use-session');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     }
   });
 
@@ -571,14 +573,14 @@ describe(``, () => {
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams1.sortBy).toEqual('name');
-    expect(queryParams1.count).toEqual('2');
-    expect(queryParams1.limit).toEqual(10);
-    expect(queryParams1.showAll).toEqual(true);
-    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
-    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
-    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
-    expect(queryParams1.multipleDateValues).toEqual([
+    expect(queryParams1?.sortBy).toEqual('name');
+    expect(queryParams1?.count).toEqual('2');
+    expect(queryParams1?.limit).toEqual(10);
+    expect(queryParams1?.showAll).toEqual(true);
+    expect(queryParams1?.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1?.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1?.multipleBooleanValues).toEqual([false, true]);
+    expect(queryParams1?.multipleDateValues).toEqual([
       new Date('2017-02-01T00:00:00Z'),
       new Date('2017-03-01T00:00:00Z'),
     ]);
@@ -599,14 +601,14 @@ describe(``, () => {
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams1.sortBy).toEqual('name');
-    expect(queryParams1.count).toEqual('2');
-    expect(queryParams1.limit).toEqual(10);
-    expect(queryParams1.showAll).toEqual(true);
-    expect(queryParams1.multipleStringValues).toEqual(['a']);
-    expect(queryParams1.multipleNumberValues).toEqual([1]);
-    expect(queryParams1.multipleBooleanValues).toEqual([true]);
-    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
+    expect(queryParams1?.sortBy).toEqual('name');
+    expect(queryParams1?.count).toEqual('2');
+    expect(queryParams1?.limit).toEqual(10);
+    expect(queryParams1?.showAll).toEqual(true);
+    expect(queryParams1?.multipleStringValues).toEqual(['a']);
+    expect(queryParams1?.multipleNumberValues).toEqual([1]);
+    expect(queryParams1?.multipleBooleanValues).toEqual([true]);
+    expect(queryParams1?.multipleDateValues).toEqual([new Date('2017-02-01T01:00:00Z')]);
   });
 
   it("@QueryParams should give a proper values from request's query with validate whitelist option on", async () => {
@@ -614,7 +616,7 @@ describe(``, () => {
     const response = await axios.get('/photos-params-whitelist?multipleBooleanValues=false');
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams3.multipleBooleanValues).toEqual([false]);
+    expect(queryParams3?.multipleBooleanValues).toEqual([false]);
   });
 
   it("@QueryParams should give a proper values from request's query parameters with nested json", async () => {
@@ -636,17 +638,17 @@ describe(``, () => {
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams1.sortBy).toEqual('name');
-    expect(queryParams1.count).toEqual('2');
-    expect(queryParams1.limit).toEqual(10);
-    expect(queryParams1.showAll).toEqual(true);
-    expect(queryParams1.myObject.num).toEqual(5);
-    expect(queryParams1.myObject.str).toEqual('five');
-    expect(queryParams1.myObject.isFive).toEqual(true);
-    expect(queryParams1.multipleStringValues).toEqual(['a', 'b']);
-    expect(queryParams1.multipleNumberValues).toEqual([1, 2.3]);
-    expect(queryParams1.multipleBooleanValues).toEqual([false, true]);
-    expect(queryParams1.multipleDateValues).toEqual([new Date('2017-02-01T00:00:00Z')]);
+    expect(queryParams1?.sortBy).toEqual('name');
+    expect(queryParams1?.count).toEqual('2');
+    expect(queryParams1?.limit).toEqual(10);
+    expect(queryParams1?.showAll).toEqual(true);
+    expect(queryParams1?.myObject.num).toEqual(5);
+    expect(queryParams1?.myObject.str).toEqual('five');
+    expect(queryParams1?.myObject.isFive).toEqual(true);
+    expect(queryParams1?.multipleStringValues).toEqual(['a', 'b']);
+    expect(queryParams1?.multipleNumberValues).toEqual([1, 2.3]);
+    expect(queryParams1?.multipleBooleanValues).toEqual([false, true]);
+    expect(queryParams1?.multipleDateValues).toEqual([new Date('2017-02-01T00:00:00Z')]);
   });
 
   it("@QueryParams should not validate request query parameters when it's turned off in validator options", async () => {
@@ -654,10 +656,10 @@ describe(``, () => {
     const response = await axios.get('/photos-params-no-validate?sortBy=verylongtext&count=2&limit=1&showAll=true');
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams2.sortBy).toEqual('verylongtext');
-    expect(queryParams2.count).toEqual('2');
-    expect(queryParams2.limit).toEqual(1);
-    expect(queryParams2.showAll).toEqual(true);
+    expect(queryParams2?.sortBy).toEqual('verylongtext');
+    expect(queryParams2?.count).toEqual('2');
+    expect(queryParams2?.limit).toEqual(1);
+    expect(queryParams2?.showAll).toEqual(true);
   });
 
   it("@QueryParams should give a proper values from request's optional query parameters", async () => {
@@ -665,10 +667,10 @@ describe(``, () => {
     const response = await axios.get('/photos-params-optional?sortBy=name&limit=10');
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
-    expect(queryParams3.sortBy).toEqual('name');
-    expect(queryParams3.count).toEqual(undefined);
-    expect(queryParams3.limit).toEqual(10);
-    expect(queryParams3.showAll).toEqual(true);
+    expect(queryParams3?.sortBy).toEqual('name');
+    expect(queryParams3?.count).toEqual(undefined);
+    expect(queryParams3?.limit).toEqual(10);
+    expect(queryParams3?.showAll).toEqual(true);
   });
 
   it('@QueryParam should give a proper values from request query parameters', async () => {
@@ -747,13 +749,15 @@ describe(``, () => {
     try {
       response = await axios.get('/photos-with-required?');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.get('/photos-with-required?limit');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -769,8 +773,9 @@ describe(``, () => {
     try {
       const response = await axios.get('/posts-after/?from=InvalidDate');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
-      expect(error.response.data.name).toEqual('ParamNormalizationError');
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      expect(err.response?.data.name).toEqual('ParamNormalizationError');
     }
   });
 
@@ -818,7 +823,8 @@ describe(``, () => {
         },
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -827,7 +833,8 @@ describe(``, () => {
     try {
       await axios.get('/posts-with-required');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -873,7 +880,8 @@ describe(``, () => {
     try {
       response = await axios.get('questions-with-required');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -920,7 +928,8 @@ describe(``, () => {
         },
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
@@ -930,7 +939,8 @@ describe(``, () => {
         },
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -951,7 +961,8 @@ describe(``, () => {
     try {
       response = await axios.post('posts-with-required');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -972,13 +983,15 @@ describe(``, () => {
     try {
       response = await axios.post('/users-with-required');
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.post('/users-with-required', { name: '', age: 27, isActive: false });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     response = await axios.post('/users-with-required', { name: 'Johny', age: 0, isActive: false });
@@ -987,13 +1000,15 @@ describe(``, () => {
     try {
       response = await axios.post('/users-with-required', { name: 'Johny', age: undefined, isActive: false });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     try {
       response = await axios.post('/users-with-required', { name: 'Johny', age: 27, isActive: undefined });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
 
     response = await axios.post('/users-with-required', { name: 'Johny', age: 27, isActive: false });
@@ -1075,7 +1090,8 @@ describe(``, () => {
         headers: form.getHeaders(),
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     }
   });
 
@@ -1096,7 +1112,8 @@ describe(``, () => {
         headers: form.getHeaders(),
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
   });
 
@@ -1124,7 +1141,8 @@ describe(``, () => {
         headers: form.getHeaders(),
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     }
   });
 
@@ -1137,7 +1155,8 @@ describe(``, () => {
         headers: form.getHeaders(),
       });
     } catch (error) {
-      expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
+      const err = error as AxiosError;
+      expect(err.response?.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     }
   });
 });

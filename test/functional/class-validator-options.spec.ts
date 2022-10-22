@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { defaultMetadataStorage } from 'class-transformer/storage';
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { Length } from 'class-validator';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';
@@ -14,11 +14,12 @@ import {
   RoutingControllersOptions,
 } from '../../src/index';
 import { axios } from '../utilities/axios';
+import { AxiosError } from 'axios';
 import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
   let expressServer: HttpServer;
-  let requestFilter: UserFilter;
+  let requestFilter: UserFilter | undefined;
 
   class UserFilter {
     @Length(5, 15)
@@ -209,15 +210,16 @@ describe(``, () => {
               })
           );
         } catch (error) {
-          expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
-          expect(error.response.data.errors[0].property).toBe(`keyword`);
+          const err = error as AxiosError;
+          expect(err?.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+          expect(err?.response?.data.errors[0].property).toBe(`keyword`);
         }
       });
     }); // ----- end global options
   });
 
   describe('local options', () => {
-    let requestFilter: UserFilter;
+    let requestFilter: UserFilter | undefined;
 
     beforeEach((done: DoneCallback) => {
       requestFilter = undefined;
