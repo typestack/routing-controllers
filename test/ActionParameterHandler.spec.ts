@@ -4,6 +4,7 @@ import { ActionMetadataArgs } from '../src/metadata/args/ActionMetadataArgs';
 import { ControllerMetadataArgs } from '../src/metadata/args/ControllerMetadataArgs';
 import { ParamType } from '../src/metadata/types/ParamType';
 import { AxiosError } from 'axios';
+import { ParamRequiredError } from '../src/error/ParamRequiredError';
 
 const expect = require('chakram').expect;
 
@@ -168,11 +169,10 @@ describe('ActionParameterHandler', () => {
       try {
         await actionParameterHandler.handle(action, param);
       } catch (e) {
-        // error = e as AxiosError;
-        error = e as any;
+        error = e as ParamRequiredError;
       }
 
-      expect(error['httpCode']).to.be.eq(400);
+      expect(error?.httpCode).to.be.eq(400);
       expect(error?.name).to.be.eq('ParamRequiredError');
       expect(error?.message).to.be.eq('Uploaded file "uuid" is required for request on undefined undefined');
     });
