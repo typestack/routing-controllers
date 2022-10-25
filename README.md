@@ -1,9 +1,9 @@
-# routing-controllers
+# routing-controllers extended
 
-![Build Status](https://github.com/typestack/routing-controllers/workflows/CI/badge.svg)
+<!-- ![Build Status](https://github.com/spicemc/rce/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/typestack/routing-controllers/branch/develop/graph/badge.svg)](https://codecov.io/gh/typestack/routing-controllers)
 [![npm version](https://badge.fury.io/js/routing-controllers.svg)](https://badge.fury.io/js/routing-controllers)
-[![Dependency Status](https://david-dm.org/typestack/routing-controllers.svg)](https://david-dm.org/typestack/routing-controllers)
+[![Dependency Status](https://david-dm.org/typestack/routing-controllers.svg)](https://david-dm.org/typestack/routing-controllers) -->
 
 English | [中文](./docs/lang/chinese/README.md)
 
@@ -1439,7 +1439,7 @@ export class UsersController {
 }
 ```
 
-Note: As TypeDI@0.9.0 won't create instances for unknown classes, you have to decorate your Controller as a `Service()` as well. See [#642](https://github.com/typestack/routing-controllers/issues/642)
+Note: As TypeDI@0.9.0 won't create instances for unknown classes, you have to decorate your Controller as a `Service()` as well. See [#642](https://github.com/spicemc/rce/issues/642)
 
 For other IoC providers that don't expose a `get(xxx)` function, you can create an IoC adapter using `IocAdapter` like so:
 
@@ -1582,7 +1582,7 @@ export class QuestionController {
 - Take a look on [routing-controllers with koa](https://github.com/typestack/routing-controllers-koa-demo) which is using routing-controllers.
 - Take a look on [routing-controllers with angular 2](https://github.com/typestack/routing-controllers-angular2-demo) which is using routing-controllers.
 - Take a look on [node-microservice-demo](https://github.com/swimlane/node-microservice-demo) which is using routing-controllers.
-- Take a look on samples in [./sample](https://github.com/typestack/routing-controllers/tree/master/sample) for more examples
+- Take a look on samples in [./sample](https://github.com/spicemc/rce/tree/master/sample) for more examples
   of usage.
 
 ## Release notes
