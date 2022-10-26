@@ -4,7 +4,7 @@
  * default error handler will catch it and give in your response given code and message .
  */
 export class HttpError extends Error {
-  httpCode: number;
+  httpCode: number | undefined;
 
   constructor(httpCode: number, message?: string) {
     super();
