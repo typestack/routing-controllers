@@ -13,7 +13,10 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@rce/*": ["./src/*"]
+    }
   },
   "exclude": ["build", "node_modules", "sample", "**/*.spec.ts", "test/**"]
 }

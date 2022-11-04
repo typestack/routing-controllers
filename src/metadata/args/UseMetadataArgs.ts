@@ -5,7 +5,7 @@ export interface UseMetadataArgs {
   /**
    * Object class of this "use".
    */
-  target: Function;
+  target: any;
 
   /**
    * Method to which this "use" is applied.
@@ -16,7 +16,7 @@ export interface UseMetadataArgs {
   /**
    * Middleware to be executed for this "use".
    */
-  middleware: Function;
+  middleware: any;
 
   /**
    * Indicates if middleware must be executed after routing action is executed.

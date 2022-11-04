@@ -160,7 +160,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/auth1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
       }
     });
@@ -169,7 +169,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/auth2');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.FORBIDDEN);
       }
     });
@@ -201,7 +201,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/auth1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
         expect(error.response.data).toHaveProperty('name', 'NotAcceptableError');
         expect(error.response.data).toHaveProperty('message', 'Custom Error');
@@ -236,7 +236,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/auth1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
         expect(error.response.data).toHaveProperty('name', 'NotAcceptableError');
         expect(error.response.data).toHaveProperty('message', 'Custom Error');

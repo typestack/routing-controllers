@@ -10,12 +10,12 @@ export interface ActionMetadataArgs {
   /**
    * Route to be registered for the action.
    */
-  route: string | RegExp;
+  route?: string | RegExp;
 
   /**
    * Class on which's method this action is attached.
    */
-  target: Function;
+  target: any;
 
   /**
    * Object's method that will be executed on this action.
@@ -25,7 +25,7 @@ export interface ActionMetadataArgs {
   /**
    * Action-specific options.
    */
-  options: HandlerOptions;
+  options?: HandlerOptions;
 
   /**
    * Action type represents http method used for the registered route. Can be one of the value defined in ActionTypes

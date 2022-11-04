@@ -1,10 +1,11 @@
 import * as path from 'path';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Loads all exported classes from the given directory.
  */
-export function importClassesFromDirectories(directories: string[], formats = ['.js', '.ts', '.tsx']): Function[] {
-  const loadFileClasses = function (exported: any, allLoaded: Function[]) {
+export function importClassesFromDirectories(directories: string[], formats = ['.js', '.ts', '.tsx']): Newable[] {
+  const loadFileClasses = function (exported: any, allLoaded: Newable[]) {
     if (exported instanceof Function) {
       allLoaded.push(exported);
     } else if (exported instanceof Array) {

@@ -51,12 +51,12 @@ export class ParamMetadata {
   /**
    * Parameter target type's name in lowercase.
    */
-  targetName: string = '';
+  targetName = '';
 
   /**
    * Indicates if target type is an object.
    */
-  isTargetObject: boolean = false;
+  isTargetObject = false;
 
   /**
    * Parameter target.

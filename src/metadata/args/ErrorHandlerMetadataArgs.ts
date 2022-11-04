@@ -1,3 +1,5 @@
+import { Newable, Callable } from '@rce/types/Types';
+
 /**
  * Metadata used to store registered error handlers.
  */
@@ -5,7 +7,7 @@ export interface ErrorHandlerMetadataArgs {
   /**
    * Object class of the error handler class.
    */
-  target: Function;
+  target: Newable | Callable;
 
   /**
    * Execution priority of the error handler.

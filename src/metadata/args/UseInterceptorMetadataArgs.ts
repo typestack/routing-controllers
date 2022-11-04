@@ -1,3 +1,7 @@
+import { ClassConstructor } from 'class-transformer';
+import { InterceptorInterface } from '../../InterceptorInterface';
+import { Action } from '@rce/Action';
+
 /**
  * Metadata used to store registered intercept for a specific controller or controller action.
  */
@@ -5,7 +9,7 @@ export interface UseInterceptorMetadataArgs {
   /**
    * Controller class where this intercept was used.
    */
-  target: Function;
+  target: any;
 
   /**
    * Controller method to which this intercept is applied.
@@ -17,7 +21,7 @@ export interface UseInterceptorMetadataArgs {
   /**
    * Interceptor class or a function to be executed.
    */
-  interceptor: Function;
+  interceptor: ClassConstructor<InterceptorInterface> | ((action: Action, result: any) => any);
 
   /**
    * Indicates if this interceptor is global, thous applied to all routes.
@@ -27,5 +31,5 @@ export interface UseInterceptorMetadataArgs {
   /**
    * Execution priority of the interceptor.
    */
-  priority?: number;
+  priority: number;
 }

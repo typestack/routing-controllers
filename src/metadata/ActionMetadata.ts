@@ -1,7 +1,7 @@
 import { Action } from '../Action';
 import { ActionMetadataArgs } from './args/ActionMetadataArgs';
 import { ActionType } from './types/ActionType';
-import { ClassTransformOptions } from 'class-transformer';
+import { ClassTransformOptions, ClassConstructor } from 'class-transformer';
 import { ControllerMetadata } from './ControllerMetadata';
 import { InterceptorMetadata } from './InterceptorMetadata';
 import { ParamMetadata } from './ParamMetadata';
@@ -9,6 +9,8 @@ import { ResponseHandlerMetadata } from './ResponseHandleMetadata';
 import { HandlerOptions } from '../decorator-options/HandlerOptions';
 import { RoutingControllersOptions } from '../RoutingControllersOptions';
 import { UseMetadata } from './UseMetadata';
+import { RoleChecker } from '../RoleChecker';
+import { Newable, Callable } from '@rce/types/Types';
 
 /**
  * Action metadata.
@@ -41,7 +43,7 @@ export class ActionMetadata {
   /**
    * Class on which's method this action is attached.
    */
-  target: Function;
+  target: Newable;
 
   /**
    * Object's method that will be executed on this action.
@@ -102,12 +104,12 @@ export class ActionMetadata {
   /**
    * Http code to be used on undefined action returned content.
    */
-  undefinedResultCode: number | Function;
+  undefinedResultCode: number | Callable;
 
   /**
    * Http code to be used on null action returned content.
    */
-  nullResultCode: number | Function;
+  nullResultCode: number | Callable;
 
   /**
    * Http code to be set on successful response.
@@ -137,7 +139,7 @@ export class ActionMetadata {
   /**
    * Roles set by @Authorized decorator.
    */
-  authorizedRoles: any[];
+  authorizedRoles: ClassConstructor<RoleChecker>[];
 
   /**
    * Params to be appended to the method call.
@@ -156,7 +158,7 @@ export class ActionMetadata {
   constructor(
     controllerMetadata: ControllerMetadata,
     args: ActionMetadataArgs,
-    private globalOptions: RoutingControllersOptions
+    private globalOptions: RoutingControllersOptions,
   ) {
     this.controllerMetadata = controllerMetadata;
     this.route = args.route;
@@ -196,7 +198,7 @@ export class ActionMetadata {
    */
   build(responseHandlers: ResponseHandlerMetadata[]) {
     const classTransformerResponseHandler = responseHandlers.find(
-      handler => handler.type === 'response-class-transform-options'
+      handler => handler.type === 'response-class-transform-options',
     );
     const undefinedResultHandler = responseHandlers.find(handler => handler.type === 'on-undefined');
     const nullResultHandler = responseHandlers.find(handler => handler.type === 'on-null');
@@ -234,7 +236,7 @@ export class ActionMetadata {
 
     this.isAuthorizedUsed = this.controllerMetadata.isAuthorizedUsed || !!authorizedHandler;
     this.authorizedRoles = (this.controllerMetadata.authorizedRoles || []).concat(
-      (authorizedHandler && authorizedHandler.value) || []
+      (authorizedHandler && authorizedHandler.value) || [],
     );
   }
 
@@ -267,7 +269,7 @@ export class ActionMetadata {
       return this.route;
     }
 
-    let path: string = '';
+    let path = '';
     if (this.controllerMetadata.route) path += this.controllerMetadata.route;
     if (this.route && typeof this.route === 'string') path += this.route;
     return path;

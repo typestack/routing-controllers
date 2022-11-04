@@ -3,6 +3,7 @@ import { ExpressMiddlewareInterface } from '../driver/express/ExpressMiddlewareI
 import { ExpressErrorMiddlewareInterface } from '../driver/express/ExpressErrorMiddlewareInterface';
 import { getFromContainer } from '../container';
 import { KoaMiddlewareInterface } from '../driver/koa/KoaMiddlewareInterface';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Middleware metadata.
@@ -20,7 +21,7 @@ export class MiddlewareMetadata {
   /**
    * Object class of the middleware class.
    */
-  target: Function;
+  target: Newable;
 
   /**
    * Execution priority of the middleware.
@@ -52,7 +53,7 @@ export class MiddlewareMetadata {
    */
   get instance(): ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface {
     return getFromContainer<ExpressMiddlewareInterface | KoaMiddlewareInterface | ExpressErrorMiddlewareInterface>(
-      this.target
+      this.target,
     );
   }
 }

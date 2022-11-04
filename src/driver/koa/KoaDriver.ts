@@ -12,6 +12,7 @@ import { getFromContainer } from '../../container';
 import { RoleChecker } from '../../RoleChecker';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { HttpError, NotFoundError } from '../../index';
+import { Callable } from '@rce/types/Types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
@@ -74,14 +75,14 @@ export class KoaDriver extends BaseDriver {
     const defaultMiddlewares: any[] = [];
 
     if (actionMetadata.isAuthorizedUsed) {
-      defaultMiddlewares.push((context: any, next: Function) => {
+      defaultMiddlewares.push((context: any, next: Callable) => {
         if (!this.authorizationChecker) throw new AuthorizationCheckerNotDefinedError();
 
         const action: Action = { request: context.request, response: context.response, context, next };
         try {
           const checkResult =
             actionMetadata.authorizedRoles instanceof Function
-              ? getFromContainer<RoleChecker>(actionMetadata.authorizedRoles, action).check(action)
+              ? getFromContainer<RoleChecker>(actionMetadata.authorizedRoles as any, action).check(action)
               : this.authorizationChecker(action, actionMetadata.authorizedRoles);
 
           const handleError = (result: any) => {
@@ -151,7 +152,7 @@ export class KoaDriver extends BaseDriver {
 
     // finally register action in koa
     this.router[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares],
     );
   }
 
@@ -169,15 +170,16 @@ export class KoaDriver extends BaseDriver {
   getParamFromRequest(actionOptions: Action, param: ParamMetadata): any {
     const context = actionOptions.context;
     const request: any = actionOptions.request;
+    const paramName = param.name ?? '';
     switch (param.type) {
       case 'body':
         return request.body;
 
       case 'body-param':
-        return request.body[param.name];
+        return request.body[paramName];
 
       case 'param':
-        return context.params[param.name];
+        return context.params[paramName];
 
       case 'params':
         return context.params;
@@ -186,14 +188,14 @@ export class KoaDriver extends BaseDriver {
         return context.session;
 
       case 'session-param':
-        return context.session[param.name];
+        return context.session[paramName];
 
       case 'state':
         if (param.name) return context.state[param.name];
         return context.state;
 
       case 'query':
-        return context.query[param.name];
+        return context.query[paramName];
 
       case 'queries':
         return context.query;
@@ -205,16 +207,16 @@ export class KoaDriver extends BaseDriver {
         return actionOptions.context.req.files;
 
       case 'header':
-        return context.headers[param.name.toLowerCase()];
+        return context.headers[paramName.toLowerCase()];
 
       case 'headers':
         return request.headers;
 
-      case 'cookie':
+      case 'cookie': {
         if (!context.headers.cookie) return;
         const cookies = cookie.parse(context.headers.cookie);
-        return cookies[param.name];
-
+        return cookies[paramName];
+      }
       case 'cookies':
         if (!request.headers.cookie) return {};
         return cookie.parse(request.headers.cookie);
@@ -227,7 +229,9 @@ export class KoaDriver extends BaseDriver {
   handleSuccess(result: any, action: ActionMetadata, options: Action): void {
     // if the action returned the context or the response object itself, short-circuits
     if (result && (result === options.response || result === options.context)) {
-      return options.next();
+      if (typeof options.next === 'function') {
+        return options.next();
+      }
     }
 
     // transform result if needed
@@ -285,14 +289,16 @@ export class KoaDriver extends BaseDriver {
       options.response.set(name, action.headers[name]);
     });
 
-    return options.next();
+    if (typeof options.next === 'function') {
+      return options.next();
+    }
   }
 
   /**
    * Handles result of failed executed controller action.
    */
   handleError(error: any, action: ActionMetadata | undefined, options: Action) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.isDefaultErrorHandlingEnabled) {
         // apply http headers
         if (action) {
@@ -329,7 +335,7 @@ export class KoaDriver extends BaseDriver {
    * Creates middlewares from the given "use"-s.
    */
   protected prepareMiddlewares(uses: UseMetadata[]) {
-    const middlewareFunctions: Function[] = [];
+    const middlewareFunctions: Callable[] = [];
     uses.forEach(use => {
       if (use.middleware.prototype && use.middleware.prototype.use) {
         // if this is function instance of MiddlewareInterface
@@ -359,6 +365,7 @@ export class KoaDriver extends BaseDriver {
     if (require) {
       if (!this.koa) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
           this.koa = new (require('koa'))();
         } catch (e) {
           throw new Error('koa package was not found installed. Try to install it: npm install koa@next --save');
@@ -376,10 +383,11 @@ export class KoaDriver extends BaseDriver {
     if (require) {
       if (!this.router) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
           this.router = new (require('koa-router'))();
         } catch (e) {
           throw new Error(
-            'koa-router package was not found installed. Try to install it: npm install koa-router@next --save'
+            'koa-router package was not found installed. Try to install it: npm install koa-router@next --save',
           );
         }
       }
@@ -404,7 +412,7 @@ export class KoaDriver extends BaseDriver {
    *
    * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
    */
-  private async fixMulterRequestAssignment(ctx: any, next: Function) {
+  private async fixMulterRequestAssignment(ctx: any, next: Callable) {
     if ('request' in ctx) {
       if (ctx.req.body) ctx.request.body = ctx.req.body;
       if (ctx.req.file) ctx.request.file = ctx.req.file;

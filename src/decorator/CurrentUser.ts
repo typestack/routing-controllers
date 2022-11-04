@@ -1,11 +1,12 @@
 import { getMetadataArgsStorage } from '../index';
+import { Newable, Callable } from '@rce/types/Types';
 
 /**
  * Injects currently authorized user.
  * Authorization logic must be defined in routing-controllers settings.
  */
-export function CurrentUser(options?: { required?: boolean }) {
-  return function (object: Object, methodName: string, index: number) {
+export function CurrentUser(options?: { required?: boolean }): Callable {
+  return function (object: Newable, methodName: string, index: number) {
     getMetadataArgsStorage().params.push({
       type: 'current-user',
       object: object,

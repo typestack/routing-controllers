@@ -1,12 +1,13 @@
 import { ParamOptions } from '../decorator-options/ParamOptions';
 import { getMetadataArgsStorage } from '../index';
+import { Newable, Callable } from '@rce/types/Types';
 
 /**
  * Injects a request's http header value to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
-export function HeaderParam(name: string, options?: ParamOptions): Function {
-  return function (object: Object, methodName: string, index: number) {
+export function HeaderParam(name: string, options?: ParamOptions): Callable {
+  return function (object: Newable, methodName: string, index: number) {
     getMetadataArgsStorage().params.push({
       type: 'header',
       object: object,

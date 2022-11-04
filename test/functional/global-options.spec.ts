@@ -10,7 +10,7 @@ import DoneCallback = jest.DoneCallback;
 describe(``, () => {
   let expressServer: HttpServer;
   let user: any = { firstName: 'Umed', lastName: 'Khudoiberdiev' };
-  let initializedUser: User;
+  let initializedUser: User | undefined;
 
   class User {
     firstName: string;

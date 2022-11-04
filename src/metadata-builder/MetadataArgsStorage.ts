@@ -6,6 +6,7 @@ import { MiddlewareMetadataArgs } from '../metadata/args/MiddlewareMetadataArgs'
 import { UseMetadataArgs } from '../metadata/args/UseMetadataArgs';
 import { UseInterceptorMetadataArgs } from '../metadata/args/UseInterceptorMetadataArgs';
 import { InterceptorMetadataArgs } from '../metadata/args/InterceptorMetadataArgs';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Storage all metadatas read from decorators.
@@ -62,14 +63,14 @@ export class MetadataArgsStorage {
   /**
    * Filters registered middlewares by a given classes.
    */
-  filterMiddlewareMetadatasForClasses(classes: Function[]): MiddlewareMetadataArgs[] {
+  filterMiddlewareMetadatasForClasses(classes: Newable[]): MiddlewareMetadataArgs[] {
     return classes.map(cls => this.middlewares.find(mid => mid.target === cls)).filter(midd => midd !== undefined); // this might be not needed if all classes where decorated with `@Middleware`
   }
 
   /**
    * Filters registered interceptors by a given classes.
    */
-  filterInterceptorMetadatasForClasses(classes: Function[]): InterceptorMetadataArgs[] {
+  filterInterceptorMetadatasForClasses(classes: Newable[]): InterceptorMetadataArgs[] {
     return this.interceptors.filter(ctrl => {
       return classes.filter(cls => ctrl.target === cls).length > 0;
     });
@@ -78,7 +79,7 @@ export class MetadataArgsStorage {
   /**
    * Filters registered controllers by a given classes.
    */
-  filterControllerMetadatasForClasses(classes: Function[]): ControllerMetadataArgs[] {
+  filterControllerMetadatasForClasses(classes: Newable[]): ControllerMetadataArgs[] {
     return this.controllers.filter(ctrl => {
       return classes.filter(cls => ctrl.target === cls).length > 0;
     });
@@ -87,14 +88,14 @@ export class MetadataArgsStorage {
   /**
    * Filters registered actions by a given classes.
    */
-  filterActionsWithTarget(target: Function): ActionMetadataArgs[] {
+  filterActionsWithTarget(target: Newable): ActionMetadataArgs[] {
     return this.actions.filter(action => action.target === target);
   }
 
   /**
    * Filters registered "use middlewares" by a given target class and method name.
    */
-  filterUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
+  filterUsesWithTargetAndMethod(target: Newable, methodName?: string): UseMetadataArgs[] {
     return this.uses.filter(use => {
       return use.target === target && use.method === methodName;
     });
@@ -103,7 +104,7 @@ export class MetadataArgsStorage {
   /**
    * Filters registered "use interceptors" by a given target class and method name.
    */
-  filterInterceptorUsesWithTargetAndMethod(target: Function, methodName: string): UseInterceptorMetadataArgs[] {
+  filterInterceptorUsesWithTargetAndMethod(target: Newable, methodName?: string): UseInterceptorMetadataArgs[] {
     return this.useInterceptors.filter(use => {
       return use.target === target && use.method === methodName;
     });
@@ -112,7 +113,7 @@ export class MetadataArgsStorage {
   /**
    * Filters parameters by a given classes.
    */
-  filterParamsWithTargetAndMethod(target: Function, methodName: string): ParamMetadataArgs[] {
+  filterParamsWithTargetAndMethod(target: Newable, methodName: string): ParamMetadataArgs[] {
     return this.params.filter(param => {
       return param.object.constructor === target && param.method === methodName;
     });
@@ -121,7 +122,7 @@ export class MetadataArgsStorage {
   /**
    * Filters response handlers by a given class.
    */
-  filterResponseHandlersWithTarget(target: Function): ResponseHandlerMetadataArgs[] {
+  filterResponseHandlersWithTarget(target: Newable): ResponseHandlerMetadataArgs[] {
     return this.responseHandlers.filter(property => {
       return property.target === target;
     });
@@ -130,7 +131,7 @@ export class MetadataArgsStorage {
   /**
    * Filters response handlers by a given classes.
    */
-  filterResponseHandlersWithTargetAndMethod(target: Function, methodName: string): ResponseHandlerMetadataArgs[] {
+  filterResponseHandlersWithTargetAndMethod(target: Newable, methodName: string): ResponseHandlerMetadataArgs[] {
     return this.responseHandlers.filter(property => {
       return property.target === target && property.method === methodName;
     });

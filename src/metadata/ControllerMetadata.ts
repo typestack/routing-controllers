@@ -6,6 +6,8 @@ import { ControllerOptions } from '../decorator-options/ControllerOptions';
 import { ResponseHandlerMetadata } from './ResponseHandleMetadata';
 import { InterceptorMetadata } from './InterceptorMetadata';
 import { Action } from '../Action';
+import { ClassConstructor } from 'class-transformer';
+import { RoleChecker } from '../RoleChecker';
 
 /**
  * Controller metadata.
@@ -23,7 +25,7 @@ export class ControllerMetadata {
   /**
    * Indicates object which is used by this controller.
    */
-  target: Function;
+  target: any;
 
   /**
    * Base route for all actions registered in this controller.
@@ -58,7 +60,7 @@ export class ControllerMetadata {
   /**
    * Roles set by @Authorized decorator.
    */
-  authorizedRoles: any[];
+  authorizedRoles: ClassConstructor<RoleChecker>[];
 
   // -------------------------------------------------------------------------
   // Constructor

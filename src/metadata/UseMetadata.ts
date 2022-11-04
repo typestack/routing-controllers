@@ -11,7 +11,7 @@ export class UseMetadata {
   /**
    * Object class of the middleware class.
    */
-  target: Function;
+  target: any;
 
   /**
    * Method used by this "use".
@@ -21,7 +21,7 @@ export class UseMetadata {
   /**
    * Middleware to be executed by this "use".
    */
-  middleware: Function;
+  middleware: any;
 
   /**
    * Indicates if middleware must be executed after routing action is executed.

@@ -2,6 +2,7 @@ import { ClassTransformOptions } from 'class-transformer';
 import { ValidatorOptions } from 'class-validator';
 import { AuthorizationChecker } from './AuthorizationChecker';
 import { CurrentUserChecker } from './CurrentUserChecker';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Routing controller initialization options.
@@ -11,7 +12,7 @@ export interface RoutingControllersOptions {
    * Indicates if cors are enabled.
    * This requires installation of additional module (cors for express and kcors for koa).
    */
-  cors?: boolean | Object;
+  cors?: boolean | Record<string, unknown>;
 
   /**
    * Global route prefix, for example '/api'.
@@ -21,17 +22,17 @@ export interface RoutingControllersOptions {
   /**
    * List of controllers to register in the framework or directories from where to import all your controllers.
    */
-  controllers?: Function[] | string[];
+  controllers?: Newable[] | string[];
 
   /**
    * List of middlewares to register in the framework or directories from where to import all your middlewares.
    */
-  middlewares?: Function[] | string[];
+  middlewares?: Newable[] | string[];
 
   /**
    * List of interceptors to register in the framework or directories from where to import all your interceptors.
    */
-  interceptors?: Function[] | string[];
+  interceptors?: Newable[] | string[];
 
   /**
    * Indicates if class-transformer should be used to perform serialization / deserialization.

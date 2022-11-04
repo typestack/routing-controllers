@@ -1,11 +1,12 @@
 import { getMetadataArgsStorage } from '../index';
+import { Newable, Callable } from '@rce/types/Types';
 
 /**
  * Injects a request's route parameter value to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
-export function Param(name: string): Function {
-  return function (object: Object, methodName: string, index: number) {
+export function Param(name: string): Callable {
+  return function (object: Newable, methodName: string, index: number) {
     getMetadataArgsStorage().params.push({
       type: 'param',
       object: object,

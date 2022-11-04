@@ -1,11 +1,12 @@
 import { getMetadataArgsStorage } from '../index';
+import { Callable } from '@rce/types/Types';
 
 /**
  * Injects a Request object to the controller action parameter.
  * Must be applied on a controller action parameter.
  */
-export function Req(): Function {
-  return function (object: Object, methodName: string, index: number) {
+export function Req(): Callable {
+  return function (object: Callable, methodName: string, index: number) {
     getMetadataArgsStorage().params.push({
       type: 'request',
       object: object,

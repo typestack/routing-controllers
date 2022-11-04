@@ -12,6 +12,7 @@ import { isPromiseLike } from '../../util/isPromiseLike';
 import { getFromContainer } from '../../container';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { NotFoundError } from '../../index';
+import { Callable } from '@rce/types/Types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
@@ -108,7 +109,7 @@ export class ExpressDriver extends BaseDriver {
     }
 
     if (actionMetadata.isAuthorizedUsed) {
-      defaultMiddlewares.push((request: any, response: any, next: Function) => {
+      defaultMiddlewares.push((request: any, response: any, next: Callable) => {
         if (!this.authorizationChecker) throw new AuthorizationCheckerNotDefinedError();
 
         const action: Action = { request, response, next };
@@ -161,7 +162,7 @@ export class ExpressDriver extends BaseDriver {
 
     // prepare route and route handler function
     const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
-    const routeHandler = function routeHandler(request: any, response: any, next: Function) {
+    const routeHandler = function routeHandler(request: any, response: any, next: Callable) {
       return executeCallback({ request, response, next });
     };
 
@@ -173,7 +174,7 @@ export class ExpressDriver extends BaseDriver {
     //   This causes a double execution on our side.
     // * Multiple routes match the request (e.g. GET /users/me matches both @All(/users/me) and @Get(/users/:id)).
     // The following middleware only starts an action processing if the request has not been processed before.
-    const routeGuard = function routeGuard(request: any, response: any, next: Function) {
+    const routeGuard = function routeGuard(request: any, response: any, next: Callable) {
       if (!request.routingControllersStarted) {
         request.routingControllersStarted = true;
         return next();
@@ -182,7 +183,7 @@ export class ExpressDriver extends BaseDriver {
 
     // finally register action in express
     this.express[actionMetadata.type.toLowerCase()](
-      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
+      ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares],
     );
   }
 
@@ -197,21 +198,22 @@ export class ExpressDriver extends BaseDriver {
    */
   getParamFromRequest(action: Action, param: ParamMetadata): any {
     const request: any = action.request;
+    const paramName = param.name ?? '';
     switch (param.type) {
       case 'body':
         return request.body;
 
       case 'body-param':
-        return request.body[param.name];
+        return request.body[paramName];
 
       case 'param':
-        return request.params[param.name];
+        return request.params[paramName];
 
       case 'params':
         return request.params;
 
       case 'session-param':
-        return request.session[param.name];
+        return request.session[paramName];
 
       case 'session':
         return request.session;
@@ -220,13 +222,13 @@ export class ExpressDriver extends BaseDriver {
         throw new Error('@State decorators are not supported by express driver.');
 
       case 'query':
-        return request.query[param.name];
+        return request.query[paramName];
 
       case 'queries':
         return request.query;
 
       case 'header':
-        return request.headers[param.name.toLowerCase()];
+        return request.headers[paramName.toLowerCase()];
 
       case 'headers':
         return request.headers;
@@ -237,11 +239,11 @@ export class ExpressDriver extends BaseDriver {
       case 'files':
         return request.files;
 
-      case 'cookie':
+      case 'cookie': {
         if (!request.headers.cookie) return;
         const cookies = cookie.parse(request.headers.cookie);
-        return cookies[param.name];
-
+        return cookies[paramName];
+      }
       case 'cookies':
         if (!request.headers.cookie) return {};
         return cookie.parse(request.headers.cookie);
@@ -254,8 +256,9 @@ export class ExpressDriver extends BaseDriver {
   handleSuccess(result: any, action: ActionMetadata, options: Action): void {
     // if the action returned the response object itself, short-circuits
     if (result && result === options.response) {
-      options.next();
-      return;
+      if (typeof options.next === 'function') {
+        return options.next();
+      }
     }
 
     // transform result if needed
@@ -295,20 +298,24 @@ export class ExpressDriver extends BaseDriver {
         options.response.redirect(action.redirect);
       }
 
-      options.next();
+      if (typeof options.next === 'function') {
+        options.next();
+      }
     } else if (action.renderedTemplate) {
       // if template is set then render it
       const renderOptions = result && result instanceof Object ? result : {};
 
       options.response.render(action.renderedTemplate, renderOptions, (err: any, html: string) => {
-        if (err && action.isJsonTyped) {
+        if (err && action.isJsonTyped && typeof options.next === 'function') {
           return options.next(err);
-        } else if (err && !action.isJsonTyped) {
+        } else if (err && !action.isJsonTyped && typeof options.next === 'function') {
           return options.next(err);
         } else if (html) {
           options.response.send(html);
         }
-        options.next();
+        if (typeof options.next === 'function') {
+          options.next();
+        }
       });
     } else if (result === undefined) {
       // throw NotFoundError on undefined response
@@ -319,7 +326,9 @@ export class ExpressDriver extends BaseDriver {
         } else {
           options.response.send();
         }
-        options.next();
+        if (typeof options.next === 'function') {
+          options.next();
+        }
       } else {
         throw new NotFoundError();
       }
@@ -330,7 +339,9 @@ export class ExpressDriver extends BaseDriver {
       } else {
         options.response.send(null);
       }
-      options.next();
+      if (typeof options.next === 'function') {
+        options.next();
+      }
     } else if (result instanceof Buffer) {
       // check if it's binary data (Buffer)
       options.response.end(result, 'binary');
@@ -346,7 +357,9 @@ export class ExpressDriver extends BaseDriver {
       } else {
         options.response.send(result);
       }
-      options.next();
+      if (typeof options.next === 'function') {
+        options.next();
+      }
     }
   }
 
@@ -379,7 +392,10 @@ export class ExpressDriver extends BaseDriver {
         response.send(this.processTextError(error)); // todo: no need to do it because express by default does it
       }
     }
-    options.next(error);
+
+    if (typeof options.next === 'function') {
+      options.next(error);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -390,7 +406,7 @@ export class ExpressDriver extends BaseDriver {
    * Creates middlewares from the given "use"-s.
    */
   protected prepareMiddlewares(uses: UseMetadata[]) {
-    const middlewareFunctions: Function[] = [];
+    const middlewareFunctions: Callable[] = [];
     uses.forEach((use: UseMetadata) => {
       if (use.middleware.prototype && use.middleware.prototype.use) {
         // if this is function instance of MiddlewareInterface
@@ -416,7 +432,7 @@ export class ExpressDriver extends BaseDriver {
             error,
             request,
             response,
-            next
+            next,
           );
         });
       } else {

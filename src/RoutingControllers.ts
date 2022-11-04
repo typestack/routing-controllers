@@ -9,6 +9,7 @@ import { InterceptorMetadata } from './metadata/InterceptorMetadata';
 import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { isPromiseLike } from './util/isPromiseLike';
 import { runInSequence } from './util/runInSequence';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Registers controllers and middlewares in the given server framework.
@@ -57,7 +58,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Registers all given interceptors.
    */
-  registerInterceptors(classes?: Function[]): this {
+  registerInterceptors(classes?: Newable[]): this {
     const interceptors = this.metadataBuilder
       .buildInterceptorMetadata(classes)
       .sort((middleware1, middleware2) => middleware1.priority - middleware2.priority)
@@ -69,7 +70,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Registers all given controllers and actions from those controllers.
    */
-  registerControllers(classes?: Function[]): this {
+  registerControllers(classes?: Newable[]): this {
     const controllers = this.metadataBuilder.buildControllerMetadata(classes);
     controllers.forEach(controller => {
       controller.actions.forEach(actionMetadata => {
@@ -90,7 +91,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Registers post-execution middlewares in the driver.
    */
-  registerMiddlewares(type: 'before' | 'after', classes?: Function[]): this {
+  registerMiddlewares(type: 'before' | 'after', classes?: Newable[]): this {
     this.metadataBuilder
       .buildMiddlewareMetadata(classes)
       .filter(middleware => middleware.global && middleware.type === type)
@@ -107,7 +108,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Executes given controller action.
    */
-  protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
+  protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Newable[]) {
     // compute all parameters
     const paramsPromises = actionMetadata.params
       .sort((param1, param2) => param1.index - param2.index)
@@ -132,12 +133,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Handles result of the action method execution.
    */
-  protected handleCallMethodResult(
-    result: any,
-    action: ActionMetadata,
-    options: Action,
-    interceptorFns: Function[]
-  ): any {
+  protected handleCallMethodResult(result: any, action: ActionMetadata, options: Action, interceptorFns: any[]): any {
     if (isPromiseLike(result)) {
       return result
         .then((data: any) => {
@@ -171,7 +167,7 @@ export class RoutingControllers<T extends BaseDriver> {
   /**
    * Creates interceptors from the given "use interceptors".
    */
-  protected prepareInterceptors(uses: InterceptorMetadata[]): Function[] {
+  protected prepareInterceptors(uses: InterceptorMetadata[]): any[] {
     return uses.map(use => {
       if (use.interceptor.prototype && use.interceptor.prototype.intercept) {
         // if this is function instance of InterceptorInterface

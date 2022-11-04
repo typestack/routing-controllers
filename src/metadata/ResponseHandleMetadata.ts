@@ -1,5 +1,6 @@
 import { ResponseHandlerMetadataArgs } from './args/ResponseHandleMetadataArgs';
 import { ResponseHandlerType } from './types/ResponseHandlerType';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Response handler metadata.
@@ -12,7 +13,7 @@ export class ResponseHandlerMetadata {
   /**
    * Class on which's method decorator is set.
    */
-  target: Function;
+  target: Newable;
 
   /**
    * Method on which decorator is set.

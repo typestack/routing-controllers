@@ -7,6 +7,7 @@ import { RoutingControllers } from './RoutingControllers';
 import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { ValidationOptions } from 'class-validator';
 import { importClassesFromDirectories } from './util/importClassesFromDirectories';
+import { Newable } from '@rce/types/Types';
 
 // -------------------------------------------------------------------------
 // Main exports
@@ -154,19 +155,19 @@ export function createServer<T extends BaseDriver>(driver: T, options?: RoutingC
  */
 export function createExecutor<T extends BaseDriver>(driver: T, options: RoutingControllersOptions = {}): void {
   // import all controllers and middlewares and error handlers (new way)
-  let controllerClasses: Function[];
+  let controllerClasses: Newable[];
   if (options && options.controllers && options.controllers.length) {
     controllerClasses = (options.controllers as any[]).filter(controller => controller instanceof Function);
     const controllerDirs = (options.controllers as any[]).filter(controller => typeof controller === 'string');
     controllerClasses.push(...importClassesFromDirectories(controllerDirs));
   }
-  let middlewareClasses: Function[];
+  let middlewareClasses: Newable[];
   if (options && options.middlewares && options.middlewares.length) {
     middlewareClasses = (options.middlewares as any[]).filter(controller => controller instanceof Function);
     const middlewareDirs = (options.middlewares as any[]).filter(controller => typeof controller === 'string');
     middlewareClasses.push(...importClassesFromDirectories(middlewareDirs));
   }
-  let interceptorClasses: Function[];
+  let interceptorClasses: Newable[];
   if (options && options.interceptors && options.interceptors.length) {
     interceptorClasses = (options.interceptors as any[]).filter(controller => controller instanceof Function);
     const interceptorDirs = (options.interceptors as any[]).filter(controller => typeof controller === 'string');
@@ -224,7 +225,7 @@ export function createExecutor<T extends BaseDriver>(driver: T, options: Routing
  * Registers custom parameter decorator used in the controller actions.
  */
 export function createParamDecorator(options: CustomParameterDecorator) {
-  return function (object: Object, method: string, index: number) {
+  return function (object: Newable, method: string, index: number) {
     getMetadataArgsStorage().params.push({
       type: 'custom-converter',
       object: object,

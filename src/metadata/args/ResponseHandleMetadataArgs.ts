@@ -7,12 +7,12 @@ export interface ResponseHandlerMetadataArgs {
   /**
    * Class on which's method decorator is set.
    */
-  target: Function;
+  target: any;
 
   /**
    * Method on which decorator is set.
    */
-  method: string;
+  method?: string;
 
   /**
    * Property type. See ResponsePropertyMetadataType for possible values.

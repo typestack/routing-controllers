@@ -1,3 +1,5 @@
+import { Newable } from '@rce/types/Types';
+
 /**
  * Metadata used to store registered middlewares.
  */
@@ -5,7 +7,7 @@ export interface MiddlewareMetadataArgs {
   /**
    * Object class of the middleware class.
    */
-  target: Function;
+  target: Newable;
 
   /**
    * Indicates if this middleware is global, thous applied to all routes.

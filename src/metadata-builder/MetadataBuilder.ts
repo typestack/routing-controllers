@@ -9,6 +9,7 @@ import { RoutingControllersOptions } from '../RoutingControllersOptions';
 import { UseMetadata } from '../metadata/UseMetadata';
 import { getMetadataArgsStorage } from '../index';
 import { ActionMetadataArgs } from '../metadata/args/ActionMetadataArgs';
+import { Newable } from '@rce/types/Types';
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -23,21 +24,21 @@ export class MetadataBuilder {
   /**
    * Builds controller metadata from a registered controller metadata args.
    */
-  buildControllerMetadata(classes?: Function[]): ControllerMetadata[] {
+  buildControllerMetadata(classes?: Newable[]): ControllerMetadata[] {
     return this.createControllers(classes);
   }
 
   /**
    * Builds middleware metadata from a registered middleware metadata args.
    */
-  buildMiddlewareMetadata(classes?: Function[]): MiddlewareMetadata[] {
+  buildMiddlewareMetadata(classes?: Newable[]): MiddlewareMetadata[] {
     return this.createMiddlewares(classes);
   }
 
   /**
    * Builds interceptor metadata from a registered interceptor metadata args.
    */
-  buildInterceptorMetadata(classes?: Function[]): InterceptorMetadata[] {
+  buildInterceptorMetadata(classes?: Newable[]): InterceptorMetadata[] {
     return this.createInterceptors(classes);
   }
 
@@ -48,7 +49,7 @@ export class MetadataBuilder {
   /**
    * Creates middleware metadatas.
    */
-  protected createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
+  protected createMiddlewares(classes?: Newable[]): MiddlewareMetadata[] {
     const middlewares = !classes
       ? getMetadataArgsStorage().middlewares
       : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
@@ -58,7 +59,7 @@ export class MetadataBuilder {
   /**
    * Creates interceptor metadatas.
    */
-  protected createInterceptors(classes?: Function[]): InterceptorMetadata[] {
+  protected createInterceptors(classes?: Newable[]): InterceptorMetadata[] {
     const interceptors = !classes
       ? getMetadataArgsStorage().interceptors
       : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
@@ -67,14 +68,14 @@ export class MetadataBuilder {
         new InterceptorMetadata({
           ...interceptorArgs,
           interceptor: interceptorArgs.target,
-        })
+        }),
     );
   }
 
   /**
    * Creates controller metadatas.
    */
-  protected createControllers(classes?: Function[]): ControllerMetadata[] {
+  protected createControllers(classes?: Newable[]): ControllerMetadata[] {
     const controllers = !classes
       ? getMetadataArgsStorage().controllers
       : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);

@@ -8,6 +8,7 @@ import { ActionMetadata } from '../metadata/ActionMetadata';
 import { ParamMetadata } from '../metadata/ParamMetadata';
 import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
 import { Action } from '../Action';
+import { ClassType } from '@rce/types/Types';
 
 /**
  * Base driver functionality for all other drivers.
@@ -63,13 +64,13 @@ export abstract class BaseDriver {
   /**
    * Global application prefix.
    */
-  routePrefix: string = '';
+  routePrefix = '';
 
   /**
    * Indicates if cors are enabled.
    * This requires installation of additional module (cors for express and kcors for koa).
    */
-  cors?: boolean | Object;
+  cors?: boolean | ClassType;
 
   /**
    * Map of error overrides.
@@ -129,7 +130,7 @@ export abstract class BaseDriver {
             key !== 'stack' &&
             key !== 'name' &&
             key !== 'message' &&
-            (!(error instanceof HttpError) || key !== 'httpCode')
+            (!(error instanceof HttpError) || key !== 'httpCode'),
         )
         .forEach(key => (processedError[key] = (error as any)[key]));
 
