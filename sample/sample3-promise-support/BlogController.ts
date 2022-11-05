@@ -16,7 +16,7 @@ export class BlogController {
         { id: 1, name: 'Blog 1!' },
         { id: 2, name: 'Blog 2!' },
       ],
-      3000
+      3000,
     );
   }
 

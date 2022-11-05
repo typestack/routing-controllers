@@ -12,7 +12,7 @@ describe('ActionParameterHandler', () => {
   const buildParamMetadata = (
     name: string = 'id',
     type: ParamType = 'param',
-    isRequired: boolean = false
+    isRequired: boolean = false,
   ): ParamMetadata => {
     const controllerMetadataArgs: ControllerMetadataArgs = {
       target: function () {},
@@ -135,7 +135,7 @@ describe('ActionParameterHandler', () => {
       } catch (error) {
         const err = error as AxiosError;
         expect(err.toString()).to.be.eq(
-          'ParamRequiredError: Parameter "id" is required for request on undefined undefined'
+          'ParamRequiredError: Parameter "id" is required for request on undefined undefined',
         );
       }
     });
@@ -151,11 +151,16 @@ describe('ActionParameterHandler', () => {
 
       try {
         await actionParameterHandler.handle(action, param);
-      } catch (e) {
-        error = e as AxiosError;
+      } catch (e: any) {
+        error = e;
       }
 
-      expect(error?.toString()).to.be.eq("TypeError: Cannot read properties of undefined (reading 'uuid')");
+      const nodeVersion: number = parseInt(process.versions.node.split('.')[0]);
+      if (nodeVersion < 16) {
+        expect(error?.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
+      } else {
+        expect(error?.toString()).to.be.eq("TypeError: Cannot read properties of undefined (reading 'uuid')");
+      }
     });
 
     it('handle - throws error if the parameter is required, type file provided', async () => {

@@ -17,7 +17,7 @@ export class QuestionController {
         { id: 1, name: 'Question 1!' },
         { id: 2, name: 'Question 2!' },
       ],
-      3000
+      3000,
     );
   }
 

@@ -16,7 +16,7 @@ export class PostController {
         { id: 1, name: 'Post 1!' },
         { id: 2, name: 'Post 2!' },
       ],
-      3000
+      3000,
     );
   }
 

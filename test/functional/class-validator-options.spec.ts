@@ -75,7 +75,7 @@ describe(``, () => {
               keyword: 'Um',
               __somethingPrivate: 'blablabla',
             },
-          })
+          }),
       );
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data).toEqual({
@@ -134,7 +134,7 @@ describe(``, () => {
                 notKeyword: 'Um',
                 __somethingPrivate: 'blablabla',
               },
-            })
+            }),
         );
         expect(response.status).toEqual(200);
         expect(requestFilter).toEqual({
@@ -181,7 +181,7 @@ describe(``, () => {
                 notKeyword: 'Um',
                 __somethingPrivate: 'blablabla',
               },
-            })
+            }),
         );
 
         expect(response.status).toEqual(200);
@@ -207,7 +207,7 @@ describe(``, () => {
                   keyword: 'Um',
                   __somethingPrivate: 'blablabla',
                 },
-              })
+              }),
           );
         } catch (error) {
           const err = error as AxiosError;
@@ -257,7 +257,7 @@ describe(``, () => {
               keyword: 'Um',
               __somethingPrivate: 'blablabla',
             },
-          })
+          }),
       );
       expect(response.status).toEqual(HttpStatusCodes.OK);
       expect(response.data).toEqual({

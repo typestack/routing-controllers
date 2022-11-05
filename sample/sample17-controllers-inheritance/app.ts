@@ -14,5 +14,5 @@ console.log(
   'http://localhost:3001/product',
   'http://localhost:3001/product/1000',
   'http://localhost:3001/category',
-  'http://localhost:3001/category/1000'
+  'http://localhost:3001/category/1000',
 );

@@ -250,6 +250,7 @@ export class KoaDriver extends BaseDriver {
       // if template is set then render it // TODO: not working in koa
       const renderOptions = result && result instanceof Object ? result : {};
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       this.koa.use(async function (ctx: any, next: any) {
         await ctx.render(action.renderedTemplate, renderOptions);
       });

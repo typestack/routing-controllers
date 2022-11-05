@@ -218,7 +218,7 @@ describe(``, () => {
         @QueryParam('sortBy') sortBy: string,
         @QueryParam('count') count: string,
         @QueryParam('limit') limit: number,
-        @QueryParam('showAll') showAll: boolean
+        @QueryParam('showAll') showAll: boolean,
       ): string {
         queryParamSortBy = sortBy;
         queryParamCount = count;
@@ -241,7 +241,7 @@ describe(``, () => {
 
       @Get('/photos-params-optional')
       getPhotosWithOptionalQuery(
-        @QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass
+        @QueryParams({ validate: { skipMissingProperties: true } }) query: QueryClass,
       ): string {
         queryParams3 = query;
         return `<html><body>hello</body></html>`;
@@ -249,7 +249,7 @@ describe(``, () => {
 
       @Get('/photos-params-whitelist')
       getPhotosWithWhitelistQuery(
-        @QueryParams({ validate: { whitelist: true, forbidNonWhitelisted: true } }) query: QueryWhitelistClass
+        @QueryParams({ validate: { whitelist: true, forbidNonWhitelisted: true } }) query: QueryWhitelistClass,
       ): string {
         queryParams3 = query;
         return `<html><body>hello</body></html>`;
@@ -263,7 +263,7 @@ describe(``, () => {
 
       @Get('/photos-query-param-string-array')
       getPhotosWithMultipleStringValuesRequired(
-        @QueryParam('multipleStringValues', { required: true }) values: string[]
+        @QueryParam('multipleStringValues', { required: true }) values: string[],
       ): string {
         queryParamValues = values;
         return `<html><body>${values}</body></html>`;
@@ -271,7 +271,7 @@ describe(``, () => {
 
       @Get('/photos-query-param-number-array')
       getPhotosWithMultipleNumberValuesRequired(
-        @QueryParam('multipleNumberValues', { required: true, type: Number, isArray: true }) values: number[]
+        @QueryParam('multipleNumberValues', { required: true, type: Number, isArray: true }) values: number[],
       ): string {
         queryParamValues = values;
         return `<html><body>${values}</body></html>`;
@@ -279,7 +279,7 @@ describe(``, () => {
 
       @Get('/photos-query-param-date-array')
       getPhotosWithMultipleDateValuesRequired(
-        @QueryParam('multipleDateValues', { required: true, type: Date, isArray: true }) values: Date[]
+        @QueryParam('multipleDateValues', { required: true, type: Date, isArray: true }) values: Date[],
       ): string {
         queryParamValues = values;
         return `<html><body>${values}</body></html>`;
@@ -287,7 +287,7 @@ describe(``, () => {
 
       @Get('/photos-with-json')
       getPhotosWithJsonParam(
-        @QueryParam('filter', { parse: true }) filter: { keyword: string; limit: number }
+        @QueryParam('filter', { parse: true }) filter: { keyword: string; limit: number },
       ): string {
         queryParamFilter = filter;
         return `<html><body>hello</body></html>`;
@@ -297,7 +297,7 @@ describe(``, () => {
       getPosts(
         @HeaderParam('token') token: string,
         @HeaderParam('count') count: number,
-        @HeaderParam('showAll') showAll: boolean
+        @HeaderParam('showAll') showAll: boolean,
       ): string {
         headerParamToken = token;
         headerParamCount = count;
@@ -313,7 +313,7 @@ describe(``, () => {
 
       @Get('/posts-with-json')
       getPostsWithJsonParam(
-        @HeaderParam('filter', { parse: true }) filter: { keyword: string; limit: number }
+        @HeaderParam('filter', { parse: true }) filter: { keyword: string; limit: number },
       ): string {
         headerParamFilter = filter;
         return `<html><body>hello</body></html>`;
@@ -323,7 +323,7 @@ describe(``, () => {
       getQuestions(
         @CookieParam('token') token: string,
         @CookieParam('count') count: number,
-        @CookieParam('showAll') showAll: boolean
+        @CookieParam('showAll') showAll: boolean,
       ): string {
         cookieParamToken = token;
         cookieParamCount = count;
@@ -339,7 +339,7 @@ describe(``, () => {
 
       @Get('/questions-with-json')
       getQuestionsWithJsonParam(
-        @CookieParam('filter', { parse: true }) filter: { keyword: string; limit: number }
+        @CookieParam('filter', { parse: true }) filter: { keyword: string; limit: number },
       ): string {
         cookieParamFilter = filter;
         return `<html><body>hello</body></html>`;
@@ -376,14 +376,14 @@ describe(``, () => {
       @Post('/file-with-body-param')
       postFileWithBodyParam(
         @UploadedFile('myFile') file: Express.Multer.File,
-        @BodyParam('testParam') testParam: string
+        @BodyParam('testParam') testParam: string,
       ): string {
         return `<html><body>${file.originalname} - ${testParam}</body></html>`;
       }
 
       @Post('/file-with-limit')
       postFileWithLimit(
-        @UploadedFile('myFile', { options: { limits: { fileSize: 2 } } }) file: Express.Multer.File
+        @UploadedFile('myFile', { options: { limits: { fileSize: 2 } } }) file: Express.Multer.File,
       ): string {
         return `<html><body>${file.originalname}</body></html>`;
       }
@@ -432,7 +432,7 @@ describe(``, () => {
       postUser(
         @BodyParam('name') name: string,
         @BodyParam('age') age: number,
-        @BodyParam('isActive') isActive: boolean
+        @BodyParam('isActive') isActive: boolean,
       ): null {
         bodyParamName = name;
         bodyParamAge = age;
@@ -444,7 +444,7 @@ describe(``, () => {
       postUserWithRequired(
         @BodyParam('name', { required: true }) name: string,
         @BodyParam('age', { required: true }) age: number,
-        @BodyParam('isActive', { required: true }) isActive: boolean
+        @BodyParam('isActive', { required: true }) isActive: boolean,
       ): null {
         bodyParamName = name;
         bodyParamAge = age;
@@ -569,7 +569,7 @@ describe(``, () => {
         'multipleBooleanValues=false&' +
         'multipleBooleanValues=true&' +
         'multipleDateValues=2017-02-01T00:00:00Z&' +
-        'multipleDateValues=2017-03-01T00:00:00Z'
+        'multipleDateValues=2017-03-01T00:00:00Z',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -597,7 +597,7 @@ describe(``, () => {
         'multipleStringValues=a&' +
         'multipleNumberValues=1&' +
         'multipleBooleanValues=true&' +
-        'multipleDateValues=2017-02-01T01:00:00Z'
+        'multipleDateValues=2017-02-01T01:00:00Z',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -634,7 +634,7 @@ describe(``, () => {
         'multipleNumberValues=2.3&' +
         'multipleBooleanValues=false&' +
         'multipleBooleanValues=true&' +
-        'multipleDateValues=2017-02-01T00:00:00Z'
+        'multipleDateValues=2017-02-01T00:00:00Z',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -695,7 +695,7 @@ describe(``, () => {
   it('@QueryParam should give an array of string with multiple query parameters', async () => {
     expect.assertions(3);
     const response = await axios.get(
-      '/photos-query-param-string-array?multipleStringValues=a&multipleStringValues=b&multipleStringValues=b'
+      '/photos-query-param-string-array?multipleStringValues=a&multipleStringValues=b&multipleStringValues=b',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -713,7 +713,7 @@ describe(``, () => {
   it('@QueryParam should give an array of number with multiple query parameters', async () => {
     expect.assertions(3);
     const response = await axios.get(
-      '/photos-query-param-number-array?multipleNumberValues=1&multipleNumberValues=2&multipleNumberValues=2'
+      '/photos-query-param-number-array?multipleNumberValues=1&multipleNumberValues=2&multipleNumberValues=2',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -731,7 +731,7 @@ describe(``, () => {
   it('@QueryParam should give an array of date with multiple query parameters', async () => {
     expect.assertions(3);
     const response = await axios.get(
-      '/photos-query-param-date-array?multipleDateValues=2021-01-01&multipleDateValues=2020-01-01&multipleDateValues=2021-05-01'
+      '/photos-query-param-date-array?multipleDateValues=2021-01-01&multipleDateValues=2020-01-01&multipleDateValues=2021-05-01',
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -1032,7 +1032,7 @@ describe(``, () => {
       }),
       {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
+      },
     );
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
@@ -1063,7 +1063,7 @@ describe(``, () => {
     expect(response.status).toEqual(HttpStatusCodes.OK);
     expect(response.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(response.data).toEqual(
-      `<html><body>sample-text-file.txt - {"anotherField":"hello","andAnother":"world"}</body></html>`
+      `<html><body>sample-text-file.txt - {"anotherField":"hello","andAnother":"world"}</body></html>`,
     );
   });
 

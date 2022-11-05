@@ -91,7 +91,7 @@ export abstract class BaseDriver {
   // -------------------------------------------------------------------------
   // Protected Methods
   // -------------------------------------------------------------------------
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected transformResult(result: any, action: ActionMetadata, options: Action): any {
     // check if we need to transform result
     const shouldTransform =
