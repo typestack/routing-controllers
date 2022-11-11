@@ -16,8 +16,8 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('express error handling', () => {
-    let errorHandlerCalled: boolean;
-    let errorHandledSpecifically: boolean;
+    let errorHandlerCalled: boolean | undefined;
+    let errorHandledSpecifically: boolean | undefined;
 
     beforeEach(() => {
       errorHandlerCalled = undefined;
@@ -116,7 +116,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should not call global error handler middleware if there was no errors', async () => {
       expect.assertions(2);
@@ -129,7 +131,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/posts');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -140,7 +142,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/videos');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
@@ -151,7 +153,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/questions');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandledSpecifically).toBeTruthy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -162,7 +164,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/files');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeFalsy();
         expect(errorHandledSpecifically).toBeFalsy();
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -173,7 +175,7 @@ describe(``, () => {
       expect.assertions(4);
       try {
         await axios.get('/stories');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
         expect(error.response.data.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
         expect(error.response.data.publicData).toEqual('sorry, try it again later (503)');

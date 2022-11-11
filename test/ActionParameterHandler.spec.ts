@@ -132,7 +132,7 @@ describe('ActionParameterHandler', () => {
         };
 
         await actionParameterHandler.handle(action, param);
-      } catch (error) {
+      } catch (error: any) {
         const err = error as AxiosError;
         expect(err.toString()).to.be.eq(
           'ParamRequiredError: Parameter "id" is required for request on undefined undefined',

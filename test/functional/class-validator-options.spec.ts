@@ -121,7 +121,7 @@ describe(``, () => {
         expressServer = createExpressServer(options).listen(3001, done);
       });
 
-      afterEach(done => {
+      afterEach((done: DoneCallback) => {
         expressServer.close(done);
       });
 
@@ -168,7 +168,7 @@ describe(``, () => {
         expressServer = createExpressServer(options).listen(3001, done);
       });
 
-      afterEach(done => {
+      afterEach((done: DoneCallback) => {
         expressServer.close(done);
       });
 
@@ -209,10 +209,9 @@ describe(``, () => {
                 },
               }),
           );
-        } catch (error) {
-          const err = error as AxiosError;
-          expect(err?.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
-          expect(err?.response?.data.errors[0].property).toBe(`keyword`);
+        } catch (error: any) {
+          expect(error?.response?.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+          expect(error?.response?.data.errors[0].property).toBe(`keyword`);
         }
       });
     }); // ----- end global options

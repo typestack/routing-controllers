@@ -27,7 +27,7 @@ describe(``, () => {
       class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
         error(error: HttpError, request: express.Request, response: express.Response, next: express.NextFunction): any {
           errorHandlerCalled = true;
-          response.status(error.httpCode).send(error.message);
+          response.status(error.httpCode as number).send(error.message);
         }
       }
 
@@ -52,7 +52,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should not call global error handler middleware if there was no errors', async () => {
       expect.assertions(2);
@@ -65,7 +67,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/videos');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data).toEqual('Videos were not found.');

@@ -39,7 +39,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterEach((done: DoneCallback) => expressServer.close(done));
+    afterEach((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('get should respond with proper status code, headers and body content', async () => {
       expect.assertions(3);
@@ -69,7 +71,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/1/users/1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -78,7 +80,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -87,7 +89,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/users/1');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });

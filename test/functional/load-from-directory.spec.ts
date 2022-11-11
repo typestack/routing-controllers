@@ -21,7 +21,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should load all controllers', async () => {
       expect.assertions(10);
@@ -78,7 +80,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     beforeEach(() => defaultFakeService.reset());
 
@@ -97,7 +101,7 @@ describe(``, () => {
       expect.assertions(6);
       try {
         await axios.get('/articles');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(defaultFakeService.postMiddlewareCalled).toBeTruthy();
         expect(defaultFakeService.questionMiddlewareCalled).toBeTruthy();

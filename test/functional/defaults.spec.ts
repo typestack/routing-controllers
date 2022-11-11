@@ -67,7 +67,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should return undefinedResultCode from defaults config for void function', async () => {
       expect.assertions(1);
@@ -85,7 +87,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/paramfunc');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
       }
     });
@@ -94,7 +96,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/nullfunc');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(defaultNullResultCode);
       }
     });
@@ -103,7 +105,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/overridefunc');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
       }
     });

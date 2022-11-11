@@ -153,7 +153,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('get should respond with proper status code, headers and body content', async () => {
       expect.assertions(3);
@@ -238,7 +240,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/umed');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -255,7 +257,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/posts/U');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -272,7 +274,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/posts-from-failed-db');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
         expect(error.response.data).toEqual('<html><body>cannot connect to a database</body></html>');
@@ -297,7 +299,7 @@ describe(``, () => {
       expect.assertions(2);
       try {
         await axios.get('/return/normal/undefined');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.headers['content-type']).toEqual('text/html; charset=utf-8');
       }
@@ -307,7 +309,7 @@ describe(``, () => {
       expect.assertions(2);
       try {
         await axios.get('/return/json/undefined');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
       }
@@ -333,7 +335,7 @@ describe(``, () => {
       expect.assertions(4);
       try {
         await axios.get('/json-controller/text-plain-error');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
         expect(error.response.headers['content-type']).toEqual('text/plain; charset=utf-8');
         expect(typeof error.response.data).toEqual('string');
@@ -345,7 +347,7 @@ describe(``, () => {
       expect.assertions(4);
       try {
         await axios.get('/json-controller/json-error');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.UNAUTHORIZED);
         expect(error.response.headers['content-type']).toEqual('application/json; charset=utf-8');
         expect(typeof error.response.data).toEqual('object');

@@ -9,6 +9,7 @@ import { Post } from '../../src/decorator/Post';
 import { Put } from '../../src/decorator/Put';
 import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
+import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
   let expressServer: any;
@@ -117,7 +118,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll(done => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('get should respond with proper status code, headers and body content', async () => {
       expect.assertions(3);
@@ -230,7 +233,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/categories/b1');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -250,7 +253,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/posts/U');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
     });
@@ -270,7 +273,7 @@ describe(``, () => {
       expect.assertions(3);
       try {
         await axios.get('/posts-from-failed-db');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(err.response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(err.response.data).toEqual({

@@ -14,8 +14,8 @@ describe(``, () => {
   let expressServer: HttpServer;
 
   describe('custom express global before middleware error handling', () => {
-    let errorHandlerCalled: boolean;
-    let errorHandlerName: string;
+    let errorHandlerCalled: boolean | undefined;
+    let errorHandlerName: string | undefined;
     class CustomError extends Error {
       name = 'CustomError';
       message = 'custom error message!';
@@ -57,13 +57,15 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should call global error handler middleware with CustomError', async () => {
       expect.assertions(3);
       try {
         await axios.get('/answers');
-      } catch (error) {
+      } catch (error: any) {
         expect(errorHandlerCalled).toBeTruthy();
         expect(errorHandlerName).toEqual('CustomError');
         expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);

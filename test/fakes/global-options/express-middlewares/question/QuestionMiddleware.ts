@@ -4,7 +4,7 @@ import { Middleware } from '../../../../../src/decorator/Middleware';
 
 @Middleware({ type: 'before' })
 export class QuestionMiddleware implements ExpressMiddlewareInterface {
-  use(request: any, response: any, next?: (err?: any) => any): any {
+  use(request: any, response: any, next: (err?: any) => any): any {
     defaultFakeService.questionMiddleware();
     return next();
   }

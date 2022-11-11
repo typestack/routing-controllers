@@ -17,13 +17,13 @@ describe(``, () => {
 
   describe('express middlewares', () => {
     let useBefore: boolean,
-      useAfter: boolean,
-      useCustom: boolean,
-      useCustomWithError: boolean,
-      useGlobalBeforeWithError: boolean,
-      useGlobalBefore: boolean,
-      useGlobalAfter: boolean,
-      useCallOrder: string,
+      useAfter: boolean | undefined,
+      useCustom: boolean | undefined,
+      useCustomWithError: boolean | undefined,
+      useGlobalBeforeWithError: boolean | undefined,
+      useGlobalBefore: boolean | undefined,
+      useGlobalAfter: boolean | undefined,
+      useCallOrder: string | undefined,
       useGlobalCallOrder: string;
 
     beforeEach(() => {
@@ -133,7 +133,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should call a global middlewares', async () => {
       expect.assertions(4);
@@ -180,7 +182,7 @@ describe(``, () => {
       expect.assertions(1);
       try {
         await axios.get('/customMiddlewareWichThrows');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_ACCEPTABLE);
       }
     });

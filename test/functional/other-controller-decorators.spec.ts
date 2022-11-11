@@ -48,7 +48,7 @@ describe(``, () => {
         @Get('/posts/:id')
         @OnNull(404)
         getPost(@Param('id') id: number): Promise<string> {
-          return new Promise((ok, fail) => {
+          return new Promise<any>((ok, fail) => {
             if (id === 1) {
               ok('Post');
             } else if (id === 2) {
@@ -63,12 +63,12 @@ describe(``, () => {
 
         @Get('/photos/:id')
         @OnUndefined(201)
-        getPhoto(@Param('id') id: number): Promise<string> {
+        getPhoto(@Param('id') id: number): Promise<string> | undefined {
           if (id === 4) {
             return undefined;
           }
 
-          return new Promise((ok, fail) => {
+          return new Promise<any>((ok, fail) => {
             if (id === 1) {
               ok('Photo');
             } else if (id === 2) {
@@ -119,7 +119,7 @@ describe(``, () => {
         @Get('/questions/:id')
         @OnUndefined(QuestionNotFoundError)
         getPosts(@Param('id') id: number): Promise<string> {
-          return new Promise((ok, fail) => {
+          return new Promise<any>((ok, fail) => {
             if (id === 1) {
               ok('Question');
             } else {
@@ -132,7 +132,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should return httpCode set by @HttpCode decorator', async () => {
       expect.assertions(4);
@@ -143,7 +145,7 @@ describe(``, () => {
 
       try {
         await axios.get('/admin');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.FORBIDDEN);
         expect(error.response.data).toEqual('<html><body>Access is denied</body></html>');
       }
@@ -160,20 +162,20 @@ describe(``, () => {
 
       try {
         await axios.get('/posts/3');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
 
       try {
         await axios.get('/posts/4');
-      } catch (error) {
+      } catch (error: any) {
         // this is expected because for undefined 404 is given by default
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
 
       try {
         await axios.get('/posts/5');
-      } catch (error) {
+      } catch (error: any) {
         // this is expected because for undefined 404 is given by default
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
       }
@@ -187,7 +189,7 @@ describe(``, () => {
 
       try {
         await axios.get('/questions/2');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data.name).toEqual('QuestionNotFoundError');
         expect(error.response.data.message).toEqual('Question was not found!');
@@ -195,7 +197,7 @@ describe(``, () => {
 
       try {
         await axios.get('/questions/3');
-      } catch (error) {
+      } catch (error: any) {
         expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
         expect(error.response.data.name).toEqual('QuestionNotFoundError');
         expect(error.response.data.message).toEqual('Question was not found!');

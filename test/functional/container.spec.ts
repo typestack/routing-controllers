@@ -104,7 +104,7 @@ describe(``, () => {
             title: 'post #2',
           },
         ]);
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
       }
     });
@@ -212,7 +212,7 @@ describe(``, () => {
             title: 'post #2',
           },
         ]);
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
       }
     });
@@ -346,7 +346,7 @@ describe(``, () => {
             title: 'photo #2',
           },
         ]);
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
       }
     });
@@ -482,7 +482,7 @@ describe(``, () => {
             title: 'photo #2',
           },
         ]);
-      } catch (err) {
+      } catch (err: any) {
         // Handle Error Here
         console.error(err);
       }
