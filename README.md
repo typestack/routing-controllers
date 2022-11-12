@@ -1,4 +1,4 @@
-# routing-controllers extended
+# routing-controllers-extended
 
 <!-- ![Build Status](https://github.com/spicemc/rce/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/typestack/routing-controllers/branch/develop/graph/badge.svg)](https://codecov.io/gh/typestack/routing-controllers)
@@ -8,7 +8,7 @@
 English | [中文](./docs/lang/chinese/README.md)
 
 Allows to create controller classes with methods as actions that handle requests.
-You can use routing-controllers with [express.js][1] or [koa.js][2].
+You can use routing-controllers-extended with [express.js][1] or [koa.js][2].
 
 # Table of Contents
 
@@ -76,13 +76,13 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
 1. Install module:
 
-   `npm install routing-controllers`
+   `npm install routing-controllers-extended`
 
 2. `reflect-metadata` shim is required:
 
    `npm install reflect-metadata`
 
-   and make sure to import it before you use routing-controllers:
+   and make sure to import it before you use routing-controllers-extended:
 
 ```typescript
 import 'reflect-metadata';
@@ -90,7 +90,7 @@ import 'reflect-metadata';
 
 3. Install framework:
 
-   **a. If you want to use routing-controllers with _express.js_, then install it and all required dependencies:**
+   **a. If you want to use routing-controllers-extended with _express.js_, then install it and all required dependencies:**
 
    `npm install express body-parser multer`
 
@@ -98,7 +98,7 @@ import 'reflect-metadata';
 
    `npm install -D @types/express @types/body-parser @types/multer`
 
-   **b. If you want to use routing-controllers with _koa 2_, then install it and all required dependencies:**
+   **b. If you want to use routing-controllers-extended with _koa 2_, then install it and all required dependencies:**
 
    `npm install koa koa-router koa-bodyparser koa-multer`
 
@@ -126,7 +126,7 @@ In prior versions, these were direct dependencies, but now they are peer depende
 1. Create a file `UserController.ts`
 
    ```typescript
-   import { Controller, Param, Body, Get, Post, Put, Delete } from 'routing-controllers';
+   import { Controller, Param, Body, Get, Post, Put, Delete } from 'routing-controllers-extended';
 
    @Controller()
    export class UserController {
@@ -163,7 +163,7 @@ In prior versions, these were direct dependencies, but now they are peer depende
 
    ```typescript
    // this shim is required
-   import { createExpressServer } from 'routing-controllers';
+   import { createExpressServer } from 'routing-controllers-extended';
    import { UserController } from './UserController';
 
    // creates express app, registers all controller routes and returns you express app instance
@@ -191,7 +191,7 @@ and `Content-Type` header will be always set to `application/json`.
 It will also guarantee `application/json` header is understood from the requests and the body parsed as JSON:
 
 ```typescript
-import { JsonController, Param, Body, Get, Post, Put, Delete } from 'routing-controllers';
+import { JsonController, Param, Body, Get, Post, Put, Delete } from 'routing-controllers-extended';
 
 @JsonController()
 export class UserController {
@@ -217,7 +217,7 @@ export class UserController {
 You can return a promise in the controller, and it will wait until promise resolved and return promise result in a response body.
 
 ```typescript
-import { JsonController, Param, Body, Get, Post, Put, Delete } from 'routing-controllers';
+import { JsonController, Param, Body, Get, Post, Put, Delete } from 'routing-controllers-extended';
 
 @JsonController()
 export class UserController {
@@ -254,7 +254,7 @@ You can use framework's request and response objects directly. If you want to ha
 just make sure you return the response object itself from the action.
 
 ```typescript
-import { Controller, Req, Res, Get } from 'routing-controllers';
+import { Controller, Req, Res, Get } from 'routing-controllers-extended';
 
 @Controller()
 export class UserController {
@@ -279,7 +279,7 @@ If you have installed typings, you can use their types:
 
 ```typescript
 import { Request, Response } from 'express';
-import { Controller, Req, Res, Get } from 'routing-controllers';
+import { Controller, Req, Res, Get } from 'routing-controllers-extended';
 
 @Controller()
 export class UserController {
@@ -298,13 +298,13 @@ If you have, or if you want to create and configure express app separately,
 you can use `useExpressServer` instead of `createExpressServer` function:
 
 ```typescript
-import { useExpressServer } from 'routing-controllers';
+import { useExpressServer } from 'routing-controllers-extended';
 
 let express = require('express'); // or you can import it if you have installed typings
 let app = express(); // your created express server
 // app.use() // you can configure it the way you want
 useExpressServer(app, {
-  // register created express server in routing-controllers
+  // register created express server in routing-controllers-extended
   controllers: [UserController], // and configure it the way you need (controllers, validation, etc.)
 });
 app.listen(3000); // run your express server
@@ -318,7 +318,7 @@ You can load all controllers from directories, by specifying array of directorie
 `createExpressServer` or `useExpressServer`:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import path from 'path';
 
 createExpressServer({
@@ -333,7 +333,7 @@ createExpressServer({
 If you want to prefix all your routes, e.g. `/api` you can use `routePrefix` option:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import { UserController } from './controller/UserController';
 
 createExpressServer({
@@ -448,7 +448,7 @@ saveUser(@Body() user: User) {
 ```
 
 If you specify a class type to parameter that is decorated with `@Body()`,
-routing-controllers will use [class-transformer][4] to create instance of the given class type from the data received in request body.
+routing-controllers-extended will use [class-transformer][4] to create instance of the given class type from the data received in request body.
 To disable this behaviour you need to specify a `{ classTransformer: false }` in RoutingControllerOptions when creating a server.
 
 #### Inject request body parameters
@@ -573,12 +573,12 @@ save(@Body({ required: true }) user: any) {
 ```
 
 Same you can do with all other parameters `@QueryParam`, `@BodyParam` and others.
-If user request does not contain required parameter routing-controllers will throw an error.
+If user request does not contain required parameter routing-controllers-extended will throw an error.
 
 #### Convert parameters to objects
 
 If you specify a class type to parameter that is decorated with parameter decorator,
-routing-controllers will use [class-transformer][4] to create instance of that class type.
+routing-controllers-extended will use [class-transformer][4] to create instance of that class type.
 More info about this feature is available [here](#creating-instances-of-classes-from-action-params).
 
 #### Set custom ContentType
@@ -634,8 +634,8 @@ You can use template to generate the Redirect header:
 @Redirect("http://github.com/:owner/:repo")
 getUsers() {
     return {
-        owner: "typestack",
-        repo: "routing-controllers"
+        owner: "spicemc",
+        repo: "routing-controllers-extended"
     };
 }
 ```
@@ -680,7 +680,7 @@ getOne(@Param("id") id: number) {
 You can also specify error class you want to use if it returned undefined:
 
 ```typescript
-import { HttpError } from 'routing-controllers';
+import { HttpError } from 'routing-controllers-extended';
 
 export class UserNotFoundError extends HttpError {
   constructor() {
@@ -793,10 +793,10 @@ class DbError extends HttpError {
 #### Enable CORS
 
 Since CORS is a feature that is used almost in any web-api application,
-you can enable it in routing-controllers options.
+you can enable it in routing-controllers-extended options.
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import { UserController } from './UserController';
 
 const app = createExpressServer({
@@ -812,7 +812,7 @@ For express its `npm i cors`, for koa its `npm i kcors`.
 You can pass cors options as well:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import { UserController } from './UserController';
 
 const app = createExpressServer({
@@ -827,10 +827,10 @@ app.listen(3000);
 
 #### Default settings
 
-You can override default status code in routing-controllers options.
+You can override default status code in routing-controllers-extended options.
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import { UserController } from './UserController';
 
 const app = createExpressServer({
@@ -880,7 +880,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 2. To use middleware per-action:
 
    ```typescript
-   import { Controller, Get, UseBefore } from "routing-controllers";
+   import { Controller, Get, UseBefore } from "routing-controllers-extended";
    let compression = require("compression");
 
    // ...
@@ -899,7 +899,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 3. To use middleware per-controller:
 
    ```typescript
-   import { Controller, UseBefore } from 'routing-controllers';
+   import { Controller, UseBefore } from 'routing-controllers-extended';
    let compression = require('compression');
 
    @Controller()
@@ -913,7 +913,7 @@ For example, lets try to use [compression](https://github.com/expressjs/compress
 4. If you want to use compression module globally for all controllers you can simply register it during bootstrap:
 
    ```typescript
-   import { createExpressServer } from 'routing-controllers';
+   import { createExpressServer } from 'routing-controllers-extended';
    import { UserController } from './UserController'; // we need to "load" our controller before call createExpressServer. this is required
    let compression = require('compression');
    let app = createExpressServer({
@@ -943,7 +943,7 @@ Here is example of creating middleware for express.js:
    Second you can create a class:
 
    ```typescript
-   import { ExpressMiddlewareInterface } from 'routing-controllers';
+   import { ExpressMiddlewareInterface } from 'routing-controllers-extended';
 
    export class MyMiddleware implements ExpressMiddlewareInterface {
      // interface implementation is optional
@@ -958,7 +958,7 @@ Here is example of creating middleware for express.js:
 2. Then you can use them this way:
 
    ```typescript
-   import { Controller, UseBefore } from 'routing-controllers';
+   import { Controller, UseBefore } from 'routing-controllers-extended';
    import { MyMiddleware } from './MyMiddleware';
    import { loggingMiddleware } from './loggingMiddleware';
 
@@ -1006,7 +1006,7 @@ Here is example of creating middleware for koa.js:
    Second you can create a class:
 
    ```typescript
-   import { KoaMiddlewareInterface } from 'routing-controllers';
+   import { KoaMiddlewareInterface } from 'routing-controllers-extended';
 
    export class MyMiddleware implements KoaMiddlewareInterface {
      // interface implementation is optional
@@ -1027,7 +1027,7 @@ Here is example of creating middleware for koa.js:
 2. Then you can them this way:
 
    ```typescript
-   import { Controller, UseBefore } from 'routing-controllers';
+   import { Controller, UseBefore } from 'routing-controllers-extended';
    import { MyMiddleware } from './MyMiddleware';
    import { loggingMiddleware } from './loggingMiddleware';
 
@@ -1057,7 +1057,7 @@ Global middlewares run before each request, always.
 To make your middleware global mark it with `@Middleware` decorator and specify if it runs after or before controllers actions.
 
 ```typescript
-import { Middleware, ExpressMiddlewareInterface } from 'routing-controllers';
+import { Middleware, ExpressMiddlewareInterface } from 'routing-controllers-extended';
 
 @Middleware({ type: 'before' })
 export class LoggingMiddleware implements ExpressMiddlewareInterface {
@@ -1068,10 +1068,10 @@ export class LoggingMiddleware implements ExpressMiddlewareInterface {
 }
 ```
 
-To enable this middleware, specify it during routing-controllers initialization:
+To enable this middleware, specify it during routing-controllers-extended initialization:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import { UserController } from './UserController';
 import { LoggingMiddleware } from './LoggingMiddleware';
 
@@ -1089,7 +1089,7 @@ Error handlers work same way as middlewares, but implement `ExpressErrorMiddlewa
 1. Create a class that implements the `ErrorMiddlewareInterface` interface:
 
    ```typescript
-   import { Middleware, ExpressErrorMiddlewareInterface } from 'routing-controllers';
+   import { Middleware, ExpressErrorMiddlewareInterface } from 'routing-controllers-extended';
 
    @Middleware({ type: 'after' })
    export class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
@@ -1114,7 +1114,7 @@ createExpressServer({
 Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 import path from 'path';
 
 createExpressServer({
@@ -1135,7 +1135,7 @@ It works pretty much the same as middlewares.
 The easiest way is to use functions directly passed to `@UseInterceptor` of the action.
 
 ```typescript
-import { Get, Param, UseInterceptor } from "routing-controllers";
+import { Get, Param, UseInterceptor } from "routing-controllers-extended";
 
 // ...
 
@@ -1158,7 +1158,7 @@ If its used per-controller then interceptor will apply to all controller actions
 You can also create a class and use it with `@UseInterceptor` decorator:
 
 ```typescript
-import { Interceptor, InterceptorInterface, Action } from 'routing-controllers';
+import { Interceptor, InterceptorInterface, Action } from 'routing-controllers-extended';
 
 export class NameCorrectionInterceptor implements InterceptorInterface {
   intercept(action: Action, content: any) {
@@ -1170,7 +1170,7 @@ export class NameCorrectionInterceptor implements InterceptorInterface {
 And use it in your controllers this way:
 
 ```typescript
-import { Get, Param, UseInterceptor } from "routing-controllers";
+import { Get, Param, UseInterceptor } from "routing-controllers-extended";
 import { NameCorrectionInterceptor } from "./NameCorrectionInterceptor";
 
 // ...
@@ -1188,7 +1188,7 @@ You can create interceptors that will affect all controllers in your project by 
 and mark it with `@Interceptor` decorator:
 
 ```typescript
-import { Interceptor, InterceptorInterface, Action } from 'routing-controllers';
+import { Interceptor, InterceptorInterface, Action } from 'routing-controllers-extended';
 
 @Interceptor()
 export class NameCorrectionInterceptor implements InterceptorInterface {
@@ -1205,14 +1205,14 @@ You have ability to do this using [class-transformer][4].
 To use it simply specify a `classTransformer: true` option on application bootstrap:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 
 createExpressServer({
   classTransformer: true,
 }).listen(3000);
 ```
 
-Now, when you parse your action params, if you have specified a class, routing-controllers will create you a class
+Now, when you parse your action params, if you have specified a class, routing-controllers-extended will create you a class
 of that instance with the data sent by a user:
 
 ```typescript
@@ -1276,7 +1276,7 @@ E.g. `class-transformer` doesn't check whether the property's types are correct,
 It can be done easily thanks to integration with [class-validator][9]. This behaviour is **enabled** by default. If you want to disable it, you need to do it explicitly e.g. by passing `validation: false` option on application bootstrap:
 
 ```typescript
-import { createExpressServer } from 'routing-controllers';
+import { createExpressServer } from 'routing-controllers-extended';
 
 createExpressServer({
   validation: false,
@@ -1331,10 +1331,10 @@ Routing-controllers comes with two decorators helping you to organize authorizat
 
 #### `@Authorized` decorator
 
-To make `@Authorized` decorator to work you need to setup special routing-controllers options:
+To make `@Authorized` decorator to work you need to setup special routing-controllers-extended options:
 
 ```typescript
-import { createExpressServer, Action } from 'routing-controllers';
+import { createExpressServer, Action } from 'routing-controllers-extended';
 
 createExpressServer({
   authorizationChecker: async (action: Action, roles: string[]) => {
@@ -1372,10 +1372,10 @@ export class SomeController {
 
 #### `@CurrentUser` decorator
 
-To make `@CurrentUser` decorator to work you need to setup special routing-controllers options:
+To make `@CurrentUser` decorator to work you need to setup special routing-controllers-extended options:
 
 ```typescript
-import { createExpressServer, Action } from 'routing-controllers';
+import { createExpressServer, Action } from 'routing-controllers-extended';
 
 createExpressServer({
   currentUserChecker: async (action: Action) => {
@@ -1402,20 +1402,20 @@ export class QuestionController {
 ```
 
 If you mark `@CurrentUser` as `required` and currentUserChecker logic will return empty result,
-then routing-controllers will throw authorization required error.
+then routing-controllers-extended will throw authorization required error.
 
 ## Using DI container
 
-`routing-controllers` supports a DI container out of the box. You can inject your services into your controllers,
+`routing-controllers-extended` supports a DI container out of the box. You can inject your services into your controllers,
 middlewares and error handlers. Container must be setup during application bootstrap.
-Here is example how to integrate routing-controllers with [typedi](https://github.com/typestack/typedi):
+Here is example how to integrate routing-controllers-extended with [typedi](https://github.com/typestack/typedi):
 
 ```typescript
-import { createExpressServer, useContainer } from 'routing-controllers';
+import { createExpressServer, useContainer } from 'routing-controllers-extended';
 import { Container } from 'typedi';
 import path from 'path';
 
-// its important to set container before any operation you do with routing-controllers,
+// its important to set container before any operation you do with routing-controllers-extended,
 // including importing controllers
 useContainer(Container);
 
@@ -1445,7 +1445,7 @@ For other IoC providers that don't expose a `get(xxx)` function, you can create 
 
 ```typescript
 // inversify-adapter.ts
-import { IocAdapter } from 'routing-controllers';
+import { IocAdapter } from 'routing-controllers-extended';
 import { Container } from 'inversify';
 
 class InversifyAdapter implements IocAdapter {
@@ -1463,7 +1463,7 @@ And then tell Routing Controllers to use it:
 
 ```typescript
 // Somewhere in your app startup
-import { useContainer } from 'routing-controllers';
+import { useContainer } from 'routing-controllers-extended';
 import { Container } from 'inversify';
 import { InversifyAdapter } from './inversify-adapter.ts';
 
@@ -1478,7 +1478,7 @@ You can create your own parameter decorators.
 Here is simple example how "session user" can be implemented using custom decorators:
 
 ```typescript
-import { createParamDecorator } from 'routing-controllers';
+import { createParamDecorator } from 'routing-controllers-extended';
 
 export function UserFromSession(options?: { required?: boolean }) {
   return createParamDecorator({
@@ -1500,7 +1500,7 @@ export class QuestionController {
   save(@Body() question: Question, @UserFromSession({ required: true }) user: User) {
     // here you'll have user authorized and you can safely save your question
     // in the case if user returned your undefined from the database and "required"
-    // parameter was set, routing-controllers will throw you ParameterRequired error
+    // parameter was set, routing-controllers-extended will throw you ParameterRequired error
   }
 }
 ```
@@ -1562,19 +1562,19 @@ export class QuestionController {
 
 #### Other Decorators
 
-| Signature                                                        | Example                                           | Description                                                                                                                                 |
-| ---------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options. |
-| `@CurrentUser(options?: { required?: boolean })`                 | get(@CurrentUser({ required: true }) user: User)  | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers options.                                   |
-| `@Header(headerName: string, headerValue: string)`               | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP header returned in the response.                                                                          |
-| `@ContentType(contentType: string)`                              | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-Type returned in the response.                                                                        |
-| `@Location(url: string)`                                         | `@Location("http://github.com")` get()            | Allows to explicitly set HTTP Location header returned in the response.                                                                     |
-| `@Redirect(url: string)`                                         | `@Redirect("http://github.com")` get()            | Allows to explicitly set HTTP Redirect header returned in the response.                                                                     |
-| `@HttpCode(code: number)`                                        | `@HttpCode(201)` post()                           | Allows to explicitly set HTTP code to be returned in the response.                                                                          |
-| `@OnNull(codeOrError: number\|Error)`                            | `@OnNull(201)` post()                             | Sets a given HTTP code when controller action returned null.                                                                                |
-| `@OnUndefined(codeOrError: number\|Error)`                       | `@OnUndefined(201)` post()                        | Sets a given HTTP code when controller action returned undefined.                                                                           |
-| `@ResponseClassTransformOptions(options: ClassTransformOptions)` | `@ResponseClassTransformOptions({/*...*/})` get() | Sets options to be passed to class-transformer when it used for classToPlain a response result.                                             |
-| `@Render(template: string)`                                      | `@Render("user-list.html")` get()                 | Renders a given html template. Data returned by a controller serve as template variables.                                                   |
+| Signature                                                        | Example                                           | Description                                                                                                                                          |
+| ---------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers-extended options. |
+| `@CurrentUser(options?: { required?: boolean })`                 | get(@CurrentUser({ required: true }) user: User)  | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers-extended options.                                   |
+| `@Header(headerName: string, headerValue: string)`               | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP header returned in the response.                                                                                   |
+| `@ContentType(contentType: string)`                              | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-Type returned in the response.                                                                                 |
+| `@Location(url: string)`                                         | `@Location("http://github.com")` get()            | Allows to explicitly set HTTP Location header returned in the response.                                                                              |
+| `@Redirect(url: string)`                                         | `@Redirect("http://github.com")` get()            | Allows to explicitly set HTTP Redirect header returned in the response.                                                                              |
+| `@HttpCode(code: number)`                                        | `@HttpCode(201)` post()                           | Allows to explicitly set HTTP code to be returned in the response.                                                                                   |
+| `@OnNull(codeOrError: number\|Error)`                            | `@OnNull(201)` post()                             | Sets a given HTTP code when controller action returned null.                                                                                         |
+| `@OnUndefined(codeOrError: number\|Error)`                       | `@OnUndefined(201)` post()                        | Sets a given HTTP code when controller action returned undefined.                                                                                    |
+| `@ResponseClassTransformOptions(options: ClassTransformOptions)` | `@ResponseClassTransformOptions({/*...*/})` get() | Sets options to be passed to class-transformer when it used for classToPlain a response result.                                                      |
+| `@Render(template: string)`                                      | `@Render("user-list.html")` get()                 | Renders a given html template. Data returned by a controller serve as template variables.                                                            |
 
 ## Samples
 
