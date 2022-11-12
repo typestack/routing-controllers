@@ -13,7 +13,7 @@ export function Authorized(): AuthorizedFunction;
  * Marks controller action to have a special access.
  * Authorization logic must be defined in routing-controllers settings.
  */
-// export function Authorized(role: any): AuthorizedFunction;
+export function Authorized(role: any): AuthorizedFunction;
 
 /**
  * Marks controller action to have a special access.
