@@ -1,6 +1,6 @@
 import { ClassConstructor } from 'class-transformer';
 import { InterceptorInterface } from '../../InterceptorInterface';
-import { Action } from '@rce/Action';
+import { Action } from '../../Action';
 
 /**
  * Metadata used to store registered intercept for a specific controller or controller action.
