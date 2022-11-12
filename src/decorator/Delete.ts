@@ -1,6 +1,6 @@
 import { HandlerOptions } from '../decorator-options/HandlerOptions';
 import { getMetadataArgsStorage } from '../index';
-import { DecoratorFunction } from '@rce/types/Types';
+import { DecoratorFunction } from '../types/Types';
 
 /**
  * Registers a controller method to be executed when DELETE request comes on a given route.

@@ -1,6 +1,6 @@
 import { ParamOptions } from '../decorator-options/ParamOptions';
 import { getMetadataArgsStorage } from '../index';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Injects a request's cookie value to the controller action parameter.

@@ -1,6 +1,6 @@
 import { ResponseHandlerMetadataArgs } from './args/ResponseHandleMetadataArgs';
 import { ResponseHandlerType } from './types/ResponseHandlerType';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 /**
  * Response handler metadata.

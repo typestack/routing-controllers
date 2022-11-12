@@ -1,6 +1,6 @@
 import { getMetadataArgsStorage } from '../index';
 import { ControllerOptions } from '../decorator-options/ControllerOptions';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 type AllFunction = (object: Newable, methodName: string) => void;
 

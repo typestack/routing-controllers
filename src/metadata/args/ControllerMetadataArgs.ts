@@ -1,5 +1,5 @@
 import { ControllerOptions } from '../../decorator-options/ControllerOptions';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../../types/Types';
 
 /**
  * Controller metadata used to storage information about registered controller.

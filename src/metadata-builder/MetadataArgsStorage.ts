@@ -6,7 +6,7 @@ import { MiddlewareMetadataArgs } from '../metadata/args/MiddlewareMetadataArgs'
 import { UseMetadataArgs } from '../metadata/args/UseMetadataArgs';
 import { UseInterceptorMetadataArgs } from '../metadata/args/UseInterceptorMetadataArgs';
 import { InterceptorMetadataArgs } from '../metadata/args/InterceptorMetadataArgs';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 /**
  * Storage all metadatas read from decorators.

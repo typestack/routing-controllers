@@ -1,6 +1,6 @@
 import { getMetadataArgsStorage } from '../index';
 import { ControllerOptions } from '../decorator-options/ControllerOptions';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Defines a class as a controller.

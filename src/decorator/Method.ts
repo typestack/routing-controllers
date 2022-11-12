@@ -1,7 +1,7 @@
 import { HandlerOptions } from '../decorator-options/HandlerOptions';
 import { getMetadataArgsStorage } from '../index';
 import { ActionType } from '../metadata/types/ActionType';
-import { DecoratorFunction } from '@rce/types/Types';
+import { DecoratorFunction } from '../types/Types';
 
 /**
  * Registers an action to be executed when request with specified method comes on a given route.

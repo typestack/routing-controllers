@@ -1,4 +1,4 @@
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../../types/Types';
 
 /**
  * Metadata used to store registered interceptor.

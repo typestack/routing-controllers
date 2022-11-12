@@ -10,7 +10,7 @@ import { AuthorizationRequiredError } from './error/AuthorizationRequiredError';
 import { CurrentUserCheckerNotDefinedError } from './error/CurrentUserCheckerNotDefinedError';
 import { isPromiseLike } from './util/isPromiseLike';
 import { InvalidParamError } from './error/ParamNormalizationError';
-import { Newable } from '@rce/types/Types';
+import { Newable } from './types/Types';
 
 /**
  * Handles action parameter.

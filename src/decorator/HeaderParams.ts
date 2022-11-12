@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Injects all request's http headers to the controller action parameter.

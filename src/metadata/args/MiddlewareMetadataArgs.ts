@@ -1,4 +1,4 @@
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../../types/Types';
 
 /**
  * Metadata used to store registered middlewares.

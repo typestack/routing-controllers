@@ -1,6 +1,6 @@
 import { UploadOptions } from '../decorator-options/UploadOptions';
 import { getMetadataArgsStorage } from '../index';
-import { Callable } from '@rce/types/Types';
+import { Callable } from '../types/Types';
 
 /**
  * Injects all uploaded files to the controller action parameter.

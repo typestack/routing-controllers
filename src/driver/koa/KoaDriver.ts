@@ -12,7 +12,7 @@ import { getFromContainer } from '../../container';
 import { RoleChecker } from '../../RoleChecker';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { HttpError, NotFoundError } from '../../index';
-import { Callable } from '@rce/types/Types';
+import { Callable } from '../../types/Types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');

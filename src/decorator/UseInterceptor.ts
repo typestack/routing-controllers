@@ -2,7 +2,7 @@ import { getMetadataArgsStorage } from '../index';
 import { Action } from '../Action';
 import { ClassConstructor } from 'class-transformer';
 import { InterceptorInterface } from '../InterceptorInterface';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Specifies a given interceptor middleware or interceptor function to be used for controller or controller action.

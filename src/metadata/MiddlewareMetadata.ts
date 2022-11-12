@@ -3,7 +3,7 @@ import { ExpressMiddlewareInterface } from '../driver/express/ExpressMiddlewareI
 import { ExpressErrorMiddlewareInterface } from '../driver/express/ExpressErrorMiddlewareInterface';
 import { getFromContainer } from '../container';
 import { KoaMiddlewareInterface } from '../driver/koa/KoaMiddlewareInterface';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 /**
  * Middleware metadata.

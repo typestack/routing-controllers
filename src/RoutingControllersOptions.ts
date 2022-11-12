@@ -2,7 +2,7 @@ import { ClassTransformOptions } from 'class-transformer';
 import { ValidatorOptions } from 'class-validator';
 import { AuthorizationChecker } from './AuthorizationChecker';
 import { CurrentUserChecker } from './CurrentUserChecker';
-import { Newable } from '@rce/types/Types';
+import { Newable } from './types/Types';
 
 /**
  * Routing controller initialization options.

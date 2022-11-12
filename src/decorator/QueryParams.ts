@@ -1,6 +1,6 @@
 import { ParamOptions } from '../decorator-options/ParamOptions';
 import { getMetadataArgsStorage } from '../index';
-import { Callable } from '@rce/types/Types';
+import { Callable } from '../types/Types';
 
 /**
  * Injects all request's query parameters to the controller action parameter.

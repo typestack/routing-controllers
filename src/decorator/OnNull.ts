@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { DecoratorFunction, Newable } from '@rce/types/Types';
+import { DecoratorFunction, Newable } from '../types/Types';
 
 /**
  * Used to set specific HTTP status code when result returned by a controller action is equal to null.

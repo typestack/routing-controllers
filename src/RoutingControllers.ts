@@ -9,7 +9,7 @@ import { InterceptorMetadata } from './metadata/InterceptorMetadata';
 import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { isPromiseLike } from './util/isPromiseLike';
 import { runInSequence } from './util/runInSequence';
-import { Newable } from '@rce/types/Types';
+import { Newable } from './types/Types';
 
 /**
  * Registers controllers and middlewares in the given server framework.

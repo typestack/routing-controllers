@@ -8,7 +8,7 @@ import { ActionMetadata } from '../metadata/ActionMetadata';
 import { ParamMetadata } from '../metadata/ParamMetadata';
 import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
 import { Action } from '../Action';
-import { ClassType } from '@rce/types/Types';
+import { ClassType } from '../types/Types';
 
 /**
  * Base driver functionality for all other drivers.

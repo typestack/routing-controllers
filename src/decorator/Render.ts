@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { Callable } from '@rce/types/Types';
+import { Callable } from '../types/Types';
 
 /**
  * Specifies a template to be rendered by a controller action.

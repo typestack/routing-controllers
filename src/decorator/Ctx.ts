@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Injects a Koa's Context object to the controller action parameter.

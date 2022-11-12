@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { Callable } from '@rce/types/Types';
+import { Callable } from '../types/Types';
 
 /**
  * Sets Redirect header with given value to the response.

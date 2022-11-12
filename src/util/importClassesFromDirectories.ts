@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 /**
  * Loads all exported classes from the given directory.

@@ -1,5 +1,5 @@
 import { getMetadataArgsStorage } from '../index';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Specifies a given middleware to be used for controller or controller action AFTER the action executes.

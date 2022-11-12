@@ -1,6 +1,6 @@
 import { BodyOptions } from '../decorator-options/BodyOptions';
 import { getMetadataArgsStorage } from '../index';
-import { Newable } from '@rce/types/Types';
+import { Newable } from '../types/Types';
 
 type BodyFunction = (object: Newable, methodName: string, index: number) => void;
 

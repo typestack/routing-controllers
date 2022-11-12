@@ -7,7 +7,7 @@ import { RoutingControllers } from './RoutingControllers';
 import { RoutingControllersOptions } from './RoutingControllersOptions';
 import { ValidationOptions } from 'class-validator';
 import { importClassesFromDirectories } from './util/importClassesFromDirectories';
-import { Newable } from '@rce/types/Types';
+import { Newable } from './types/Types';
 
 // -------------------------------------------------------------------------
 // Main exports

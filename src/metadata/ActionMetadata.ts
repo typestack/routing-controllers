@@ -10,7 +10,7 @@ import { HandlerOptions } from '../decorator-options/HandlerOptions';
 import { RoutingControllersOptions } from '../RoutingControllersOptions';
 import { UseMetadata } from './UseMetadata';
 import { RoleChecker } from '../RoleChecker';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Action metadata.

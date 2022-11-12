@@ -1,6 +1,6 @@
 import { getMetadataArgsStorage } from '../index';
 import { ClassTransformOptions } from 'class-transformer';
-import { Newable, Callable } from '@rce/types/Types';
+import { Newable, Callable } from '../types/Types';
 
 /**
  * Options to be set to class-transformer for the result of the response.
