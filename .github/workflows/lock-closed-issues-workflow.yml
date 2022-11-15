@@ -7,11 +7,11 @@ jobs:
     name: Lock closed issues
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v2
+      - uses: dessant/lock-threads@v3
         with:
           github-token: ${{ github.token }}
-          issue-lock-inactive-days: 30
-          pr-lock-inactive-days: 30
+          issue-inactive-days: '30'
+          pr-inactive-days: '30'
           issue-lock-comment: >
             This issue has been automatically locked since there
             has not been any recent activity after it was closed.
