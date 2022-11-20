@@ -24,7 +24,7 @@
     "controllers"
   ],
   "scripts": {
-    "build": "npm run build:cjs",
+    "build": "pnpm run build:cjs",
     "build:clean": "rimraf build",
     "build:es2015": "tsc --project tsconfig.prod.esm2015.json",
     "build:cjs": "tsc --project tsconfig.prod.cjs.json",

@@ -11,16 +11,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org
-      - run: npm ci --ignore-scripts
-      - run: npm run prettier:check
-      - run: npm run lint:check
-      - run: npm run test:ci
-      - run: npm run build:es2015
-      - run: npm run build:cjs
-      - run: npm run build:types
+      - run: pnpm install
+      - run: pnpm run prettier:check
+      - run: pnpm run lint:check
+      - run: pnpm run test:ci
+      - run: pnpm run build:es2015
+      - run: pnpm run build:cjs
+      - run: pnpm run build:types
       - run: cp LICENSE build/LICENSE
       - run: cp README.md build/README.md
       - run: jq 'del(.devDependencies) | del(.scripts)' package.json > build/package.json
-      - run: npm publish ./build
+      - run: pnpm publish ./build
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
