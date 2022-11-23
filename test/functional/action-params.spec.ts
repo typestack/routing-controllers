@@ -130,7 +130,7 @@ describe(``, () => {
 
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(({ value }) => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
       multipleBooleanValues?: boolean[];
 
       @IsArray()
@@ -142,7 +142,7 @@ describe(``, () => {
     class QueryWhitelistClass {
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(({ value }) => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
       multipleBooleanValues?: boolean[];
     }
 

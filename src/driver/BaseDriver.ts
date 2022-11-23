@@ -1,5 +1,5 @@
 import { ValidatorOptions } from 'class-validator';
-import { ClassTransformOptions, classToPlain } from 'class-transformer';
+import { ClassTransformOptions, instanceToPlain } from 'class-transformer';
 
 import { HttpError } from '../http-error/HttpError';
 import { CurrentUserChecker } from '../CurrentUserChecker';
@@ -104,7 +104,7 @@ export abstract class BaseDriver {
     // transform result if needed
     if (shouldTransform) {
       const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
-      result = classToPlain(result, options);
+      result = instanceToPlain(result, options);
     }
 
     return result;

@@ -1,4 +1,4 @@
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject as validate, ValidationError } from 'class-validator';
 import { Action } from './Action';
 import { BadRequestError } from './http-error/BadRequestError';
@@ -221,7 +221,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       !(value instanceof paramMetadata.targetType)
     ) {
       const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
-      value = plainToClass(paramMetadata.targetType, value, options);
+      value = plainToInstance(paramMetadata.targetType, value, options);
     }
     return value;
   }

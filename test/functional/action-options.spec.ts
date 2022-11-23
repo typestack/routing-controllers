@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { defaultMetadataStorage } from 'class-transformer/storage';
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { Body } from '../../src/decorator/Body';
 import { JsonController } from '../../src/decorator/JsonController';
 import { Post } from '../../src/decorator/Post';
