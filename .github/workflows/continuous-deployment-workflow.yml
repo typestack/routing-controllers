@@ -11,7 +11,13 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org
-      - run: pnpm install
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: |
+            - args: [--frozen-lockfile]
       - run: pnpm run prettier:check
       - run: pnpm run lint:check
       - run: pnpm run test:ci
