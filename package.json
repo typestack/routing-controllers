@@ -12,7 +12,7 @@
   "typings": "./types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/spicemc/rce.git"
+    "url": "https://github.com/typestack/routing-controllers.git"
   },
   "tags": [
     "express",
