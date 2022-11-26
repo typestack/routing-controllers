@@ -7,7 +7,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: pnpm install
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: |
+            - args: [--frozen-lockfile]
       - run: pnpm run prettier:check
       - run: pnpm run lint:check
   tests:
@@ -37,7 +43,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: pnpm install
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: |
+            - args: [--frozen-lockfile]
       - run: pnpm run build:es2015
       - run: pnpm run build:cjs
       - run: pnpm run build:types
