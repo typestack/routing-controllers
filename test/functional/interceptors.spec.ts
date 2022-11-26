@@ -83,7 +83,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('custom interceptor function should replace returned content', async () => {
       expect.assertions(3);

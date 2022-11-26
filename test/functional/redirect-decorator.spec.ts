@@ -49,7 +49,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('using template', async () => {
       expect.assertions(2);

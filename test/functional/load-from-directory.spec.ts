@@ -21,7 +21,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('should load all controllers', async () => {
       expect.assertions(10);
@@ -78,7 +80,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     beforeEach(() => defaultFakeService.reset());
 

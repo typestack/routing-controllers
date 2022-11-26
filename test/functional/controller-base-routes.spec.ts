@@ -39,7 +39,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterEach((done: DoneCallback) => expressServer.close(done));
+    afterEach((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('get should respond with proper status code, headers and body content', async () => {
       expect.assertions(3);

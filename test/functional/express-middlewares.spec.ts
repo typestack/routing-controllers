@@ -133,7 +133,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('should call a global middlewares', async () => {
       expect.assertions(4);

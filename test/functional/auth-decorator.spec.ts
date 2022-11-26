@@ -47,7 +47,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterEach(done => expressServer.close(done));
+    afterEach(done => {
+      expressServer.close(done)
+    });
 
     it('without roles', async () => {
       expect.assertions(2);
@@ -104,7 +106,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterEach(done => expressServer.close(done));
+    afterEach(done => {
+      expressServer.close(done)
+    });
 
     it('without roles', async () => {
       expect.assertions(2);
@@ -154,7 +158,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterEach(done => expressServer.close(done));
+    afterEach(done => {
+      expressServer.close(done)
+    });
 
     it('without roles', async () => {
       expect.assertions(1);
@@ -195,7 +201,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterEach(done => expressServer.close(done));
+    afterEach(done => {
+      expressServer.close(done)
+    });
 
     it('custom errors', async () => {
       expect.assertions(3);
@@ -230,7 +238,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterEach(done => expressServer.close(done));
+    afterEach(done => {
+      expressServer.close(done)
+    });
 
     it('custom errors', async () => {
       expect.assertions(3);

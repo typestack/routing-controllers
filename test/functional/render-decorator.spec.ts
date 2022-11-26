@@ -48,7 +48,9 @@ describe(``, () => {
       expressServer = expressApplication.listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done)
+    });
 
     it('should render a template and use given variables', async () => {
       expect.assertions(6);
