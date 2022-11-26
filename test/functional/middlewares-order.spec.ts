@@ -60,7 +60,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should call middlewares in order defined by items order', async () => {
@@ -121,7 +121,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should call middlewares in order defined by priority parameter of decorator', async () => {

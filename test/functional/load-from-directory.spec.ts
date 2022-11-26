@@ -22,7 +22,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should load all controllers', async () => {
@@ -81,7 +81,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     beforeEach(() => defaultFakeService.reset());

@@ -58,7 +58,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should call global error handler middleware with CustomError', async () => {

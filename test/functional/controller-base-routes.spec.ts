@@ -40,7 +40,7 @@ describe(``, () => {
     });
 
     afterEach((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('get should respond with proper status code, headers and body content', async () => {

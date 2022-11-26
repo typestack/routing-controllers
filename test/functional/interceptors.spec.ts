@@ -84,7 +84,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('custom interceptor function should replace returned content', async () => {

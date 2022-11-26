@@ -44,7 +44,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should pipe stream to response', async () => {

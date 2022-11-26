@@ -117,7 +117,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should not call global error handler middleware if there was no errors', async () => {

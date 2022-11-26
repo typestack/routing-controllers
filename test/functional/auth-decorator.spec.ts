@@ -48,7 +48,7 @@ describe(``, () => {
     });
 
     afterEach(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('without roles', async () => {
@@ -107,7 +107,7 @@ describe(``, () => {
     });
 
     afterEach(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('without roles', async () => {
@@ -159,7 +159,7 @@ describe(``, () => {
     });
 
     afterEach(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('without roles', async () => {
@@ -202,7 +202,7 @@ describe(``, () => {
     });
 
     afterEach(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('custom errors', async () => {
@@ -239,7 +239,7 @@ describe(``, () => {
     });
 
     afterEach(done => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('custom errors', async () => {

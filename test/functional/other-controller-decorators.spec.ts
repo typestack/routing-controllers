@@ -133,7 +133,7 @@ describe(``, () => {
     });
 
     afterAll((done: DoneCallback) => {
-      expressServer.close(done)
+      expressServer.close(done);
     });
 
     it('should return httpCode set by @HttpCode decorator', async () => {
