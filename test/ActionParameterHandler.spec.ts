@@ -151,7 +151,8 @@ describe('ActionParameterHandler', () => {
         error = e;
       }
 
-      expect(error.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
+      expect(error.toString()).to.contain('TypeError: Cannot read');
+      expect(error.toString()).to.contain("'uuid'");
     });
 
     it('handle - throws error if the parameter is required, type file provided', async () => {
