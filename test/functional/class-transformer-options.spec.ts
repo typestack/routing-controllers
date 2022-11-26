@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { defaultMetadataStorage } from 'class-transformer/storage';
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { Get } from '../../src/decorator/Get';
 import { JsonController } from '../../src/decorator/JsonController';
 import { QueryParam } from '../../src/decorator/QueryParam';
