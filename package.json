@@ -42,6 +42,7 @@
     "cookie": "^0.5.0",
     "express-session": "^1.17.3",
     "glob": "^8.0.3",
+    "qs": "^6.11.0",
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
   },
