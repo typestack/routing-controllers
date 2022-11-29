@@ -40,9 +40,7 @@
   },
   "dependencies": {
     "cookie": "^0.5.0",
-    "express-session": "^1.17.3",
     "glob": "^8.0.3",
-    "qs": "^6.11.0",
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
   },
@@ -95,10 +93,11 @@
   "optionalDependencies": {
     "body-parser": "^1.20.1",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-multer": "^1.0.2",
     "koa-router": "^12.0.0",
-    "multer": "1.4.4"
+    "multer": "^1.4.4"
   }
 }
