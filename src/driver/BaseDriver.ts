@@ -8,6 +8,7 @@ import { ActionMetadata } from '../metadata/ActionMetadata';
 import { ParamMetadata } from '../metadata/ParamMetadata';
 import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
 import { Action } from '../Action';
+import { RoutingControllersOptions } from '../RoutingControllersOptions';
 
 /**
  * Base driver functionality for all other drivers.
@@ -180,7 +181,7 @@ export abstract class BaseDriver {
   /**
    * Registers given middleware.
    */
-  abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+  abstract registerMiddleware(middleware: MiddlewareMetadata, options: RoutingControllersOptions): void;
 
   /**
    * Registers action in the driver.
