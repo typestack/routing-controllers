@@ -787,7 +787,7 @@ describe(``, () => {
       headers: {
         token: '31ds31das231sad12',
         count: 20,
-        showAll: false,
+        showAll: 'false',
       },
     });
     expect(headerParamToken).toEqual('31ds31das231sad12');

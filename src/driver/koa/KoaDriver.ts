@@ -292,7 +292,7 @@ export class KoaDriver extends BaseDriver {
    * Handles result of failed executed controller action.
    */
   handleError(error: any, action: ActionMetadata | undefined, options: Action) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.isDefaultErrorHandlingEnabled) {
         // apply http headers
         if (action) {
