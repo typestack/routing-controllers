@@ -1,5 +1,34 @@
 # Changelog and release notes
 
+## [0.10.0](https://github.com/typestack/routing-controllers/compare/v0.9.0...v0.10.0) (2022-12-9)
+
+### Added
+
+- `isArray` option for `@QueryParam`
+
+### Changed
+
+- `class-transformer` package updated to `0.5.1` from `0.3.1`
+- `class-validator` package updated to `0.13.2` from `0.12.2`
+- `cookie` package updated to `0.5.0` from `0.4.0`
+- `glob` package updated to `8.0.3` from `7.1.4`
+- `express` package updated to `4.18.2` from `4.17.1` and moved to `optionalDependencies`
+- `express-session` package updated to `1.17.1` from `1.17.3` and moved to `optionalDependencies`
+- `body-parser` package updated to `1.20.1` from `1.19.0`
+- `multer` package updated to `1.4.4` from `1.4.2`
+- `koa` package updated to `2.13.4` from `2.8.2`
+- `koa-multer` package replaced with `@koa/multer`
+- `koa-router` package replaced with `@koa/router`
+- updated various dev dependencies
+
+### Fixed
+
+- Fixed parsing uuid as route parameter
+- Fixed `target` property not set during controller inheritance
+- Fixed `NaN` check for number route parameters
+- Added missing null value handling in parameters
+- Fixed middlewares not using the defined route prefix
+
 ### 0.9.0
 
 #### Features
