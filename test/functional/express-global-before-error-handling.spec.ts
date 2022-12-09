@@ -57,7 +57,9 @@ describe(``, () => {
       expressServer = createExpressServer().listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should call global error handler middleware with CustomError', async () => {
       expect.assertions(3);

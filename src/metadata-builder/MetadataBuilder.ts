@@ -81,7 +81,6 @@ export class MetadataBuilder {
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
       controller.build(this.createControllerResponseHandlers(controller));
-      controller.options = controllerArgs.options;
       controller.actions = this.createActions(controller);
       controller.uses = this.createControllerUses(controller);
       controller.interceptors = this.createControllerInterceptorUses(controller);
@@ -96,15 +95,21 @@ export class MetadataBuilder {
     let target = controller.target;
     const actionsWithTarget: ActionMetadataArgs[] = [];
     while (target) {
-      actionsWithTarget.push(
-        ...getMetadataArgsStorage()
-          .filterActionsWithTarget(target)
-          .filter(action => {
-            return actionsWithTarget.map(a => a.method).indexOf(action.method) === -1;
-          })
-      );
+      const actions = getMetadataArgsStorage()
+        .filterActionsWithTarget(target)
+        .filter(action => {
+          return actionsWithTarget.map(a => a.method).indexOf(action.method) === -1;
+        });
+
+      actions.forEach(a => {
+        a.target = controller.target;
+
+        actionsWithTarget.push(a);
+      });
+
       target = Object.getPrototypeOf(target);
     }
+
     return actionsWithTarget.map(actionArgs => {
       const action = new ActionMetadata(controller, actionArgs, this.options);
       action.options = { ...controller.options, ...actionArgs.options };

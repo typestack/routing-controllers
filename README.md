@@ -5,10 +5,7 @@
 [![npm version](https://badge.fury.io/js/routing-controllers.svg)](https://badge.fury.io/js/routing-controllers)
 [![Dependency Status](https://david-dm.org/typestack/routing-controllers.svg)](https://david-dm.org/typestack/routing-controllers)
 
-<center>
-<span>English</span> | 
-[中文](./docs/lang/chinese/README.md)
-</center>
+English | [中文](./docs/lang/chinese/README.md)
 
 Allows to create controller classes with methods as actions that handle requests.
 You can use routing-controllers with [express.js][1] or [koa.js][2].
@@ -87,8 +84,9 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
    and make sure to import it before you use routing-controllers:
 
-   ```typescript
-   ```
+```typescript
+import 'reflect-metadata';
+```
 
 3. Install framework:
 
@@ -102,11 +100,11 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
    **b. If you want to use routing-controllers with _koa 2_, then install it and all required dependencies:**
 
-   `npm install koa koa-router koa-bodyparser koa-multer`
+   `npm install koa @koa/router koa-bodyparser @koa/multer`
 
    Optionally you can also install their typings:
 
-   `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
+   `npm install -D @types/koa @types/koa-bodyparser`
 
 4. Install peer dependencies:
 
@@ -321,9 +319,10 @@ You can load all controllers from directories, by specifying array of directorie
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
 
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
+  controllers: [path.join(__dirname + '/controllers/*.js')],
 }).listen(3000); // register controllers routes in our express application
 ```
 
@@ -378,8 +377,30 @@ getUsers(@QueryParam("limit") limit: number) {
 }
 ```
 
+You can use `isArray` option to get a query param array. This will cast the query param :
+
+```typescript
+@Get("/users/by-multiple-ids")
+getUsers(@QueryParam("ids", { isArray: true}) ids: string[]) {
+}
+```
+
+`GET /users/by-multiple-ids?ids=a` → `ids = ['a']`
+`GET /users/by-multiple-ids?ids=a&ids=b` → `ids = ['a', 'b']`
+
+You can combine use `isArray` option with `type` option to get a query param array of one type. This will cast the query param :
+
+```typescript
+@Get("/users/by-multiple-ids")
+getUsers(@QueryParam("ids", { isArray: true, type: Number}) ids: number[]) {
+}
+```
+
+`GET /users/by-multiple-ids?ids=1` → `ids = [1]`
+`GET /users/by-multiple-ids?ids=1&ids=3.5` → `ids = [1, 3.5]`
+
 If you want to inject all query parameters use `@QueryParams()` decorator.
-The bigest benefit of this approach is that you can perform validation of the params.
+The biggest benefit of this approach is that you can perform validation of the params.
 
 ```typescript
 enum Roles {
@@ -402,12 +423,17 @@ class GetUsersQuery {
     @IsBoolean()
     isActive: boolean;
 
+    @IsArray()
+    @IsNumber(undefined, { each: true })
+    @Type(() => Number)
+    ids: number[];
 }
 
 @Get("/users")
 getUsers(@QueryParams() query: GetUsersQuery) {
     // here you can access query.role, query.limit
     // and others valid query parameters
+    // query.ids will be an array, of numbers, even with one element
 }
 ```
 
@@ -510,7 +536,7 @@ You can also specify uploading options to multer this way:
 
 ```typescript
 // to keep code clean better to extract this function into separate file
-export const fileUploadOptions = () => {
+export const fileUploadOptions = () => ({
     storage: multer.diskStorage({
         destination: (req: any, file: any, cb: any) => { ...
         },
@@ -523,7 +549,7 @@ export const fileUploadOptions = () => {
         fieldNameSize: 255,
         fileSize: 1024 * 1024 * 2
     }
-};
+});
 
 // use options this way:
 @Post("/files")
@@ -782,7 +808,7 @@ app.listen(3000);
 ```
 
 To use cors you need to install its module.
-For express its `npm i cors`, for koa its `npm i kcors`.
+For express its `npm i cors`, for koa its `npm i @koa/cors`.
 You can pass cors options as well:
 
 ```typescript
@@ -1089,10 +1115,12 @@ Also you can load middlewares from directories. Also you can use glob patterns:
 
 ```typescript
 import { createExpressServer } from 'routing-controllers';
+import path from 'path';
+
 createExpressServer({
-  controllers: [__dirname + '/controllers/**/*.js'],
-  middlewares: [__dirname + '/middlewares/**/*.js'],
-  interceptors: [__dirname + '/interceptors/**/*.js'],
+  controllers: [path.join(__dirname, '/controllers/**/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/**/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/**/*.js')],
 }).listen(3000);
 ```
 
@@ -1215,7 +1243,7 @@ If you want to disable it simply pass `classTransformer: false` to createExpress
 
 ## Controller Inheritance
 
-Often your application may need to have an option to inherit controller from another to reuse code and void duplication.
+Often your application may need to have an option to inherit controller from another to reuse code and avoid duplication.
 A good example of the use is the CRUD operations which can be hidden inside `AbstractBaseController` with the possibility to add new and overload methods, the template method pattern.
 
 ```typescript
@@ -1227,7 +1255,7 @@ abstract class AbstractControllerTemplate {
   @Post()
   public create() {}
 
-  @Read()
+  @Get()
   public read() {}
 
   @Put()
@@ -1385,6 +1413,7 @@ Here is example how to integrate routing-controllers with [typedi](https://githu
 ```typescript
 import { createExpressServer, useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
+import path from 'path';
 
 // its important to set container before any operation you do with routing-controllers,
 // including importing controllers
@@ -1392,9 +1421,9 @@ useContainer(Container);
 
 // create and run server
 createExpressServer({
-  controllers: [__dirname + '/controllers/*.js'],
-  middlewares: [__dirname + '/middlewares/*.js'],
-  interceptors: [__dirname + '/interceptors/*.js'],
+  controllers: [path.join(__dirname, '/controllers/*.js')],
+  middlewares: [path.join(__dirname, '/middlewares/*.js')],
+  interceptors: [path.join(__dirname, '/interceptors/*.js')],
 }).listen(3000);
 ```
 
@@ -1535,7 +1564,7 @@ export class QuestionController {
 
 | Signature                                                        | Example                                           | Description                                                                                                                                 |
 | ---------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options. |  |
+| `@Authorized(roles?: string\|string[])`                          | `@Authorized("SUPER_ADMIN")` get()                | Checks if user is authorized and has given roles on a given route. `authorizationChecker` should be defined in routing-controllers options. |
 | `@CurrentUser(options?: { required?: boolean })`                 | get(@CurrentUser({ required: true }) user: User)  | Injects currently authorized user. `currentUserChecker` should be defined in routing-controllers options.                                   |
 | `@Header(headerName: string, headerValue: string)`               | `@Header("Cache-Control", "private")` get()       | Allows to explicitly set any HTTP header returned in the response.                                                                          |
 | `@ContentType(contentType: string)`                              | `@ContentType("text/csv")` get()                  | Allows to explicitly set HTTP Content-Type returned in the response.                                                                        |

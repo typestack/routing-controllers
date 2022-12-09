@@ -1,4 +1,4 @@
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject as validate, ValidationError } from 'class-validator';
 import { Action } from './Action';
 import { BadRequestError } from './http-error/BadRequestError';
@@ -64,7 +64,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     // check cases when parameter is required but its empty and throw errors in this case
     if (param.required) {
       const isValueEmpty = value === null || value === undefined || value === '';
-      const isValueEmptyObject = typeof value === 'object' && Object.keys(value).length === 0;
+      const isValueEmptyObject = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
 
       if (param.type === 'body' && !param.name && (isValueEmpty || isValueEmptyObject)) {
         // body has a special check and error message
@@ -96,11 +96,13 @@ export class ActionParameterHandler<T extends BaseDriver> {
   protected async normalizeParamValue(value: any, param: ParamMetadata): Promise<any> {
     if (value === null || value === undefined) return value;
 
+    const isNormalizationNeeded =
+      typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].includes(param.type);
+    const isTargetPrimitive = ['number', 'string', 'boolean'].includes(param.targetName);
+    const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
+
     // if param value is an object and param type match, normalize its string properties
-    if (
-      typeof value === 'object' &&
-      ['queries', 'headers', 'params', 'cookies'].some(paramType => paramType === param.type)
-    ) {
+    if (isNormalizationNeeded) {
       await Promise.all(
         Object.keys(value).map(async key => {
           const keyValue = value[key];
@@ -123,6 +125,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         })
       );
     }
+
     // if value is a string, normalize it to demanded type
     else if (typeof value === 'string') {
       switch (param.targetName) {
@@ -130,12 +133,17 @@ export class ActionParameterHandler<T extends BaseDriver> {
         case 'string':
         case 'boolean':
         case 'date':
-          return this.normalizeStringValue(value, param.name, param.targetName);
+          const normalizedValue = this.normalizeStringValue(value, param.name, param.targetName);
+          return param.isArray ? [normalizedValue] : normalizedValue;
+        case 'array':
+          return [value];
       }
+    } else if (Array.isArray(value)) {
+      return value.map(v => this.normalizeStringValue(v, param.name, param.targetName));
     }
 
     // if target type is not primitive, transform and validate it
-    if (['number', 'string', 'boolean'].indexOf(param.targetName) === -1 && (param.parse || param.isTargetObject)) {
+    if (!isTargetPrimitive && isTransformationNeeded) {
       value = this.parseValue(value, param);
       value = this.transformValue(value, param);
       value = await this.validateValue(value, param);
@@ -155,7 +163,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         }
 
         const valueNumber = +value;
-        if (valueNumber === NaN) {
+        if (Number.isNaN(valueNumber)) {
           throw new InvalidParamError(value, parameterName, parameterType);
         }
 
@@ -188,10 +196,14 @@ export class ActionParameterHandler<T extends BaseDriver> {
    */
   protected parseValue(value: any, paramMetadata: ParamMetadata): any {
     if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch (error) {
-        throw new ParameterParseJsonError(paramMetadata.name, value);
+      if (['queries', 'query'].includes(paramMetadata.type) && paramMetadata.targetName === 'array') {
+        return [value];
+      } else {
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          throw new ParameterParseJsonError(paramMetadata.name, value);
+        }
       }
     }
     return value;
@@ -209,7 +221,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       !(value instanceof paramMetadata.targetType)
     ) {
       const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
-      value = plainToClass(paramMetadata.targetType, value, options);
+      value = plainToInstance(paramMetadata.targetType, value, options);
     }
     return value;
   }

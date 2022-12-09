@@ -59,7 +59,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should call middlewares in order defined by items order', async () => {
       expect.assertions(4);
@@ -118,7 +120,9 @@ describe(``, () => {
       }).listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     it('should call middlewares in order defined by priority parameter of decorator', async () => {
       expect.assertions(4);
