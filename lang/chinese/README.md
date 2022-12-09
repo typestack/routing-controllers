@@ -102,11 +102,11 @@
 
    **b. 在 _koa 2_ 中使用 routing-controllers，需要安装以下依赖：**
 
-   `npm install koa koa-router koa-bodyparser koa-multer`
+   `npm install koa @koa/router koa-bodyparser @koa/multer`
 
    可选装它们的类型声明：
 
-   `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
+   `npm install -D @types/koa @types/koa-bodyparser`
 
 4. 可选依赖
 

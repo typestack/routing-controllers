@@ -46,7 +46,7 @@ export class KoaDriver extends BaseDriver {
     this.koa.use(bodyParser());
     if (this.cors) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const cors = require('kcors');
+      const cors = require('@koa/cors');
       if (this.cors === true) {
         this.koa.use(cors());
       } else {
@@ -121,9 +121,6 @@ export class KoaDriver extends BaseDriver {
         .forEach(param => {
           defaultMiddlewares.push(multer(param.extraOptions).array(param.name));
         });
-
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      defaultMiddlewares.push(this.fixMulterRequestAssignment);
     }
 
     // user used middlewares
@@ -353,7 +350,7 @@ export class KoaDriver extends BaseDriver {
   }
 
   /**
-   * Dynamically loads koa and required koa-router module.
+   * Dynamically loads koa module.
    */
   protected loadKoa() {
     if (require) {
@@ -370,16 +367,16 @@ export class KoaDriver extends BaseDriver {
   }
 
   /**
-   * Dynamically loads koa-router module.
+   * Dynamically loads @koa/router module.
    */
   private loadRouter() {
     if (require) {
       if (!this.router) {
         try {
-          this.router = new (require('koa-router'))();
+          this.router = new (require('@koa/router'))();
         } catch (e) {
           throw new Error(
-            'koa-router package was not found installed. Try to install it: npm install koa-router@next --save'
+            '@koa/router package was not found installed. Try to install it: npm install @koa/router --save'
           );
         }
       }
@@ -389,31 +386,13 @@ export class KoaDriver extends BaseDriver {
   }
 
   /**
-   * Dynamically loads koa-multer module.
+   * Dynamically loads @koa/multer module.
    */
   private loadMulter() {
     try {
-      return require('koa-multer');
+      return require('@koa/multer');
     } catch (e) {
-      throw new Error('koa-multer package was not found installed. Try to install it: npm install koa-multer --save');
+      throw new Error('@koa/multer package was not found installed. Try to install it: npm install @koa/multer --save');
     }
-  }
-
-  /**
-   * This middleware fixes a bug on koa-multer implementation.
-   *
-   * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
-   */
-  private async fixMulterRequestAssignment(ctx: any, next: Function) {
-    if ('request' in ctx) {
-      if (ctx.req.body) ctx.request.body = ctx.req.body;
-      if (ctx.req.file) ctx.request.file = ctx.req.file;
-      if (ctx.req.files) {
-        ctx.request.files = ctx.req.files;
-        ctx.files = ctx.req.files;
-      }
-    }
-
-    return await next();
   }
 }
