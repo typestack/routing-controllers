@@ -130,7 +130,7 @@ describe(``, () => {
 
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(({ value }) => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
       multipleBooleanValues?: boolean[];
 
       @IsArray()
@@ -142,7 +142,7 @@ describe(``, () => {
     class QueryWhitelistClass {
       @IsArray()
       @IsBoolean({ each: true })
-      @Transform(value => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
+      @Transform(({ value }) => (Array.isArray(value) ? value.map(v => v !== 'false') : value !== 'false'))
       multipleBooleanValues?: boolean[];
     }
 
@@ -787,7 +787,7 @@ describe(``, () => {
       headers: {
         token: '31ds31das231sad12',
         count: 20,
-        showAll: false,
+        showAll: 'false',
       },
     });
     expect(headerParamToken).toEqual('31ds31das231sad12');
