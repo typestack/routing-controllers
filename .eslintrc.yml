@@ -12,7 +12,6 @@ extends:
   - 'plugin:@typescript-eslint/recommended-requiring-type-checking'
   - 'plugin:jest/recommended'
   - 'prettier'
-  - 'prettier/@typescript-eslint'
 rules:
   '@typescript-eslint/explicit-member-accessibility': off
   '@typescript-eslint/no-angle-bracket-type-assertion': off
@@ -32,3 +31,5 @@ rules:
   '@typescript-eslint/no-unsafe-call': off
   '@typescript-eslint/no-unsafe-member-access': off
   '@typescript-eslint/explicit-module-boundary-types': off
+  '@typescript-eslint/no-unsafe-argument': off
+  '@typescript-eslint/no-var-requires': off

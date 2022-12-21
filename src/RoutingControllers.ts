@@ -95,7 +95,7 @@ export class RoutingControllers<T extends BaseDriver> {
       .buildMiddlewareMetadata(classes)
       .filter(middleware => middleware.global && middleware.type === type)
       .sort((middleware1, middleware2) => middleware2.priority - middleware1.priority)
-      .forEach(middleware => this.driver.registerMiddleware(middleware));
+      .forEach(middleware => this.driver.registerMiddleware(middleware, this.options));
 
     return this;
   }
