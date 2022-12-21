@@ -8,6 +8,7 @@ import { ActionMetadata } from '../metadata/ActionMetadata';
 import { ParamMetadata } from '../metadata/ParamMetadata';
 import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
 import { Action } from '../Action';
+import { RoutingControllersOptions } from '../RoutingControllersOptions';
 
 /**
  * Base driver functionality for all other drivers.
@@ -67,7 +68,7 @@ export abstract class BaseDriver {
 
   /**
    * Indicates if cors are enabled.
-   * This requires installation of additional module (cors for express and kcors for koa).
+   * This requires installation of additional module (cors for express and @koa/cors for koa).
    */
   cors?: boolean | Object;
 
@@ -180,7 +181,7 @@ export abstract class BaseDriver {
   /**
    * Registers given middleware.
    */
-  abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+  abstract registerMiddleware(middleware: MiddlewareMetadata, options: RoutingControllersOptions): void;
 
   /**
    * Registers action in the driver.

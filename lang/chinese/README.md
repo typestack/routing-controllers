@@ -102,11 +102,11 @@
 
    **b. 在 _koa 2_ 中使用 routing-controllers，需要安装以下依赖：**
 
-   `npm install koa koa-router koa-bodyparser koa-multer`
+   `npm install koa @koa/router koa-bodyparser @koa/multer`
 
    可选装它们的类型声明：
 
-   `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
+   `npm install -D @types/koa @types/koa-bodyparser`
 
 4. 可选依赖
 
@@ -952,23 +952,24 @@ app.listen(3000);
 
    第二种，声明一个类：
 
+   ```typescript
+   import { KoaMiddlewareInterface } from 'routing-controllers';
 
-    ```typescript
-    import { KoaMiddlewareInterface } from "routing-controllers";
+   export class MyMiddleware implements KoaMiddlewareInterface {
+     // 接口声明可选
 
-    export class MyMiddleware implements KoaMiddlewareInterface { // 接口声明可选
-
-        use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
-            console.log("do something before execution...");
-            return next().then(() => {
-                console.log("do something after execution");
-            }).catch(error => {
-                console.log("error handling is also here");
-            });
-        }
-
-    }
-    ```
+     use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
+       console.log('do something before execution...');
+       return next()
+         .then(() => {
+           console.log('do something after execution');
+         })
+         .catch(error => {
+           console.log('error handling is also here');
+         });
+     }
+   }
+   ```
 
 2. 应用：
 
