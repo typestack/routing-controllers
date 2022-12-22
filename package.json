@@ -59,7 +59,7 @@
     "@types/node": "^16.18.3",
     "@types/serve-static": "^1.15.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
-    "@typescript-eslint/parser": "^5.45.1",
+    "@typescript-eslint/parser": "^5.47.0",
     "axios": "^1.2.1",
     "body-parser": "^1.19.0",
     "chakram": "^1.5.0",
