@@ -1,5 +1,14 @@
 # Changelog and release notes
 
+## [0.10.1](https://github.com/typestack/routing-controllers/compare/v0.10.0...v0.10.1) (2023-01-13)
+
+### Changed
+
+- `class-validator` package updated to `0.14.0` from `0.13.2`
+  - Note: class-validator 0.14.0 enables `forbidUnknownValues` by default, but this is overridden in routing-controllers to prevent a breaking change. You can still enable it like before.
+- `koa` package updated to `2.14.1` from `2.13.4`
+- updated various dev dependencies
+
 ## [0.10.0](https://github.com/typestack/routing-controllers/compare/v0.9.0...v0.10.0) (2022-12-9)
 
 ### Added
