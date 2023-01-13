@@ -238,11 +238,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       paramMetadata.targetType && paramMetadata.targetType !== Object && value instanceof paramMetadata.targetType;
 
     if (isValidationEnabled && shouldValidate) {
-      const options = Object.assign(
-        { forbidUnknownValues: false },
-        this.driver.validationOptions,
-        paramMetadata.validate
-      );
+      const options = Object.assign({forbidUnknownValues: false}, this.driver.validationOptions, paramMetadata.validate);
       return validate(value, options)
         .then(() => value)
         .catch((validationErrors: ValidationError[]) => {
