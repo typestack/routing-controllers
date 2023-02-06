@@ -75,7 +75,7 @@
     "husky": "^8.0.3",
     "jest": "^29.4.1",
     "koa-convert": "^2.0.0",
-    "koa-session": "^6.3.1",
+    "koa-session": "^6.4.0",
     "koa-views": "^8.0.0",
     "lint-staged": "^13.1.0",
     "multer": "^1.4.4",
