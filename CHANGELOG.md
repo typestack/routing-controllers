@@ -1,5 +1,19 @@
 # Changelog and release notes
 
+## [0.10.2](https://github.com/typestack/routing-controllers/compare/v0.10.1...v0.10.2) (2023-03-06)
+
+### Changed
+
+- `glob` package updated to `8.1.0` from `8.0.3`
+- `body-parser` package updated to `1.20.2` from `1.20.1`
+- `multer` package updated to `1.4.5-lts.1` from `1.4.4`
+  - Note: This fixes vulnerability CVE-2022-24434
+- updated various dev dependencies
+
+### Fixed
+
+- Added normalization to glob pattern resolver to fix Windows paths
+
 ## [0.10.1](https://github.com/typestack/routing-controllers/compare/v0.10.0...v0.10.1) (2023-01-13)
 
 ### Changed
