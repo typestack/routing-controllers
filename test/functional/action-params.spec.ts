@@ -1092,9 +1092,7 @@ describe(``, () => {
     expect(response.data).toEqual('<html><body>sample-text-file.txt</body></html>');
 
     try {
-      response = await axios.post('/file-with-required', undefined, {
-        headers: form.getHeaders(),
-      });
+      response = await axios.post('/file-with-required', undefined);
     } catch (error) {
       expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
     }
