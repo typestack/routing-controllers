@@ -1,5 +1,18 @@
 # Changelog and release notes
 
+## [0.10.3](https://github.com/typestack/routing-controllers/compare/v0.10.2...v0.10.3) (2023-04-17)
+
+### Changed
+
+- `glob` package updated to `10.1.0` from `8.1.0`
+- `koa` package updated to `2.14.2` from `2.14.1`
+- `koa-bodyparse` package updated to `4.4.0` from `4.3.0`
+- updated various dev dependencies
+
+### Fixed
+
+- Fixed koa uploaded file accessor
+
 ## [0.10.2](https://github.com/typestack/routing-controllers/compare/v0.10.1...v0.10.2) (2023-03-06)
 
 ### Changed
