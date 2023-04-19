@@ -21,7 +21,7 @@ describe(``, () => {
         }
       }
 
-      koaServer = createKoaServer().listen(3001, done)
+      koaServer = createKoaServer().listen(3001, done);
     });
 
     afterEach((done: DoneCallback) => {
