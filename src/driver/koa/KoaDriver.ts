@@ -129,7 +129,12 @@ export class KoaDriver extends BaseDriver {
     const afterMiddlewares = this.prepareMiddlewares(uses.filter(use => use.afterAction));
 
     // prepare route and route handler function
-    const route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
+    let route = ActionMetadata.appendBaseRoute(this.routePrefix, actionMetadata.fullRoute);
+
+    if (route.length > 1 && route.endsWith('/')) {
+      route = route.substring(0, route.length - 1)
+    }
+
     const routeHandler = (context: any, next: () => Promise<any>) => {
       const options: Action = { request: context.request, response: context.response, context, next };
       return executeCallback(options);
