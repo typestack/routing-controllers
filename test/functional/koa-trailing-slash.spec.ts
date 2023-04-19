@@ -19,21 +19,6 @@ describe(``, () => {
         getAll(): string {
           return '<html><body>All posts</body></html>';
         }
-
-        @Get('/:id(\\d+)')
-        getUserById(): string {
-          return '<html><body>One post</body></html>';
-        }
-
-        @Get(/\/categories\/(\d+)/)
-        getCategoryById(): string {
-          return '<html><body>One post category</body></html>';
-        }
-
-        @Get('/:postId(\\d+)/users/:userId(\\d+)')
-        getPostById(): string {
-          return '<html><body>One user</body></html>';
-        }
       }
 
       koaServer = createKoaServer().listen(3001, done)
