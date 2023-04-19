@@ -133,7 +133,7 @@ export class KoaDriver extends BaseDriver {
 
     // @koa/router is strict about trailing slashes, allow accessing routes without them
     if (typeof route === 'string' && route.length > 1 && route.endsWith('/')) {
-      route = route.substring(0, route.length - 1)
+      route = route.substring(0, route.length - 1);
     }
 
     const routeHandler = (context: any, next: () => Promise<any>) => {
