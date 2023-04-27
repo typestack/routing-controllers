@@ -26,6 +26,9 @@ describe('controller inheritance', () => {
     @Controller(`/derivative`)
     class DerivativeController extends AbstractControllerTemplate {}
 
+    @Controller(`/derivative2`)
+    class DerivativeController2 extends AbstractControllerTemplate {}
+
     @Controller(`/autonomous`)
     class AutonomousController {
       @Post()
@@ -39,9 +42,12 @@ describe('controller inheritance', () => {
 
     expect(storage.controllers[0].target).to.be.eq(DerivativeController);
     expect(storage.controllers[0].route).to.be.eq('/derivative');
-    expect(storage.controllers[1].target).to.be.eq(AutonomousController);
-    expect(storage.controllers[1].route).to.be.eq('/autonomous');
-    expect(storage.actions[0].target).to.be.eq(DerivativeController);
+    expect(storage.controllers[1].target).to.be.eq(DerivativeController2);
+    expect(storage.controllers[1].route).to.be.eq('/derivative2');
+    expect(storage.controllers[2].target).to.be.eq(AutonomousController);
+    expect(storage.controllers[2].route).to.be.eq('/autonomous');
+
+    expect(storage.actions[0].target).to.be.eq(AbstractControllerTemplate);
     expect(storage.actions[0].type).to.be.eq('post');
     expect(storage.actions[0].method).to.be.eq('create');
     expect(storage.actions[1].target).to.be.eq(AutonomousController);
@@ -125,7 +131,7 @@ describe('controller inheritance', () => {
     expect(storage.controllers[0].route).to.be.eq('/derivative');
     expect(storage.controllers[1].target).to.be.eq(AutonomousController);
     expect(storage.controllers[1].route).to.be.eq('/autonomous');
-    expect(storage.actions[0].target).to.be.eq(DerivativeController);
+    expect(storage.actions[0].target).to.be.eq(AbstractControllerTemplate);
     expect(storage.actions[0].type).to.be.eq('post');
     expect(storage.actions[0].method).to.be.eq('create');
     expect(storage.actions[1].target).to.be.eq(AutonomousController);
