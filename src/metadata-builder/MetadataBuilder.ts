@@ -8,7 +8,6 @@ import { ResponseHandlerMetadata } from '../metadata/ResponseHandleMetadata';
 import { RoutingControllersOptions } from '../RoutingControllersOptions';
 import { UseMetadata } from '../metadata/UseMetadata';
 import { getMetadataArgsStorage } from '../index';
-import { ActionMetadataArgs } from '../metadata/args/ActionMetadataArgs';
 
 /**
  * Builds metadata from the given metadata arguments.
