@@ -1,5 +1,16 @@
 # Changelog and release notes
 
+## [0.10.4](https://github.com/typestack/routing-controllers/compare/v0.10.3...v0.10.4) (2023-04-17)
+
+### Changed
+
+- `glob` package updated to `10.1.0` from `10.2.2`
+
+### Fixed
+
+- Fixed koa trailing slash handling
+- Fixed controller method inheritance
+
 ## [0.10.3](https://github.com/typestack/routing-controllers/compare/v0.10.2...v0.10.3) (2023-04-17)
 
 ### Changed
