@@ -54,7 +54,7 @@
     "@types/express-session": "^1.17.7",
     "@types/form-data": "^2.5.0",
     "@types/jest": "^29.5.3",
-    "@types/koa": "^2.13.7",
+    "@types/koa": "^2.13.8",
     "@types/multer": "^1.4.7",
     "@types/node": "^16.18.3",
     "@types/serve-static": "^1.15.2",
