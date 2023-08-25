@@ -73,7 +73,7 @@
     "handlebars": "^4.7.8",
     "http-status-codes": "^2.2.0",
     "husky": "^8.0.3",
-    "jest": "^29.6.3",
+    "jest": "^29.6.4",
     "koa-convert": "^2.0.0",
     "koa-session": "^6.4.0",
     "koa-views": "^8.1.0",
