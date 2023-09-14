@@ -6,10 +6,10 @@
   "author": "TypeStack contributors",
   "license": "MIT",
   "sideEffects": false,
-  "main": "./cjs/index.js",
-  "module": "./esm2015/index.js",
-  "es2015": "./esm2015/index.js",
-  "typings": "./types/index.d.ts",
+  "main": "build/cjs/index.js",
+  "module": "build/esm2015/index.js",
+  "es2015": "build/esm2015/index.js",
+  "typings": "build/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/devicethread/routing-controllers.git"
@@ -25,8 +25,11 @@
     "koa-controllers",
     "controllers"
   ],
+  "files": [
+    "build/"
+  ],
   "scripts": {
-    "build": "npm run build:cjs",
+    "build": "npm run build:cjs && npm run build:es2015 && npm run build:types",
     "build:clean": "rimraf build",
     "build:es2015": "tsc --project tsconfig.prod.esm2015.json",
     "build:cjs": "tsc --project tsconfig.prod.cjs.json",
@@ -38,12 +41,7 @@
     "test": "jest --verbose --runInBand",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --no-cache --coverage --verbose",
-    "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors --runInBand --no-coverage --watch",
-    "prepare": "npm run build:cjs && npm run build:es2015 && build:types",
-    "prepublishOnly": "npm test && npm run lint:check",
-    "preversion": "npm run lint:fix",
-    "version": "npm run prettier:fix && git add -A src",
-    "postversion": "git push && git push --tags"
+    "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors --runInBand --no-coverage --watch"
   },
   "dependencies": {
     "cookie": "^0.5.0",

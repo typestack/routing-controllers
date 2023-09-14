@@ -125,9 +125,53 @@ export class RoutingControllers<T extends BaseDriver> {
       })
       .catch(error => {
         // otherwise simply handle error without action execution
-        return this.driver.handleError(error, actionMetadata, action);
+        return (this.driver.isDefaultErrorHandlingEnabled) ?
+        this.driver.handleError(error, actionMetadata, action) :
+        this.handleCallMethodError(error, actionMetadata, action, interceptorFns);
       });
   }
+
+/**
+   * Handle bad request error. Applies only when the DefaultErrorHandlingEnabled property is set to false in Routing options.
+   * The method ensures that the Interceptors are also called. Interceptors handling the error must ensure that the return
+   * value (error object) is a child of HttpError class.
+   */
+protected handleCallMethodError(
+  error: any,
+  action: ActionMetadata,
+  options: Action,
+  interceptorFns: Function[]
+): any {
+  if (isPromiseLike(error)) {
+    return error
+      .then((data: any) => {
+        return this.handleCallMethodError(data, action, options, interceptorFns);
+      })
+      .catch((error: any) => {
+        return this.driver.handleError(error, action, options);
+      });
+  } else {
+    if (interceptorFns) {
+      const awaitPromise = runInSequence(interceptorFns, interceptorFn => {
+        const interceptedResult = interceptorFn(options, error);
+        if (isPromiseLike(interceptedResult)) {
+          return interceptedResult.then((resultFromPromise: any) => {
+            error = resultFromPromise;
+          });
+        } else {
+          error = interceptedResult;
+          return Promise.resolve();
+        }
+      });
+
+      return awaitPromise
+        .then(() => this.driver.handleError(error, action, options))
+        .catch(error => Promise.reject(error));
+    } else {
+      return this.driver.handleError(error, action, options);
+    }
+  }
+}
 
   /**
    * Handles result of the action method execution.

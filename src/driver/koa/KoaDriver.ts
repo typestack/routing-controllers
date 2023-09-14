@@ -295,33 +295,31 @@ export class KoaDriver extends BaseDriver {
    * Handles result of failed executed controller action.
    */
   handleError(error: any, action: ActionMetadata | undefined, options: Action) {
-    return new Promise<void>((resolve, reject) => {
-      if (this.isDefaultErrorHandlingEnabled) {
-        // apply http headers
-        if (action) {
-          Object.keys(action.headers).forEach(name => {
-            options.response.set(name, action.headers[name]);
-          });
-        }
+    // apply http headers
+    if (action) {
+      Object.keys(action.headers).forEach(name => {
+        options.response.set(name, action.headers[name]);
+      });
+    }
 
-        // send error content
-        if (action && action.isJsonTyped) {
-          options.response.body = this.processJsonError(error);
-        } else {
-          options.response.body = this.processTextError(error);
-        }
+    // send error content
+    if (action && action.isJsonTyped) {
+      options.response.body = this.processJsonError(error);
+    } else {
+      options.response.body = this.processTextError(error);
+    }
 
-        // set http status
-        if (error instanceof HttpError && error.httpCode) {
-          options.response.status = error.httpCode;
-        } else {
-          options.response.status = 500;
-        }
-
-        return resolve();
-      }
-      return reject(error);
-    });
+    // set http status
+    if (error instanceof HttpError && error.httpCode) {
+      options.response.status = error.httpCode;
+    } else {
+      options.response.status = 500;
+    }
+    if(! this.isDefaultErrorHandlingEnabled) {
+      return options.next();
+    } else {
+      Promise.reject(error);
+    }
   }
 
   // -------------------------------------------------------------------------
