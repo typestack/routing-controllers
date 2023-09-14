@@ -39,10 +39,10 @@
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --no-cache --coverage --verbose",
     "test:debug": "NODE_ENV= node --inspect=0.0.0.0:20001 ./node_modules/.bin/jest --colors --runInBand --no-coverage --watch",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm run lint",
-    "version": "npm run format && git add -A src",
+    "prepare": "npm run build:cjs && npm run build:es2015 && build:types",
+    "prepublishOnly": "npm test && npm run lint:check",
+    "preversion": "npm run lint:fix",
+    "version": "npm run prettier:fix && git add -A src",
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
