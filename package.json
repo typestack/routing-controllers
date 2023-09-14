@@ -1,8 +1,8 @@
 {
-  "name": "routing-controllers",
+  "name": "dt-routing-controllers",
   "private": false,
-  "version": "0.10.4",
-  "description": "Create structured, declarative and beautifully organized class-based controllers with heavy decorators usage for Express / Koa using TypeScript.",
+  "version": "1.0.0",
+  "description": "Extension of the typestack/routing-controllers with fixes for Koa framework",
   "author": "TypeStack contributors",
   "license": "MIT",
   "sideEffects": false,
@@ -12,15 +12,17 @@
   "typings": "./types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/typestack/routing-controllers.git"
+    "url": "https://github.com/devicethread/routing-controllers.git"
   },
   "tags": [
     "express",
     "express.js",
+    "koa",
     "typescript",
     "typescript-express",
     "typescript-express.js",
     "express-controllers",
+    "koa-controllers",
     "controllers"
   ],
   "scripts": {
