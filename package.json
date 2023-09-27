@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "cookie": "^0.5.0",
-    "glob": "^10.3.9",
+    "glob": "^10.3.10",
     "reflect-metadata": "^0.1.13",
     "template-url": "^1.0.0"
   },
