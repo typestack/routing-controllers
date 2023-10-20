@@ -57,7 +57,7 @@
     "@types/koa": "^2.13.10",
     "@types/multer": "^1.4.9",
     "@types/node": "^16.18.3",
-    "@types/serve-static": "^1.15.3",
+    "@types/serve-static": "^1.15.4",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.62.0",
     "axios": "^1.5.1",
