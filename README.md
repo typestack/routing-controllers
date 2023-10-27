@@ -126,6 +126,7 @@ In prior versions, these were direct dependencies, but now they are peer depende
 1. Create a file `UserController.ts`
 
    ```typescript
+   import 'reflect-metadata';
    import { Controller, Param, Body, Get, Post, Put, Delete } from 'routing-controllers';
 
    @Controller()
