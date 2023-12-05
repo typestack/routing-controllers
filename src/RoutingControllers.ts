@@ -108,6 +108,12 @@ export class RoutingControllers<T extends BaseDriver> {
    * Executes given controller action.
    */
   protected executeAction(actionMetadata: ActionMetadata, action: Action, interceptorFns: Function[]) {
+    // handle the error before going to middleware
+    if(action.response._body && action.response._body.httpCode > 400)
+      return (this.driver.isDefaultErrorHandlingEnabled) ?
+      this.driver.handleError(action.response._body, actionMetadata, action) :
+      this.handleCallMethodError(action.response._body, actionMetadata, action, interceptorFns);
+
     // compute all parameters
     const paramsPromises = actionMetadata.params
       .sort((param1, param2) => param1.index - param2.index)
