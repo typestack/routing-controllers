@@ -252,6 +252,11 @@ export class ExpressDriver extends BaseDriver {
    * Handles result of successfully executed controller action.
    */
   handleSuccess(result: any, action: ActionMetadata, options: Action): void {
+    if (options && options.response && options.response.headersSent) {
+      console.warn('Response headers were already sent, default handleSuccess will not be executed.');
+      options.next();
+      return;
+    }
     // if the action returned the response object itself, short-circuits
     if (result && result === options.response) {
       options.next();
@@ -354,6 +359,11 @@ export class ExpressDriver extends BaseDriver {
    * Handles result of failed executed controller action.
    */
   handleError(error: any, action: ActionMetadata | undefined, options: Action): any {
+    if (options && options.response && options.response.headersSent) {
+      console.warn('Response headers were already sent, default handleError will not be executed.');
+      options.next(error);
+      return;
+    }
     if (this.isDefaultErrorHandlingEnabled) {
       const response: any = options.response;
 
