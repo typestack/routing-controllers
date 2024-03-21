@@ -96,7 +96,7 @@
     "body-parser": "^1.20.2",
     "express": "^4.19.1",
     "express-session": "^1.18.0",
-    "koa": "^2.15.1",
+    "koa": "^2.15.2",
     "koa-bodyparser": "^4.4.1",
     "multer": "^1.4.5-lts.1"
   }
