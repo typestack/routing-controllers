@@ -59,9 +59,9 @@ export class KoaDriver extends BaseDriver {
    * Registers middleware that run before controller actions.
    */
   registerMiddleware(middleware: MiddlewareMetadata): void {
-    if ((middleware.instance as KoaMiddlewareInterface).use) {
+    if (middleware.target.prototype && middleware.target.prototype.use) {
       this.koa.use(function (ctx: any, next: any) {
-        return (middleware.instance as KoaMiddlewareInterface).use(ctx, next);
+        return getFromContainer<KoaMiddlewareInterface>(middleware.target).use(ctx, next);
       });
     }
   }
