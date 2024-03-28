@@ -172,6 +172,7 @@ export class RoutingControllers<T extends BaseDriver> {
    * Creates interceptors from the given "use interceptors".
    */
   protected prepareInterceptors(uses: InterceptorMetadata[]): Function[] {
+    uses.sort((interceptor1, interceptor2) => interceptor2.priority - interceptor1.priority);
     return uses.map(use => {
       if (use.interceptor.prototype && use.interceptor.prototype.intercept) {
         // if this is function instance of InterceptorInterface
