@@ -1,5 +1,81 @@
 # Changelog and release notes
 
+## [0.10.4](https://github.com/typestack/routing-controllers/compare/v0.10.3...v0.10.4) (2023-04-17)
+
+### Changed
+
+- `glob` package updated to `10.1.0` from `10.2.2`
+
+### Fixed
+
+- Fixed koa trailing slash handling
+- Fixed controller method inheritance
+
+## [0.10.3](https://github.com/typestack/routing-controllers/compare/v0.10.2...v0.10.3) (2023-04-17)
+
+### Changed
+
+- `glob` package updated to `10.1.0` from `8.1.0`
+- `koa` package updated to `2.14.2` from `2.14.1`
+- `koa-bodyparse` package updated to `4.4.0` from `4.3.0`
+- updated various dev dependencies
+
+### Fixed
+
+- Fixed koa uploaded file accessor
+
+## [0.10.2](https://github.com/typestack/routing-controllers/compare/v0.10.1...v0.10.2) (2023-03-06)
+
+### Changed
+
+- `glob` package updated to `8.1.0` from `8.0.3`
+- `body-parser` package updated to `1.20.2` from `1.20.1`
+- `multer` package updated to `1.4.5-lts.1` from `1.4.4`
+  - Note: This fixes vulnerability CVE-2022-24434
+- updated various dev dependencies
+
+### Fixed
+
+- Added normalization to glob pattern resolver to fix Windows paths
+
+## [0.10.1](https://github.com/typestack/routing-controllers/compare/v0.10.0...v0.10.1) (2023-01-13)
+
+### Changed
+
+- `class-validator` package updated to `0.14.0` from `0.13.2`
+  - Note: class-validator 0.14.0 enables `forbidUnknownValues` by default, but this is overridden in routing-controllers to prevent a breaking change. You can still enable it like before.
+- `koa` package updated to `2.14.1` from `2.13.4`
+- updated various dev dependencies
+
+## [0.10.0](https://github.com/typestack/routing-controllers/compare/v0.9.0...v0.10.0) (2022-12-9)
+
+### Added
+
+- `isArray` option for `@QueryParam`
+
+### Changed
+
+- `class-transformer` package updated to `0.5.1` from `0.3.1`
+- `class-validator` package updated to `0.13.2` from `0.12.2`
+- `cookie` package updated to `0.5.0` from `0.4.0`
+- `glob` package updated to `8.0.3` from `7.1.4`
+- `express` package updated to `4.18.2` from `4.17.1` and moved to `optionalDependencies`
+- `express-session` package updated to `1.17.1` from `1.17.3` and moved to `optionalDependencies`
+- `body-parser` package updated to `1.20.1` from `1.19.0`
+- `multer` package updated to `1.4.4` from `1.4.2`
+- `koa` package updated to `2.13.4` from `2.8.2`
+- `koa-multer` package replaced with `@koa/multer`
+- `koa-router` package replaced with `@koa/router`
+- updated various dev dependencies
+
+### Fixed
+
+- Fixed parsing uuid as route parameter
+- Fixed `target` property not set during controller inheritance
+- Fixed `NaN` check for number route parameters
+- Added missing null value handling in parameters
+- Fixed middlewares not using the defined route prefix
+
 ### 0.9.0
 
 #### Features

@@ -1,5 +1,5 @@
 import { ValidatorOptions } from 'class-validator';
-import { ClassTransformOptions, classToPlain } from 'class-transformer';
+import { ClassTransformOptions, instanceToPlain } from 'class-transformer';
 
 import { HttpError } from '../http-error/HttpError';
 import { CurrentUserChecker } from '../CurrentUserChecker';
@@ -8,6 +8,7 @@ import { ActionMetadata } from '../metadata/ActionMetadata';
 import { ParamMetadata } from '../metadata/ParamMetadata';
 import { MiddlewareMetadata } from '../metadata/MiddlewareMetadata';
 import { Action } from '../Action';
+import { RoutingControllersOptions } from '../RoutingControllersOptions';
 
 /**
  * Base driver functionality for all other drivers.
@@ -67,7 +68,7 @@ export abstract class BaseDriver {
 
   /**
    * Indicates if cors are enabled.
-   * This requires installation of additional module (cors for express and kcors for koa).
+   * This requires installation of additional module (cors for express and @koa/cors for koa).
    */
   cors?: boolean | Object;
 
@@ -104,7 +105,7 @@ export abstract class BaseDriver {
     // transform result if needed
     if (shouldTransform) {
       const options = action.responseClassTransformOptions || this.classToPlainTransformOptions;
-      result = classToPlain(result, options);
+      result = instanceToPlain(result, options);
     }
 
     return result;
@@ -180,7 +181,7 @@ export abstract class BaseDriver {
   /**
    * Registers given middleware.
    */
-  abstract registerMiddleware(middleware: MiddlewareMetadata): void;
+  abstract registerMiddleware(middleware: MiddlewareMetadata, options: RoutingControllersOptions): void;
 
   /**
    * Registers action in the driver.

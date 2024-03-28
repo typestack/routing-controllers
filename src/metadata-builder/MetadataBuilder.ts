@@ -8,7 +8,6 @@ import { ResponseHandlerMetadata } from '../metadata/ResponseHandleMetadata';
 import { RoutingControllersOptions } from '../RoutingControllersOptions';
 import { UseMetadata } from '../metadata/UseMetadata';
 import { getMetadataArgsStorage } from '../index';
-import { ActionMetadataArgs } from '../metadata/args/ActionMetadataArgs';
 
 /**
  * Builds metadata from the given metadata arguments.
@@ -81,7 +80,6 @@ export class MetadataBuilder {
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
       controller.build(this.createControllerResponseHandlers(controller));
-      controller.options = controllerArgs.options;
       controller.actions = this.createActions(controller);
       controller.uses = this.createControllerUses(controller);
       controller.interceptors = this.createControllerInterceptorUses(controller);
@@ -93,33 +91,25 @@ export class MetadataBuilder {
    * Creates action metadatas.
    */
   protected createActions(controller: ControllerMetadata): ActionMetadata[] {
-    let target = controller.target;
-    const actionsWithTarget: ActionMetadataArgs[] = [];
-    while (target) {
-      const actions = getMetadataArgsStorage()
-        .filterActionsWithTarget(target)
-        .filter(action => {
-          return actionsWithTarget.map(a => a.method).indexOf(action.method) === -1;
+    const actionsWithTarget: ActionMetadata[] = [];
+    for (let target = controller.target; target; target = Object.getPrototypeOf(target)) {
+      const actions = getMetadataArgsStorage().filterActionsWithTarget(target);
+      const methods = actionsWithTarget.map(a => a.method);
+      actions
+        .filter(({ method }) => !methods.includes(method))
+        .forEach(actionArgs => {
+          const action = new ActionMetadata(controller, { ...actionArgs, target: controller.target }, this.options);
+          action.options = { ...controller.options, ...actionArgs.options };
+          action.params = this.createParams(action);
+          action.uses = this.createActionUses(action);
+          action.interceptors = this.createActionInterceptorUses(action);
+          action.build(this.createActionResponseHandlers(action));
+
+          actionsWithTarget.push(action);
         });
-
-      actions.forEach(a => {
-        a.target = controller.target;
-
-        actionsWithTarget.push(a);
-      });
-
-      target = Object.getPrototypeOf(target);
     }
 
-    return actionsWithTarget.map(actionArgs => {
-      const action = new ActionMetadata(controller, actionArgs, this.options);
-      action.options = { ...controller.options, ...actionArgs.options };
-      action.params = this.createParams(action);
-      action.uses = this.createActionUses(action);
-      action.interceptors = this.createActionInterceptorUses(action);
-      action.build(this.createActionResponseHandlers(action));
-      return action;
-    });
+    return actionsWithTarget;
   }
 
   /**

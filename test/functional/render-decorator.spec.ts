@@ -92,7 +92,9 @@ describe(``, () => {
       expressServer = expressApplication.listen(3001, done);
     });
 
-    afterAll((done: DoneCallback) => expressServer.close(done));
+    afterAll((done: DoneCallback) => {
+      expressServer.close(done);
+    });
 
     cases()
   });

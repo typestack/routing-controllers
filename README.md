@@ -84,8 +84,9 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
    and make sure to import it before you use routing-controllers:
 
-   ```typescript
-   ```
+```typescript
+import 'reflect-metadata';
+```
 
 3. Install framework:
 
@@ -99,11 +100,11 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
 
    **b. If you want to use routing-controllers with _koa 2_, then install it and all required dependencies:**
 
-   `npm install koa koa-router koa-bodyparser koa-multer`
+   `npm install koa @koa/router koa-bodyparser @koa/multer`
 
    Optionally you can also install their typings:
 
-   `npm install -D @types/koa @types/koa-router @types/koa-bodyparser`
+   `npm install -D @types/koa @types/koa-bodyparser`
 
 4. Install peer dependencies:
 
@@ -125,6 +126,7 @@ In prior versions, these were direct dependencies, but now they are peer depende
 1. Create a file `UserController.ts`
 
    ```typescript
+   import 'reflect-metadata';
    import { Controller, Param, Body, Get, Post, Put, Delete } from 'routing-controllers';
 
    @Controller()
@@ -807,7 +809,7 @@ app.listen(3000);
 ```
 
 To use cors you need to install its module.
-For express its `npm i cors`, for koa its `npm i kcors`.
+For express its `npm i cors`, for koa its `npm i @koa/cors`.
 You can pass cors options as well:
 
 ```typescript

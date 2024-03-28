@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { defaultMetadataStorage } from 'class-transformer/storage';
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { Length } from 'class-validator';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';

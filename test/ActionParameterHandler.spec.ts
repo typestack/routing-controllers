@@ -115,6 +115,26 @@ describe('ActionParameterHandler', () => {
 
       expect(processedValue).to.be.eq(undefined);
     });
+
+    it('handle - null provided', async () => {
+      try {
+        const param = buildParamMetadata('id', 'param', true);
+        const action = {
+          request: {
+            params: {
+              id: null,
+            },
+          },
+          response: {},
+        };
+
+        await actionParameterHandler.handle(action, param);
+      } catch (error) {
+        expect(error.toString()).to.be.eq(
+          'ParamRequiredError: Parameter "id" is required for request on undefined undefined'
+        );
+      }
+    });
   });
   describe('negative', () => {
     it('handle - throws error if the parameter is required', async () => {
@@ -131,7 +151,8 @@ describe('ActionParameterHandler', () => {
         error = e;
       }
 
-      expect(error.toString()).to.be.eq("TypeError: Cannot read property 'uuid' of undefined");
+      expect(error.toString()).to.contain('TypeError: Cannot read');
+      expect(error.toString()).to.contain("'uuid'");
     });
 
     it('handle - throws error if the parameter is required, type file provided', async () => {

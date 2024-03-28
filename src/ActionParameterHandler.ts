@@ -1,4 +1,4 @@
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject as validate, ValidationError } from 'class-validator';
 import { Action } from './Action';
 import { BadRequestError } from './http-error/BadRequestError';
@@ -64,7 +64,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     // check cases when parameter is required but its empty and throw errors in this case
     if (param.required) {
       const isValueEmpty = value === null || value === undefined || value === '';
-      const isValueEmptyObject = typeof value === 'object' && Object.keys(value).length === 0;
+      const isValueEmptyObject = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
 
       if (param.type === 'body' && !param.name && (isValueEmpty || isValueEmptyObject)) {
         // body has a special check and error message
@@ -163,7 +163,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         }
 
         const valueNumber = +value;
-        if (valueNumber === NaN) {
+        if (Number.isNaN(valueNumber)) {
           throw new InvalidParamError(value, parameterName, parameterType);
         }
 
@@ -221,7 +221,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       !(value instanceof paramMetadata.targetType)
     ) {
       const options = paramMetadata.classTransform || this.driver.plainToClassTransformOptions;
-      value = plainToClass(paramMetadata.targetType, value, options);
+      value = plainToInstance(paramMetadata.targetType, value, options);
     }
     return value;
   }
@@ -238,7 +238,11 @@ export class ActionParameterHandler<T extends BaseDriver> {
       paramMetadata.targetType && paramMetadata.targetType !== Object && value instanceof paramMetadata.targetType;
 
     if (isValidationEnabled && shouldValidate) {
-      const options = Object.assign({}, this.driver.validationOptions, paramMetadata.validate);
+      const options = Object.assign(
+        { forbidUnknownValues: false },
+        this.driver.validationOptions,
+        paramMetadata.validate
+      );
       return validate(value, options)
         .then(() => value)
         .catch((validationErrors: ValidationError[]) => {
