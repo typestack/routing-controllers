@@ -89,6 +89,8 @@ export * from './CustomParameterDecorator';
 export * from './RoleChecker';
 export * from './Action';
 export * from './InterceptorInterface';
+export * from './CurrentUserChecker';
+export * from './AuthorizationChecker';
 
 export * from './driver/BaseDriver';
 export * from './driver/express/ExpressDriver';
