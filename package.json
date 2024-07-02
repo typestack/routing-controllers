@@ -88,7 +88,7 @@
     "ts-node-dev": "^2.0.0",
     "tslint": "^6.1.2",
     "typedi": "^0.10.0",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.3"
   },
   "optionalDependencies": {
     "@koa/multer": "^3.0.2",
