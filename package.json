@@ -66,7 +66,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.9.0",
     "form-data": "^4.0.0",
