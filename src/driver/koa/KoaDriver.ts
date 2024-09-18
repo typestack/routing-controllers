@@ -26,7 +26,10 @@ export class KoaDriver extends BaseDriver {
   // Constructor
   // -------------------------------------------------------------------------
 
-  constructor(public koa?: any, public router?: any) {
+  constructor(
+    public koa?: any,
+    public router?: any
+  ) {
     super();
     this.loadKoa();
     this.loadRouter();
