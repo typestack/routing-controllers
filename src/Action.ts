@@ -1,25 +1,25 @@
 /**
  * Controller action properties.
  */
-export interface Action {
+export interface Action<TRequest = any, TResponse = any, TContext = any, TNext extends Function = Function> {
   /**
    * Action Request object.
    */
-  request: any;
+  request: TRequest;
 
   /**
    * Action Response object.
    */
-  response: any;
+  response: TResponse;
 
   /**
    * Content in which action is executed.
    * Koa-specific property.
    */
-  context?: any;
+  context?: TContext;
 
   /**
    * "Next" function used to call next middleware.
    */
-  next?: Function;
+  next?: TNext;
 }
