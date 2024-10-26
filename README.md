@@ -1154,6 +1154,39 @@ getOne(@Param("id") id: number) {
 You can use `@UseInterceptor` per-action, or per-controller.
 If its used per-controller then interceptor will apply to all controller actions.
 
+### Generic Action Interface
+
+You can now use generics with the `Action` interface to specify types for the request, response, context, and next function. This allows for better type safety and intellisense when working with different frameworks or custom types. Here's an example:
+
+```typescript
+import { Action } from 'routing-controllers';
+import { Request, Response } from 'express';
+
+@JsonController()
+export class UserController {
+  @Get('/users')
+  getUsers(@Req() req: Request, @Res() res: Response) {
+    // Your action implementation
+  }
+
+  @Post('/users')
+  createUser(@Body() user: User, action: Action<Request, Response>) {
+    // You can now use action.request and action.response with proper typing
+    console.log(action.request.headers);
+    action.response.status(201);
+  }
+}
+```
+
+The `Action` interface now accepts four generic parameters:
+
+1. `TRequest`: The type of the request object (default: `any`)
+2. `TResponse`: The type of the response object (default: `any`)
+3. `TContext`: The type of the context object (for Koa-specific usage, default: `any`)
+4. `TNext`: The type of the next function (default: `Function`)
+
+This change allows for more flexibility and type safety when working with different frameworks or custom request/response types in your routing-controllers applications.
+
 ### Interceptor classes
 
 You can also create a class and use it with `@UseInterceptor` decorator:
