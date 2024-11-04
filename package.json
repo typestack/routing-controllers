@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.10.0",
+    "@eslint/js": "^9.14.0",
     "@koa/cors": "^5.0.0",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
