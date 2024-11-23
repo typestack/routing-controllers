@@ -766,6 +766,7 @@ There are set of prepared errors you can use:
 - NotAcceptableError
 - NotFoundError
 - UnauthorizedError
+- UnprocessableEntityError
 
 You can also create and use your own errors by extending `HttpError` class.
 To define the data returned to the client, you could define a toJSON method in your error.

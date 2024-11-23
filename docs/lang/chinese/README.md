@@ -724,6 +724,7 @@ getOne(@Param("id") id: number) {
 - NotAcceptableError
 - NotFoundError
 - UnauthorizedError
+- UnprocessableEntityError
 
 可以继承 `HttpError` 类自行创建使用 error。
 也可实现一个 toJson 函数定义返回给客户端的数据。
