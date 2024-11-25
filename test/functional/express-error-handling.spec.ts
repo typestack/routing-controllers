@@ -116,9 +116,7 @@ describe(``, () => {
         }
 
         @Post('/videos')
-        createVideo(
-          @BodyParam('meta') meta: string,
-        ): never {
+        createVideo(@BodyParam('meta') meta: string): never {
           throw new UnprocessableEntityError('Meta is an array of strings.');
         }
       }
