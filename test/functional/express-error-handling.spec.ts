@@ -2,12 +2,15 @@ import express from 'express';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';
 import { Get } from '../../src/decorator/Get';
+import { Post } from '../../src/decorator/Post';
 import { JsonController } from '../../src/decorator/JsonController';
 import { Middleware } from '../../src/decorator/Middleware';
 import { UseAfter } from '../../src/decorator/UseAfter';
+import { BodyParam } from '../../src/decorator/BodyParam';
 import { ExpressErrorMiddlewareInterface } from '../../src/driver/express/ExpressErrorMiddlewareInterface';
 import { HttpError } from '../../src/http-error/HttpError';
 import { NotFoundError } from '../../src/http-error/NotFoundError';
+import { UnprocessableEntityError } from '../../src/http-error/UnprocessableEntityError';
 import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
@@ -111,6 +114,13 @@ describe(``, () => {
         stories(): never {
           throw new ToJsonError(503, 'sorry, try it again later', 'impatient user');
         }
+
+        @Post('/videos')
+        createVideo(
+          @BodyParam('meta') meta: string,
+        ): never {
+          throw new UnprocessableEntityError('Meta is an array of strings.');
+        }
       }
 
       expressServer = createExpressServer().listen(3001, done);
@@ -180,6 +190,18 @@ describe(``, () => {
         expect(error.response.data.status).toEqual(HttpStatusCodes.SERVICE_UNAVAILABLE);
         expect(error.response.data.publicData).toEqual('sorry, try it again later (503)');
         expect(error.response.data.secretData).toBeUndefined();
+      }
+    });
+
+    it('should call global error handler middleware for validation params', async () => {
+      expect.assertions(3);
+
+      try {
+        await axios.post('/videos', { meta: 'new' });
+      } catch (error) {
+        expect(errorHandlerCalled).toBeTruthy();
+        expect(error.response.status).toEqual(HttpStatusCodes.UNPROCESSABLE_ENTITY);
+        expect(error.response.data.message).toEqual('Meta is an array of strings.');
       }
     });
   });
