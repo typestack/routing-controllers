@@ -250,11 +250,13 @@ export class KoaDriver extends BaseDriver {
       }
     } else if (action.renderedTemplate) {
       // if template is set then render it // TODO: not working in koa
-      const renderOptions = result && result instanceof Object ? result : {};
+      options.context.renderOptions = {
+        page : action.renderedTemplate,
+        locals : result && result instanceof Object ? result : {},
+      }
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      if(this.koa.middleware.indexOf(this.loadKoaViews) === -1) this.koa.use(this.loadKoaViews)
 
-      this.koa.use(async function (ctx: any, next: any) {
-        await ctx.render(action.renderedTemplate, renderOptions);
-      });
     } else if (result === undefined) {
       // throw NotFoundError on undefined response
       if (action.undefinedResultCode instanceof Function) {
@@ -404,4 +406,32 @@ export class KoaDriver extends BaseDriver {
       throw new Error('@koa/multer package was not found installed. Try to install it: npm install @koa/multer --save');
     }
   }
+
+
+  /**
+   * This middleware fixes a bug on koa-multer implementation.
+   *
+   * This bug should be fixed by koa-multer PR #15: https://github.com/koa-modules/multer/pull/15
+   */
+  private async fixMulterRequestAssignment(ctx: any, next: Function) {
+    if ('request' in ctx) {
+      if (ctx.req.body) ctx.request.body = ctx.req.body;
+      if (ctx.req.file) ctx.request.file = ctx.req.file;
+      if (ctx.req.files) {
+        ctx.request.files = ctx.req.files;
+        ctx.files = ctx.req.files;
+      }
+    }
+
+    return await next();
+  }
+
+  private async loadKoaViews(ctx: any, next: Function) {
+    if('renderOptions' in ctx){
+      return await ctx.render(ctx.renderOptions.page, ctx.renderOptions.locals)
+    }
+
+    return await next()
+  }
+
 }
