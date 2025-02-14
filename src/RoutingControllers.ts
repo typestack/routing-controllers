@@ -37,7 +37,10 @@ export class RoutingControllers<T extends BaseDriver> {
   // Constructor
   // -------------------------------------------------------------------------
 
-  constructor(private driver: T, private options: RoutingControllersOptions) {
+  constructor(
+    private driver: T,
+    private options: RoutingControllersOptions
+  ) {
     this.parameterHandler = new ActionParameterHandler(driver);
     this.metadataBuilder = new MetadataBuilder(options);
   }
