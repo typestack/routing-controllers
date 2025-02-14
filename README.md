@@ -728,8 +728,10 @@ getOne() {
 ```
 
 To use rendering ability make sure to configure express / koa properly.
-To use rendering ability with Koa you will need to use a rendering 3rd party such as [koa-views](https://github.com/queckezz/koa-views/),
-koa-views is the only render middleware that has been tested.
+To use rendering ability with Koa you will need to use a rendering 3rd party such as [@koa/ejs](https://github.com/koajs/ejs),
+@koa/ejs is the only render middleware that has been tested.
+
+See [the koa render test file](./test/functional/koa-render-decorator.spec.ts) as an example.
 
 #### Throw HTTP errors
 
