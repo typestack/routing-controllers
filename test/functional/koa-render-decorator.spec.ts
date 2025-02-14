@@ -1,13 +1,13 @@
 import { Render } from '../../src/decorator/Render';
 import { Server as HttpServer } from 'http';
 import HttpStatusCodes from 'http-status-codes';
-import Koa from "koa";
+import Koa from 'koa';
 import { Controller } from '../../src/decorator/Controller';
 import { Get } from '../../src/decorator/Get';
 import { createKoaServer, getMetadataArgsStorage, Ctx } from '../../src/index';
 import { axios } from '../utilities/axios';
-import koaEjs from "@koa/ejs";
-import path from "path";
+import koaEjs from '@koa/ejs';
+import path from 'path';
 import DoneCallback = jest.DoneCallback;
 
 describe(``, () => {
@@ -31,7 +31,7 @@ describe(``, () => {
         @Render('ejs-render-test-locals-spec')
         locals(@Ctx() ctx: any): any {
           ctx.locals = {
-            myVariable: 'my-variable'
+            myVariable: 'my-variable',
           };
 
           return {
@@ -46,7 +46,7 @@ describe(``, () => {
       koaEjs(koaApp, {
         root: resourcePath,
         layout: false,
-        viewExt: "html", // Auto-appended to template name
+        viewExt: 'html', // Auto-appended to template name
         cache: false,
         debug: true,
       });

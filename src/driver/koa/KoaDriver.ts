@@ -253,7 +253,8 @@ export class KoaDriver extends BaseDriver {
       const renderOptions = result && result instanceof Object ? result : {};
       const ctxLocals = options.context.locals || {};
       const oldNext = options.next;
-      options.next = () => options.context.render(action.renderedTemplate, {...ctxLocals, ...renderOptions}).then(oldNext);
+      options.next = () =>
+        options.context.render(action.renderedTemplate, { ...ctxLocals, ...renderOptions }).then(oldNext);
     } else if (result === undefined) {
       // throw NotFoundError on undefined response
       if (action.undefinedResultCode instanceof Function) {
