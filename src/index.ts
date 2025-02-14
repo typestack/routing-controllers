@@ -71,7 +71,6 @@ export * from './http-error/NotAcceptableError';
 export * from './http-error/MethodNotAllowedError';
 export * from './http-error/NotFoundError';
 export * from './http-error/UnauthorizedError';
-export * from './http-error/UnprocessableEntityError';
 
 export * from './driver/express/ExpressMiddlewareInterface';
 export * from './driver/express/ExpressErrorMiddlewareInterface';
@@ -90,8 +89,6 @@ export * from './CustomParameterDecorator';
 export * from './RoleChecker';
 export * from './Action';
 export * from './InterceptorInterface';
-export * from './CurrentUserChecker';
-export * from './AuthorizationChecker';
 
 export * from './driver/BaseDriver';
 export * from './driver/express/ExpressDriver';
