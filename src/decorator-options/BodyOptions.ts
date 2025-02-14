@@ -14,7 +14,7 @@ export interface BodyOptions {
   /**
    * Class-transformer options used to perform plainToClass operation.
    *
-   * @see https://github.com/typestack/class-transformer
+   * @see https://github.com/pleerock/class-transformer
    */
   transform?: ClassTransformOptions;
 
@@ -22,7 +22,7 @@ export interface BodyOptions {
    * If true, class-validator will be used to validate param object.
    * If validation options are given then class-validator will perform validation with given options.
    *
-   * @see https://github.com/typestack/class-validator
+   * @see https://github.com/pleerock/class-validator
    */
   validate?: boolean | ValidatorOptions;
 

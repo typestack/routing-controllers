@@ -1,20 +1,5 @@
 # Changelog and release notes
 
-## [0.11.0](https://github.com/typestack/routing-controllers/compare/v0.10.4...v0.11.0) (2025-02-14)
-
-### Changed
-
-- `cookie` package updated to `1.0.2` from `0.5.0`
-- `glob` package updated to `11.0.0` from `10.2.2`
-- `reflect-metadata` package updated to `0.2.2` from `0.1.13`
-- Introduced `UnprocessableEntityError`
-- Dropped support for node versions below 20
-
-### Fixed
-
-- Fixed koa trailing slash handling
-- Fixed controller method inheritance
-
 ## [0.10.4](https://github.com/typestack/routing-controllers/compare/v0.10.3...v0.10.4) (2023-04-17)
 
 ### Changed
