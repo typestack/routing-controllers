@@ -1,5 +1,11 @@
 # Changelog and release notes
 
+## [0.11.1](https://github.com/typestack/routing-controllers/compare/v0.11.0...v0.11.1) (2025-02-18)
+
+### Changed
+
+- Fixed `Render` decorator for Koa
+
 ## [0.11.0](https://github.com/typestack/routing-controllers/compare/v0.10.4...v0.11.0) (2025-02-14)
 
 ### Changed
