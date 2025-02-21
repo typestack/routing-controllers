@@ -12,6 +12,7 @@ import { isPromiseLike } from '../../util/isPromiseLike';
 import { getFromContainer } from '../../container';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { NotFoundError, RoutingControllersOptions } from '../../index';
+import type { Express } from 'express';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
@@ -26,7 +27,7 @@ export class ExpressDriver extends BaseDriver {
   // Constructor
   // -------------------------------------------------------------------------
 
-  constructor(public express?: any) {
+  constructor(public express?: Express) {
     super();
     this.loadExpress();
     this.app = this.express;
@@ -44,9 +45,9 @@ export class ExpressDriver extends BaseDriver {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const cors = require('cors');
       if (this.cors === true) {
-        this.express.use(cors());
+        this.express?.use(cors());
       } else {
-        this.express.use(cors(this.cors));
+        this.express?.use(cors(this.cors));
       }
     }
   }
@@ -88,7 +89,7 @@ export class ExpressDriver extends BaseDriver {
         writable: true,
       });
 
-      this.express.use(options.routePrefix || '/', middlewareWrapper);
+      this.express?.use(options.routePrefix || '/', middlewareWrapper);
     }
   }
 
@@ -181,7 +182,7 @@ export class ExpressDriver extends BaseDriver {
     };
 
     // finally register action in express
-    this.express[actionMetadata.type.toLowerCase()](
+    this.express?.[actionMetadata.type.toLowerCase()](
       ...[route, routeGuard, ...beforeMiddlewares, ...defaultMiddlewares, routeHandler, ...afterMiddlewares]
     );
   }

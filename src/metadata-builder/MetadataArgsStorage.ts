@@ -94,7 +94,7 @@ export class MetadataArgsStorage {
   /**
    * Filters registered "use middlewares" by a given target class and method name.
    */
-  filterUsesWithTargetAndMethod(target: Function, methodName: string): UseMetadataArgs[] {
+  filterUsesWithTargetAndMethod(target: Function, methodName: string | undefined): UseMetadataArgs[] {
     return this.uses.filter(use => {
       return use.target === target && use.method === methodName;
     });
@@ -103,7 +103,7 @@ export class MetadataArgsStorage {
   /**
    * Filters registered "use interceptors" by a given target class and method name.
    */
-  filterInterceptorUsesWithTargetAndMethod(target: Function, methodName: string): UseInterceptorMetadataArgs[] {
+  filterInterceptorUsesWithTargetAndMethod(target: Function, methodName: string | undefined): UseInterceptorMetadataArgs[] {
     return this.useInterceptors.filter(use => {
       return use.target === target && use.method === methodName;
     });

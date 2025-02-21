@@ -14,9 +14,12 @@ export interface RoutingControllersOptions {
   cors?: boolean | Object;
 
   /**
-   * Global route prefix, for example '/api'.
+   * Global route prefix.
+   * Can be either:
+   * - a string (e.g. '/api')
+   * - a RegExp pattern for dynamic matching
    */
-  routePrefix?: string;
+  routePrefix?: string | RegExp;
 
   /**
    * List of controllers to register in the framework or directories from where to import all your controllers.
