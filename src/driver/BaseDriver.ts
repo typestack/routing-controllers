@@ -64,7 +64,7 @@ export abstract class BaseDriver {
   /**
    * Global application prefix.
    */
-  routePrefix: string = '';
+  routePrefix: string | RegExp = '';
 
   /**
    * Indicates if cors are enabled.

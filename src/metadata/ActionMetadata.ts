@@ -175,15 +175,56 @@ export class ActionMetadata {
   /**
    * Appends base route to a given regexp route.
    */
-  static appendBaseRoute(baseRoute: string, route: RegExp | string) {
+  /**
+   * Appends base route to a given regexp route.
+   */
+  static appendBaseRoute(baseRoute: string | RegExp, route: RegExp | string): string | RegExp {
+    // If baseRoute is RegExp
+    if (baseRoute instanceof RegExp) {
+      const basePattern = baseRoute.source;
+
+      if (typeof route === 'string') {
+        // RegExp base + string route
+        return new RegExp(`${basePattern}${route}`, baseRoute.flags);
+      }
+      // RegExp base + RegExp route
+      return new RegExp(`${basePattern}${route.source}`, `${baseRoute.flags}${route.flags}`);
+    }
+
+    // Check for wildcard in string baseRoute
+    if (typeof baseRoute === 'string' && baseRoute.includes('*')) {
+      const regexBaseRoute = this.convertWildcardToRegex(baseRoute);
+
+      if (regexBaseRoute) {
+        return this.appendBaseRoute(regexBaseRoute, route);
+      }
+    }
+
     const prefix = `${baseRoute.length > 0 && baseRoute.indexOf('/') < 0 ? '/' : ''}${baseRoute}`;
     if (typeof route === 'string') return `${prefix}${route}`;
 
     if (!baseRoute || baseRoute === '') return route;
 
     const fullPath = `^${prefix}${route.toString().substr(1)}?$`;
-
     return new RegExp(fullPath, route.flags);
+  }
+
+  /**
+   * Converts Express-style wildcard patterns to RegExp
+   */
+  static convertWildcardToRegex(pattern: string): RegExp | null {
+    if (!pattern.includes('*')) return null;
+
+    // If we see *?, make that entire segment optional
+    if (pattern.includes('*?')) {
+      return new RegExp('^(?:/[^/]+)?');
+    }
+
+    const escapedPattern = pattern
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '[^/]+');
+
+    return new RegExp(`^${escapedPattern}`);
   }
 
   // -------------------------------------------------------------------------
