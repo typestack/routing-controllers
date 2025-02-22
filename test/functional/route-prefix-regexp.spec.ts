@@ -111,6 +111,181 @@ describe('routePrefix functionality', () => {
     });
   });
 
+  describe('wildcard routePrefix', () => {
+    beforeEach((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class TestController {
+        @Get('/test')
+        test() {
+          return { status: 'success' };
+        }
+
+        @Get('/nested/route')
+        nested() {
+          return { status: 'nested' };
+        }
+      }
+
+      expressServer = createExpressServer({
+        controllers: [TestController],
+        routePrefix: '/*/api'
+      }).listen(3001, done);
+    });
+
+    it('should match single wildcard', async () => {
+      const response = await axios.get('/dev/api/test');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({ status: 'success' });
+    });
+
+    it('should match different values in wildcard position', async () => {
+      const response1 = await axios.get('/staging/api/test');
+      expect(response1.status).toEqual(HttpStatusCodes.OK);
+
+      const response2 = await axios.get('/prod/api/test');
+      expect(response2.status).toEqual(HttpStatusCodes.OK);
+    });
+
+    it('should 404 when segment is missing', async () => {
+      try {
+        await axios.get('/api/test');
+        fail('Should not reach here');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
+    });
+  });
+
+  describe('multiple wildcards in routePrefix', () => {
+    beforeEach((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class TestController {
+        @Get('/test')
+        test() {
+          return { status: 'success' };
+        }
+      }
+
+      expressServer = createExpressServer({
+        controllers: [TestController],
+        routePrefix: '/*/*/api'
+      }).listen(3001, done);
+    });
+
+    it('should match two wildcards', async () => {
+      const response = await axios.get('/v1/stage/api/test');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({ status: 'success' });
+    });
+
+    it('should match different combinations of segments', async () => {
+      const response1 = await axios.get('/foo/bar/api/test');
+      expect(response1.status).toEqual(HttpStatusCodes.OK);
+
+      const response2 = await axios.get('/v2/prod/api/test');
+      expect(response2.status).toEqual(HttpStatusCodes.OK);
+    });
+
+    it('should 404 with wrong number of segments', async () => {
+      try {
+        await axios.get('/v1/api/test');
+        fail('Should not reach here');
+      } catch (error) {
+        expect(error.response.status).toEqual(HttpStatusCodes.NOT_FOUND);
+      }
+    });
+  });
+
+  describe('complex wildcard patterns', () => {
+    beforeEach(() => {
+      getMetadataArgsStorage().reset();
+    });
+
+    it('should handle wildcards between fixed segments', (done: DoneCallback) => {
+      @JsonController()
+      class TestController {
+        @Get('/test')
+        test() {
+          return { status: 'success' };
+        }
+      }
+
+      expressServer = createExpressServer({
+        controllers: [TestController],
+        routePrefix: '/api/*/v2/*/service'
+      }).listen(3001, async () => {
+        const response = await axios.get('/api/region1/v2/instance2/service/test');
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+        expect(response.data).toEqual({ status: 'success' });
+        done();
+      });
+    });
+
+    it('should handle adjacent fixed segments correctly', (done: DoneCallback) => {
+      @JsonController()
+      class TestController {
+        @Get('/test')
+        test() {
+          return { status: 'success' };
+        }
+      }
+
+      expressServer = createExpressServer({
+        controllers: [TestController],
+        routePrefix: '/*/api/v2'
+      }).listen(3001, async () => {
+        const response = await axios.get('/dev/api/v2/test');
+        expect(response.status).toEqual(HttpStatusCodes.OK);
+        expect(response.data).toEqual({ status: 'success' });
+        done();
+      });
+    });
+  });
+
+  describe('optional wildcard routePrefix', () => {
+    beforeEach((done: DoneCallback) => {
+      getMetadataArgsStorage().reset();
+
+      @JsonController()
+      class TestController {
+        @Get('/defects')
+        test() {
+          return { status: 'success' };
+        }
+      }
+
+      expressServer = createExpressServer({
+        controllers: [TestController],
+        routePrefix: '/*?/defects'
+      }).listen(3001, done);
+    });
+
+    it('should match with segment', async () => {
+      const response = await axios.get('/dev/defects');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({ status: 'success' });
+    });
+
+    it('should match without segment', async () => {
+      const response = await axios.get('/defects');
+      expect(response.status).toEqual(HttpStatusCodes.OK);
+      expect(response.data).toEqual({ status: 'success' });
+    });
+
+    it('should match with different segments', async () => {
+      const response1 = await axios.get('/abc/defects');
+      expect(response1.status).toEqual(HttpStatusCodes.OK);
+
+      const response2 = await axios.get('/xyz-123/defects');
+      expect(response2.status).toEqual(HttpStatusCodes.OK);
+    });
+  });
+
+
   describe('edge cases', () => {
     beforeEach(() => {
       getMetadataArgsStorage().reset();

@@ -18,6 +18,7 @@ export interface RoutingControllersOptions {
    * Can be either:
    * - a string (e.g. '/api')
    * - a RegExp pattern for dynamic matching
+   * - a wildcard string (e.g. "/*\/api")
    */
   routePrefix?: string | RegExp;
 
