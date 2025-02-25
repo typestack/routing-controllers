@@ -61,7 +61,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^16.18.3",
     "@types/serve-static": "^1.15.7",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.16.0",
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
