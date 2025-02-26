@@ -48,9 +48,10 @@ export class MetadataBuilder {
    * Creates middleware metadatas.
    */
   protected createMiddlewares(classes?: Function[]): MiddlewareMetadata[] {
-    const middlewares = !classes || classes.length === 0
-      ? getMetadataArgsStorage().middlewares
-      : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
+    const middlewares =
+      !classes || classes.length === 0
+        ? getMetadataArgsStorage().middlewares
+        : getMetadataArgsStorage().filterMiddlewareMetadatasForClasses(classes);
     return middlewares.map(middlewareArgs => new MiddlewareMetadata(middlewareArgs));
   }
 
@@ -58,9 +59,10 @@ export class MetadataBuilder {
    * Creates interceptor metadatas.
    */
   protected createInterceptors(classes?: Function[]): InterceptorMetadata[] {
-    const interceptors = !classes || classes.length === 0
-      ? getMetadataArgsStorage().interceptors
-      : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
+    const interceptors =
+      !classes || classes.length === 0
+        ? getMetadataArgsStorage().interceptors
+        : getMetadataArgsStorage().filterInterceptorMetadatasForClasses(classes);
     return interceptors.map(
       interceptorArgs =>
         new InterceptorMetadata({
@@ -74,9 +76,10 @@ export class MetadataBuilder {
    * Creates controller metadatas.
    */
   protected createControllers(classes?: Function[]): ControllerMetadata[] {
-    const controllers = !classes || classes.length === 0
-      ? getMetadataArgsStorage().controllers
-      : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
+    const controllers =
+      !classes || classes.length === 0
+        ? getMetadataArgsStorage().controllers
+        : getMetadataArgsStorage().filterControllerMetadatasForClasses(classes);
     return controllers.map(controllerArgs => {
       const controller = new ControllerMetadata(controllerArgs);
       controller.build(this.createControllerResponseHandlers(controller));

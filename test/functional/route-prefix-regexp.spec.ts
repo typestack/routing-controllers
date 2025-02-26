@@ -130,7 +130,7 @@ describe('routePrefix functionality', () => {
 
       expressServer = createExpressServer({
         controllers: [TestController],
-        routePrefix: '/*/api'
+        routePrefix: '/*/api',
       }).listen(3001, done);
     });
 
@@ -172,7 +172,7 @@ describe('routePrefix functionality', () => {
 
       expressServer = createExpressServer({
         controllers: [TestController],
-        routePrefix: '/*/*/api'
+        routePrefix: '/*/*/api',
       }).listen(3001, done);
     });
 
@@ -216,7 +216,7 @@ describe('routePrefix functionality', () => {
 
       expressServer = createExpressServer({
         controllers: [TestController],
-        routePrefix: '/api/*/v2/*/service'
+        routePrefix: '/api/*/v2/*/service',
       }).listen(3001, async () => {
         const response = await axios.get('/api/region1/v2/instance2/service/test');
         expect(response.status).toEqual(HttpStatusCodes.OK);
@@ -236,7 +236,7 @@ describe('routePrefix functionality', () => {
 
       expressServer = createExpressServer({
         controllers: [TestController],
-        routePrefix: '/*/api/v2'
+        routePrefix: '/*/api/v2',
       }).listen(3001, async () => {
         const response = await axios.get('/dev/api/v2/test');
         expect(response.status).toEqual(HttpStatusCodes.OK);
@@ -260,7 +260,7 @@ describe('routePrefix functionality', () => {
 
       expressServer = createExpressServer({
         controllers: [TestController],
-        routePrefix: '/*?/defects'
+        routePrefix: '/*?/defects',
       }).listen(3001, done);
     });
 
@@ -284,7 +284,6 @@ describe('routePrefix functionality', () => {
       expect(response2.status).toEqual(HttpStatusCodes.OK);
     });
   });
-
 
   describe('edge cases', () => {
     beforeEach(() => {

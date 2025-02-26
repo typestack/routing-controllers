@@ -220,9 +220,7 @@ export class ActionMetadata {
       return new RegExp('^(?:/[^/]+)?');
     }
 
-    const escapedPattern = pattern
-      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-      .replace(/\*/g, '[^/]+');
+    const escapedPattern = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+');
 
     return new RegExp(`^${escapedPattern}`);
   }

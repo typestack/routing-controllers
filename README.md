@@ -334,6 +334,7 @@ createExpressServer({
 You can prefix all your routes using the `routePrefix` option. This supports three types of patterns:
 
 1. Simple string prefix:
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
@@ -342,45 +343,52 @@ createExpressServer({
   controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
 2. Wildcard patterns for dynamic segments:
 
 **Match single segment: /dev/api, /staging/api, etc.**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
-    routePrefix: '/*/api',
-    controllers: [UserController],
+  routePrefix: '/*/api',
+  controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
 **Match an optional segment: /api or /staging/api**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
-    routePrefix: '/*?',
-    controllers: [UserController],
+  routePrefix: '/*?',
+  controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
 **Match multiple segments: /v1/staging/api, /v2/prod/api, etc.**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
-    routePrefix: '/*/*/api',
-    controllers: [UserController],
+  routePrefix: '/*/*/api',
+  controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
-
 **Mix fixed and wildcard segments: /api/region1/v2/instance2/service**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
@@ -389,31 +397,35 @@ createExpressServer({
   controllers: [UserController],
 }).listen(3000);
 ```
-> koa users must use `createKoaServer` instead of `createExpressServer`
 
+> koa users must use `createKoaServer` instead of `createExpressServer`
 
 3. Regular expressions for complex patterns:
 
 **Match version numbers: /v1/api, /v2/api, etc.**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
-    routePrefix: /\/v[0-9]+\/api/,
-    controllers: [UserController],
+  routePrefix: /\/v[0-9]+\/api/,
+  controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
 **Optional segments: /api or /api/v1**
+
 ```typescript
 import { createExpressServer } from 'routing-controllers';
 
 createExpressServer({
-    routePrefix: /\/api(\/v[0-9]+)?/,
-    controllers: [UserController],
+  routePrefix: /\/api(\/v[0-9]+)?/,
+  controllers: [UserController],
 }).listen(3000);
 ```
+
 > koa users must use `createKoaServer` instead of `createExpressServer`
 
 #### Prefix controller with base route
