@@ -1,5 +1,11 @@
 # Changelog and release notes
 
+## [0.11.2](https://github.com/typestack/routing-controllers/compare/v0.11.1...v0.11.2) (2025-03-04)
+
+### Changed
+
+- Reverted `CurrentUserChecker` generic
+ 
 ## [0.11.1](https://github.com/typestack/routing-controllers/compare/v0.11.0...v0.11.1) (2025-02-18)
 
 ### Changed
