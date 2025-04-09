@@ -63,7 +63,7 @@
     "@types/serve-static": "^1.15.7",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.16.0",
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
     "body-parser": "^1.20.3",
     "chakram": "^1.5.0",
     "class-transformer": "^0.5.1",
