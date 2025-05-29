@@ -64,7 +64,7 @@
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.16.0",
     "axios": "^1.8.2",
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.2.0",
     "chakram": "^1.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -93,7 +93,7 @@
   "optionalDependencies": {
     "@koa/multer": "^3.0.2",
     "@koa/router": "^12.0.1",
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.2.0",
     "express": "^4.21.2",
     "express-session": "^1.18.0",
     "koa": "^2.16.1",
