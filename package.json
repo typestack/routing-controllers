@@ -72,7 +72,7 @@
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^28.11.1",
-    "form-data": "^4.0.1",
+    "form-data": "^4.0.4",
     "handlebars": "^4.7.8",
     "http-status-codes": "^2.3.0",
     "husky": "^9.1.7",
