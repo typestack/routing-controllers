@@ -60,7 +60,7 @@
     "@types/koa__ejs": "^5.1.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^16.18.3",
-    "@types/serve-static": "^1.15.7",
+    "@types/serve-static": "^1.15.8",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.38.0",
     "axios": "^1.8.2",
