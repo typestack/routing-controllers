@@ -1,5 +1,12 @@
 # Changelog and release notes
 
+## [0.11.3](https://github.com/typestack/routing-controllers/compare/v0.11.2...v0.11.3) (2025-09-05)
+
+### Changed
+
+- update dependencies to fix security vulnerabilities
+- update various dev-dependencies
+
 ## [0.11.2](https://github.com/typestack/routing-controllers/compare/v0.11.1...v0.11.2) (2025-03-04)
 
 ### Changed
