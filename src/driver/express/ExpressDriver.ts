@@ -58,17 +58,19 @@ export class ExpressDriver extends BaseDriver {
     let middlewareWrapper;
 
     // if its an error handler then register it with proper signature in express
-    if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
+    if (middleware.target.prototype && middleware.target.prototype.error) {
       middlewareWrapper = (error: any, request: any, response: any, next: (err?: any) => any) => {
-        (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
+        const instance = getFromContainer<ExpressErrorMiddlewareInterface>(middleware.target, { request, response });
+        instance.error(error, request, response, next);
       };
     }
 
     // if its a regular middleware then register it as express middleware
-    else if ((middleware.instance as ExpressMiddlewareInterface).use) {
+    else if (middleware.target.prototype && middleware.target.prototype.use) {
       middlewareWrapper = (request: any, response: any, next: (err: any) => any) => {
         try {
-          const useResult = (middleware.instance as ExpressMiddlewareInterface).use(request, response, next);
+          const instance = getFromContainer<ExpressMiddlewareInterface>(middleware.target, { request, response });
+          const useResult = instance.use(request, response, next);
           if (isPromiseLike(useResult)) {
             useResult.catch((error: any) => {
               this.handleError(error, undefined, { request, response, next });
@@ -84,7 +86,7 @@ export class ExpressDriver extends BaseDriver {
     if (middlewareWrapper) {
       // Name the function for better debugging
       Object.defineProperty(middlewareWrapper, 'name', {
-        value: middleware.instance.constructor.name,
+        value: middleware.target.name,
         writable: true,
       });
 
@@ -396,7 +398,8 @@ export class ExpressDriver extends BaseDriver {
         // if this is function instance of MiddlewareInterface
         middlewareFunctions.push((request: any, response: any, next: (err: any) => any) => {
           try {
-            const useResult = getFromContainer<ExpressMiddlewareInterface>(use.middleware).use(request, response, next);
+            const instance = getFromContainer<ExpressMiddlewareInterface>(use.middleware, { request, response });
+            const useResult = instance.use(request, response, next);
             if (isPromiseLike(useResult)) {
               useResult.catch((error: any) => {
                 this.handleError(error, undefined, { request, response, next });
@@ -412,12 +415,8 @@ export class ExpressDriver extends BaseDriver {
       } else if (use.middleware.prototype && use.middleware.prototype.error) {
         // if this is function instance of ErrorMiddlewareInterface
         middlewareFunctions.push(function (error: any, request: any, response: any, next: (err: any) => any) {
-          return getFromContainer<ExpressErrorMiddlewareInterface>(use.middleware).error(
-            error,
-            request,
-            response,
-            next
-          );
+          const instance = getFromContainer<ExpressErrorMiddlewareInterface>(use.middleware, { request, response });
+          return instance.error(error, request, response, next);
         });
       } else {
         middlewareFunctions.push(use.middleware);
