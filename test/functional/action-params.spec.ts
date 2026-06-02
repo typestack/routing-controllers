@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser';
-import { IsBoolean, IsString, MaxLength, Min, ValidateNested, IsArray, IsNumber, IsDate } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsDate, IsNumber, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 import express from 'express';
 import FormData from 'form-data';
 import fs from 'fs';
@@ -18,6 +19,7 @@ import { Param } from '../../src/decorator/Param';
 import { Post } from '../../src/decorator/Post';
 import { QueryParam } from '../../src/decorator/QueryParam';
 import { QueryParams } from '../../src/decorator/QueryParams';
+import { RawBody } from '../../src/decorator/RawBody';
 import { Req } from '../../src/decorator/Req';
 import { Res } from '../../src/decorator/Res';
 import { Session } from '../../src/decorator/Session';
@@ -29,7 +31,6 @@ import { createExpressServer, getMetadataArgsStorage } from '../../src/index';
 import { SessionMiddleware } from '../fakes/global-options/SessionMiddleware';
 import { axios } from '../utilities/axios';
 import DoneCallback = jest.DoneCallback;
-import { Type, Transform } from 'class-transformer';
 
 describe(``, () => {
   let expressServer: HttpServer;
@@ -55,6 +56,7 @@ describe(``, () => {
     cookieParamShowAll: boolean | undefined,
     cookieParamFilter: Record<string, any> | undefined;
   let body: string | undefined;
+  let rawBody: string | undefined;
   let bodyParamName: string | undefined, bodyParamAge: number | undefined, bodyParamIsActive: boolean | undefined;
   let expressRequest: express.Request | undefined, expressResponse: express.Response | undefined;
   const urlencodedParser: any = bodyParser.urlencoded({ extended: true });
@@ -83,6 +85,7 @@ describe(``, () => {
     cookieParamLimit = undefined;
     cookieParamFilter = undefined;
     body = undefined;
+    rawBody = undefined;
     bodyParamName = undefined;
     bodyParamAge = undefined;
     bodyParamIsActive = undefined;
@@ -416,6 +419,13 @@ describe(``, () => {
         return body;
       }
 
+      @Post('/raw-posts')
+      postRawPost(@RawBody() requestBody: any, @Body() parsedBody: any): any {
+        rawBody = requestBody;
+        body = parsedBody;
+        return { rawBody: requestBody, parsedBody };
+      }
+
       @Post('/posts-with-required')
       postRequiredPost(@Body({ required: true }) post: string): any {
         body = post;
@@ -526,6 +536,17 @@ describe(``, () => {
     expect(response1.headers['content-type']).toEqual('text/html; charset=utf-8');
     expect(response1.data).toEqual('<html><body>@Session test</body></html>');
     expect(sessionTestElement).toEqual('@Session test');
+  });
+
+  it('@RawBody should provide the raw request body before parsing', async () => {
+    expect.assertions(5);
+    const response = await axios.post('/raw-posts', { hello: 'world' });
+
+    expect(rawBody).toEqual('{"hello":"world"}');
+    expect(body).toEqual({ hello: 'world' });
+    expect(response.status).toEqual(HttpStatusCodes.OK);
+    expect(response.headers['content-type']).toContain('application/json');
+    expect(response.data).toEqual({ rawBody: '{"hello":"world"}', parsedBody: { hello: 'world' } });
   });
 
   it('@Session(param) should allow to inject empty property', async () => {

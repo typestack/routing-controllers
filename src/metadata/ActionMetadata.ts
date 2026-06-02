@@ -1,13 +1,13 @@
-import { Action } from '../Action';
-import { ActionMetadataArgs } from './args/ActionMetadataArgs';
-import { ActionType } from './types/ActionType';
 import { ClassTransformOptions } from 'class-transformer';
+import { Action } from '../Action';
+import { HandlerOptions } from '../decorator-options/HandlerOptions';
+import { RoutingControllersOptions } from '../RoutingControllersOptions';
+import { ActionMetadataArgs } from './args/ActionMetadataArgs';
 import { ControllerMetadata } from './ControllerMetadata';
 import { InterceptorMetadata } from './InterceptorMetadata';
 import { ParamMetadata } from './ParamMetadata';
 import { ResponseHandlerMetadata } from './ResponseHandleMetadata';
-import { HandlerOptions } from '../decorator-options/HandlerOptions';
-import { RoutingControllersOptions } from '../RoutingControllersOptions';
+import { ActionType } from './types/ActionType';
 import { UseMetadata } from './UseMetadata';
 
 /**
@@ -205,7 +205,7 @@ export class ActionMetadata {
     const renderedTemplateHandler = responseHandlers.find(handler => handler.type === 'rendered-template');
     const authorizedHandler = responseHandlers.find(handler => handler.type === 'authorized');
     const contentTypeHandler = responseHandlers.find(handler => handler.type === 'content-type');
-    const bodyParam = this.params.find(param => param.type === 'body');
+    const bodyParam = this.params.find(param => param.type === 'body' || param.type === 'raw-body');
 
     if (classTransformerResponseHandler) this.responseClassTransformOptions = classTransformerResponseHandler.value;
 
@@ -222,7 +222,9 @@ export class ActionMetadata {
     if (renderedTemplateHandler) this.renderedTemplate = renderedTemplateHandler.value;
 
     this.bodyExtraOptions = bodyParam ? bodyParam.extraOptions : undefined;
-    this.isBodyUsed = !!this.params.find(param => param.type === 'body' || param.type === 'body-param');
+    this.isBodyUsed = !!this.params.find(
+      param => param.type === 'body' || param.type === 'raw-body' || param.type === 'body-param'
+    );
     this.isFilesUsed = !!this.params.find(param => param.type === 'files');
     this.isFileUsed = !!this.params.find(param => param.type === 'file');
     this.isJsonTyped =

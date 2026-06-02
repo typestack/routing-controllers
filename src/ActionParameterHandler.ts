@@ -1,15 +1,15 @@
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject as validate, ValidationError } from 'class-validator';
 import { Action } from './Action';
-import { BadRequestError } from './http-error/BadRequestError';
 import { BaseDriver } from './driver/BaseDriver';
-import { ParameterParseJsonError } from './error/ParameterParseJsonError';
-import { ParamMetadata } from './metadata/ParamMetadata';
-import { ParamRequiredError } from './error/ParamRequiredError';
 import { AuthorizationRequiredError } from './error/AuthorizationRequiredError';
 import { CurrentUserCheckerNotDefinedError } from './error/CurrentUserCheckerNotDefinedError';
-import { isPromiseLike } from './util/isPromiseLike';
+import { ParameterParseJsonError } from './error/ParameterParseJsonError';
 import { InvalidParamError } from './error/ParamNormalizationError';
+import { ParamRequiredError } from './error/ParamRequiredError';
+import { BadRequestError } from './http-error/BadRequestError';
+import { ParamMetadata } from './metadata/ParamMetadata';
+import { isPromiseLike } from './util/isPromiseLike';
 
 /**
  * Handles action parameter.
@@ -66,7 +66,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
       const isValueEmpty = value === null || value === undefined || value === '';
       const isValueEmptyObject = typeof value === 'object' && value !== null && Object.keys(value).length === 0;
 
-      if (param.type === 'body' && !param.name && (isValueEmpty || isValueEmptyObject)) {
+      if ((param.type === 'body' || param.type === 'raw-body') && !param.name && (isValueEmpty || isValueEmptyObject)) {
         // body has a special check and error message
         return Promise.reject(new ParamRequiredError(action, param));
       } else if (param.type === 'current-user') {
@@ -99,7 +99,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
     const isNormalizationNeeded =
       typeof value === 'object' && ['queries', 'headers', 'params', 'cookies'].includes(param.type);
     const isTargetPrimitive = ['number', 'string', 'boolean'].includes(param.targetName);
-    const isTransformationNeeded = (param.parse || param.isTargetObject) && param.type !== 'param';
+    const isTransformationNeeded = (param.parse || param.isTargetObject) && !['param', 'raw-body'].includes(param.type);
 
     // if param value is an object and param type match, normalize its string properties
     if (isNormalizationNeeded) {

@@ -25,6 +25,7 @@ You can use routing-controllers with [express.js][1] or [koa.js][2].
   - [Inject routing parameters](#inject-routing-parameters)
   - [Inject query parameters](#inject-query-parameters)
   - [Inject request body](#inject-request-body)
+  - [Inject raw request body](#inject-raw-request-body)
   - [Inject request body parameters](#inject-request-body-parameters)
   - [Inject request header parameters](#inject-request-header-parameters)
   - [Inject cookie parameters](#inject-cookie-parameters)
@@ -451,6 +452,24 @@ saveUser(@Body() user: User) {
 If you specify a class type to parameter that is decorated with `@Body()`,
 routing-controllers will use [class-transformer][4] to create instance of the given class type from the data received in request body.
 To disable this behaviour you need to specify a `{ classTransformer: false }` in RoutingControllerOptions when creating a server.
+
+#### Inject raw request body
+
+To inject the raw request body before routing-controllers parses or transforms it, use `@RawBody` decorator:
+
+```typescript
+@JsonController()
+export class WebhookController {
+  @Post('/webhooks')
+  handleWebhook(@RawBody() rawBody: string, @Body() payload: any) {
+    // rawBody contains the original request payload as a string
+    // payload contains the parsed body as usual
+    return { rawBody, payload };
+  }
+}
+```
+
+This is useful for cases like webhook signature verification, where you need access to the exact body content received by the server.
 
 #### Inject request body parameters
 
@@ -1550,6 +1569,7 @@ export class QuestionController {
 | `@SessionParam(name: string)`                           | `get(@SessionParam("user") user: User)`          | Injects an object from session property.                                                                                   | `request.session.user`             |
 | `@State(name?: string)`                                 | `get(@State() session: StateType)`               | Injects an object from the state (or the whole state).                                                                     | `ctx.state` (koa-analogue)         |
 | `@Body(options?: BodyOptions)`                          | `post(@Body() body: any)`                        | Injects a body. In parameter options you can specify body parser middleware options.                                       | `request.body`                     |
+| `@RawBody(options?: BodyOptions)`                       | `post(@RawBody() rawBody: string)`               | Injects the raw request body before parsing or transformation. Useful for signature verification and similar use cases.    | `request.rawBody`                  |
 | `@BodyParam(name: string, options?: ParamOptions)`      | `post(@BodyParam("name") name: string)`          | Injects a body parameter.                                                                                                  | `request.body.name`                |
 | `@UploadedFile(name: string, options?: UploadOptions)`  | `post(@UploadedFile("filename") file: any)`      | Injects uploaded file from the response. In parameter options you can specify underlying uploader middleware options.      | `request.file.file` (using multer) |
 | `@UploadedFiles(name: string, options?: UploadOptions)` | `post(@UploadedFiles("filename") files: any[])`  | Injects all uploaded files from the response. In parameter options you can specify underlying uploader middleware options. | `request.files` (using multer)     |
