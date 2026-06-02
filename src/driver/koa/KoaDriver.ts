@@ -1,17 +1,17 @@
 import { Action } from '../../Action';
+import { getFromContainer } from '../../container';
+import { AccessDeniedError } from '../../error/AccessDeniedError';
+import { AuthorizationCheckerNotDefinedError } from '../../error/AuthorizationCheckerNotDefinedError';
+import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
+import { HttpError, NotFoundError } from '../../index';
 import { ActionMetadata } from '../../metadata/ActionMetadata';
-import { BaseDriver } from '../BaseDriver';
 import { MiddlewareMetadata } from '../../metadata/MiddlewareMetadata';
 import { ParamMetadata } from '../../metadata/ParamMetadata';
 import { UseMetadata } from '../../metadata/UseMetadata';
-import { KoaMiddlewareInterface } from './KoaMiddlewareInterface';
-import { AuthorizationCheckerNotDefinedError } from '../../error/AuthorizationCheckerNotDefinedError';
-import { AccessDeniedError } from '../../error/AccessDeniedError';
-import { isPromiseLike } from '../../util/isPromiseLike';
-import { getFromContainer } from '../../container';
 import { RoleChecker } from '../../RoleChecker';
-import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
-import { HttpError, NotFoundError } from '../../index';
+import { isPromiseLike } from '../../util/isPromiseLike';
+import { BaseDriver } from '../BaseDriver';
+import { KoaMiddlewareInterface } from './KoaMiddlewareInterface';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
@@ -178,6 +178,9 @@ export class KoaDriver extends BaseDriver {
     switch (param.type) {
       case 'body':
         return request.body;
+
+      case 'raw-body':
+        return request.rawBody;
 
       case 'body-param':
         return request.body[param.name];

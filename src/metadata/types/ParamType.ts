@@ -3,6 +3,7 @@
  */
 export type ParamType =
   | 'body'
+  | 'raw-body'
   | 'body-param'
   | 'query'
   | 'queries'

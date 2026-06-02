@@ -1,17 +1,17 @@
-import { UseMetadata } from '../../metadata/UseMetadata';
-import { MiddlewareMetadata } from '../../metadata/MiddlewareMetadata';
-import { ActionMetadata } from '../../metadata/ActionMetadata';
 import { Action } from '../../Action';
-import { ParamMetadata } from '../../metadata/ParamMetadata';
-import { BaseDriver } from '../BaseDriver';
-import { ExpressMiddlewareInterface } from './ExpressMiddlewareInterface';
-import { ExpressErrorMiddlewareInterface } from './ExpressErrorMiddlewareInterface';
+import { getFromContainer } from '../../container';
 import { AccessDeniedError } from '../../error/AccessDeniedError';
 import { AuthorizationCheckerNotDefinedError } from '../../error/AuthorizationCheckerNotDefinedError';
-import { isPromiseLike } from '../../util/isPromiseLike';
-import { getFromContainer } from '../../container';
 import { AuthorizationRequiredError } from '../../error/AuthorizationRequiredError';
 import { NotFoundError, RoutingControllersOptions } from '../../index';
+import { ActionMetadata } from '../../metadata/ActionMetadata';
+import { MiddlewareMetadata } from '../../metadata/MiddlewareMetadata';
+import { ParamMetadata } from '../../metadata/ParamMetadata';
+import { UseMetadata } from '../../metadata/UseMetadata';
+import { isPromiseLike } from '../../util/isPromiseLike';
+import { BaseDriver } from '../BaseDriver';
+import { ExpressErrorMiddlewareInterface } from './ExpressErrorMiddlewareInterface';
+import { ExpressMiddlewareInterface } from './ExpressMiddlewareInterface';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookie = require('cookie');
@@ -100,10 +100,11 @@ export class ExpressDriver extends BaseDriver {
     const defaultMiddlewares: any[] = [];
 
     if (actionMetadata.isBodyUsed) {
+      const bodyParserOptions = this.createBodyParserOptions(actionMetadata.bodyExtraOptions);
       if (actionMetadata.isJsonTyped) {
-        defaultMiddlewares.push(this.loadBodyParser().json(actionMetadata.bodyExtraOptions));
+        defaultMiddlewares.push(this.loadBodyParser().json(bodyParserOptions));
       } else {
-        defaultMiddlewares.push(this.loadBodyParser().text(actionMetadata.bodyExtraOptions));
+        defaultMiddlewares.push(this.loadBodyParser().text(bodyParserOptions));
       }
     }
 
@@ -200,6 +201,9 @@ export class ExpressDriver extends BaseDriver {
     switch (param.type) {
       case 'body':
         return request.body;
+
+      case 'raw-body':
+        return request.rawBody;
 
       case 'body-param':
         return request.body[param.name];
@@ -453,6 +457,29 @@ export class ExpressDriver extends BaseDriver {
     } catch (e) {
       throw new Error('body-parser package was not found installed. Try to install it: npm install body-parser --save');
     }
+  }
+
+  protected createBodyParserOptions(options: any): any {
+    const rawBodyCapture = (request: any, _response: any, buffer: Buffer, encoding: string) => {
+      const resolvedEncoding = encoding && Buffer.isEncoding(encoding) ? encoding : 'utf8';
+      request.rawBody = buffer.toString(resolvedEncoding);
+    };
+
+    if (!options) {
+      return { verify: rawBodyCapture };
+    }
+
+    if (!options.verify) {
+      return { ...options, verify: rawBodyCapture };
+    }
+
+    return {
+      ...options,
+      verify: (request: any, response: any, buffer: Buffer, encoding: string) => {
+        rawBodyCapture(request, response, buffer, encoding);
+        options.verify(request, response, buffer, encoding);
+      },
+    };
   }
 
   /**

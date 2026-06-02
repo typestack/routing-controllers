@@ -1,3 +1,4 @@
+import { ValidationOptions } from 'class-validator';
 import { CustomParameterDecorator } from './CustomParameterDecorator';
 import { BaseDriver } from './driver/BaseDriver';
 import { ExpressDriver } from './driver/express/ExpressDriver';
@@ -5,7 +6,6 @@ import { KoaDriver } from './driver/koa/KoaDriver';
 import { MetadataArgsStorage } from './metadata-builder/MetadataArgsStorage';
 import { RoutingControllers } from './RoutingControllers';
 import { RoutingControllersOptions } from './RoutingControllersOptions';
-import { ValidationOptions } from 'class-validator';
 import { importClassesFromDirectories } from './util/importClassesFromDirectories';
 
 // -------------------------------------------------------------------------
@@ -45,6 +45,7 @@ export * from './decorator/Post';
 export * from './decorator/Put';
 export * from './decorator/QueryParam';
 export * from './decorator/QueryParams';
+export * from './decorator/RawBody';
 export * from './decorator/Redirect';
 export * from './decorator/Render';
 export * from './decorator/Req';
@@ -63,18 +64,18 @@ export * from './decorator-options/BodyOptions';
 export * from './decorator-options/ParamOptions';
 export * from './decorator-options/UploadOptions';
 
-export * from './http-error/HttpError';
-export * from './http-error/InternalServerError';
 export * from './http-error/BadRequestError';
 export * from './http-error/ForbiddenError';
-export * from './http-error/NotAcceptableError';
+export * from './http-error/HttpError';
+export * from './http-error/InternalServerError';
 export * from './http-error/MethodNotAllowedError';
+export * from './http-error/NotAcceptableError';
 export * from './http-error/NotFoundError';
 export * from './http-error/UnauthorizedError';
 export * from './http-error/UnprocessableEntityError';
 
-export * from './driver/express/ExpressMiddlewareInterface';
 export * from './driver/express/ExpressErrorMiddlewareInterface';
+export * from './driver/express/ExpressMiddlewareInterface';
 export * from './driver/koa/KoaMiddlewareInterface';
 export * from './metadata-builder/MetadataArgsStorage';
 export * from './metadata/ActionMetadata';
@@ -85,13 +86,13 @@ export * from './metadata/ParamMetadata';
 export * from './metadata/ResponseHandleMetadata';
 export * from './metadata/UseMetadata';
 
-export * from './RoutingControllersOptions';
-export * from './CustomParameterDecorator';
-export * from './RoleChecker';
 export * from './Action';
-export * from './InterceptorInterface';
-export * from './CurrentUserChecker';
 export * from './AuthorizationChecker';
+export * from './CurrentUserChecker';
+export * from './CustomParameterDecorator';
+export * from './InterceptorInterface';
+export * from './RoleChecker';
+export * from './RoutingControllersOptions';
 
 export * from './driver/BaseDriver';
 export * from './driver/express/ExpressDriver';
