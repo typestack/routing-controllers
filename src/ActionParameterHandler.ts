@@ -81,6 +81,9 @@ export class ActionParameterHandler<T extends BaseDriver> {
         } else {
           if (!value) return Promise.reject(new AuthorizationRequiredError(action));
         }
+      } else if (param.type === 'files' && (isValueEmpty || (Array.isArray(value) && value.length === 0))) {
+        // a multipart request that carries other fields but no file arrives as an empty array, not as undefined
+        return Promise.reject(new ParamRequiredError(action, param));
       } else if (param.name && isValueEmpty) {
         // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
         return Promise.reject(new ParamRequiredError(action, param));

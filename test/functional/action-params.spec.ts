@@ -1138,4 +1138,18 @@ describe(``, () => {
       expect(error.response.status).toEqual(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     }
   });
+
+  it('@UploadedFiles when required is used a multipart request with other fields but no file is a bad request', async () => {
+    expect.assertions(1);
+    const form = new FormData();
+    form.append('caption', 'no photos attached');
+
+    try {
+      await axios.post('/photos-with-required', form, {
+        headers: form.getHeaders(),
+      });
+    } catch (error) {
+      expect(error.response.status).toEqual(HttpStatusCodes.BAD_REQUEST);
+    }
+  });
 });
