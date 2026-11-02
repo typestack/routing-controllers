@@ -100,10 +100,10 @@ export class MetadataBuilder {
         .forEach(actionArgs => {
           const action = new ActionMetadata(controller, { ...actionArgs, target: controller.target }, this.options);
           action.options = { ...controller.options, ...actionArgs.options };
-          action.params = this.createParams(action);
-          action.uses = this.createActionUses(action);
-          action.interceptors = this.createActionInterceptorUses(action);
-          action.build(this.createActionResponseHandlers(action));
+          action.params = this.createParams(action, actionArgs.target);
+          action.uses = this.createActionUses(action, actionArgs.target);
+          action.interceptors = this.createActionInterceptorUses(action, actionArgs.target);
+          action.build(this.createActionResponseHandlers(action, actionArgs.target));
 
           actionsWithTarget.push(action);
         });
@@ -115,18 +115,21 @@ export class MetadataBuilder {
   /**
    * Creates param metadatas.
    */
-  protected createParams(action: ActionMetadata): ParamMetadata[] {
+  protected createParams(action: ActionMetadata, target: Function = action.target): ParamMetadata[] {
     return getMetadataArgsStorage()
-      .filterParamsWithTargetAndMethod(action.target, action.method)
+      .filterParamsWithTargetAndMethod(target, action.method)
       .map(paramArgs => new ParamMetadata(action, this.decorateDefaultParamOptions(paramArgs)));
   }
 
   /**
    * Creates response handler metadatas for action.
    */
-  protected createActionResponseHandlers(action: ActionMetadata): ResponseHandlerMetadata[] {
+  protected createActionResponseHandlers(
+    action: ActionMetadata,
+    target: Function = action.target
+  ): ResponseHandlerMetadata[] {
     return getMetadataArgsStorage()
-      .filterResponseHandlersWithTargetAndMethod(action.target, action.method)
+      .filterResponseHandlersWithTargetAndMethod(target, action.method)
       .map(handlerArgs => new ResponseHandlerMetadata(handlerArgs));
   }
 
@@ -142,18 +145,21 @@ export class MetadataBuilder {
   /**
    * Creates use metadatas for actions.
    */
-  protected createActionUses(action: ActionMetadata): UseMetadata[] {
+  protected createActionUses(action: ActionMetadata, target: Function = action.target): UseMetadata[] {
     return getMetadataArgsStorage()
-      .filterUsesWithTargetAndMethod(action.target, action.method)
+      .filterUsesWithTargetAndMethod(target, action.method)
       .map(useArgs => new UseMetadata(useArgs));
   }
 
   /**
    * Creates use interceptors for actions.
    */
-  protected createActionInterceptorUses(action: ActionMetadata): InterceptorMetadata[] {
+  protected createActionInterceptorUses(
+    action: ActionMetadata,
+    target: Function = action.target
+  ): InterceptorMetadata[] {
     return getMetadataArgsStorage()
-      .filterInterceptorUsesWithTargetAndMethod(action.target, action.method)
+      .filterInterceptorUsesWithTargetAndMethod(target, action.method)
       .map(useArgs => new InterceptorMetadata(useArgs));
   }
 
