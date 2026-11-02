@@ -50,9 +50,9 @@ export class ActionParameterHandler<T extends BaseDriver> {
   /**
    * Handles non-promise value.
    */
-  protected handleValue(value: any, action: Action, param: ParamMetadata): Promise<any> | any {
+  protected async handleValue(value: any, action: Action, param: ParamMetadata): Promise<any> {
     // if transform function is given for this param then apply it
-    if (param.transform) value = param.transform(action, value);
+    if (param.transform) value = await param.transform(action, value);
 
     // if its current-user decorator then get its value
     if (param.type === 'current-user') {
@@ -81,7 +81,7 @@ export class ActionParameterHandler<T extends BaseDriver> {
         } else {
           if (!value) return Promise.reject(new AuthorizationRequiredError(action));
         }
-      } else if (param.name && isValueEmpty) {
+      } else if ((param.name || param.type === 'custom-converter') && isValueEmpty) {
         // regular check for all other parameters // todo: figure out something with param.name usage and multiple things params (query params, upload files etc.)
         return Promise.reject(new ParamRequiredError(action, param));
       }
