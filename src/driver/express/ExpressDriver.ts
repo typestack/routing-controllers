@@ -60,7 +60,15 @@ export class ExpressDriver extends BaseDriver {
     // if its an error handler then register it with proper signature in express
     if ((middleware.instance as ExpressErrorMiddlewareInterface).error) {
       middlewareWrapper = (error: any, request: any, response: any, next: (err?: any) => any) => {
-        (middleware.instance as ExpressErrorMiddlewareInterface).error(error, request, response, next);
+        const errorResult = (middleware.instance as ExpressErrorMiddlewareInterface).error(
+          error,
+          request,
+          response,
+          next
+        );
+        if (isPromiseLike(errorResult)) {
+          errorResult.catch(next);
+        }
       };
     }
 
