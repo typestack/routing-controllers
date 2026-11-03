@@ -88,7 +88,7 @@ export class ExpressDriver extends BaseDriver {
         writable: true,
       });
 
-      this.express.use(options.routePrefix || '/', middlewareWrapper);
+      this.express.use(ActionMetadata.appendBaseRoute(options.routePrefix || '', '') || '/', middlewareWrapper);
     }
   }
 
